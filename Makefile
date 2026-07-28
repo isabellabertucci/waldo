@@ -1,4 +1,4 @@
-.PHONY: setup get add test analyze clean run
+.PHONY: setup run analyze format test
 
 setup:
 	@echo "Initializing project Flutter SDK version..."
@@ -6,25 +6,17 @@ setup:
 	@echo "Fetching packages..."
 	fvm flutter pub get
 
-get:
-	@echo "Fetching packages..."
-	fvm flutter pub get
-
-add:
-	@fvm flutter pub add $(pkg)
-
-test:
-	@echo "Running unit and widget tests..."
-	fvm flutter test
+run:
+	fvm flutter run
 
 analyze:
 	@echo "Running code analysis..."
 	fvm flutter analyze
 
-clean:
-	@echo "Clearing build artifacts..."
-	fvm flutter clean
-	fvm flutter pub get
+format:
+	@echo "Checking code formatting..."
+	fvm dart format --output=none --set-exit-if-changed .
 
-run:
-	fvm flutter run
+test:
+	@echo "Running unit and widget tests..."
+	fvm flutter test
