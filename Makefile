@@ -20,3 +20,9 @@ format:
 test:
 	@echo "Running unit and widget tests..."
 	fvm flutter test
+
+add:
+	@fvm flutter pub add $(pkg)
+
+add-dev:
+	@fvm flutter pub add dev:$(pkg)
