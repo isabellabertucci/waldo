@@ -1,0 +1,24 @@
+{
+  "@@locale": "en",
+  "@@last_modified": "2026-07-30",
+  "appTitle": "Waldo",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "dashboard": "Dashboard",
+  "@dashboard": {
+    "description": "Dashboard tab label"
+  },
+  "transactions": "Transactions",
+  "@transactions": {
+    "description": "Transactions tab label"
+  },
+  "reports": "Reports",
+  "@reports": {
+    "description": "Reports tab label"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings tab label"
+  }
+}
