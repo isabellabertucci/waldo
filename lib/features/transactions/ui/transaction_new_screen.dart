@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class TransactionNewPage extends StatelessWidget {
-  const TransactionNewPage({super.key});
+class TransactionNewScreen extends StatelessWidget {
+  const TransactionNewScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'app_shell.dart';
-import '../../features/accounts/presentation/accounts_page.dart';
-import '../../features/dashboard/presentation/dashboard_page.dart';
-import '../../features/reports/presentation/reports_page.dart';
-import '../../features/settings/presentation/settings_page.dart';
-import '../../features/transactions/presentation/transaction_detail_page.dart';
-import '../../features/transactions/presentation/transaction_new_page.dart';
-import '../../features/transactions/presentation/transactions_page.dart';
+import '../../features/accounts/ui/accounts_screen.dart';
+import '../../features/dashboard/ui/dashboard_screen.dart';
+import '../../features/reports/ui/reports_screen.dart';
+import '../../features/settings/ui/settings_screen.dart';
+import '../../features/transactions/ui/transaction_detail_screen.dart';
+import '../../features/transactions/ui/transaction_new_screen.dart';
+import '../../features/transactions/ui/transactions_screen.dart';
 
 part 'app_router.g.dart';
 
@@ -76,7 +76,7 @@ class DashboardRoute extends GoRouteData with $DashboardRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const DashboardPage();
+    return const DashboardScreen();
   }
 }
 
@@ -85,7 +85,7 @@ class TransactionsRoute extends GoRouteData with $TransactionsRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const TransactionsPage();
+    return const TransactionsScreen();
   }
 }
 
@@ -94,7 +94,7 @@ class TransactionNewRoute extends GoRouteData with $TransactionNewRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const TransactionNewPage();
+    return const TransactionNewScreen();
   }
 }
 
@@ -105,7 +105,7 @@ class TransactionDetailRoute extends GoRouteData with $TransactionDetailRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return TransactionDetailPage(id: id);
+    return TransactionDetailScreen(id: id);
   }
 }
 
@@ -114,7 +114,7 @@ class ReportsRoute extends GoRouteData with $ReportsRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const ReportsPage();
+    return const ReportsScreen();
   }
 }
 
@@ -123,7 +123,7 @@ class SettingsRoute extends GoRouteData with $SettingsRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const SettingsPage();
+    return const SettingsScreen();
   }
 }
 
@@ -135,6 +135,6 @@ class AccountsRoute extends GoRouteData with $AccountsRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const AccountsPage();
+    return const AccountsScreen();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/constants/app_constants.dart';
 import 'core/router/app_router_provider.dart';
 import 'l10n/app_localizations.dart';
 
@@ -16,7 +17,7 @@ class MyApp extends ConsumerWidget {
     final router = ref.watch(goRouterProvider);
 
     return MaterialApp.router(
-      title: 'Waldo',
+      title: appName,
       routerConfig: router,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

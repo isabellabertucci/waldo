@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/router/app_router.dart';
 
-import '../../../core/router/app_router.dart';
-
-class TransactionsPage extends StatelessWidget {
-  const TransactionsPage({super.key});
+class TransactionsScreen extends StatelessWidget {
+  const TransactionsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

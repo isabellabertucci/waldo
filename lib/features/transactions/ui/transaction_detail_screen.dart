@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class TransactionDetailPage extends StatelessWidget {
-  const TransactionDetailPage({super.key, required this.id});
+class TransactionDetailScreen extends StatelessWidget {
+  const TransactionDetailScreen({super.key, required this.id});
 
   final String id;
 
