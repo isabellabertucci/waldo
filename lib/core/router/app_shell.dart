@@ -23,8 +23,11 @@ class AppShell extends StatelessWidget {
             icon: Icon(Icons.dashboard),
             label: 'Dashboard',
           ),
-          NavigationDestination(icon: Icon(Icons.list), label: 'Transactions'),
-          NavigationDestination(icon: Icon(Icons.bar_chart), label: 'Reports'),
+          NavigationDestination(icon: Icon(Icons.list), label: 'Wallets'),
+          NavigationDestination(
+            icon: Icon(Icons.bar_chart),
+            label: 'Transactions',
+          ),
           NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
         ],
       ),

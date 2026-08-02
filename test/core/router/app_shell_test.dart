@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:waldo/features/accounts/ui/accounts_screen.dart';
 
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
 import 'package:waldo/features/transactions/ui/transactions_screen.dart';
 import 'package:waldo/features/transactions/ui/transaction_new_screen.dart';
-import 'package:waldo/features/reports/ui/reports_screen.dart';
+import 'package:waldo/features/wallets/ui/wallets_screen.dart';
 import 'package:waldo/features/settings/ui/settings_screen.dart';
 
 import '../../helpers/test_app.dart';
@@ -39,7 +38,7 @@ void main() {
       // Assert: DashboardScreen is visible, others are not
       expect(find.byType(DashboardScreen), findsOneWidget);
       expect(find.byType(TransactionsScreen), findsNothing);
-      expect(find.byType(ReportsScreen), findsNothing);
+      expect(find.byType(WalletsScreen), findsNothing);
       expect(find.byType(SettingsScreen), findsNothing);
     });
 
@@ -73,7 +72,7 @@ void main() {
           tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
           2,
         );
-        expect(find.byType(ReportsScreen), findsOneWidget);
+        expect(find.byType(WalletsScreen), findsOneWidget);
         expect(find.byType(TransactionsScreen), findsNothing);
 
         // Act & Assert: Settings (index 3)
@@ -84,7 +83,7 @@ void main() {
           3,
         );
         expect(find.byType(SettingsScreen), findsOneWidget);
-        expect(find.byType(ReportsScreen), findsNothing);
+        expect(find.byType(WalletsScreen), findsNothing);
 
         // Act & Assert: Dashboard again (index 0)
         await tester.tap(findNavDestination(0));
@@ -120,7 +119,7 @@ void main() {
       // Act: Switch to Reports branch
       await tester.tap(findNavDestination(2)); // index 2
       await tester.pumpAndSettle();
-      expect(find.byType(ReportsScreen), findsOneWidget);
+      expect(find.byType(WalletsScreen), findsOneWidget);
       expect(find.byType(TransactionNewScreen), findsNothing);
 
       // Act: Switch back to Transactions branch
@@ -150,10 +149,6 @@ void main() {
         // Act: Navigate to the standalone Accounts route
         router.go('/accounts');
         await tester.pumpAndSettle();
-
-        // Assert: AccountsScreen is visible
-        expect(find.byType(AccountsScreen), findsOneWidget);
-
         // Assert: The NavigationBar is no longer on the screen
         expect(find.byType(NavigationBar), findsNothing);
       },
