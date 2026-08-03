@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
 import 'package:waldo/features/transactions/ui/transactions_screen.dart';
 import 'package:waldo/features/transactions/ui/transaction_new_screen.dart';
-import 'package:waldo/features/wallets/ui/wallets_screen.dart';
+import 'package:waldo/features/wallets/views/wallets_screen.dart';
 import 'package:waldo/features/settings/ui/settings_screen.dart';
 
 import '../../helpers/test_app.dart';
@@ -31,8 +31,8 @@ void main() {
       expect(navBar.selectedIndex, 0);
 
       expect(find.byType(DashboardScreen), findsOneWidget);
-      expect(find.byType(WalletsScreen), findsNothing);
       expect(find.byType(TransactionsScreen), findsNothing);
+      expect(find.byType(WalletsScreen), findsNothing);
       expect(find.byType(SettingsScreen), findsNothing);
     });
 
@@ -41,33 +41,34 @@ void main() {
       (WidgetTester tester) async {
         await pumpTestApp(tester, router: router);
 
+        // Start at Dashboard (index 0)
         expect(
           tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
           0,
         );
         expect(find.byType(DashboardScreen), findsOneWidget);
 
-        // Wallets (index 1)
+        // Act & Assert: Transactions (index 1)
         await tester.tap(findNavDestination(1));
         await tester.pumpAndSettle();
         expect(
           tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
           1,
         );
-        expect(find.byType(WalletsScreen), findsOneWidget);
+        expect(find.byType(TransactionsScreen), findsOneWidget);
         expect(find.byType(DashboardScreen), findsNothing);
 
-        // Transactions (index 2)
+        // Act & Assert: Wallets (index 2)
         await tester.tap(findNavDestination(2));
         await tester.pumpAndSettle();
         expect(
           tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
           2,
         );
-        expect(find.byType(TransactionsScreen), findsOneWidget);
-        expect(find.byType(WalletsScreen), findsNothing);
+        expect(find.byType(WalletsScreen), findsOneWidget);
+        expect(find.byType(TransactionsScreen), findsNothing);
 
-        // Settings (index 3)
+        // Act & Assert: Settings (index 3)
         await tester.tap(findNavDestination(3));
         await tester.pumpAndSettle();
         expect(
@@ -75,9 +76,9 @@ void main() {
           3,
         );
         expect(find.byType(SettingsScreen), findsOneWidget);
-        expect(find.byType(TransactionsScreen), findsNothing);
+        expect(find.byType(WalletsScreen), findsNothing);
 
-        // Dashboard again (index 0)
+        // Act & Assert: Dashboard again (index 0)
         await tester.tap(findNavDestination(0));
         await tester.pumpAndSettle();
         expect(
@@ -96,8 +97,8 @@ void main() {
 
       expect(find.byType(DashboardScreen), findsOneWidget);
 
-      // Navigate to Transactions branch (index 2)
-      await tester.tap(findNavDestination(2));
+      // Navigate to Transactions branch (index 1)
+      await tester.tap(findNavDestination(1));
       await tester.pumpAndSettle();
       expect(find.byType(TransactionsScreen), findsOneWidget);
 
@@ -106,14 +107,14 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(TransactionNewScreen), findsOneWidget);
 
-      // Switch to Wallets branch (index 1)
-      await tester.tap(findNavDestination(1));
+      // Switch to Wallets branch (index 2)
+      await tester.tap(findNavDestination(2));
       await tester.pumpAndSettle();
       expect(find.byType(WalletsScreen), findsOneWidget);
       expect(find.byType(TransactionNewScreen), findsNothing);
 
-      // Switch back to Transactions branch (index 2)
-      await tester.tap(findNavDestination(2));
+      // Switch back to Transactions branch (index 1)
+      await tester.tap(findNavDestination(1));
       await tester.pumpAndSettle();
 
       expect(find.byType(TransactionNewScreen), findsOneWidget);
@@ -121,7 +122,7 @@ void main() {
 
       expect(
         tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
-        2,
+        1,
       );
     });
   });

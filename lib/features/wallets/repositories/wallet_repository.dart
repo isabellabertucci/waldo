@@ -2,7 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/database/db_providers.dart';
-import '../model/wallet.dart';
+import 'package:waldo/features/wallets/models/wallet.dart';
 
 part 'wallet_repository.g.dart';
 
@@ -20,19 +20,21 @@ class WalletRepositoryImpl implements IWalletRepository {
   final Database _db;
 
   @override
-  Future<void> delete(int id) {
-    throw UnimplementedError();
-  }
-
-  @override
   Future<List<Wallet>> getAll() async {
     final maps = await _db.query(WalletsTable.table);
     return maps.map((map) => Wallet.fromMap(map)).toList();
   }
 
   @override
-  Future<Wallet?> getById(int id) {
-    throw UnimplementedError();
+  Future<Wallet?> getById(int id) async {
+    final maps = await _db.query(
+      WalletsTable.table,
+      where: '${WalletsTable.id} = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isEmpty) return null;
+    return Wallet.fromMap(maps.first);
   }
 
   @override
@@ -41,8 +43,22 @@ class WalletRepositoryImpl implements IWalletRepository {
   }
 
   @override
-  Future<void> update(Wallet wallet) {
-    throw UnimplementedError();
+  Future<void> update(Wallet wallet) async {
+    await _db.update(
+      WalletsTable.table,
+      wallet.toMap(),
+      where: '${WalletsTable.id} = ?',
+      whereArgs: [wallet.id],
+    );
+  }
+
+  @override
+  Future<void> delete(int id) async {
+    await _db.delete(
+      WalletsTable.table,
+      where: '${WalletsTable.id} = ?',
+      whereArgs: [id],
+    );
   }
 }
 

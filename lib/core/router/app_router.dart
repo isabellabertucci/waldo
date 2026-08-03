@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'app_shell.dart';
 import '../../features/dashboard/ui/dashboard_screen.dart';
-import '../../features/wallets/ui/wallets_screen.dart';
+import '../../features/wallets/views/wallets_screen.dart';
 import '../../features/settings/ui/settings_screen.dart';
 import '../../features/transactions/ui/transaction_detail_screen.dart';
 import '../../features/transactions/ui/transaction_new_screen.dart';
@@ -18,9 +18,6 @@ part 'app_router.g.dart';
     TypedStatefulShellBranch<DashboardBranch>(
       routes: [TypedGoRoute<DashboardRoute>(path: '/dashboard')],
     ),
-    TypedStatefulShellBranch<WalletsBranch>(
-      routes: [TypedGoRoute<WalletsRoute>(path: '/wallets')],
-    ),
     TypedStatefulShellBranch<TransactionsBranch>(
       routes: [
         TypedGoRoute<TransactionsRoute>(
@@ -31,6 +28,9 @@ part 'app_router.g.dart';
           ],
         ),
       ],
+    ),
+    TypedStatefulShellBranch<WalletsBranch>(
+      routes: [TypedGoRoute<WalletsRoute>(path: '/wallets')],
     ),
     TypedStatefulShellBranch<SettingsBranch>(
       routes: [TypedGoRoute<SettingsRoute>(path: '/settings')],
