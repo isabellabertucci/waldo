@@ -42,6 +42,7 @@ dependencies:
     sdk: flutter
   intl: any
   go_router: ^17.3.0
+  freezed_annotation: ^3.1.0
 
 
 dev_dependencies:
@@ -58,6 +59,7 @@ dev_dependencies:
   riverpod_generator: ^3.0.3
   go_router_builder: ^4.4.0
   build_verify: ^3.1.1
+  freezed: ^3.2.3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

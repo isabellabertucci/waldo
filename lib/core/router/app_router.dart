@@ -18,8 +18,8 @@ part 'app_router.g.dart';
     TypedStatefulShellBranch<DashboardBranch>(
       routes: [TypedGoRoute<DashboardRoute>(path: '/dashboard')],
     ),
-    TypedStatefulShellBranch<ReportsBranch>(
-      routes: [TypedGoRoute<ReportsRoute>(path: '/wallets')],
+    TypedStatefulShellBranch<WalletsBranch>(
+      routes: [TypedGoRoute<WalletsRoute>(path: '/wallets')],
     ),
     TypedStatefulShellBranch<TransactionsBranch>(
       routes: [
@@ -32,7 +32,6 @@ part 'app_router.g.dart';
         ),
       ],
     ),
-
     TypedStatefulShellBranch<SettingsBranch>(
       routes: [TypedGoRoute<SettingsRoute>(path: '/settings')],
     ),
@@ -61,8 +60,8 @@ class TransactionsBranch extends StatefulShellBranchData {
   const TransactionsBranch();
 }
 
-class ReportsBranch extends StatefulShellBranchData {
-  const ReportsBranch();
+class WalletsBranch extends StatefulShellBranchData {
+  const WalletsBranch();
 }
 
 class SettingsBranch extends StatefulShellBranchData {
@@ -109,8 +108,8 @@ class TransactionDetailRoute extends GoRouteData with $TransactionDetailRoute {
   }
 }
 
-class ReportsRoute extends GoRouteData with $ReportsRoute {
-  const ReportsRoute();
+class WalletsRoute extends GoRouteData with $WalletsRoute {
+  const WalletsRoute();
 
   @override
   Widget build(BuildContext context, GoRouterState state) {

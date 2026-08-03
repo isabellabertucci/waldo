@@ -25,7 +25,7 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
         GoRouteData.$route(
           path: '/wallets',
           hasOverriddenOnExit: false,
-          factory: $ReportsRoute._fromState,
+          factory: $WalletsRoute._fromState,
         ),
       ],
     ),
@@ -87,8 +87,8 @@ mixin $DashboardRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-mixin $ReportsRoute on GoRouteData {
-  static ReportsRoute _fromState(GoRouterState state) => const ReportsRoute();
+mixin $WalletsRoute on GoRouteData {
+  static WalletsRoute _fromState(GoRouterState state) => const WalletsRoute();
 
   @override
   String get location => GoRouteData.$location('/wallets');

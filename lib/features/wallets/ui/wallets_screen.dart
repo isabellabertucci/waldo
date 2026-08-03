@@ -5,6 +5,6 @@ class WalletsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: Text('wallets')));
+    return const Scaffold(body: Center(child: Text('Wallets')));
   }
 }
