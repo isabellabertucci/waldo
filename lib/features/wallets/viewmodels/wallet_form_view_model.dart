@@ -41,15 +41,13 @@ class WalletFormViewModel extends _$WalletFormViewModel {
     }
 
     String? balanceError;
-    double? balance;
-    if (!isEditing) {
-      if (state.startingBalance.trim().isEmpty) {
-        balanceError = 'nameRequired';
+    var balance = 0.0;
+    if (!isEditing && state.startingBalance.trim().isNotEmpty) {
+      final parsed = double.tryParse(state.startingBalance);
+      if (parsed == null || parsed < 0) {
+        balanceError = 'invalidNumber';
       } else {
-        balance = double.tryParse(state.startingBalance);
-        if (balance == null || balance < 0) {
-          balanceError = 'invalidNumber';
-        }
+        balance = parsed;
       }
     }
 
@@ -59,7 +57,7 @@ class WalletFormViewModel extends _$WalletFormViewModel {
     }
 
     final repo = await ref.read(walletRepositoryProvider.future);
-    final balanceInCents = ((balance ?? 0) * 100).round();
+    final balanceInCents = (balance * 100).round();
 
     if (isEditing) {
       await repo.update(
