@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "@@last_modified": "2026-07-30",
+  "@@last_modified": "2026-08-03",
   "appTitle": "Waldo",
   "@appTitle": {
     "description": "The title of the application"
@@ -20,5 +20,87 @@
   "settings": "Settings",
   "@settings": {
     "description": "Settings tab label"
+  },
+  "wallets": "Wallets",
+  "@wallets": {
+    "description": "Wallets tab and screen title"
+  },
+  "noWalletsYet": "No wallets yet",
+  "@noWalletsYet": {
+    "description": "Empty state title for wallets list"
+  },
+  "addFirstWallet": "Tap + to add your first wallet",
+  "@addFirstWallet": {
+    "description": "Empty state subtitle for wallets list"
+  },
+  "newWallet": "New Wallet",
+  "@newWallet": {
+    "description": "Title of the create wallet form"
+  },
+  "editWallet": "Edit Wallet",
+  "@editWallet": {
+    "description": "Title of the edit wallet form"
+  },
+  "name": "Name",
+  "@name": {
+    "description": "Name field label"
+  },
+  "type": "Type",
+  "@type": {
+    "description": "Type field label"
+  },
+  "startingBalance": "Starting balance",
+  "@startingBalance": {
+    "description": "Starting balance field label"
+  },
+  "balanceLocked": "Cannot be changed after creation",
+  "@balanceLocked": {
+    "description": "Helper text for locked balance field"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button label"
+  },
+  "nameRequired": "Name is required",
+  "@nameRequired": {
+    "description": "Validation error for empty name"
+  },
+  "invalidNumber": "Enter a valid number",
+  "@invalidNumber": {
+    "description": "Validation error for invalid balance"
+  },
+  "walletsError": "Error: {error}",
+  "@walletsError": {
+    "description": "Error message shown when wallets fail to load",
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "deleteWallet": "Delete wallet?",
+  "@deleteWallet": {
+    "description": "Delete confirmation dialog title"
+  },
+  "deleteWalletConfirm": "This will permanently delete \"{name}\".",
+  "@deleteWalletConfirm": {
+    "description": "Delete confirmation dialog message",
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button label"
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button label"
+  },
+  "walletDeleted": "Wallet deleted",
+  "@walletDeleted": {
+    "description": "Snackbar message after deleting a wallet"
+  },
+  "undo": "Undo",
+  "@undo": {
+    "description": "Undo button label in snackbar"
   }
 }

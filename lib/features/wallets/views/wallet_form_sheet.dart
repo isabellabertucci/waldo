@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_form_view_model.dart';
+import 'package:waldo/l10n/app_localizations.dart';
 
 class WalletFormSheet extends ConsumerStatefulWidget {
   const WalletFormSheet({super.key, this.wallet});
@@ -16,7 +17,6 @@ class WalletFormSheet extends ConsumerStatefulWidget {
 }
 
 class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
-  final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _balanceController;
 
@@ -38,8 +38,6 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
   }
 
   Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
-
     final viewModel = ref.read(
       walletFormViewModelProvider(widget.wallet).notifier,
     );
@@ -47,8 +45,17 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     if (success && mounted) Navigator.of(context).pop();
   }
 
+  String? _errorText(AppLocalizations l10n, String? key) {
+    return switch (key) {
+      'nameRequired' => l10n.nameRequired,
+      'invalidNumber' => l10n.invalidNumber,
+      _ => null,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final formState = ref.watch(walletFormViewModelProvider(widget.wallet));
     final viewModel = ref.read(
       walletFormViewModelProvider(widget.wallet).notifier,
@@ -61,72 +68,52 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
         top: 16,
         bottom: MediaQuery.of(context).viewInsets.bottom + 16,
       ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              _isEditing ? 'Edit Wallet' : 'New Wallet',
-              style: Theme.of(context).textTheme.titleLarge,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            _isEditing ? l10n.editWallet : l10n.newWallet,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _nameController,
+            onChanged: viewModel.updateName,
+            decoration: InputDecoration(
+              labelText: l10n.name,
+              errorText: _errorText(l10n, formState.nameError),
             ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _nameController,
-              onChanged: viewModel.updateName,
-              decoration: InputDecoration(
-                labelText: 'Name',
-                errorText: formState.nameError,
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Name is required';
-                }
-                return null;
-              },
+          ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<WalletType>(
+            initialValue: formState.type,
+            decoration: InputDecoration(labelText: l10n.type),
+            items: WalletType.values.map((type) {
+              return DropdownMenuItem(value: type, child: Text(type.name));
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) viewModel.updateType(value);
+            },
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _balanceController,
+            enabled: !_isEditing,
+            onChanged: viewModel.updateBalance,
+            decoration: InputDecoration(
+              labelText: l10n.startingBalance,
+              helperText: _isEditing ? l10n.balanceLocked : null,
+              errorText: _errorText(l10n, formState.balanceError),
             ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<WalletType>(
-              initialValue: formState.type,
-              decoration: const InputDecoration(labelText: 'Type'),
-              items: WalletType.values.map((type) {
-                return DropdownMenuItem(value: type, child: Text(type.name));
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) viewModel.updateType(value);
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _balanceController,
-              enabled: !_isEditing,
-              onChanged: viewModel.updateBalance,
-              decoration: InputDecoration(
-                labelText: 'Starting balance',
-                helperText: _isEditing
-                    ? 'Cannot be changed after creation'
-                    : null,
-              ),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-              ],
-              validator: (value) {
-                if (_isEditing) return null;
-                if (value == null || value.trim().isEmpty) return null;
-                if (double.tryParse(value) == null) {
-                  return 'Enter a valid number';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 24),
-            FilledButton(onPressed: _save, child: const Text('Save')),
-          ],
-        ),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+            ],
+          ),
+          const SizedBox(height: 24),
+          FilledButton(onPressed: _save, child: Text(l10n.save)),
+        ],
       ),
     );
   }

@@ -15,11 +15,13 @@ const walletRepositoryProvider = WalletRepositoryProvider._();
 final class WalletRepositoryProvider
     extends
         $FunctionalProvider<
+          AsyncValue<IWalletRepository>,
           IWalletRepository,
-          IWalletRepository,
-          IWalletRepository
+          FutureOr<IWalletRepository>
         >
-    with $Provider<IWalletRepository> {
+    with
+        $FutureModifier<IWalletRepository>,
+        $FutureProvider<IWalletRepository> {
   const WalletRepositoryProvider._()
     : super(
         from: null,
@@ -36,22 +38,14 @@ final class WalletRepositoryProvider
 
   @$internal
   @override
-  $ProviderElement<IWalletRepository> $createElement(
+  $FutureProviderElement<IWalletRepository> $createElement(
     $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
+  ) => $FutureProviderElement(pointer);
 
   @override
-  IWalletRepository create(Ref ref) {
+  FutureOr<IWalletRepository> create(Ref ref) {
     return walletRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(IWalletRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<IWalletRepository>(value),
-    );
   }
 }
 
-String _$walletRepositoryHash() => r'6074cae80c79efcb00e1b5bac15398b11981cff5';
+String _$walletRepositoryHash() => r'1fd90711b75cf273f097d2acd21ba01cd83a1bf8';

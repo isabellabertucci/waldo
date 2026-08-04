@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:waldo/core/widgets/empty_state.dart';
 
+import '../../../core/widgets/empty_state.dart';
 import '../models/wallet.dart';
 import '../viewmodels/wallet_list_view_model.dart';
 import 'wallet_form_sheet.dart';
+import 'package:waldo/l10n/app_localizations.dart';
 
 class WalletsScreen extends ConsumerWidget {
   const WalletsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final walletsAsync = ref.watch(walletListViewModelProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Wallets')),
+      appBar: AppBar(title: Text(l10n.wallets)),
       body: switch (walletsAsync) {
-        AsyncError(:final error) => Center(child: Text('Error: $error')),
+        AsyncError(:final error) => Center(
+          child: Text(l10n.walletsError(error.toString())),
+        ),
         AsyncData(:final value) => _WalletsBody(wallets: value),
         _ => const Center(child: CircularProgressIndicator()),
       },
@@ -39,13 +43,81 @@ class _WalletsBody extends ConsumerWidget {
 
   final List<Wallet> wallets;
 
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    Wallet wallet,
+  ) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.deleteWallet),
+        content: Text(l10n.deleteWalletConfirm(wallet.name)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    final viewModel = ref.read(walletListViewModelProvider.notifier);
+
+    // Hide immediately from the UI, without deleting from the database yet
+    viewModel.hideWallet(wallet.id!);
+
+    var undone = false;
+
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.walletDeleted),
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: l10n.undo,
+          onPressed: () {
+            undone = true;
+            viewModel.restoreWallet();
+          },
+        ),
+      ),
+    );
+
+    await Future.delayed(const Duration(seconds: 5));
+
+    if (undone) return;
+
+    try {
+      await viewModel.confirmDelete(wallet.id!);
+    } catch (e) {
+      // If the real delete fails (e.g. foreign key constraint), restore it
+      viewModel.restoreWallet();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (wallets.isEmpty) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.account_balance_wallet_outlined,
-        title: 'No wallets yet',
-        subtitle: 'Tap + to add your first wallet',
+        title: l10n.noWalletsYet,
+        subtitle: l10n.addFirstWallet,
       );
     }
 
@@ -59,7 +131,7 @@ class _WalletsBody extends ConsumerWidget {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('${wallet.currentBalance / 100}'),
+              Text((wallet.currentBalance / 100).toStringAsFixed(2)),
               const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.edit),
@@ -73,11 +145,7 @@ class _WalletsBody extends ConsumerWidget {
               ),
               IconButton(
                 icon: const Icon(Icons.delete),
-                onPressed: () async {
-                  await ref
-                      .read(walletListViewModelProvider.notifier)
-                      .deleteWallet(wallet.id!);
-                },
+                onPressed: () => _confirmDelete(context, ref, wallet),
               ),
             ],
           ),

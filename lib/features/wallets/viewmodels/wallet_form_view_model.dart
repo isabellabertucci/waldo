@@ -15,7 +15,7 @@ class WalletFormViewModel extends _$WalletFormViewModel {
       name: existingWallet?.name ?? '',
       type: existingWallet?.type ?? WalletType.cash,
       startingBalance: existingWallet != null
-          ? (existingWallet.startingBalance / 100).toString()
+          ? (existingWallet.startingBalance / 100).toStringAsFixed(2)
           : '',
     );
   }
@@ -29,20 +29,39 @@ class WalletFormViewModel extends _$WalletFormViewModel {
   }
 
   void updateBalance(String value) {
-    state = state.copyWith(startingBalance: value);
+    state = state.copyWith(startingBalance: value, balanceError: null);
   }
 
   Future<bool> save(Wallet? existingWallet) async {
+    final isEditing = existingWallet != null;
+
+    String? nameError;
     if (state.name.trim().isEmpty) {
-      state = state.copyWith(nameError: 'Name is required');
+      nameError = 'nameRequired';
+    }
+
+    String? balanceError;
+    double? balance;
+    if (!isEditing) {
+      if (state.startingBalance.trim().isEmpty) {
+        balanceError = 'nameRequired';
+      } else {
+        balance = double.tryParse(state.startingBalance);
+        if (balance == null || balance < 0) {
+          balanceError = 'invalidNumber';
+        }
+      }
+    }
+
+    if (nameError != null || balanceError != null) {
+      state = state.copyWith(nameError: nameError, balanceError: balanceError);
       return false;
     }
 
-    final repo = ref.read(walletRepositoryProvider);
-    final balanceInCents = ((double.tryParse(state.startingBalance) ?? 0) * 100)
-        .round();
+    final repo = await ref.read(walletRepositoryProvider.future);
+    final balanceInCents = ((balance ?? 0) * 100).round();
 
-    if (existingWallet != null) {
+    if (isEditing) {
       await repo.update(
         existingWallet.copyWith(name: state.name.trim(), type: state.type),
       );

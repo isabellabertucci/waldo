@@ -34,7 +34,7 @@ final class WalletListViewModelProvider
 }
 
 String _$walletListViewModelHash() =>
-    r'67f11a4ec49db915d2cefa6c43aacb48db0506a8';
+    r'c0a8472112d0ce0c19290ce5c26083ff72af130e';
 
 abstract class _$WalletListViewModel extends $AsyncNotifier<List<Wallet>> {
   FutureOr<List<Wallet>> build();

@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$WalletFormState {
 
- String get name; WalletType get type; String get startingBalance; String? get nameError;
+ String get name; WalletType get type; String get startingBalance; String? get nameError; String? get balanceError;
 /// Create a copy of WalletFormState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $WalletFormStateCopyWith<WalletFormState> get copyWith => _$WalletFormStateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WalletFormState&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.startingBalance, startingBalance) || other.startingBalance == startingBalance)&&(identical(other.nameError, nameError) || other.nameError == nameError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WalletFormState&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.startingBalance, startingBalance) || other.startingBalance == startingBalance)&&(identical(other.nameError, nameError) || other.nameError == nameError)&&(identical(other.balanceError, balanceError) || other.balanceError == balanceError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,type,startingBalance,nameError);
+int get hashCode => Object.hash(runtimeType,name,type,startingBalance,nameError,balanceError);
 
 @override
 String toString() {
-  return 'WalletFormState(name: $name, type: $type, startingBalance: $startingBalance, nameError: $nameError)';
+  return 'WalletFormState(name: $name, type: $type, startingBalance: $startingBalance, nameError: $nameError, balanceError: $balanceError)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $WalletFormStateCopyWith<$Res>  {
   factory $WalletFormStateCopyWith(WalletFormState value, $Res Function(WalletFormState) _then) = _$WalletFormStateCopyWithImpl;
 @useResult
 $Res call({
- String name, WalletType type, String startingBalance, String? nameError
+ String name, WalletType type, String startingBalance, String? nameError, String? balanceError
 });
 
 
@@ -62,12 +62,13 @@ class _$WalletFormStateCopyWithImpl<$Res>
 
 /// Create a copy of WalletFormState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? type = null,Object? startingBalance = null,Object? nameError = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? type = null,Object? startingBalance = null,Object? nameError = freezed,Object? balanceError = freezed,}) {
   return _then(_self.copyWith(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as WalletType,startingBalance: null == startingBalance ? _self.startingBalance : startingBalance // ignore: cast_nullable_to_non_nullable
 as String,nameError: freezed == nameError ? _self.nameError : nameError // ignore: cast_nullable_to_non_nullable
+as String?,balanceError: freezed == balanceError ? _self.balanceError : balanceError // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -153,10 +154,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  WalletType type,  String startingBalance,  String? nameError)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  WalletType type,  String startingBalance,  String? nameError,  String? balanceError)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _WalletFormState() when $default != null:
-return $default(_that.name,_that.type,_that.startingBalance,_that.nameError);case _:
+return $default(_that.name,_that.type,_that.startingBalance,_that.nameError,_that.balanceError);case _:
   return orElse();
 
 }
@@ -174,10 +175,10 @@ return $default(_that.name,_that.type,_that.startingBalance,_that.nameError);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  WalletType type,  String startingBalance,  String? nameError)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  WalletType type,  String startingBalance,  String? nameError,  String? balanceError)  $default,) {final _that = this;
 switch (_that) {
 case _WalletFormState():
-return $default(_that.name,_that.type,_that.startingBalance,_that.nameError);case _:
+return $default(_that.name,_that.type,_that.startingBalance,_that.nameError,_that.balanceError);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -194,10 +195,10 @@ return $default(_that.name,_that.type,_that.startingBalance,_that.nameError);cas
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  WalletType type,  String startingBalance,  String? nameError)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  WalletType type,  String startingBalance,  String? nameError,  String? balanceError)?  $default,) {final _that = this;
 switch (_that) {
 case _WalletFormState() when $default != null:
-return $default(_that.name,_that.type,_that.startingBalance,_that.nameError);case _:
+return $default(_that.name,_that.type,_that.startingBalance,_that.nameError,_that.balanceError);case _:
   return null;
 
 }
@@ -209,13 +210,14 @@ return $default(_that.name,_that.type,_that.startingBalance,_that.nameError);cas
 
 
 class _WalletFormState implements WalletFormState {
-  const _WalletFormState({this.name = '', this.type = WalletType.cash, this.startingBalance = '', this.nameError});
+  const _WalletFormState({this.name = '', this.type = WalletType.cash, this.startingBalance = '', this.nameError, this.balanceError});
   
 
 @override@JsonKey() final  String name;
 @override@JsonKey() final  WalletType type;
 @override@JsonKey() final  String startingBalance;
 @override final  String? nameError;
+@override final  String? balanceError;
 
 /// Create a copy of WalletFormState
 /// with the given fields replaced by the non-null parameter values.
@@ -227,16 +229,16 @@ _$WalletFormStateCopyWith<_WalletFormState> get copyWith => __$WalletFormStateCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WalletFormState&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.startingBalance, startingBalance) || other.startingBalance == startingBalance)&&(identical(other.nameError, nameError) || other.nameError == nameError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WalletFormState&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.startingBalance, startingBalance) || other.startingBalance == startingBalance)&&(identical(other.nameError, nameError) || other.nameError == nameError)&&(identical(other.balanceError, balanceError) || other.balanceError == balanceError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,type,startingBalance,nameError);
+int get hashCode => Object.hash(runtimeType,name,type,startingBalance,nameError,balanceError);
 
 @override
 String toString() {
-  return 'WalletFormState(name: $name, type: $type, startingBalance: $startingBalance, nameError: $nameError)';
+  return 'WalletFormState(name: $name, type: $type, startingBalance: $startingBalance, nameError: $nameError, balanceError: $balanceError)';
 }
 
 
@@ -247,7 +249,7 @@ abstract mixin class _$WalletFormStateCopyWith<$Res> implements $WalletFormState
   factory _$WalletFormStateCopyWith(_WalletFormState value, $Res Function(_WalletFormState) _then) = __$WalletFormStateCopyWithImpl;
 @override @useResult
 $Res call({
- String name, WalletType type, String startingBalance, String? nameError
+ String name, WalletType type, String startingBalance, String? nameError, String? balanceError
 });
 
 
@@ -264,12 +266,13 @@ class __$WalletFormStateCopyWithImpl<$Res>
 
 /// Create a copy of WalletFormState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? type = null,Object? startingBalance = null,Object? nameError = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? type = null,Object? startingBalance = null,Object? nameError = freezed,Object? balanceError = freezed,}) {
   return _then(_WalletFormState(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as WalletType,startingBalance: null == startingBalance ? _self.startingBalance : startingBalance // ignore: cast_nullable_to_non_nullable
 as String,nameError: freezed == nameError ? _self.nameError : nameError // ignore: cast_nullable_to_non_nullable
+as String?,balanceError: freezed == balanceError ? _self.balanceError : balanceError // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

@@ -2,7 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/database/db_providers.dart';
-import 'package:waldo/features/wallets/models/wallet.dart';
+import '../models/wallet.dart';
 
 part 'wallet_repository.g.dart';
 
@@ -21,7 +21,10 @@ class WalletRepositoryImpl implements IWalletRepository {
 
   @override
   Future<List<Wallet>> getAll() async {
-    final maps = await _db.query(WalletsTable.table);
+    final maps = await _db.query(
+      WalletsTable.table,
+      orderBy: '${WalletsTable.createdAt} DESC',
+    );
     return maps.map((map) => Wallet.fromMap(map)).toList();
   }
 
@@ -54,17 +57,23 @@ class WalletRepositoryImpl implements IWalletRepository {
 
   @override
   Future<void> delete(int id) async {
-    await _db.delete(
-      WalletsTable.table,
-      where: '${WalletsTable.id} = ?',
-      whereArgs: [id],
-    );
+    try {
+      await _db.delete(
+        WalletsTable.table,
+        where: '${WalletsTable.id} = ?',
+        whereArgs: [id],
+      );
+    } on DatabaseException catch (e) {
+      if (e.toString().toLowerCase().contains('foreign key constraint')) {
+        throw Exception('Cannot delete a wallet that has transactions');
+      }
+      rethrow;
+    }
   }
 }
 
 @riverpod
-IWalletRepository walletRepository(Ref ref) {
-  final db = ref.watch(appDatabaseProvider).value;
-  if (db == null) throw Exception('database not ready');
+Future<IWalletRepository> walletRepository(Ref ref) async {
+  final db = await ref.watch(appDatabaseProvider.future);
   return WalletRepositoryImpl(db);
 }

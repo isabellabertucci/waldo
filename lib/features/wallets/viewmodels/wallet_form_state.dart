@@ -10,5 +10,6 @@ abstract class WalletFormState with _$WalletFormState {
     @Default(WalletType.cash) WalletType type,
     @Default('') String startingBalance,
     String? nameError,
+    String? balanceError,
   }) = _WalletFormState;
 }

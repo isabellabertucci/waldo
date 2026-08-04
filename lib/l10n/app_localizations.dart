@@ -127,6 +127,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings;
+
+  /// Wallets tab and screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets'**
+  String get wallets;
+
+  /// Empty state title for wallets list
+  ///
+  /// In en, this message translates to:
+  /// **'No wallets yet'**
+  String get noWalletsYet;
+
+  /// Empty state subtitle for wallets list
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to add your first wallet'**
+  String get addFirstWallet;
+
+  /// Title of the create wallet form
+  ///
+  /// In en, this message translates to:
+  /// **'New Wallet'**
+  String get newWallet;
+
+  /// Title of the edit wallet form
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Wallet'**
+  String get editWallet;
+
+  /// Name field label
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// Type field label
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get type;
+
+  /// Starting balance field label
+  ///
+  /// In en, this message translates to:
+  /// **'Starting balance'**
+  String get startingBalance;
+
+  /// Helper text for locked balance field
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot be changed after creation'**
+  String get balanceLocked;
+
+  /// Save button label
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// Validation error for empty name
+  ///
+  /// In en, this message translates to:
+  /// **'Name is required'**
+  String get nameRequired;
+
+  /// Validation error for invalid balance
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid number'**
+  String get invalidNumber;
+
+  /// Error message shown when wallets fail to load
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String walletsError(String error);
+
+  /// Delete confirmation dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete wallet?'**
+  String get deleteWallet;
+
+  /// Delete confirmation dialog message
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete \"{name}\".'**
+  String deleteWalletConfirm(String name);
+
+  /// Cancel button label
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// Delete button label
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// Snackbar message after deleting a wallet
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet deleted'**
+  String get walletDeleted;
+
+  /// Undo button label in snackbar
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
 }
 
 class _AppLocalizationsDelegate

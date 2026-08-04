@@ -8,13 +8,22 @@ part 'wallet_list_view_model.g.dart';
 class WalletListViewModel extends _$WalletListViewModel {
   @override
   Future<List<Wallet>> build() async {
-    final repo = ref.watch(walletRepositoryProvider);
+    final repo = await ref.watch(walletRepositoryProvider.future);
     return repo.getAll();
   }
 
-  Future<void> deleteWallet(int id) async {
-    final repo = ref.read(walletRepositoryProvider);
+  void hideWallet(int id) {
+    final current = state.value;
+    if (current == null) return;
+    state = AsyncData(current.where((w) => w.id != id).toList());
+  }
+
+  Future<void> confirmDelete(int id) async {
+    final repo = await ref.read(walletRepositoryProvider.future);
     await repo.delete(id);
+  }
+
+  void restoreWallet() {
     ref.invalidateSelf();
   }
 }
