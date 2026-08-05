@@ -18,9 +18,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get transactions => 'Transações';
 
   @override
-  String get reports => 'Relatórios';
-
-  @override
   String get settings => 'Configurações';
 
   @override

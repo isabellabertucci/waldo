@@ -35,17 +35,17 @@ class WalletFormViewModel extends _$WalletFormViewModel {
   Future<bool> save(Wallet? existingWallet) async {
     final isEditing = existingWallet != null;
 
-    String? nameError;
+    WalletFormError? nameError;
     if (state.name.trim().isEmpty) {
-      nameError = 'nameRequired';
+      nameError = WalletFormError.nameRequired;
     }
 
-    String? balanceError;
+    WalletFormError? balanceError;
     var balance = 0.0;
     if (!isEditing && state.startingBalance.trim().isNotEmpty) {
       final parsed = double.tryParse(state.startingBalance);
       if (parsed == null || parsed < 0) {
-        balanceError = 'invalidNumber';
+        balanceError = WalletFormError.invalidNumber;
       } else {
         balance = parsed;
       }

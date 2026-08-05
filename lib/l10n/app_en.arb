@@ -13,10 +13,6 @@
   "@transactions": {
     "description": "Transactions tab label"
   },
-  "reports": "Reports",
-  "@reports": {
-    "description": "Reports tab label"
-  },
   "settings": "Settings",
   "@settings": {
     "description": "Settings tab label"

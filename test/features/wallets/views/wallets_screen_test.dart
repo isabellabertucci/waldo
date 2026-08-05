@@ -35,6 +35,7 @@ void main() {
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWith((ref) async => db)],
         child: const MaterialApp(
+          locale: Locale('en'),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: WalletsScreen(),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
 import 'package:waldo/features/transactions/ui/transactions_screen.dart';
@@ -12,9 +13,15 @@ import '../../helpers/test_app.dart';
 
 void main() {
   late GoRouter router;
+  Database? currentDb;
 
   setUp(() {
     router = createTestRouter();
+  });
+
+  tearDown(() async {
+    await currentDb?.close();
+    currentDb = null;
   });
 
   Finder findNavigationBar() => find.byType(NavigationBar);
@@ -25,7 +32,7 @@ void main() {
     testWidgets('Renders with the initial branch selected', (
       WidgetTester tester,
     ) async {
-      await pumpTestApp(tester, router: router);
+      currentDb = await pumpTestApp(tester, router: router);
 
       final navBar = tester.widget<NavigationBar>(findNavigationBar());
       expect(navBar.selectedIndex, 0);
@@ -39,7 +46,7 @@ void main() {
     testWidgets(
       'Tapping each bottom nav item navigates to the correct branch',
       (WidgetTester tester) async {
-        await pumpTestApp(tester, router: router);
+        currentDb = await pumpTestApp(tester, router: router);
 
         // Start at Dashboard (index 0)
         expect(
@@ -93,7 +100,7 @@ void main() {
     testWidgets('Tab state is preserved when switching away and back', (
       WidgetTester tester,
     ) async {
-      await pumpTestApp(tester, router: router);
+      currentDb = await pumpTestApp(tester, router: router);
 
       expect(find.byType(DashboardScreen), findsOneWidget);
 

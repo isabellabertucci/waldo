@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$WalletFormState {
 
- String get name; WalletType get type; String get startingBalance; String? get nameError; String? get balanceError;
+ String get name; WalletType get type; String get startingBalance; WalletFormError? get nameError; WalletFormError? get balanceError;
 /// Create a copy of WalletFormState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -45,7 +45,7 @@ abstract mixin class $WalletFormStateCopyWith<$Res>  {
   factory $WalletFormStateCopyWith(WalletFormState value, $Res Function(WalletFormState) _then) = _$WalletFormStateCopyWithImpl;
 @useResult
 $Res call({
- String name, WalletType type, String startingBalance, String? nameError, String? balanceError
+ String name, WalletType type, String startingBalance, WalletFormError? nameError, WalletFormError? balanceError
 });
 
 
@@ -68,8 +68,8 @@ name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as WalletType,startingBalance: null == startingBalance ? _self.startingBalance : startingBalance // ignore: cast_nullable_to_non_nullable
 as String,nameError: freezed == nameError ? _self.nameError : nameError // ignore: cast_nullable_to_non_nullable
-as String?,balanceError: freezed == balanceError ? _self.balanceError : balanceError // ignore: cast_nullable_to_non_nullable
-as String?,
+as WalletFormError?,balanceError: freezed == balanceError ? _self.balanceError : balanceError // ignore: cast_nullable_to_non_nullable
+as WalletFormError?,
   ));
 }
 
@@ -154,7 +154,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  WalletType type,  String startingBalance,  String? nameError,  String? balanceError)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  WalletType type,  String startingBalance,  WalletFormError? nameError,  WalletFormError? balanceError)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _WalletFormState() when $default != null:
 return $default(_that.name,_that.type,_that.startingBalance,_that.nameError,_that.balanceError);case _:
@@ -175,7 +175,7 @@ return $default(_that.name,_that.type,_that.startingBalance,_that.nameError,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  WalletType type,  String startingBalance,  String? nameError,  String? balanceError)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  WalletType type,  String startingBalance,  WalletFormError? nameError,  WalletFormError? balanceError)  $default,) {final _that = this;
 switch (_that) {
 case _WalletFormState():
 return $default(_that.name,_that.type,_that.startingBalance,_that.nameError,_that.balanceError);case _:
@@ -195,7 +195,7 @@ return $default(_that.name,_that.type,_that.startingBalance,_that.nameError,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  WalletType type,  String startingBalance,  String? nameError,  String? balanceError)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  WalletType type,  String startingBalance,  WalletFormError? nameError,  WalletFormError? balanceError)?  $default,) {final _that = this;
 switch (_that) {
 case _WalletFormState() when $default != null:
 return $default(_that.name,_that.type,_that.startingBalance,_that.nameError,_that.balanceError);case _:
@@ -216,8 +216,8 @@ class _WalletFormState implements WalletFormState {
 @override@JsonKey() final  String name;
 @override@JsonKey() final  WalletType type;
 @override@JsonKey() final  String startingBalance;
-@override final  String? nameError;
-@override final  String? balanceError;
+@override final  WalletFormError? nameError;
+@override final  WalletFormError? balanceError;
 
 /// Create a copy of WalletFormState
 /// with the given fields replaced by the non-null parameter values.
@@ -249,7 +249,7 @@ abstract mixin class _$WalletFormStateCopyWith<$Res> implements $WalletFormState
   factory _$WalletFormStateCopyWith(_WalletFormState value, $Res Function(_WalletFormState) _then) = __$WalletFormStateCopyWithImpl;
 @override @useResult
 $Res call({
- String name, WalletType type, String startingBalance, String? nameError, String? balanceError
+ String name, WalletType type, String startingBalance, WalletFormError? nameError, WalletFormError? balanceError
 });
 
 
@@ -272,8 +272,8 @@ name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as WalletType,startingBalance: null == startingBalance ? _self.startingBalance : startingBalance // ignore: cast_nullable_to_non_nullable
 as String,nameError: freezed == nameError ? _self.nameError : nameError // ignore: cast_nullable_to_non_nullable
-as String?,balanceError: freezed == balanceError ? _self.balanceError : balanceError // ignore: cast_nullable_to_non_nullable
-as String?,
+as WalletFormError?,balanceError: freezed == balanceError ? _self.balanceError : balanceError // ignore: cast_nullable_to_non_nullable
+as WalletFormError?,
   ));
 }
 

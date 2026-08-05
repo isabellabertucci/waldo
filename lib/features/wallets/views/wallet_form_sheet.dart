@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
+import 'package:waldo/features/wallets/viewmodels/wallet_form_state.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_form_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
@@ -45,11 +46,11 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     if (success && mounted) Navigator.of(context).pop();
   }
 
-  String? _errorText(AppLocalizations l10n, String? key) {
-    return switch (key) {
-      'nameRequired' => l10n.nameRequired,
-      'invalidNumber' => l10n.invalidNumber,
-      _ => null,
+  String? _errorText(AppLocalizations l10n, WalletFormError? error) {
+    return switch (error) {
+      WalletFormError.nameRequired => l10n.nameRequired,
+      WalletFormError.invalidNumber => l10n.invalidNumber,
+      null => null,
     };
   }
 

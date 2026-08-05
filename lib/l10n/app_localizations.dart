@@ -116,12 +116,6 @@ abstract class AppLocalizations {
   /// **'Transactions'**
   String get transactions;
 
-  /// Reports tab label
-  ///
-  /// In en, this message translates to:
-  /// **'Reports'**
-  String get reports;
-
   /// Settings tab label
   ///
   /// In en, this message translates to:
