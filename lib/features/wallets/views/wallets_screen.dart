@@ -12,7 +12,7 @@ class WalletsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final walletsAsync = ref.watch(walletListViewModelProvider);
 
     return Scaffold(
@@ -48,7 +48,7 @@ class _WalletsBody extends ConsumerWidget {
     WidgetRef ref,
     Wallet wallet,
   ) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -111,7 +111,7 @@ class _WalletsBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     if (wallets.isEmpty) {
       return EmptyState(

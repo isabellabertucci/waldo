@@ -1,13 +1,14 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:waldo/core/constants/db_constants.dart';
+import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/database/db_providers.dart';
 import '../models/wallet.dart';
 
 part 'wallet_repository.g.dart';
 
 abstract class IWalletRepository {
-  Future<List<Wallet>> getAll();
+  Future<List<Wallet>> getAll({SortOrder sortOrder = SortOrder.descending});
   Future<Wallet?> getById(int id);
   Future<int> insert(Wallet wallet);
   Future<void> update(Wallet wallet);
@@ -20,10 +21,13 @@ class WalletRepositoryImpl implements IWalletRepository {
   final Database _db;
 
   @override
-  Future<List<Wallet>> getAll() async {
+  Future<List<Wallet>> getAll({
+    SortOrder sortOrder = SortOrder.descending,
+  }) async {
+    final direction = sortOrder == SortOrder.descending ? 'DESC' : 'ASC';
     final maps = await _db.query(
       WalletsTable.table,
-      orderBy: '${WalletsTable.createdAt} DESC',
+      orderBy: '${WalletsTable.createdAt} $direction',
     );
     return maps.map((map) => Wallet.fromMap(map)).toList();
   }

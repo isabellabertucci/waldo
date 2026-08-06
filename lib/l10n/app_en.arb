@@ -69,7 +69,9 @@
   "@walletsError": {
     "description": "Error message shown when wallets fail to load",
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "deleteWallet": "Delete wallet?",
@@ -80,7 +82,9 @@
   "@deleteWalletConfirm": {
     "description": "Delete confirmation dialog message",
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "cancel": "Cancel",
@@ -98,5 +102,9 @@
   "undo": "Undo",
   "@undo": {
     "description": "Undo button label in snackbar"
+  },
+  "nameTooLong": "Name is too long",
+  "@nameTooLong": {
+    "description": "Validation error when the wallet name exceeds the max length"
   }
 }

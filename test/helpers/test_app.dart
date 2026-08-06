@@ -45,3 +45,26 @@ Future<Database> pumpTestApp(
 
   return testDb;
 }
+
+Future<Database> pumpWidgetWithProviders(
+  WidgetTester tester,
+  Widget widget, {
+  Database? db,
+}) async {
+  final testDb = db ?? await createTestDatabase();
+
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [appDatabaseProvider.overrideWith((ref) async => testDb)],
+      child: MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: widget,
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+
+  return testDb;
+}

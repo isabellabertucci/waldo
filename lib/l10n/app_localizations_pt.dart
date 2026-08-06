@@ -81,4 +81,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get undo => 'Desfazer';
+
+  @override
+  String get nameTooLong => 'O nome é muito longo';
 }

@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-import 'package:waldo/core/database/db_providers.dart';
-import 'package:waldo/core/database/migrations.dart' as migrations;
 import 'package:waldo/features/wallets/views/wallets_screen.dart';
-import 'package:waldo/l10n/app_localizations.dart';
+
+import '../../../helpers/test_app.dart';
 
 void main() {
-  setUpAll(() {
-    sqfliteFfiInit();
-  });
-
   Database? currentDb;
 
   tearDown(() async {
@@ -20,52 +14,31 @@ void main() {
     currentDb = null;
   });
 
-  Future<Database> createTestDatabase() async {
-    final db = await databaseFactoryFfiNoIsolate.openDatabase(
-      inMemoryDatabasePath,
+  Future<void> pumpWalletsScreen(WidgetTester tester, {Database? db}) async {
+    currentDb = await pumpWidgetWithProviders(
+      tester,
+      const WalletsScreen(),
+      db: db,
     );
-    await db.execute('PRAGMA foreign_keys = ON');
-    await migrations.onCreate(db, migrations.migrations.length);
-    currentDb = db;
-    return db;
-  }
-
-  Future<void> pumpWalletsScreen(WidgetTester tester, Database db) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [appDatabaseProvider.overrideWith((ref) async => db)],
-        child: const MaterialApp(
-          locale: Locale('en'),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: WalletsScreen(),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
   }
 
   Future<void> createWallet(WidgetTester tester, String name) async {
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.widgetWithText(TextField, 'Name'), name);
+    await tester.enterText(find.widgetWithText(TextFormField, 'Name'), name);
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
   }
 
   testWidgets('Shows empty state when there are no wallets', (tester) async {
-    final db = await createTestDatabase();
-
-    await pumpWalletsScreen(tester, db);
+    await pumpWalletsScreen(tester);
 
     expect(find.text('No wallets yet'), findsOneWidget);
   });
 
   testWidgets('Creating a wallet adds it to the list', (tester) async {
-    final db = await createTestDatabase();
-
-    await pumpWalletsScreen(tester, db);
+    await pumpWalletsScreen(tester);
     await createWallet(tester, 'Cash');
 
     expect(find.text('Cash'), findsOneWidget);
@@ -73,9 +46,7 @@ void main() {
   });
 
   testWidgets('Shows validation error when name is empty', (tester) async {
-    final db = await createTestDatabase();
-
-    await pumpWalletsScreen(tester, db);
+    await pumpWalletsScreen(tester);
 
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
@@ -89,9 +60,7 @@ void main() {
   testWidgets('Deleting a wallet shows a confirmation dialog first', (
     tester,
   ) async {
-    final db = await createTestDatabase();
-
-    await pumpWalletsScreen(tester, db);
+    await pumpWalletsScreen(tester);
     await createWallet(tester, 'Cash');
 
     await tester.tap(find.byIcon(Icons.delete));
@@ -109,9 +78,7 @@ void main() {
   testWidgets(
     'Confirming delete hides the wallet immediately and shows a snackbar',
     (tester) async {
-      final db = await createTestDatabase();
-
-      await pumpWalletsScreen(tester, db);
+      await pumpWalletsScreen(tester);
       await createWallet(tester, 'Cash');
 
       await tester.tap(find.byIcon(Icons.delete));
@@ -129,9 +96,7 @@ void main() {
   );
 
   testWidgets('Tapping Undo restores the wallet to the list', (tester) async {
-    final db = await createTestDatabase();
-
-    await pumpWalletsScreen(tester, db);
+    await pumpWalletsScreen(tester);
     await createWallet(tester, 'Cash');
 
     await tester.tap(find.byIcon(Icons.delete));
@@ -154,9 +119,7 @@ void main() {
   testWidgets(
     'Not tapping Undo permanently deletes the wallet after 5 seconds',
     (tester) async {
-      final db = await createTestDatabase();
-
-      await pumpWalletsScreen(tester, db);
+      await pumpWalletsScreen(tester);
       await createWallet(tester, 'Cash');
 
       await tester.tap(find.byIcon(Icons.delete));
@@ -169,7 +132,7 @@ void main() {
 
       await tester.pump(const Duration(seconds: 6));
 
-      await pumpWalletsScreen(tester, db);
+      await pumpWalletsScreen(tester, db: currentDb);
 
       expect(find.text('Cash'), findsNothing);
       expect(find.text('No wallets yet'), findsOneWidget);

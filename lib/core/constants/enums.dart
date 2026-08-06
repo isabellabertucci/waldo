@@ -9,3 +9,5 @@ enum CategoryType {
   education,
   investments,
 }
+
+enum SortOrder { ascending, descending }

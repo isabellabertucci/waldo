@@ -2,22 +2,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
-import 'package:waldo/core/database/migrations.dart' as migrations;
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
 
-void main() {
-  setUpAll(() {
-    sqfliteFfiInit();
-  });
+import '../../../helpers/test_app.dart';
 
+void main() {
   late Database db;
   late WalletRepositoryImpl repo;
 
   setUp(() async {
-    db = await databaseFactoryFfiNoIsolate.openDatabase(inMemoryDatabasePath);
-    await db.execute('PRAGMA foreign_keys = ON');
-    await migrations.onCreate(db, migrations.migrations.length);
+    db = await createTestDatabase();
     repo = WalletRepositoryImpl(db);
   });
 

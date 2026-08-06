@@ -23,5 +23,6 @@
   "cancel": "Cancelar",
   "delete": "Apagar",
   "walletDeleted": "Carteira apagada",
-  "undo": "Desfazer"
+  "undo": "Desfazer",
+  "nameTooLong": "O nome é muito longo"
 }
