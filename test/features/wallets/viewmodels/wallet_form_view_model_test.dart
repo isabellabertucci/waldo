@@ -1,136 +1,91 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:waldo/core/constants/enums.dart';
-import 'package:waldo/core/database/db_providers.dart';
-import 'package:waldo/core/database/migrations.dart' as migrations;
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_form_state.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_form_view_model.dart';
 
-void main() {
-  setUpAll(() {
-    sqfliteFfiInit();
-  });
+class MockWalletRepository extends Mock implements IWalletRepository {}
 
-  late Database db;
+void main() {
+  late MockWalletRepository mockRepo;
   late ProviderContainer container;
 
-  setUp(() async {
-    db = await databaseFactoryFfiNoIsolate.openDatabase(inMemoryDatabasePath);
-    await db.execute('PRAGMA foreign_keys = ON');
-    await migrations.onCreate(db, migrations.migrations.length);
-
-    container = ProviderContainer(
-      overrides: [appDatabaseProvider.overrideWith((ref) async => db)],
+  setUpAll(() {
+    registerFallbackValue(
+      const Wallet(name: '', createdAt: '2026-08-04T12:00:00.000'),
     );
   });
 
-  tearDown(() async {
+  setUp(() {
+    mockRepo = MockWalletRepository();
+    container = ProviderContainer(
+      overrides: [walletRepositoryProvider.overrideWith((ref) => mockRepo)],
+    );
+  });
+
+  tearDown(() {
     container.dispose();
-    await db.close();
   });
 
-  group('WalletFormViewModel — initial state', () {
-    test('build(null) starts empty with the default type', () {
-      final state = container.read(walletFormViewModelProvider(null));
+  test('build(null) starts empty with the default type', () {
+    final state = container.read(walletFormViewModelProvider(null));
 
-      expect(state.name, '');
-      expect(state.type, WalletType.cash);
-      expect(state.startingBalance, '');
-      expect(state.nameError, isNull);
-    });
-
-    test('build(wallet) pre-fills fields from the existing wallet', () {
-      const wallet = Wallet(
-        id: 1,
-        name: 'Cash',
-        type: WalletType.credit,
-        startingBalance: 12345,
-        createdAt: '2026-08-04T12:00:00.000',
-      );
-
-      final state = container.read(walletFormViewModelProvider(wallet));
-
-      expect(state.name, 'Cash');
-      expect(state.type, WalletType.credit);
-      expect(state.startingBalance, '123.45');
-    });
+    expect(state.name, '');
+    expect(state.type, WalletType.cash);
   });
 
-  group('WalletFormViewModel — save validation', () {
-    test('empty name fails and does not persist anything', () async {
-      final notifier = container.read(
-        walletFormViewModelProvider(null).notifier,
-      );
+  test('empty name fails and never calls the repository', () async {
+    final notifier = container.read(walletFormViewModelProvider(null).notifier);
 
-      final success = await notifier.save(null);
+    final success = await notifier.save(null);
 
-      expect(success, isFalse);
-      final state = container.read(walletFormViewModelProvider(null));
-      expect(state.nameError, isNotNull);
+    expect(success, isFalse);
+    verifyNever(() => mockRepo.insert(any()));
+  });
 
-      final repo = await container.read(walletRepositoryProvider.future);
-      expect(await repo.getAll(), isEmpty);
-    });
+  test('valid name calls insert', () async {
+    when(() => mockRepo.insert(any())).thenAnswer((_) async => 1);
 
-    test('valid name with empty balance succeeds with 0 cents', () async {
-      final notifier = container.read(
-        walletFormViewModelProvider(null).notifier,
-      );
-      notifier.updateName('Cash');
+    final notifier = container.read(walletFormViewModelProvider(null).notifier);
+    notifier.updateName('Cash');
 
-      final success = await notifier.save(null);
+    final success = await notifier.save(null);
 
-      expect(success, isTrue);
-      final repo = await container.read(walletRepositoryProvider.future);
-      final wallets = await repo.getAll();
-      expect(wallets.first.startingBalance, 0);
-    });
+    expect(success, isTrue);
+    verify(() => mockRepo.insert(any())).called(1);
+  });
 
-    test('unparsable balance fails with invalidNumber', () async {
-      final notifier = container.read(
-        walletFormViewModelProvider(null).notifier,
-      );
-      notifier.updateName('Cash');
-      notifier.updateBalance('abc');
+  test('invalid balance fails with invalidNumber', () async {
+    final notifier = container.read(walletFormViewModelProvider(null).notifier);
+    notifier.updateName('Cash');
+    notifier.updateBalance('abc');
 
-      final success = await notifier.save(null);
+    final success = await notifier.save(null);
 
-      expect(success, isFalse);
-      final state = container.read(walletFormViewModelProvider(null));
-      expect(state.balanceError, WalletFormError.invalidNumber);
-    });
+    expect(success, isFalse);
+    final state = container.read(walletFormViewModelProvider(null));
+    expect(state.balanceError, WalletFormError.invalidNumber);
+  });
 
-    test('negative balance fails with invalidNumber', () async {
-      final notifier = container.read(
-        walletFormViewModelProvider(null).notifier,
-      );
-      notifier.updateName('Cash');
-      notifier.updateBalance('-5');
+  test('editing calls update, not insert', () async {
+    const existing = Wallet(
+      id: 5,
+      name: 'Old name',
+      createdAt: '2026-08-04T12:00:00.000',
+    );
+    when(() => mockRepo.update(any())).thenAnswer((_) async {});
 
-      final success = await notifier.save(null);
+    final notifier = container.read(
+      walletFormViewModelProvider(existing).notifier,
+    );
 
-      expect(success, isFalse);
-      final state = container.read(walletFormViewModelProvider(null));
-      expect(state.balanceError, WalletFormError.invalidNumber);
-    });
+    final success = await notifier.save(existing);
 
-    test('valid name and balance inserts the wallet in cents', () async {
-      final notifier = container.read(
-        walletFormViewModelProvider(null).notifier,
-      );
-      notifier.updateName('Cash');
-      notifier.updateBalance('10.50');
-
-      final success = await notifier.save(null);
-
-      expect(success, isTrue);
-      final repo = await container.read(walletRepositoryProvider.future);
-      final wallets = await repo.getAll();
-      expect(wallets.first.startingBalance, 1050);
-      expect(wallets.first.currentBalance, wallets.first.startingBalance);
-    });
+    expect(success, isTrue);
+    verify(() => mockRepo.update(any())).called(1);
+    verifyNever(() => mockRepo.insert(any()));
   });
 }

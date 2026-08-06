@@ -61,6 +61,7 @@ dev_dependencies:
   build_verify: ^3.1.1
   freezed: ^3.2.3
   sqflite_common_ffi: ^2.4.2
+  mocktail: ^1.0.5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
