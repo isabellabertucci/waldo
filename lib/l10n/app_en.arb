@@ -69,6 +69,14 @@
   "@walletsError": {
     "description": "Generic error message shown when wallets fail to load"
   },
+  "saveError": "There was a problem saving the wallet. Please try again.",
+  "@saveError": {
+    "description": "Generic error message shown when saving a wallet fails"
+  },
+  "deleteError": "There was a problem deleting the wallet. Please try again.",
+  "@deleteError": {
+    "description": "Generic error message shown when deleting a wallet fails"
+  },
   "deleteWallet": "Delete wallet?",
   "@deleteWallet": {
     "description": "Delete confirmation dialog title"

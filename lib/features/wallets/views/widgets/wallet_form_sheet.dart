@@ -75,11 +75,12 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     try {
       final success = await viewModel.save(widget.wallet);
       if (success && mounted) Navigator.of(context).pop();
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
-        );
+        final l10n = AppLocalizations.of(context);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.saveError)));
       }
     }
   }

@@ -106,14 +106,13 @@ void main() {
       expect(() => repo.update(walletWithoutId), throwsA(isA<ArgumentError>()));
     });
 
-    test('delete removes a wallet with no transactions', () async {
-      final id = await repo.insert(
-        const Wallet(name: 'Cash', createdAt: '2026-08-04T12:00:00.000'),
+    test('update throws when the wallet does not exist', () async {
+      const ghostWallet = Wallet(
+        id: 999,
+        name: 'Ghost',
+        createdAt: '2026-08-04T12:00:00.000',
       );
-
-      await repo.delete(id);
-
-      expect(await repo.getById(id), isNull);
+      expect(repo.update(ghostWallet), throwsA(isA<StateError>()));
     });
 
     test(

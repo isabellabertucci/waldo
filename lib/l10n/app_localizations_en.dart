@@ -61,6 +61,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'There was a problem loading your wallets. Please try again.';
 
   @override
+  String get saveError =>
+      'There was a problem saving the wallet. Please try again.';
+
+  @override
+  String get deleteError =>
+      'There was a problem deleting the wallet. Please try again.';
+
+  @override
   String get deleteWallet => 'Delete wallet?';
 
   @override

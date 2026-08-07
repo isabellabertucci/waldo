@@ -99,13 +99,14 @@ class _WalletsBody extends ConsumerWidget {
 
     try {
       await viewModel.confirmDelete(wallet.id!);
-    } catch (e) {
-      // If the real delete fails (e.g. foreign key constraint), restore it
+    } catch (_) {
+      // If the real delete fails, restore it. Show a generic message,
+      // never the raw database error, to the user.
       viewModel.restoreWallet();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.deleteError)));
       }
     }
   }

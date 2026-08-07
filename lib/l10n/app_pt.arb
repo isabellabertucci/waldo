@@ -18,6 +18,8 @@
   "nameRequired": "O nome é obrigatório",
   "invalidNumber": "Digite um número válido",
   "walletsError": "Houve um problema ao carregar suas carteiras. Tente novamente.",
+  "saveError": "Houve um problema ao salvar a carteira. Tente novamente.",
+  "deleteError": "Houve um problema ao apagar a carteira. Tente novamente.",
   "deleteWallet": "Apagar carteira?",
   "deleteWalletConfirm": "Isto vai apagar permanentemente \"{name}\".",
   "cancel": "Cancelar",

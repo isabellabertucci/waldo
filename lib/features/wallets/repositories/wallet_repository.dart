@@ -53,12 +53,15 @@ class WalletRepositoryImpl implements IWalletRepository {
     if (id == null) {
       throw ArgumentError('Cannot update a wallet without an id');
     }
-    await _db.update(
+    final affectedRows = await _db.update(
       WalletsTable.table,
       {WalletsTable.name: wallet.name, WalletsTable.type: wallet.type.name},
       where: '${WalletsTable.id} = ?',
       whereArgs: [id],
     );
+    if (affectedRows == 0) {
+      throw StateError('Cannot update a wallet with id $id: not found');
+    }
   }
 
   @override

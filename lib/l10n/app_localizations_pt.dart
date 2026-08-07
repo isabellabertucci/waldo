@@ -62,6 +62,14 @@ class AppLocalizationsPt extends AppLocalizations {
       'Houve um problema ao carregar suas carteiras. Tente novamente.';
 
   @override
+  String get saveError =>
+      'Houve um problema ao salvar a carteira. Tente novamente.';
+
+  @override
+  String get deleteError =>
+      'Houve um problema ao apagar a carteira. Tente novamente.';
+
+  @override
   String get deleteWallet => 'Apagar carteira?';
 
   @override

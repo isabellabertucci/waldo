@@ -200,6 +200,18 @@ abstract class AppLocalizations {
   /// **'There was a problem loading your wallets. Please try again.'**
   String get walletsError;
 
+  /// Generic error message shown when saving a wallet fails
+  ///
+  /// In en, this message translates to:
+  /// **'There was a problem saving the wallet. Please try again.'**
+  String get saveError;
+
+  /// Generic error message shown when deleting a wallet fails
+  ///
+  /// In en, this message translates to:
+  /// **'There was a problem deleting the wallet. Please try again.'**
+  String get deleteError;
+
   /// Delete confirmation dialog title
   ///
   /// In en, this message translates to:
