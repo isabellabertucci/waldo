@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'app_shell.dart';
-import '../../features/accounts/ui/accounts_screen.dart';
 import '../../features/dashboard/ui/dashboard_screen.dart';
-import '../../features/reports/ui/reports_screen.dart';
+import '../../features/wallets/views/wallets_screen.dart';
 import '../../features/settings/ui/settings_screen.dart';
 import '../../features/transactions/ui/transaction_detail_screen.dart';
 import '../../features/transactions/ui/transaction_new_screen.dart';
@@ -30,8 +29,8 @@ part 'app_router.g.dart';
         ),
       ],
     ),
-    TypedStatefulShellBranch<ReportsBranch>(
-      routes: [TypedGoRoute<ReportsRoute>(path: '/reports')],
+    TypedStatefulShellBranch<WalletsBranch>(
+      routes: [TypedGoRoute<WalletsRoute>(path: '/wallets')],
     ),
     TypedStatefulShellBranch<SettingsBranch>(
       routes: [TypedGoRoute<SettingsRoute>(path: '/settings')],
@@ -61,8 +60,8 @@ class TransactionsBranch extends StatefulShellBranchData {
   const TransactionsBranch();
 }
 
-class ReportsBranch extends StatefulShellBranchData {
-  const ReportsBranch();
+class WalletsBranch extends StatefulShellBranchData {
+  const WalletsBranch();
 }
 
 class SettingsBranch extends StatefulShellBranchData {
@@ -109,12 +108,12 @@ class TransactionDetailRoute extends GoRouteData with $TransactionDetailRoute {
   }
 }
 
-class ReportsRoute extends GoRouteData with $ReportsRoute {
-  const ReportsRoute();
+class WalletsRoute extends GoRouteData with $WalletsRoute {
+  const WalletsRoute();
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const ReportsScreen();
+    return const WalletsScreen();
   }
 }
 
@@ -124,17 +123,5 @@ class SettingsRoute extends GoRouteData with $SettingsRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const SettingsScreen();
-  }
-}
-
-// STANDALONE ROUTES (no bottom nav) -----------------------------------------------
-
-@TypedGoRoute<AccountsRoute>(path: '/accounts')
-class AccountsRoute extends GoRouteData with $AccountsRoute {
-  const AccountsRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const AccountsScreen();
   }
 }

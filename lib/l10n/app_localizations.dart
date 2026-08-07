@@ -67,8 +67,8 @@ abstract class AppLocalizations {
 
   final String localeName;
 
-  static AppLocalizations? of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
   static const LocalizationsDelegate<AppLocalizations> delegate =
@@ -116,17 +116,173 @@ abstract class AppLocalizations {
   /// **'Transactions'**
   String get transactions;
 
-  /// Reports tab label
-  ///
-  /// In en, this message translates to:
-  /// **'Reports'**
-  String get reports;
-
   /// Settings tab label
   ///
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings;
+
+  /// Wallets tab and screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets'**
+  String get wallets;
+
+  /// Empty state title for wallets list
+  ///
+  /// In en, this message translates to:
+  /// **'No wallets yet'**
+  String get noWalletsYet;
+
+  /// Empty state subtitle for wallets list
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to add your first wallet'**
+  String get addFirstWallet;
+
+  /// Title of the create wallet form
+  ///
+  /// In en, this message translates to:
+  /// **'New Wallet'**
+  String get newWallet;
+
+  /// Title of the edit wallet form
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Wallet'**
+  String get editWallet;
+
+  /// Name field label
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// Type field label
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get type;
+
+  /// Starting balance field label
+  ///
+  /// In en, this message translates to:
+  /// **'Starting balance'**
+  String get startingBalance;
+
+  /// Helper text for locked balance field
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot be changed after creation'**
+  String get balanceLocked;
+
+  /// Save button label
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// Validation error for empty name
+  ///
+  /// In en, this message translates to:
+  /// **'Name is required'**
+  String get nameRequired;
+
+  /// Validation error for invalid balance
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid number'**
+  String get invalidNumber;
+
+  /// Generic error message shown when wallets fail to load
+  ///
+  /// In en, this message translates to:
+  /// **'There was a problem loading your wallets. Please try again.'**
+  String get walletsError;
+
+  /// Generic error message shown when saving a wallet fails
+  ///
+  /// In en, this message translates to:
+  /// **'There was a problem saving the wallet. Please try again.'**
+  String get saveError;
+
+  /// Generic error message shown when deleting a wallet fails
+  ///
+  /// In en, this message translates to:
+  /// **'There was a problem deleting the wallet. Please try again.'**
+  String get deleteError;
+
+  /// Delete confirmation dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete wallet?'**
+  String get deleteWallet;
+
+  /// Delete confirmation dialog message
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete \"{name}\".'**
+  String deleteWalletConfirm(String name);
+
+  /// Cancel button label
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// Delete button label
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// Snackbar message after deleting a wallet
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet deleted'**
+  String get walletDeleted;
+
+  /// Undo button label in snackbar
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// Validation error when the wallet name exceeds the max length
+  ///
+  /// In en, this message translates to:
+  /// **'Name is too long'**
+  String get nameTooLong;
+
+  /// Checking account wallet type
+  ///
+  /// In en, this message translates to:
+  /// **'Checking'**
+  String get walletTypeChecking;
+
+  /// Savings account wallet type
+  ///
+  /// In en, this message translates to:
+  /// **'Savings'**
+  String get walletTypeSavings;
+
+  /// Cash wallet type
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get walletTypeCash;
+
+  /// Credit card wallet type
+  ///
+  /// In en, this message translates to:
+  /// **'Credit Card'**
+  String get walletTypeCredit;
+
+  /// Investment wallet type
+  ///
+  /// In en, this message translates to:
+  /// **'Investment'**
+  String get walletTypeInvestment;
 }
 
 class _AppLocalizationsDelegate

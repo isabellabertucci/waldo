@@ -54,8 +54,7 @@ Future<void> up(Database db) async {
       ${TransactionsTable.date} TEXT NOT NULL,
       ${TransactionsTable.description} TEXT,
       ${TransactionsTable.createdAt} TEXT NOT NULL,
-      FOREIGN KEY (${TransactionsTable.walletId}) REFERENCES ${WalletsTable.table} (${WalletsTable.id}),
-      FOREIGN KEY (${TransactionsTable.categoryId}) REFERENCES ${CategoriesTable.table} (${CategoriesTable.id})
+      FOREIGN KEY (${TransactionsTable.walletId}) REFERENCES ${WalletsTable.table} (${WalletsTable.id}) ON DELETE CASCADE,      FOREIGN KEY (${TransactionsTable.categoryId}) REFERENCES ${CategoriesTable.table} (${CategoriesTable.id}) ON DELETE SET NULL
     )
   ''');
 

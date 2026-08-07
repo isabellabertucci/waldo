@@ -6,7 +6,7 @@ part of 'app_router.dart';
 // GoRouterGenerator
 // **************************************************************************
 
-List<RouteBase> get $appRoutes => [$appShellRoute, $accountsRoute];
+List<RouteBase> get $appRoutes => [$appShellRoute];
 
 RouteBase get $appShellRoute => StatefulShellRouteData.$route(
   factory: $AppShellRouteExtension._fromState,
@@ -44,9 +44,9 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
     StatefulShellBranchData.$branch(
       routes: [
         GoRouteData.$route(
-          path: '/reports',
+          path: '/wallets',
           hasOverriddenOnExit: false,
-          factory: $ReportsRoute._fromState,
+          factory: $WalletsRoute._fromState,
         ),
       ],
     ),
@@ -153,11 +153,11 @@ mixin $TransactionDetailRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-mixin $ReportsRoute on GoRouteData {
-  static ReportsRoute _fromState(GoRouterState state) => const ReportsRoute();
+mixin $WalletsRoute on GoRouteData {
+  static WalletsRoute _fromState(GoRouterState state) => const WalletsRoute();
 
   @override
-  String get location => GoRouteData.$location('/reports');
+  String get location => GoRouteData.$location('/wallets');
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -178,32 +178,6 @@ mixin $SettingsRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/settings');
-
-  @override
-  void go(BuildContext context) => context.go(location);
-
-  @override
-  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
-
-  @override
-  void pushReplacement(BuildContext context) =>
-      context.pushReplacement(location);
-
-  @override
-  void replace(BuildContext context) => context.replace(location);
-}
-
-RouteBase get $accountsRoute => GoRouteData.$route(
-  path: '/accounts',
-  hasOverriddenOnExit: false,
-  factory: $AccountsRoute._fromState,
-);
-
-mixin $AccountsRoute on GoRouteData {
-  static AccountsRoute _fromState(GoRouterState state) => const AccountsRoute();
-
-  @override
-  String get location => GoRouteData.$location('/accounts');
 
   @override
   void go(BuildContext context) => context.go(location);

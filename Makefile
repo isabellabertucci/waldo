@@ -1,4 +1,4 @@
-.PHONY: setup run analyze format test
+.PHONY: setup run analyze format test gen
 
 setup:
 	@echo "Initializing project Flutter SDK version..."
@@ -22,7 +22,10 @@ test:
 	fvm flutter test
 
 add:
-	@fvm flutter pub add $(pkg)
+	fvm flutter pub add $(pkg)
 
 add-dev:
-	@fvm flutter pub add dev:$(pkg)
+	fvm flutter pub add dev:$(pkg)
+
+gen: 
+	fvm dart run build_runner build --delete-conflicting-outputs

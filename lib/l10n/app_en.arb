@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "@@last_modified": "2026-07-30",
+  "@@last_modified": "2026-08-07",
   "appTitle": "Waldo",
   "@appTitle": {
     "description": "The title of the application"
@@ -13,12 +13,121 @@
   "@transactions": {
     "description": "Transactions tab label"
   },
-  "reports": "Reports",
-  "@reports": {
-    "description": "Reports tab label"
-  },
   "settings": "Settings",
   "@settings": {
     "description": "Settings tab label"
+  },
+  "wallets": "Wallets",
+  "@wallets": {
+    "description": "Wallets tab and screen title"
+  },
+  "noWalletsYet": "No wallets yet",
+  "@noWalletsYet": {
+    "description": "Empty state title for wallets list"
+  },
+  "addFirstWallet": "Tap + to add your first wallet",
+  "@addFirstWallet": {
+    "description": "Empty state subtitle for wallets list"
+  },
+  "newWallet": "New Wallet",
+  "@newWallet": {
+    "description": "Title of the create wallet form"
+  },
+  "editWallet": "Edit Wallet",
+  "@editWallet": {
+    "description": "Title of the edit wallet form"
+  },
+  "name": "Name",
+  "@name": {
+    "description": "Name field label"
+  },
+  "type": "Type",
+  "@type": {
+    "description": "Type field label"
+  },
+  "startingBalance": "Starting balance",
+  "@startingBalance": {
+    "description": "Starting balance field label"
+  },
+  "balanceLocked": "Cannot be changed after creation",
+  "@balanceLocked": {
+    "description": "Helper text for locked balance field"
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button label"
+  },
+  "nameRequired": "Name is required",
+  "@nameRequired": {
+    "description": "Validation error for empty name"
+  },
+  "invalidNumber": "Enter a valid number",
+  "@invalidNumber": {
+    "description": "Validation error for invalid balance"
+  },
+  "walletsError": "There was a problem loading your wallets. Please try again.",
+  "@walletsError": {
+    "description": "Generic error message shown when wallets fail to load"
+  },
+  "saveError": "There was a problem saving the wallet. Please try again.",
+  "@saveError": {
+    "description": "Generic error message shown when saving a wallet fails"
+  },
+  "deleteError": "There was a problem deleting the wallet. Please try again.",
+  "@deleteError": {
+    "description": "Generic error message shown when deleting a wallet fails"
+  },
+  "deleteWallet": "Delete wallet?",
+  "@deleteWallet": {
+    "description": "Delete confirmation dialog title"
+  },
+  "deleteWalletConfirm": "This will permanently delete \"{name}\".",
+  "@deleteWalletConfirm": {
+    "description": "Delete confirmation dialog message",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button label"
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button label"
+  },
+  "walletDeleted": "Wallet deleted",
+  "@walletDeleted": {
+    "description": "Snackbar message after deleting a wallet"
+  },
+  "undo": "Undo",
+  "@undo": {
+    "description": "Undo button label in snackbar"
+  },
+  "nameTooLong": "Name is too long",
+  "@nameTooLong": {
+    "description": "Validation error when the wallet name exceeds the max length"
+  },
+  "walletTypeChecking": "Checking",
+  "@walletTypeChecking": {
+    "description": "Checking account wallet type"
+  },
+  "walletTypeSavings": "Savings",
+  "@walletTypeSavings": {
+    "description": "Savings account wallet type"
+  },
+  "walletTypeCash": "Cash",
+  "@walletTypeCash": {
+    "description": "Cash wallet type"
+  },
+  "walletTypeCredit": "Credit Card",
+  "@walletTypeCredit": {
+    "description": "Credit card wallet type"
+  },
+  "walletTypeInvestment": "Investment",
+  "@walletTypeInvestment": {
+    "description": "Investment wallet type"
   }
 }
