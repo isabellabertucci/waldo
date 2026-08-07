@@ -57,9 +57,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidNumber => 'Enter a valid number';
 
   @override
-  String walletsError(String error) {
-    return 'Error: $error';
-  }
+  String get walletsError =>
+      'There was a problem loading your wallets. Please try again.';
 
   @override
   String get deleteWallet => 'Delete wallet?';
@@ -83,4 +82,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nameTooLong => 'Name is too long';
+
+  @override
+  String get walletTypeChecking => 'Checking';
+
+  @override
+  String get walletTypeSavings => 'Savings';
+
+  @override
+  String get walletTypeCash => 'Cash';
+
+  @override
+  String get walletTypeCredit => 'Credit Card';
+
+  @override
+  String get walletTypeInvestment => 'Investment';
 }

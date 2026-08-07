@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waldo/core/utils/utils.dart';
 
 import '../../../core/widgets/empty_state.dart';
 import '../models/wallet.dart';
 import '../viewmodels/wallet_list_view_model.dart';
-import 'wallet_form_sheet.dart';
+import 'widgets/wallet_form_sheet.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 class WalletsScreen extends ConsumerWidget {
@@ -13,14 +14,12 @@ class WalletsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final walletsAsync = ref.watch(walletListViewModelProvider);
+    final walletsAsync = ref.watch(walletListViewModelProvider());
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.wallets)),
       body: switch (walletsAsync) {
-        AsyncError(:final error) => Center(
-          child: Text(l10n.walletsError(error.toString())),
-        ),
+        AsyncError() => Center(child: Text(l10n.walletsError)),
         AsyncData(:final value) => _WalletsBody(wallets: value),
         _ => const Center(child: CircularProgressIndicator()),
       },
@@ -70,10 +69,12 @@ class _WalletsBody extends ConsumerWidget {
 
     if (confirmed != true) return;
 
-    final viewModel = ref.read(walletListViewModelProvider.notifier);
+    final viewModel = ref.read(walletListViewModelProvider().notifier);
 
-    // Hide immediately from the UI, without deleting from the database yet
-    viewModel.hideWallet(wallet.id!);
+    // Hide immediately from the UI, without deleting from the database yet.
+    // If the list hasn't loaded there's nothing to hide, so abort the flow
+    // instead of scheduling a delete with no way to undo it.
+    if (!viewModel.hideWallet(wallet.id!)) return;
 
     var undone = false;
 
@@ -127,11 +128,11 @@ class _WalletsBody extends ConsumerWidget {
         final wallet = wallets[index];
         return ListTile(
           title: Text(wallet.name),
-          subtitle: Text(wallet.type.name),
+          subtitle: Text(walletTypeLabel(l10n, wallet.type)),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text((wallet.currentBalance / 100).toStringAsFixed(2)),
+              Text(formatCents(wallet.currentBalance)),
               const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.edit),

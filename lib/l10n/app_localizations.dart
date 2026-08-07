@@ -194,11 +194,11 @@ abstract class AppLocalizations {
   /// **'Enter a valid number'**
   String get invalidNumber;
 
-  /// Error message shown when wallets fail to load
+  /// Generic error message shown when wallets fail to load
   ///
   /// In en, this message translates to:
-  /// **'Error: {error}'**
-  String walletsError(String error);
+  /// **'There was a problem loading your wallets. Please try again.'**
+  String get walletsError;
 
   /// Delete confirmation dialog title
   ///
@@ -241,6 +241,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Name is too long'**
   String get nameTooLong;
+
+  /// Checking account wallet type
+  ///
+  /// In en, this message translates to:
+  /// **'Checking'**
+  String get walletTypeChecking;
+
+  /// Savings account wallet type
+  ///
+  /// In en, this message translates to:
+  /// **'Savings'**
+  String get walletTypeSavings;
+
+  /// Cash wallet type
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get walletTypeCash;
+
+  /// Credit card wallet type
+  ///
+  /// In en, this message translates to:
+  /// **'Credit Card'**
+  String get walletTypeCredit;
+
+  /// Investment wallet type
+  ///
+  /// In en, this message translates to:
+  /// **'Investment'**
+  String get walletTypeInvestment;
 }
 
 class _AppLocalizationsDelegate

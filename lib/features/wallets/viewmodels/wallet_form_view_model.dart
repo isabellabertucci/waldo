@@ -16,7 +16,7 @@ class WalletFormViewModel extends _$WalletFormViewModel {
       name: existingWallet?.name ?? '',
       type: existingWallet?.type ?? WalletType.cash,
       startingBalance: existingWallet != null
-          ? CurrencyUtils.formatCents(existingWallet.startingBalance)
+          ? formatCentsForInput(existingWallet.startingBalance)
           : '',
     );
   }
@@ -38,10 +38,7 @@ class WalletFormViewModel extends _$WalletFormViewModel {
     final allowsNegative = state.type == WalletType.credit;
     final balanceInCents = isEditing
         ? 0
-        : (CurrencyUtils.parseToCents(
-                state.startingBalance,
-                allowNegative: allowsNegative,
-              ) ??
+        : (parseToCents(state.startingBalance, allowNegative: allowsNegative) ??
               0);
 
     final repo = await ref.read(walletRepositoryProvider.future);
@@ -62,7 +59,7 @@ class WalletFormViewModel extends _$WalletFormViewModel {
       );
     }
 
-    ref.invalidate(walletListViewModelProvider);
+    ref.invalidate(walletListViewModelProvider());
     return true;
   }
 }

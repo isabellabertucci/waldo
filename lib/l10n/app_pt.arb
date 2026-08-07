@@ -1,6 +1,6 @@
 {
   "@@locale": "pt",
-  "@@last_modified": "2026-08-03",
+  "@@last_modified": "2026-08-07",
   "appTitle": "Waldo",
   "dashboard": "Painel",
   "transactions": "Transações",
@@ -17,12 +17,17 @@
   "save": "Salvar",
   "nameRequired": "O nome é obrigatório",
   "invalidNumber": "Digite um número válido",
-  "walletsError": "Erro: {error}",
+  "walletsError": "Houve um problema ao carregar suas carteiras. Tente novamente.",
   "deleteWallet": "Apagar carteira?",
   "deleteWalletConfirm": "Isto vai apagar permanentemente \"{name}\".",
   "cancel": "Cancelar",
   "delete": "Apagar",
   "walletDeleted": "Carteira apagada",
   "undo": "Desfazer",
-  "nameTooLong": "O nome é muito longo"
+  "nameTooLong": "O nome é muito longo",
+  "walletTypeChecking": "Conta Corrente",
+  "walletTypeSavings": "Poupança",
+  "walletTypeCash": "Dinheiro",
+  "walletTypeCredit": "Cartão de Crédito",
+  "walletTypeInvestment": "Investimento"
 }

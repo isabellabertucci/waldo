@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:waldo/core/constants/app_constants.dart';
@@ -58,10 +57,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
         .read(walletFormViewModelProvider(widget.wallet))
         .type;
     final allowsNegative = currentType == WalletType.credit;
-    final parsedCents = CurrencyUtils.parseToCents(
-      value,
-      allowNegative: allowsNegative,
-    );
+    final parsedCents = parseToCents(value, allowNegative: allowsNegative);
 
     if (parsedCents == null || parsedCents.abs() > maxBalanceCents) {
       return l10n.invalidNumber;
@@ -75,8 +71,17 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     final viewModel = ref.read(
       walletFormViewModelProvider(widget.wallet).notifier,
     );
-    final success = await viewModel.save(widget.wallet);
-    if (success && mounted) Navigator.of(context).pop();
+
+    try {
+      final success = await viewModel.save(widget.wallet);
+      if (success && mounted) Navigator.of(context).pop();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+        );
+      }
+    }
   }
 
   @override
@@ -116,7 +121,10 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
               initialValue: formState.type,
               decoration: InputDecoration(labelText: l10n.type),
               items: WalletType.values.map((type) {
-                return DropdownMenuItem(value: type, child: Text(type.name));
+                return DropdownMenuItem(
+                  value: type,
+                  child: Text(walletTypeLabel(l10n, type)),
+                );
               }).toList(),
               onChanged: (value) {
                 if (value != null) viewModel.updateType(value);
@@ -134,9 +142,6 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d{0,2}')),
-              ],
               validator: (value) => _validateBalance(l10n, value),
             ),
             const SizedBox(height: 24),

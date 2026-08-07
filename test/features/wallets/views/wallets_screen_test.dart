@@ -39,9 +39,9 @@ void main() {
 
   testWidgets('Creating a wallet adds it to the list', (tester) async {
     await pumpWalletsScreen(tester);
-    await createWallet(tester, 'Cash');
+    await createWallet(tester, 'Test Wallet');
 
-    expect(find.text('Cash'), findsOneWidget);
+    expect(find.text('Test Wallet'), findsOneWidget);
     expect(find.text('No wallets yet'), findsNothing);
   });
 
@@ -61,25 +61,25 @@ void main() {
     tester,
   ) async {
     await pumpWalletsScreen(tester);
-    await createWallet(tester, 'Cash');
+    await createWallet(tester, 'Test Wallet');
 
     await tester.tap(find.byIcon(Icons.delete));
     await tester.pumpAndSettle();
 
     expect(find.text('Delete wallet?'), findsOneWidget);
-    expect(find.text('Cash'), findsOneWidget);
+    expect(find.text('Test Wallet'), findsOneWidget);
 
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Cash'), findsOneWidget);
+    expect(find.text('Test Wallet'), findsOneWidget);
   });
 
   testWidgets(
     'Confirming delete hides the wallet immediately and shows a snackbar',
     (tester) async {
       await pumpWalletsScreen(tester);
-      await createWallet(tester, 'Cash');
+      await createWallet(tester, 'Test Wallet');
 
       await tester.tap(find.byIcon(Icons.delete));
       await tester.pumpAndSettle();
@@ -87,7 +87,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 250));
 
-      expect(find.text('Cash'), findsNothing);
+      expect(find.text('Test Wallet'), findsNothing);
       expect(find.text('Wallet deleted'), findsOneWidget);
       expect(find.text('Undo'), findsOneWidget);
 
@@ -97,7 +97,7 @@ void main() {
 
   testWidgets('Tapping Undo restores the wallet to the list', (tester) async {
     await pumpWalletsScreen(tester);
-    await createWallet(tester, 'Cash');
+    await createWallet(tester, 'Test Wallet');
 
     await tester.tap(find.byIcon(Icons.delete));
     await tester.pumpAndSettle();
@@ -105,22 +105,22 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 250));
 
-    expect(find.text('Cash'), findsNothing);
+    expect(find.text('Test Wallet'), findsNothing);
 
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Cash'), findsOneWidget);
+    expect(find.text('Test Wallet'), findsOneWidget);
 
     await tester.pump(const Duration(seconds: 6));
-    expect(find.text('Cash'), findsOneWidget);
+    expect(find.text('Test Wallet'), findsOneWidget);
   });
 
   testWidgets(
     'Not tapping Undo permanently deletes the wallet after 5 seconds',
     (tester) async {
       await pumpWalletsScreen(tester);
-      await createWallet(tester, 'Cash');
+      await createWallet(tester, 'Test Wallet');
 
       await tester.tap(find.byIcon(Icons.delete));
       await tester.pumpAndSettle();
@@ -128,13 +128,13 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 250));
 
-      expect(find.text('Cash'), findsNothing);
+      expect(find.text('Test Wallet'), findsNothing);
 
       await tester.pump(const Duration(seconds: 6));
 
       await pumpWalletsScreen(tester, db: currentDb);
 
-      expect(find.text('Cash'), findsNothing);
+      expect(find.text('Test Wallet'), findsNothing);
       expect(find.text('No wallets yet'), findsOneWidget);
     },
   );

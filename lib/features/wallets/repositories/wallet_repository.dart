@@ -8,7 +8,7 @@ import '../models/wallet.dart';
 part 'wallet_repository.g.dart';
 
 abstract class IWalletRepository {
-  Future<List<Wallet>> getAll({SortOrder sortOrder = SortOrder.descending});
+  Future<List<Wallet>> getAll({SortOrder sortOrder = SortOrder.desc});
   Future<Wallet?> getById(int id);
   Future<int> insert(Wallet wallet);
   Future<void> update(Wallet wallet);
@@ -21,10 +21,8 @@ class WalletRepositoryImpl implements IWalletRepository {
   final Database _db;
 
   @override
-  Future<List<Wallet>> getAll({
-    SortOrder sortOrder = SortOrder.descending,
-  }) async {
-    final direction = sortOrder == SortOrder.descending ? 'DESC' : 'ASC';
+  Future<List<Wallet>> getAll({SortOrder sortOrder = SortOrder.desc}) async {
+    final direction = sortOrder == SortOrder.desc ? 'DESC' : 'ASC';
     final maps = await _db.query(
       WalletsTable.table,
       orderBy: '${WalletsTable.createdAt} $direction',
@@ -51,28 +49,25 @@ class WalletRepositoryImpl implements IWalletRepository {
 
   @override
   Future<void> update(Wallet wallet) async {
+    final id = wallet.id;
+    if (id == null) {
+      throw ArgumentError('Cannot update a wallet without an id');
+    }
     await _db.update(
       WalletsTable.table,
-      wallet.toMap(),
+      {WalletsTable.name: wallet.name, WalletsTable.type: wallet.type.name},
       where: '${WalletsTable.id} = ?',
-      whereArgs: [wallet.id],
+      whereArgs: [id],
     );
   }
 
   @override
   Future<void> delete(int id) async {
-    try {
-      await _db.delete(
-        WalletsTable.table,
-        where: '${WalletsTable.id} = ?',
-        whereArgs: [id],
-      );
-    } on DatabaseException catch (e) {
-      if (e.toString().toLowerCase().contains('foreign key constraint')) {
-        throw Exception('Cannot delete a wallet that has transactions');
-      }
-      rethrow;
-    }
+    await _db.delete(
+      WalletsTable.table,
+      where: '${WalletsTable.id} = ?',
+      whereArgs: [id],
+    );
   }
 }
 

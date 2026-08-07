@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "@@last_modified": "2026-08-03",
+  "@@last_modified": "2026-08-07",
   "appTitle": "Waldo",
   "@appTitle": {
     "description": "The title of the application"
@@ -65,14 +65,9 @@
   "@invalidNumber": {
     "description": "Validation error for invalid balance"
   },
-  "walletsError": "Error: {error}",
+  "walletsError": "There was a problem loading your wallets. Please try again.",
   "@walletsError": {
-    "description": "Error message shown when wallets fail to load",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
+    "description": "Generic error message shown when wallets fail to load"
   },
   "deleteWallet": "Delete wallet?",
   "@deleteWallet": {
@@ -106,5 +101,25 @@
   "nameTooLong": "Name is too long",
   "@nameTooLong": {
     "description": "Validation error when the wallet name exceeds the max length"
+  },
+  "walletTypeChecking": "Checking",
+  "@walletTypeChecking": {
+    "description": "Checking account wallet type"
+  },
+  "walletTypeSavings": "Savings",
+  "@walletTypeSavings": {
+    "description": "Savings account wallet type"
+  },
+  "walletTypeCash": "Cash",
+  "@walletTypeCash": {
+    "description": "Cash wallet type"
+  },
+  "walletTypeCredit": "Credit Card",
+  "@walletTypeCredit": {
+    "description": "Credit card wallet type"
+  },
+  "walletTypeInvestment": "Investment",
+  "@walletTypeInvestment": {
+    "description": "Investment wallet type"
   }
 }

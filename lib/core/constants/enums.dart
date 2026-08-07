@@ -10,4 +10,4 @@ enum CategoryType {
   investments,
 }
 
-enum SortOrder { ascending, descending }
+enum SortOrder { asc, desc }
