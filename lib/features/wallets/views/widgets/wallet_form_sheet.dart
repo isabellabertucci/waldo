@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/logging/log.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_form_view_model.dart';
@@ -41,9 +41,11 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
 
   String? _validateName(AppLocalizations l10n, String? value) {
     if (value == null || value.trim().isEmpty) {
+      vmLog.fine('Validation failed: nameRequired');
       return l10n.nameRequired;
     }
     if (value.trim().length > maxWalletNameLength) {
+      vmLog.fine('Validation failed: nameTooLong');
       return l10n.nameTooLong;
     }
     return null;
@@ -60,6 +62,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     final parsedCents = parseToCents(value, allowNegative: allowsNegative);
 
     if (parsedCents == null || parsedCents.abs() > maxBalanceCents) {
+      vmLog.fine('Validation failed: invalidNumber');
       return l10n.invalidNumber;
     }
     return null;
@@ -71,7 +74,6 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     final viewModel = ref.read(
       walletFormViewModelProvider(widget.wallet).notifier,
     );
-
     try {
       final success = await viewModel.save(widget.wallet);
       if (success && mounted) Navigator.of(context).pop();
@@ -92,7 +94,6 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     final viewModel = ref.read(
       walletFormViewModelProvider(widget.wallet).notifier,
     );
-
     return Padding(
       padding: EdgeInsets.only(
         left: 16,
