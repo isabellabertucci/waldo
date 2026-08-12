@@ -35,30 +35,40 @@ class WalletRepositoryImpl implements IWalletRepository {
   @override
   Future<List<Wallet>> getAll({SortOrder sortOrder = SortOrder.desc}) async {
     final stopwatch = Stopwatch()..start();
-    final direction = sortOrder == SortOrder.desc ? 'DESC' : 'ASC';
-    final maps = await _db.query(
-      WalletsTable.table,
-      orderBy: '${WalletsTable.createdAt} $direction',
-    );
-    stopwatch.stop();
-    repositoryLog.fine(
-      'getAll succeeded: rowCount=${maps.length}, durationMs=${stopwatch.elapsedMilliseconds}',
-    );
-    return maps.map((map) => Wallet.fromMap(map)).toList();
+    try {
+      final direction = sortOrder == SortOrder.desc ? 'DESC' : 'ASC';
+      final maps = await _db.query(
+        WalletsTable.table,
+        orderBy: '${WalletsTable.createdAt} $direction',
+      );
+      stopwatch.stop();
+      repositoryLog.fine(
+        'getAll succeeded: rowCount=${maps.length}, durationMs=${stopwatch.elapsedMilliseconds}',
+      );
+      return maps.map((map) => Wallet.fromMap(map)).toList();
+    } on DatabaseException catch (e) {
+      _logDatabaseException('getAll', e);
+      rethrow;
+    }
   }
 
   @override
   Future<Wallet?> getById(int id) async {
-    final maps = await _db.query(
-      WalletsTable.table,
-      where: '${WalletsTable.id} = ?',
-      whereArgs: [id],
-    );
-    if (maps.isEmpty) {
-      repositoryLog.fine('getById: not found, id=$id');
-      return null;
+    try {
+      final maps = await _db.query(
+        WalletsTable.table,
+        where: '${WalletsTable.id} = ?',
+        whereArgs: [id],
+      );
+      if (maps.isEmpty) {
+        repositoryLog.fine('getById: not found, id=$id');
+        return null;
+      }
+      return Wallet.fromMap(maps.first);
+    } on DatabaseException catch (e) {
+      _logDatabaseException('getById', e);
+      rethrow;
     }
-    return Wallet.fromMap(maps.first);
   }
 
   @override

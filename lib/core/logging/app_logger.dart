@@ -21,9 +21,11 @@ void initLogging() {
       stackTrace: record.stackTrace,
     );
 
-    debugPrint(
-      '[${record.level.name}] ${record.loggerName}: ${record.message}',
-    );
+    if (kDebugMode) {
+      debugPrint(
+        '[${record.level.name}] ${record.loggerName}: ${record.message}',
+      );
+    }
   });
 }
 

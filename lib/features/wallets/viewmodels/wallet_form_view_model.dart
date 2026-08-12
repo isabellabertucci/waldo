@@ -63,7 +63,7 @@ class WalletFormViewModel extends _$WalletFormViewModel {
       ref.invalidate(walletListViewModelProvider());
       return true;
     } catch (error, stackTrace) {
-      vmLog.severe(
+      vmLog.warning(
         'Wallet save failed: isEditing=$isEditing',
         error,
         stackTrace,
