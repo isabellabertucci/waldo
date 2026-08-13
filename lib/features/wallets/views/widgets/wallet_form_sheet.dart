@@ -41,11 +41,9 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
 
   String? _validateName(AppLocalizations l10n, String? value) {
     if (value == null || value.trim().isEmpty) {
-      vmLog.fine('Validation failed: nameRequired');
       return l10n.nameRequired;
     }
     if (value.trim().length > maxWalletNameLength) {
-      vmLog.fine('Validation failed: nameTooLong');
       return l10n.nameTooLong;
     }
     return null;
@@ -62,14 +60,16 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     final parsedCents = parseToCents(value, allowNegative: allowsNegative);
 
     if (parsedCents == null || parsedCents.abs() > maxBalanceCents) {
-      vmLog.fine('Validation failed: invalidNumber');
       return l10n.invalidNumber;
     }
     return null;
   }
 
   Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      vmLog.fine('Wallet form validation failed');
+      return;
+    }
 
     final viewModel = ref.read(
       walletFormViewModelProvider(widget.wallet).notifier,

@@ -34,17 +34,13 @@ class WalletRepositoryImpl implements IWalletRepository {
 
   @override
   Future<List<Wallet>> getAll({SortOrder sortOrder = SortOrder.desc}) async {
-    final stopwatch = Stopwatch()..start();
     try {
       final direction = sortOrder == SortOrder.desc ? 'DESC' : 'ASC';
       final maps = await _db.query(
         WalletsTable.table,
         orderBy: '${WalletsTable.createdAt} $direction',
       );
-      stopwatch.stop();
-      repositoryLog.fine(
-        'getAll succeeded: rowCount=${maps.length}, durationMs=${stopwatch.elapsedMilliseconds}',
-      );
+      repositoryLog.fine('getAll succeeded: rowCount=${maps.length}');
       return maps.map((map) => Wallet.fromMap(map)).toList();
     } on DatabaseException catch (e) {
       _logDatabaseException('getAll', e);
