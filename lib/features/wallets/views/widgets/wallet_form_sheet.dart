@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
-import 'package:waldo/core/logging/log.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_form_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+
+final _log = Logger('waldo.vm.wallet');
 
 class WalletFormSheet extends ConsumerStatefulWidget {
   const WalletFormSheet({super.key, this.wallet});
@@ -67,7 +69,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) {
-      vmLog.fine('Wallet form validation failed');
+      _log.fine('Wallet form validation failed');
       return;
     }
 

@@ -1,8 +1,10 @@
+import 'package:logging/logging.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 import '../constants/db_constants.dart';
-import '../logging/log.dart';
 import 'migrations.dart';
+
+final _log = Logger('waldo.db');
 
 class AppDatabase {
   AppDatabase._();
@@ -20,7 +22,7 @@ class AppDatabase {
     final dbPath = await getDatabasesPath();
     final path = p.join(dbPath, dbName);
 
-    dbLog.info(
+    _log.info(
       'Database open started: path=$path, targetVersion=${migrations.length}',
     );
 
@@ -32,10 +34,10 @@ class AppDatabase {
         onCreate: onCreate,
         onUpgrade: onUpgrade,
       );
-      dbLog.info('Database open succeeded: version=${await db.getVersion()}');
+      _log.info('Database open succeeded: version=${await db.getVersion()}');
       return db;
     } catch (error, stackTrace) {
-      dbLog.severe('Database open failed', error, stackTrace);
+      _log.severe('Database open failed', error, stackTrace);
       rethrow;
     }
   }

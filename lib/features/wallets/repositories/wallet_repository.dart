@@ -1,12 +1,14 @@
+import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/database/db_providers.dart';
-import 'package:waldo/core/logging/log.dart';
 import '../models/wallet.dart';
 
 part 'wallet_repository.g.dart';
+
+final _log = Logger('waldo.repository.wallet');
 
 abstract class IWalletRepository {
   Future<List<Wallet>> getAll({SortOrder sortOrder = SortOrder.desc});
@@ -21,17 +23,6 @@ class WalletRepositoryImpl implements IWalletRepository {
 
   final Database _db;
 
-  void _logDatabaseException(String operation, DatabaseException e) {
-    final message = e.toString().toLowerCase();
-    if (message.contains('foreign key constraint')) {
-      repositoryLog.severe('$operation failed: foreign key constraint', e);
-    } else if (message.contains('check constraint')) {
-      repositoryLog.severe('$operation failed: check constraint', e);
-    } else {
-      repositoryLog.severe('$operation failed: database error', e);
-    }
-  }
-
   @override
   Future<List<Wallet>> getAll({SortOrder sortOrder = SortOrder.desc}) async {
     try {
@@ -40,10 +31,10 @@ class WalletRepositoryImpl implements IWalletRepository {
         WalletsTable.table,
         orderBy: '${WalletsTable.createdAt} $direction',
       );
-      repositoryLog.fine('getAll succeeded: rowCount=${maps.length}');
+      _log.fine('getAll succeeded: rowCount=${maps.length}');
       return maps.map((map) => Wallet.fromMap(map)).toList();
     } on DatabaseException catch (e) {
-      _logDatabaseException('getAll', e);
+      _log.severe('getAll failed', e);
       rethrow;
     }
   }
@@ -57,12 +48,12 @@ class WalletRepositoryImpl implements IWalletRepository {
         whereArgs: [id],
       );
       if (maps.isEmpty) {
-        repositoryLog.fine('getById: not found, id=$id');
+        _log.fine('getById: not found, id=$id');
         return null;
       }
       return Wallet.fromMap(maps.first);
     } on DatabaseException catch (e) {
-      _logDatabaseException('getById', e);
+      _log.severe('getById failed', e);
       rethrow;
     }
   }
@@ -71,10 +62,10 @@ class WalletRepositoryImpl implements IWalletRepository {
   Future<int> insert(Wallet wallet) async {
     try {
       final id = await _db.insert(WalletsTable.table, wallet.toMap());
-      repositoryLog.info('insert succeeded: id=$id');
+      _log.info('insert succeeded: id=$id');
       return id;
     } on DatabaseException catch (e) {
-      _logDatabaseException('insert', e);
+      _log.severe('insert failed', e);
       rethrow;
     }
   }
@@ -93,12 +84,12 @@ class WalletRepositoryImpl implements IWalletRepository {
         whereArgs: [id],
       );
       if (affectedRows == 0) {
-        repositoryLog.warning('update: no rows affected, id=$id');
+        _log.warning('update: no rows affected, id=$id');
         throw StateError('Cannot update a wallet with id $id: not found');
       }
-      repositoryLog.info('update succeeded: id=$id');
+      _log.info('update succeeded: id=$id, affectedRows=$affectedRows');
     } on DatabaseException catch (e) {
-      _logDatabaseException('update', e);
+      _log.severe('update failed', e);
       rethrow;
     }
   }
@@ -111,11 +102,13 @@ class WalletRepositoryImpl implements IWalletRepository {
         where: '${WalletsTable.id} = ?',
         whereArgs: [id],
       );
-      repositoryLog.info(
-        'delete succeeded: id=$id, rowsAffected=$affectedRows',
-      );
+      if (affectedRows == 0) {
+        _log.warning('delete: no rows affected, id=$id');
+      } else {
+        _log.info('delete succeeded: id=$id, affectedRows=$affectedRows');
+      }
     } on DatabaseException catch (e) {
-      _logDatabaseException('delete', e);
+      _log.severe('delete failed', e);
       rethrow;
     }
   }

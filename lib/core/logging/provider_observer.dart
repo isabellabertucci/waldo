@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
+import 'package:logging/logging.dart';
 
-import 'log.dart';
+final _log = Logger('waldo');
 
 final class AppProviderObserver extends ProviderObserver {
   const AppProviderObserver();
@@ -18,6 +19,6 @@ final class AppProviderObserver extends ProviderObserver {
 
     final providerName =
         context.provider.name ?? context.provider.runtimeType.toString();
-    appLog.severe('Provider failed: $providerName', error, stackTrace);
+    _log.severe('Provider failed: $providerName', error, stackTrace);
   }
 }
