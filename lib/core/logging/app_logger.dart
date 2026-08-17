@@ -20,12 +20,6 @@ void initLogging() {
       error: record.error,
       stackTrace: record.stackTrace,
     );
-
-    if (kDebugMode) {
-      debugPrint(
-        '[${record.level.name}] ${record.loggerName}: ${record.message}',
-      );
-    }
   });
 }
 

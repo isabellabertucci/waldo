@@ -8,7 +8,7 @@ import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_form_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
-final _log = Logger('waldo.vm.wallet');
+final _log = Logger('waldo.ui.wallet_form');
 
 class WalletFormSheet extends ConsumerStatefulWidget {
   const WalletFormSheet({super.key, this.wallet});

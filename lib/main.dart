@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,22 +12,15 @@ import 'l10n/app_localizations.dart';
 final _log = Logger('waldo');
 
 void main() {
-  runZonedGuarded(
-    () {
-      initLogging();
-      _log.info('App starting');
-      installGlobalErrorLoggers();
+  initLogging();
+  _log.info('App starting');
+  installGlobalErrorLoggers();
 
-      runApp(
-        const ProviderScope(
-          observers: [if (!kReleaseMode) AppProviderObserver()],
-          child: MyApp(),
-        ),
-      );
-    },
-    (error, stackTrace) {
-      _log.severe('Unhandled asynchronous error', error, stackTrace);
-    },
+  runApp(
+    const ProviderScope(
+      observers: [if (!kReleaseMode) AppProviderObserver()],
+      child: MyApp(),
+    ),
   );
 }
 
