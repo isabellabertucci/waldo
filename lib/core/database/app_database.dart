@@ -1,6 +1,5 @@
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
-
 import '../constants/db_constants.dart';
 import 'migrations.dart';
 

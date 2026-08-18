@@ -48,6 +48,7 @@ class _WalletsBody extends ConsumerWidget {
     Wallet wallet,
   ) async {
     final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -78,11 +79,11 @@ class _WalletsBody extends ConsumerWidget {
 
     var undone = false;
 
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    messenger.showSnackBar(
       SnackBar(
         content: Text(l10n.walletDeleted),
         duration: const Duration(seconds: 5),
+        persist: false,
         action: SnackBarAction(
           label: l10n.undo,
           onPressed: () {
@@ -103,11 +104,7 @@ class _WalletsBody extends ConsumerWidget {
       // If the real delete fails, restore it. Show a generic message,
       // never the raw database error, to the user.
       viewModel.restoreWallet();
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.deleteError)));
-      }
+      messenger.showSnackBar(SnackBar(content: Text(l10n.deleteError)));
     }
   }
 

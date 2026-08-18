@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:logging/logging.dart';
 import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_form_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+
+final _log = Logger('waldo.ui.wallet_form');
 
 class WalletFormSheet extends ConsumerStatefulWidget {
   const WalletFormSheet({super.key, this.wallet});
@@ -66,12 +68,14 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
   }
 
   Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      _log.fine('Wallet form validation failed');
+      return;
+    }
 
     final viewModel = ref.read(
       walletFormViewModelProvider(widget.wallet).notifier,
     );
-
     try {
       final success = await viewModel.save(widget.wallet);
       if (success && mounted) Navigator.of(context).pop();
@@ -92,7 +96,6 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     final viewModel = ref.read(
       walletFormViewModelProvider(widget.wallet).notifier,
     );
-
     return Padding(
       padding: EdgeInsets.only(
         left: 16,

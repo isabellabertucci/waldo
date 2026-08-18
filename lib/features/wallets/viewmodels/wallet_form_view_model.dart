@@ -1,3 +1,4 @@
+import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/utils.dart';
@@ -7,6 +8,8 @@ import 'wallet_form_state.dart';
 import 'wallet_list_view_model.dart';
 
 part 'wallet_form_view_model.g.dart';
+
+final _log = Logger('waldo.vm.wallet');
 
 @riverpod
 class WalletFormViewModel extends _$WalletFormViewModel {
@@ -42,7 +45,6 @@ class WalletFormViewModel extends _$WalletFormViewModel {
               0);
 
     final repo = await ref.read(walletRepositoryProvider.future);
-
     if (isEditing) {
       await repo.update(
         existingWallet.copyWith(name: state.name.trim(), type: state.type),
@@ -58,7 +60,7 @@ class WalletFormViewModel extends _$WalletFormViewModel {
         ),
       );
     }
-
+    _log.info('Wallet save succeeded: isEditing=$isEditing');
     ref.invalidate(walletListViewModelProvider());
     return true;
   }
