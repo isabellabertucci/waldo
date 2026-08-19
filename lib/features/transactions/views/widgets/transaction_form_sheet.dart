@@ -92,11 +92,6 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
       final success = await viewModel.save(widget.transaction);
       if (success && mounted) {
         Navigator.of(context).pop();
-      } else if (mounted) {
-        final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.dateRequired)));
       }
     } catch (_) {
       if (mounted) {
@@ -187,16 +182,37 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
               _ => const SizedBox.shrink(),
             },
             const SizedBox(height: 16),
-            InkWell(
-              onTap: () => _pickDate(viewModel, formState.date),
-              child: InputDecorator(
-                decoration: InputDecoration(labelText: l10n.date),
-                child: Text(
-                  formState.date == null
-                      ? ''
-                      : dateFormat.format(formState.date!),
-                ),
-              ),
+            FormField<DateTime>(
+              initialValue: formState.date,
+              validator: (value) => value == null ? l10n.dateRequired : null,
+              builder: (field) {
+                return InkWell(
+                  onTap: () async {
+                    await _pickDate(viewModel, formState.date);
+                    field.didChange(
+                      ref
+                          .read(
+                            transactionFormViewModelProvider(
+                              widget.transaction,
+                              initialWalletId: widget.initialWalletId,
+                            ),
+                          )
+                          .date,
+                    );
+                  },
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: l10n.date,
+                      errorText: field.errorText,
+                    ),
+                    child: Text(
+                      formState.date == null
+                          ? ''
+                          : dateFormat.format(formState.date!),
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 16),
             TextFormField(
