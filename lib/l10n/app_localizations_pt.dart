@@ -106,4 +106,72 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get walletTypeInvestment => 'Investimento';
+
+  @override
+  String get noTransactionsYet => 'Ainda não há transações';
+
+  @override
+  String get addFirstTransaction =>
+      'Toque em + para adicionar a sua primeira transação';
+
+  @override
+  String get newTransaction => 'Nova transação';
+
+  @override
+  String get editTransaction => 'Editar transação';
+
+  @override
+  String get transactionDefaultDescription => 'Transação';
+
+  @override
+  String get amount => 'Valor';
+
+  @override
+  String get date => 'Data';
+
+  @override
+  String get wallet => 'Carteira';
+
+  @override
+  String get category => 'Categoria';
+
+  @override
+  String get transactionDescription => 'Descrição';
+
+  @override
+  String get deleteTransaction => 'Apagar transação?';
+
+  @override
+  String get deleteTransactionConfirm =>
+      'Isto vai apagar permanentemente esta transação.';
+
+  @override
+  String get transactionDeleted => 'Transação apagada';
+
+  @override
+  String get transactionsError =>
+      'Houve um problema ao carregar suas transações. Tente novamente.';
+
+  @override
+  String get transactionSaveError =>
+      'Houve um problema ao salvar a transação. Tente novamente.';
+
+  @override
+  String get transactionDeleteError =>
+      'Houve um problema ao apagar a transação. Tente novamente.';
+
+  @override
+  String get amountRequired => 'O valor é obrigatório';
+
+  @override
+  String get dateRequired => 'A data é obrigatória';
+
+  @override
+  String get walletRequired => 'A carteira é obrigatória';
+
+  @override
+  String get transactionTypeIncome => 'Receita';
+
+  @override
+  String get transactionTypeExpense => 'Despesa';
 }

@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "@@last_modified": "2026-08-07",
+  "@@last_modified": "2026-08-18",
   "appTitle": "Waldo",
   "@appTitle": {
     "description": "The title of the application"
@@ -43,7 +43,7 @@
   },
   "type": "Type",
   "@type": {
-    "description": "Type field label"
+    "description": "Type field label (shared between wallets and transactions)"
   },
   "startingBalance": "Starting balance",
   "@startingBalance": {
@@ -129,5 +129,89 @@
   "walletTypeInvestment": "Investment",
   "@walletTypeInvestment": {
     "description": "Investment wallet type"
+  },
+  "noTransactionsYet": "No transactions yet",
+  "@noTransactionsYet": {
+    "description": "Empty state title for transactions list"
+  },
+  "addFirstTransaction": "Tap + to add your first transaction",
+  "@addFirstTransaction": {
+    "description": "Empty state subtitle for transactions list"
+  },
+  "newTransaction": "New Transaction",
+  "@newTransaction": {
+    "description": "Title of the create transaction form"
+  },
+  "editTransaction": "Edit Transaction",
+  "@editTransaction": {
+    "description": "Title of the edit transaction form"
+  },
+  "transactionDefaultDescription": "Transaction",
+  "@transactionDefaultDescription": {
+    "description": "Fallback label when a transaction has no description"
+  },
+  "amount": "Amount",
+  "@amount": {
+    "description": "Amount field label"
+  },
+  "date": "Date",
+  "@date": {
+    "description": "Date field label"
+  },
+  "wallet": "Wallet",
+  "@wallet": {
+    "description": "Wallet field label"
+  },
+  "category": "Category",
+  "@category": {
+    "description": "Category field label"
+  },
+  "transactionDescription": "Description",
+  "@transactionDescription": {
+    "description": "Transaction description field label"
+  },
+  "deleteTransaction": "Delete transaction?",
+  "@deleteTransaction": {
+    "description": "Delete confirmation dialog title"
+  },
+  "deleteTransactionConfirm": "This will permanently delete this transaction.",
+  "@deleteTransactionConfirm": {
+    "description": "Delete confirmation dialog message"
+  },
+  "transactionDeleted": "Transaction deleted",
+  "@transactionDeleted": {
+    "description": "Snackbar message after deleting a transaction"
+  },
+  "transactionsError": "There was a problem loading your transactions. Please try again.",
+  "@transactionsError": {
+    "description": "Generic error message shown when transactions fail to load"
+  },
+  "transactionSaveError": "There was a problem saving the transaction. Please try again.",
+  "@transactionSaveError": {
+    "description": "Generic error message shown when saving a transaction fails"
+  },
+  "transactionDeleteError": "There was a problem deleting the transaction. Please try again.",
+  "@transactionDeleteError": {
+    "description": "Generic error message shown when deleting a transaction fails"
+  },
+  "amountRequired": "Amount is required",
+  "@amountRequired": {
+    "description": "Validation error for empty amount"
+  },
+  "dateRequired": "Date is required",
+  "@dateRequired": {
+    "description": "Validation error for missing date"
+  },
+  "walletRequired": "Wallet is required",
+  "@walletRequired": {
+    "description": "Validation error for missing wallet"
+  },
+  "transactionTypeIncome": "Income",
+  "@transactionTypeIncome": {
+    "description": "Income transaction type"
+  },
+  "transactionTypeExpense": "Expense",
+  "@transactionTypeExpense": {
+    "description": "Expense transaction type"
   }
 }

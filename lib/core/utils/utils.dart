@@ -48,3 +48,11 @@ String walletTypeLabel(AppLocalizations l10n, WalletType type) {
     WalletType.investment => l10n.walletTypeInvestment,
   };
 }
+
+/// Returns the translated display label for a transaction type.
+String transactionTypeLabel(AppLocalizations l10n, TransactionType type) {
+  return switch (type) {
+    TransactionType.income => l10n.transactionTypeIncome,
+    TransactionType.expense => l10n.transactionTypeExpense,
+  };
+}

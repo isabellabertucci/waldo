@@ -105,4 +105,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get walletTypeInvestment => 'Investment';
+
+  @override
+  String get noTransactionsYet => 'No transactions yet';
+
+  @override
+  String get addFirstTransaction => 'Tap + to add your first transaction';
+
+  @override
+  String get newTransaction => 'New Transaction';
+
+  @override
+  String get editTransaction => 'Edit Transaction';
+
+  @override
+  String get transactionDefaultDescription => 'Transaction';
+
+  @override
+  String get amount => 'Amount';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get wallet => 'Wallet';
+
+  @override
+  String get category => 'Category';
+
+  @override
+  String get transactionDescription => 'Description';
+
+  @override
+  String get deleteTransaction => 'Delete transaction?';
+
+  @override
+  String get deleteTransactionConfirm =>
+      'This will permanently delete this transaction.';
+
+  @override
+  String get transactionDeleted => 'Transaction deleted';
+
+  @override
+  String get transactionsError =>
+      'There was a problem loading your transactions. Please try again.';
+
+  @override
+  String get transactionSaveError =>
+      'There was a problem saving the transaction. Please try again.';
+
+  @override
+  String get transactionDeleteError =>
+      'There was a problem deleting the transaction. Please try again.';
+
+  @override
+  String get amountRequired => 'Amount is required';
+
+  @override
+  String get dateRequired => 'Date is required';
+
+  @override
+  String get walletRequired => 'Wallet is required';
+
+  @override
+  String get transactionTypeIncome => 'Income';
+
+  @override
+  String get transactionTypeExpense => 'Expense';
 }

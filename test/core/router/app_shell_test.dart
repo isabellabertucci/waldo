@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
-import 'package:waldo/features/transactions/ui/transactions_screen.dart';
-import 'package:waldo/features/transactions/ui/transaction_new_screen.dart';
+import 'package:waldo/features/transactions/views/transactions_screen.dart';
+import 'package:waldo/features/transactions/views/transaction_new_screen.dart';
 import 'package:waldo/features/wallets/views/wallets_screen.dart';
 import 'package:waldo/features/settings/ui/settings_screen.dart';
 

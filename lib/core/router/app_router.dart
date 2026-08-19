@@ -5,9 +5,9 @@ import 'app_shell.dart';
 import '../../features/dashboard/ui/dashboard_screen.dart';
 import '../../features/wallets/views/wallets_screen.dart';
 import '../../features/settings/ui/settings_screen.dart';
-import '../../features/transactions/ui/transaction_detail_screen.dart';
-import '../../features/transactions/ui/transaction_new_screen.dart';
-import '../../features/transactions/ui/transactions_screen.dart';
+import '../../features/transactions/views/transaction_detail_screen.dart';
+import '../../features/transactions/views/transaction_new_screen.dart';
+import '../../features/transactions/views/transactions_screen.dart';
 
 part 'app_router.g.dart';
 
