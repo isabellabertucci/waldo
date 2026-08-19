@@ -130,7 +130,10 @@ class _WalletsBody extends ConsumerWidget {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(formatCents(wallet.currentBalance)),
+              Text(
+                formatCents(wallet.currentBalance),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.edit),
