@@ -5,7 +5,6 @@ import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
-import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_list_view_model.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_providers.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -19,7 +18,7 @@ class TransactionDetailScreen extends ConsumerWidget {
   });
 
   final int walletId;
-  final String id;
+  final int id;
 
   Future<void> _confirmDelete(
     BuildContext context,
@@ -49,10 +48,12 @@ class TransactionDetailScreen extends ConsumerWidget {
 
     if (confirmed != true) return;
 
+    final viewModel = ref.read(
+      transactionListViewModelProvider(walletId: walletId).notifier,
+    );
+
     try {
-      final repo = await ref.read(transactionRepositoryProvider.future);
-      await repo.delete(transaction.id!);
-      ref.invalidate(transactionListViewModelProvider(walletId: walletId));
+      await viewModel.confirmDelete(transaction.id!, walletId);
       if (context.mounted) {
         messenger.showSnackBar(
           SnackBar(content: Text(l10n.transactionDeleted)),
@@ -69,8 +70,7 @@ class TransactionDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final transactionId = int.parse(id);
-    final transactionAsync = ref.watch(transactionByIdProvider(transactionId));
+    final transactionAsync = ref.watch(transactionByIdProvider(id));
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.transactions)),

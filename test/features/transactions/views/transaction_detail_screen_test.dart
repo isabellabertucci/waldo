@@ -49,7 +49,7 @@ void main() {
 
     currentDb = await pumpWidgetWithProviders(
       tester,
-      TransactionDetailScreen(walletId: walletId, id: transactionId.toString()),
+      TransactionDetailScreen(walletId: walletId, id: transactionId),
       db: db,
     );
 

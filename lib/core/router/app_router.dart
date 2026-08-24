@@ -108,7 +108,7 @@ class TransactionDetailRoute extends GoRouteData with $TransactionDetailRoute {
   const TransactionDetailRoute(this.walletId, this.id);
 
   final int walletId;
-  final String id;
+  final int id;
 
   @override
   Widget build(BuildContext context, GoRouterState state) {

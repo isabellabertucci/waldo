@@ -2,6 +2,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
+import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
+import 'package:waldo/features/wallets/viewmodels/wallet_providers.dart';
 
 part 'transaction_list_view_model.g.dart';
 
@@ -23,9 +25,12 @@ class TransactionListViewModel extends _$TransactionListViewModel {
     return true;
   }
 
-  Future<void> confirmDelete(int id) async {
+  Future<void> confirmDelete(int id, int walletId) async {
     final repo = await ref.read(transactionRepositoryProvider.future);
     await repo.delete(id);
+    ref.invalidateSelf();
+    ref.invalidate(walletListViewModelProvider());
+    ref.invalidate(walletByIdProvider(walletId));
   }
 
   void restoreTransaction() {

@@ -156,14 +156,14 @@ mixin $TransactionDetailRoute on GoRouteData {
   static TransactionDetailRoute _fromState(GoRouterState state) =>
       TransactionDetailRoute(
         int.parse(state.pathParameters['walletId']!),
-        state.pathParameters['id']!,
+        int.parse(state.pathParameters['id']!),
       );
 
   TransactionDetailRoute get _self => this as TransactionDetailRoute;
 
   @override
   String get location => GoRouteData.$location(
-    '/wallets/${Uri.encodeComponent(_self.walletId.toString())}/transactions/${Uri.encodeComponent(_self.id)}',
+    '/wallets/${Uri.encodeComponent(_self.walletId.toString())}/transactions/${Uri.encodeComponent(_self.id.toString())}',
   );
 
   @override

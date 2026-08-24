@@ -88,10 +88,7 @@ class _TransactionsBody extends ConsumerWidget {
             style: TextStyle(color: color, fontWeight: FontWeight.bold),
           ),
           onTap: () {
-            TransactionDetailRoute(
-              walletId,
-              transaction.id.toString(),
-            ).push(context);
+            TransactionDetailRoute(walletId, transaction.id!).push(context);
           },
         );
       },
