@@ -7,6 +7,7 @@ import '../models/wallet.dart';
 import '../viewmodels/wallet_list_view_model.dart';
 import 'widgets/wallet_form_sheet.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/router/app_router.dart';
 
 class WalletsScreen extends ConsumerWidget {
   const WalletsScreen({super.key});
@@ -127,6 +128,9 @@ class _WalletsBody extends ConsumerWidget {
         return ListTile(
           title: Text(wallet.name),
           subtitle: Text(walletTypeLabel(l10n, wallet.type)),
+          onTap: () {
+            TransactionsRoute(wallet.id!).push(context);
+          },
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

@@ -35,3 +35,9 @@ class TransactionListViewModel extends _$TransactionListViewModel {
     ref.invalidateSelf();
   }
 }
+
+@riverpod
+Future<Transaction?> transactionById(Ref ref, int id) async {
+  final repo = await ref.watch(transactionRepositoryProvider.future);
+  return repo.getById(id);
+}

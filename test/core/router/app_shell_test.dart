@@ -7,6 +7,8 @@ import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
 import 'package:waldo/features/transactions/views/transactions_screen.dart';
 import 'package:waldo/features/transactions/views/transaction_new_screen.dart';
 import 'package:waldo/features/wallets/views/wallets_screen.dart';
+import 'package:waldo/features/wallets/models/wallet.dart';
+import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
 import 'package:waldo/features/settings/ui/settings_screen.dart';
 
 import '../../helpers/test_app.dart';
@@ -38,7 +40,6 @@ void main() {
       expect(navBar.selectedIndex, 0);
 
       expect(find.byType(DashboardScreen), findsOneWidget);
-      expect(find.byType(TransactionsScreen), findsNothing);
       expect(find.byType(WalletsScreen), findsNothing);
       expect(find.byType(SettingsScreen), findsNothing);
     });
@@ -55,32 +56,22 @@ void main() {
         );
         expect(find.byType(DashboardScreen), findsOneWidget);
 
-        // Act & Assert: Transactions (index 1)
+        // Act & Assert: Wallets (index 1)
         await tester.tap(findNavDestination(1));
         await tester.pumpAndSettle();
         expect(
           tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
           1,
         );
-        expect(find.byType(TransactionsScreen), findsOneWidget);
+        expect(find.byType(WalletsScreen), findsOneWidget);
         expect(find.byType(DashboardScreen), findsNothing);
 
-        // Act & Assert: Wallets (index 2)
+        // Act & Assert: Settings (index 2)
         await tester.tap(findNavDestination(2));
         await tester.pumpAndSettle();
         expect(
           tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
           2,
-        );
-        expect(find.byType(WalletsScreen), findsOneWidget);
-        expect(find.byType(TransactionsScreen), findsNothing);
-
-        // Act & Assert: Settings (index 3)
-        await tester.tap(findNavDestination(3));
-        await tester.pumpAndSettle();
-        expect(
-          tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
-          3,
         );
         expect(find.byType(SettingsScreen), findsOneWidget);
         expect(find.byType(WalletsScreen), findsNothing);
@@ -97,40 +88,50 @@ void main() {
       },
     );
 
-    testWidgets('Tab state is preserved when switching away and back', (
-      WidgetTester tester,
-    ) async {
-      currentDb = await pumpTestApp(tester, router: router);
+    testWidgets(
+      'Navigating into a wallet transactions preserves tab state on return',
+      (WidgetTester tester) async {
+        currentDb = await pumpTestApp(tester, router: router);
+        final walletRepo = WalletRepositoryImpl(currentDb!);
+        final walletId = await walletRepo.insert(
+          const Wallet(
+            name: 'Test Wallet',
+            createdAt: '2026-08-10T12:00:00.000',
+          ),
+        );
 
-      expect(find.byType(DashboardScreen), findsOneWidget);
+        expect(find.byType(DashboardScreen), findsOneWidget);
 
-      // Navigate to Transactions branch (index 1)
-      await tester.tap(findNavDestination(1));
-      await tester.pumpAndSettle();
-      expect(find.byType(TransactionsScreen), findsOneWidget);
+        // Navigate to Wallets branch (index 1)
+        await tester.tap(findNavDestination(1));
+        await tester.pumpAndSettle();
+        expect(find.byType(WalletsScreen), findsOneWidget);
 
-      // Navigate into nested route
-      router.go('/transactions/new');
-      await tester.pumpAndSettle();
-      expect(find.byType(TransactionNewScreen), findsOneWidget);
+        // Navigate into nested transactions route for the wallet
+        router.go('/wallets/$walletId/transactions');
+        await tester.pumpAndSettle();
+        expect(find.byType(TransactionsScreen), findsOneWidget);
 
-      // Switch to Wallets branch (index 2)
-      await tester.tap(findNavDestination(2));
-      await tester.pumpAndSettle();
-      expect(find.byType(WalletsScreen), findsOneWidget);
-      expect(find.byType(TransactionNewScreen), findsNothing);
+        router.go('/wallets/$walletId/transactions/new');
+        await tester.pumpAndSettle();
+        expect(find.byType(TransactionNewScreen), findsOneWidget);
 
-      // Switch back to Transactions branch (index 1)
-      await tester.tap(findNavDestination(1));
-      await tester.pumpAndSettle();
+        // Switch to Settings branch (index 2)
+        await tester.tap(findNavDestination(2));
+        await tester.pumpAndSettle();
+        expect(find.byType(SettingsScreen), findsOneWidget);
+        expect(find.byType(TransactionNewScreen), findsNothing);
 
-      expect(find.byType(TransactionNewScreen), findsOneWidget);
-      expect(find.byType(TransactionsScreen), findsNothing);
+        // Switch back to Wallets branch (index 1) — nested state preserved
+        await tester.tap(findNavDestination(1));
+        await tester.pumpAndSettle();
 
-      expect(
-        tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
-        1,
-      );
-    });
+        expect(find.byType(TransactionNewScreen), findsOneWidget);
+        expect(
+          tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
+          1,
+        );
+      },
+    );
   });
 }

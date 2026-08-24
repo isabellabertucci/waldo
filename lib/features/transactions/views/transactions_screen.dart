@@ -12,9 +12,9 @@ import 'widgets/transaction_form_sheet.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 class TransactionsScreen extends ConsumerWidget {
-  const TransactionsScreen({super.key, this.walletId});
+  const TransactionsScreen({super.key, required this.walletId});
 
-  final int? walletId;
+  final int walletId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -48,10 +48,10 @@ class TransactionsScreen extends ConsumerWidget {
 }
 
 class _TransactionsBody extends ConsumerWidget {
-  const _TransactionsBody({required this.transactions, this.walletId});
+  const _TransactionsBody({required this.transactions, required this.walletId});
 
   final List<Transaction> transactions;
-  final int? walletId;
+  final int walletId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -88,7 +88,10 @@ class _TransactionsBody extends ConsumerWidget {
             style: TextStyle(color: color, fontWeight: FontWeight.bold),
           ),
           onTap: () {
-            TransactionDetailRoute(transaction.id.toString()).push(context);
+            TransactionDetailRoute(
+              walletId,
+              transaction.id.toString(),
+            ).push(context);
           },
         );
       },

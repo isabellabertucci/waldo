@@ -94,7 +94,17 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
     _log.info(
       'Transaction save succeeded: isEditing=${existingTransaction != null}',
     );
-    ref.invalidate(transactionListViewModelProvider());
+
+    ref.invalidate(transactionListViewModelProvider(walletId: walletId));
+    if (existingTransaction != null &&
+        existingTransaction.walletId != walletId) {
+      ref.invalidate(
+        transactionListViewModelProvider(
+          walletId: existingTransaction.walletId,
+        ),
+      );
+    }
+
     return true;
   }
 }
