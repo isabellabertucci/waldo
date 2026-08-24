@@ -60,11 +60,6 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
               factory: $TransactionsRoute._fromState,
               routes: [
                 GoRouteData.$route(
-                  path: 'new',
-                  hasOverriddenOnExit: false,
-                  factory: $TransactionNewRoute._fromState,
-                ),
-                GoRouteData.$route(
                   path: ':id',
                   hasOverriddenOnExit: false,
                   factory: $TransactionDetailRoute._fromState,
@@ -141,31 +136,6 @@ mixin $TransactionsRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
     '/wallets/${Uri.encodeComponent(_self.walletId.toString())}/transactions',
-  );
-
-  @override
-  void go(BuildContext context) => context.go(location);
-
-  @override
-  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
-
-  @override
-  void pushReplacement(BuildContext context) =>
-      context.pushReplacement(location);
-
-  @override
-  void replace(BuildContext context) => context.replace(location);
-}
-
-mixin $TransactionNewRoute on GoRouteData {
-  static TransactionNewRoute _fromState(GoRouterState state) =>
-      TransactionNewRoute(int.parse(state.pathParameters['walletId']!));
-
-  TransactionNewRoute get _self => this as TransactionNewRoute;
-
-  @override
-  String get location => GoRouteData.$location(
-    '/wallets/${Uri.encodeComponent(_self.walletId.toString())}/transactions/new',
   );
 
   @override

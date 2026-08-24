@@ -6,7 +6,6 @@ import '../../features/dashboard/ui/dashboard_screen.dart';
 import '../../features/wallets/views/wallets_screen.dart';
 import '../../features/settings/ui/settings_screen.dart';
 import '../../features/transactions/views/transaction_detail_screen.dart';
-import '../../features/transactions/views/transaction_new_screen.dart';
 import '../../features/transactions/views/transactions_screen.dart';
 import '../../features/categories/views/categories_screen.dart';
 
@@ -36,10 +35,7 @@ class CategoriesRoute extends GoRouteData with $CategoriesRoute {
           routes: [
             TypedGoRoute<TransactionsRoute>(
               path: ':walletId/transactions',
-              routes: [
-                TypedGoRoute<TransactionNewRoute>(path: 'new'),
-                TypedGoRoute<TransactionDetailRoute>(path: ':id'),
-              ],
+              routes: [TypedGoRoute<TransactionDetailRoute>(path: ':id')],
             ),
           ],
         ),
@@ -105,17 +101,6 @@ class TransactionsRoute extends GoRouteData with $TransactionsRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return TransactionsScreen(walletId: walletId);
-  }
-}
-
-class TransactionNewRoute extends GoRouteData with $TransactionNewRoute {
-  const TransactionNewRoute(this.walletId);
-
-  final int walletId;
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return TransactionNewScreen(walletId: walletId);
   }
 }
 
