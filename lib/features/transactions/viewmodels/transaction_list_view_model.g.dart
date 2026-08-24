@@ -17,7 +17,7 @@ final class TransactionListViewModelProvider
         $AsyncNotifierProvider<TransactionListViewModel, List<Transaction>> {
   const TransactionListViewModelProvider._({
     required TransactionListViewModelFamily super.from,
-    required ({int? walletId, SortOrder sortOrder}) super.argument,
+    required ({int walletId, SortOrder sortOrder}) super.argument,
   }) : super(
          retry: null,
          name: r'transactionListViewModelProvider',
@@ -53,7 +53,7 @@ final class TransactionListViewModelProvider
 }
 
 String _$transactionListViewModelHash() =>
-    r'a266e6efd00dc1bd72567271ebff36bc15d4e680';
+    r'11a79cbfa0aeaec4b6eb097b9ec13fd4272f6585';
 
 final class TransactionListViewModelFamily extends $Family
     with
@@ -62,7 +62,7 @@ final class TransactionListViewModelFamily extends $Family
           AsyncValue<List<Transaction>>,
           List<Transaction>,
           FutureOr<List<Transaction>>,
-          ({int? walletId, SortOrder sortOrder})
+          ({int walletId, SortOrder sortOrder})
         > {
   const TransactionListViewModelFamily._()
     : super(
@@ -74,7 +74,7 @@ final class TransactionListViewModelFamily extends $Family
       );
 
   TransactionListViewModelProvider call({
-    int? walletId,
+    required int walletId,
     SortOrder sortOrder = SortOrder.desc,
   }) => TransactionListViewModelProvider._(
     argument: (walletId: walletId, sortOrder: sortOrder),
@@ -87,12 +87,12 @@ final class TransactionListViewModelFamily extends $Family
 
 abstract class _$TransactionListViewModel
     extends $AsyncNotifier<List<Transaction>> {
-  late final _$args = ref.$arg as ({int? walletId, SortOrder sortOrder});
-  int? get walletId => _$args.walletId;
+  late final _$args = ref.$arg as ({int walletId, SortOrder sortOrder});
+  int get walletId => _$args.walletId;
   SortOrder get sortOrder => _$args.sortOrder;
 
   FutureOr<List<Transaction>> build({
-    int? walletId,
+    required int walletId,
     SortOrder sortOrder = SortOrder.desc,
   });
   @$mustCallSuper

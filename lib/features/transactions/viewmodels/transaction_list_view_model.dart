@@ -9,14 +9,11 @@ part 'transaction_list_view_model.g.dart';
 class TransactionListViewModel extends _$TransactionListViewModel {
   @override
   Future<List<Transaction>> build({
-    int? walletId,
+    required int walletId,
     SortOrder sortOrder = SortOrder.desc,
   }) async {
     final repo = await ref.watch(transactionRepositoryProvider.future);
-    if (walletId != null) {
-      return repo.getByWallet(walletId, sortOrder: sortOrder);
-    }
-    return repo.getAll(sortOrder: sortOrder);
+    return repo.getByWallet(walletId, sortOrder: sortOrder);
   }
 
   bool hideTransaction(int id) {

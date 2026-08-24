@@ -5,12 +5,12 @@ import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/database/db_providers.dart';
 import '../models/transaction.dart';
+
 part 'transaction_repository.g.dart';
 
 final _log = Logger('waldo.repository.transaction');
 
 abstract class ITransactionRepository {
-  Future<List<Transaction>> getAll({SortOrder sortOrder = SortOrder.desc});
   Future<List<Transaction>> getByWallet(
     int walletId, {
     SortOrder sortOrder = SortOrder.desc,
@@ -26,10 +26,6 @@ class TransactionRepositoryImpl implements ITransactionRepository {
 
   final Database _db;
 
-  int _balanceDelta(TransactionType type, int amount) {
-    return type == TransactionType.income ? amount : -amount;
-  }
-
   Future<void> _adjustWalletBalance(
     DatabaseExecutor executor,
     int walletId,
@@ -41,24 +37,6 @@ class TransactionRepositoryImpl implements ITransactionRepository {
       'WHERE ${WalletsTable.id} = ?',
       [delta, walletId],
     );
-  }
-
-  @override
-  Future<List<Transaction>> getAll({
-    SortOrder sortOrder = SortOrder.desc,
-  }) async {
-    try {
-      final direction = sortOrder == SortOrder.desc ? 'DESC' : 'ASC';
-      final maps = await _db.query(
-        TransactionsTable.table,
-        orderBy: '${TransactionsTable.date} $direction',
-      );
-      _log.fine('getAll succeeded: rowCount=${maps.length}');
-      return maps.map((map) => Transaction.fromMap(map)).toList();
-    } on DatabaseException catch (e) {
-      _log.severe('getAll failed', e);
-      rethrow;
-    }
   }
 
   @override
@@ -111,7 +89,7 @@ class TransactionRepositoryImpl implements ITransactionRepository {
           TransactionsTable.table,
           transaction.toMap(),
         );
-        final delta = _balanceDelta(transaction.type, transaction.amount);
+        final delta = transaction.type.balanceDelta(transaction.amount);
         await _adjustWalletBalance(txn, transaction.walletId, delta);
         _log.info('insert succeeded: id=$id, walletId=${transaction.walletId}');
         return id;
@@ -143,12 +121,10 @@ class TransactionRepositoryImpl implements ITransactionRepository {
         }
         final existing = Transaction.fromMap(existingMaps.first);
 
-        // Reverse the old effect on the old wallet, then apply the new
-        // effect on the (possibly different) new wallet.
-        final reverseDelta = -_balanceDelta(existing.type, existing.amount);
+        final reverseDelta = -existing.type.balanceDelta(existing.amount);
         await _adjustWalletBalance(txn, existing.walletId, reverseDelta);
 
-        final newDelta = _balanceDelta(transaction.type, transaction.amount);
+        final newDelta = transaction.type.balanceDelta(transaction.amount);
         await _adjustWalletBalance(txn, transaction.walletId, newDelta);
 
         final affectedRows = await txn.update(
@@ -186,7 +162,7 @@ class TransactionRepositoryImpl implements ITransactionRepository {
           whereArgs: [id],
         );
 
-        final reverseDelta = -_balanceDelta(existing.type, existing.amount);
+        final reverseDelta = -existing.type.balanceDelta(existing.amount);
         await _adjustWalletBalance(txn, existing.walletId, reverseDelta);
 
         _log.info('delete succeeded: id=$id, affectedRows=$affectedRows');

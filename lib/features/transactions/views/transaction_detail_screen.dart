@@ -52,7 +52,7 @@ class TransactionDetailScreen extends ConsumerWidget {
     try {
       final repo = await ref.read(transactionRepositoryProvider.future);
       await repo.delete(transaction.id!);
-      ref.invalidate(transactionListViewModelProvider());
+      ref.invalidate(transactionListViewModelProvider(walletId: walletId));
       if (context.mounted) {
         messenger.showSnackBar(
           SnackBar(content: Text(l10n.transactionDeleted)),
