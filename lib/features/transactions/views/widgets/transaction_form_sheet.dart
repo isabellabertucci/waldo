@@ -64,30 +64,20 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     return null;
   }
 
-  Future<void> _pickDate(
-    TransactionFormViewModel viewModel,
-    DateTime? current,
-  ) async {
-    final picked = await showDatePicker(
+  Future<DateTime?> _pickDate(DateTime? current) {
+    return showDatePicker(
       context: context,
       initialDate: current ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-    if (picked != null) viewModel.updateDate(picked);
   }
 
-  Future<void> _save() async {
+  Future<void> _save(TransactionFormViewModel viewModel) async {
     if (!_formKey.currentState!.validate()) {
       _log.fine('Transaction form validation failed');
       return;
     }
-    final viewModel = ref.read(
-      transactionFormViewModelProvider(
-        widget.transaction,
-        initialWalletId: widget.initialWalletId,
-      ).notifier,
-    );
     try {
       final success = await viewModel.save(widget.transaction);
       if (success && mounted) {
@@ -188,17 +178,10 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
               builder: (field) {
                 return InkWell(
                   onTap: () async {
-                    await _pickDate(viewModel, formState.date);
-                    field.didChange(
-                      ref
-                          .read(
-                            transactionFormViewModelProvider(
-                              widget.transaction,
-                              initialWalletId: widget.initialWalletId,
-                            ),
-                          )
-                          .date,
-                    );
+                    final picked = await _pickDate(formState.date);
+                    if (picked == null) return;
+                    viewModel.updateDate(picked);
+                    field.didChange(picked);
                   },
                   child: InputDecorator(
                     decoration: InputDecoration(
@@ -223,7 +206,10 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
               ),
             ),
             const SizedBox(height: 24),
-            FilledButton(onPressed: _save, child: Text(l10n.save)),
+            FilledButton(
+              onPressed: () => _save(viewModel),
+              child: Text(l10n.save),
+            ),
           ],
         ),
       ),
