@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
+import 'package:waldo/features/categories/models/category.dart';
+import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
@@ -186,5 +188,37 @@ void main() {
         throwsA(isA<DatabaseException>()),
       );
     });
+
+    test(
+      'deleting a category sets categoryId to null on its transactions, without deleting them',
+      () async {
+        final categoryRepo = CategoryRepositoryImpl(db);
+        final categoryId = await categoryRepo.insert(
+          const Category(
+            name: 'Groceries',
+            type: CategoryType.groceries,
+            createdAt: '2026-08-10T12:00:00.000',
+          ),
+        );
+        final walletId = await createWallet();
+
+        final transactionId = await repo.insert(
+          Transaction(
+            walletId: walletId,
+            categoryId: categoryId,
+            amount: 100,
+            type: TransactionType.expense,
+            date: '2026-08-10',
+            createdAt: '2026-08-10T12:00:00.000',
+          ),
+        );
+
+        await categoryRepo.delete(categoryId);
+
+        final transaction = await repo.getById(transactionId);
+        expect(transaction, isNotNull);
+        expect(transaction!.categoryId, isNull);
+      },
+    );
   });
 }
