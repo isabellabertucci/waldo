@@ -6,7 +6,34 @@ part of 'app_router.dart';
 // GoRouterGenerator
 // **************************************************************************
 
-List<RouteBase> get $appRoutes => [$appShellRoute];
+List<RouteBase> get $appRoutes => [$categoriesRoute, $appShellRoute];
+
+RouteBase get $categoriesRoute => GoRouteData.$route(
+  path: '/categories',
+  hasOverriddenOnExit: false,
+  factory: $CategoriesRoute._fromState,
+);
+
+mixin $CategoriesRoute on GoRouteData {
+  static CategoriesRoute _fromState(GoRouterState state) =>
+      const CategoriesRoute();
+
+  @override
+  String get location => GoRouteData.$location('/categories');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
 
 RouteBase get $appShellRoute => StatefulShellRouteData.$route(
   factory: $AppShellRouteExtension._fromState,

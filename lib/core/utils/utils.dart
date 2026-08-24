@@ -56,3 +56,14 @@ String transactionTypeLabel(AppLocalizations l10n, TransactionType type) {
     TransactionType.expense => l10n.transactionTypeExpense,
   };
 }
+
+/// Returns the translated display label for a category type.
+String categoryTypeLabel(AppLocalizations l10n, CategoryType type) {
+  return switch (type) {
+    CategoryType.groceries => l10n.categoryTypeGroceries,
+    CategoryType.transportation => l10n.categoryTypeTransportation,
+    CategoryType.subscriptions => l10n.categoryTypeSubscriptions,
+    CategoryType.education => l10n.categoryTypeEducation,
+    CategoryType.investments => l10n.categoryTypeInvestments,
+  };
+}

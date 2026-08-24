@@ -409,6 +409,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expense'**
   String get transactionTypeExpense;
+
+  /// Categories screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categories;
+
+  /// Empty state title for categories list
+  ///
+  /// In en, this message translates to:
+  /// **'No categories yet'**
+  String get noCategoriesYet;
+
+  /// Empty state subtitle for categories list
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to add your first category'**
+  String get addFirstCategory;
+
+  /// Title of the create category form
+  ///
+  /// In en, this message translates to:
+  /// **'New Category'**
+  String get newCategory;
+
+  /// Title of the edit category form
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Category'**
+  String get editCategory;
+
+  /// Link from the transaction form to manage categories
+  ///
+  /// In en, this message translates to:
+  /// **'Manage categories'**
+  String get manageCategories;
+
+  /// Delete confirmation dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Delete category?'**
+  String get deleteCategory;
+
+  /// Delete confirmation dialog message
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete \"{name}\".'**
+  String deleteCategoryConfirm(String name);
+
+  /// Snackbar message after deleting a category
+  ///
+  /// In en, this message translates to:
+  /// **'Category deleted'**
+  String get categoryDeleted;
+
+  /// Generic error message shown when categories fail to load
+  ///
+  /// In en, this message translates to:
+  /// **'There was a problem loading your categories. Please try again.'**
+  String get categoriesError;
+
+  /// Generic error message shown when saving a category fails
+  ///
+  /// In en, this message translates to:
+  /// **'There was a problem saving the category. Please try again.'**
+  String get categorySaveError;
+
+  /// Generic error message shown when deleting a category fails
+  ///
+  /// In en, this message translates to:
+  /// **'There was a problem deleting the category. Please try again.'**
+  String get categoryDeleteError;
+
+  /// Groceries category type
+  ///
+  /// In en, this message translates to:
+  /// **'Groceries'**
+  String get categoryTypeGroceries;
+
+  /// Transportation category type
+  ///
+  /// In en, this message translates to:
+  /// **'Transportation'**
+  String get categoryTypeTransportation;
+
+  /// Subscriptions category type
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions'**
+  String get categoryTypeSubscriptions;
+
+  /// Education category type
+  ///
+  /// In en, this message translates to:
+  /// **'Education'**
+  String get categoryTypeEducation;
+
+  /// Investments category type
+  ///
+  /// In en, this message translates to:
+  /// **'Investments'**
+  String get categoryTypeInvestments;
+
+  /// Label for selecting no category on a transaction
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get none;
 }
 
 class _AppLocalizationsDelegate

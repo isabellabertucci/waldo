@@ -213,5 +213,82 @@
   "transactionTypeExpense": "Expense",
   "@transactionTypeExpense": {
     "description": "Expense transaction type"
+  },
+  "categories": "Categories",
+  "@categories": {
+    "description": "Categories screen title"
+  },
+  "noCategoriesYet": "No categories yet",
+  "@noCategoriesYet": {
+    "description": "Empty state title for categories list"
+  },
+  "addFirstCategory": "Tap + to add your first category",
+  "@addFirstCategory": {
+    "description": "Empty state subtitle for categories list"
+  },
+  "newCategory": "New Category",
+  "@newCategory": {
+    "description": "Title of the create category form"
+  },
+  "editCategory": "Edit Category",
+  "@editCategory": {
+    "description": "Title of the edit category form"
+  },
+  "manageCategories": "Manage categories",
+  "@manageCategories": {
+    "description": "Link from the transaction form to manage categories"
+  },
+  "deleteCategory": "Delete category?",
+  "@deleteCategory": {
+    "description": "Delete confirmation dialog title"
+  },
+  "deleteCategoryConfirm": "This will permanently delete \"{name}\".",
+  "@deleteCategoryConfirm": {
+    "description": "Delete confirmation dialog message",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "categoryDeleted": "Category deleted",
+  "@categoryDeleted": {
+    "description": "Snackbar message after deleting a category"
+  },
+  "categoriesError": "There was a problem loading your categories. Please try again.",
+  "@categoriesError": {
+    "description": "Generic error message shown when categories fail to load"
+  },
+  "categorySaveError": "There was a problem saving the category. Please try again.",
+  "@categorySaveError": {
+    "description": "Generic error message shown when saving a category fails"
+  },
+  "categoryDeleteError": "There was a problem deleting the category. Please try again.",
+  "@categoryDeleteError": {
+    "description": "Generic error message shown when deleting a category fails"
+  },
+  "categoryTypeGroceries": "Groceries",
+  "@categoryTypeGroceries": {
+    "description": "Groceries category type"
+  },
+  "categoryTypeTransportation": "Transportation",
+  "@categoryTypeTransportation": {
+    "description": "Transportation category type"
+  },
+  "categoryTypeSubscriptions": "Subscriptions",
+  "@categoryTypeSubscriptions": {
+    "description": "Subscriptions category type"
+  },
+  "categoryTypeEducation": "Education",
+  "@categoryTypeEducation": {
+    "description": "Education category type"
+  },
+  "categoryTypeInvestments": "Investments",
+  "@categoryTypeInvestments": {
+    "description": "Investments category type"
+  },
+  "none": "None",
+  "@none": {
+    "description": "Label for selecting no category on a transaction"
   }
 }

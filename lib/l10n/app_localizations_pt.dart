@@ -174,4 +174,64 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get transactionTypeExpense => 'Despesa';
+
+  @override
+  String get categories => 'Categorias';
+
+  @override
+  String get noCategoriesYet => 'Ainda não há categorias';
+
+  @override
+  String get addFirstCategory =>
+      'Toque em + para adicionar a sua primeira categoria';
+
+  @override
+  String get newCategory => 'Nova categoria';
+
+  @override
+  String get editCategory => 'Editar categoria';
+
+  @override
+  String get manageCategories => 'Gerenciar categorias';
+
+  @override
+  String get deleteCategory => 'Apagar categoria?';
+
+  @override
+  String deleteCategoryConfirm(String name) {
+    return 'Isto vai apagar permanentemente \"$name\".';
+  }
+
+  @override
+  String get categoryDeleted => 'Categoria apagada';
+
+  @override
+  String get categoriesError =>
+      'Houve um problema ao carregar suas categorias. Tente novamente.';
+
+  @override
+  String get categorySaveError =>
+      'Houve um problema ao salvar a categoria. Tente novamente.';
+
+  @override
+  String get categoryDeleteError =>
+      'Houve um problema ao apagar a categoria. Tente novamente.';
+
+  @override
+  String get categoryTypeGroceries => 'Mercado';
+
+  @override
+  String get categoryTypeTransportation => 'Transporte';
+
+  @override
+  String get categoryTypeSubscriptions => 'Assinaturas';
+
+  @override
+  String get categoryTypeEducation => 'Educação';
+
+  @override
+  String get categoryTypeInvestments => 'Investimentos';
+
+  @override
+  String get none => 'Nenhuma';
 }

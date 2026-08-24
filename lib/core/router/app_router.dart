@@ -8,8 +8,19 @@ import '../../features/settings/ui/settings_screen.dart';
 import '../../features/transactions/views/transaction_detail_screen.dart';
 import '../../features/transactions/views/transaction_new_screen.dart';
 import '../../features/transactions/views/transactions_screen.dart';
+import '../../features/categories/views/categories_screen.dart';
 
 part 'app_router.g.dart';
+
+@TypedGoRoute<CategoriesRoute>(path: '/categories')
+class CategoriesRoute extends GoRouteData with $CategoriesRoute {
+  const CategoriesRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const CategoriesScreen();
+  }
+}
 
 // SHELL ROUTES -----------------------------------------------------------------
 
