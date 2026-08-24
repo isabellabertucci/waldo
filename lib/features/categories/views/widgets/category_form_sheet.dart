@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/constants/enums.dart';
-import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_form_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -96,7 +95,7 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
               items: CategoryType.values.map((type) {
                 return DropdownMenuItem(
                   value: type,
-                  child: Text(categoryTypeLabel(l10n, type)),
+                  child: Text(type.label(l10n)),
                 );
               }).toList(),
               onChanged: (value) {
@@ -112,5 +111,17 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
         ),
       ),
     );
+  }
+}
+
+extension CategoryTypeLabel on CategoryType {
+  String label(AppLocalizations l10n) {
+    return switch (this) {
+      CategoryType.groceries => l10n.categoryTypeGroceries,
+      CategoryType.transportation => l10n.categoryTypeTransportation,
+      CategoryType.subscriptions => l10n.categoryTypeSubscriptions,
+      CategoryType.education => l10n.categoryTypeEducation,
+      CategoryType.investments => l10n.categoryTypeInvestments,
+    };
   }
 }

@@ -127,7 +127,7 @@ class _WalletsBody extends ConsumerWidget {
         final wallet = wallets[index];
         return ListTile(
           title: Text(wallet.name),
-          subtitle: Text(walletTypeLabel(l10n, wallet.type)),
+          subtitle: Text(wallet.type.label(l10n)),
           onTap: () {
             TransactionsRoute(wallet.id!).push(context);
           },

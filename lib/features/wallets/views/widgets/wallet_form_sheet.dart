@@ -127,7 +127,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
               items: WalletType.values.map((type) {
                 return DropdownMenuItem(
                   value: type,
-                  child: Text(walletTypeLabel(l10n, type)),
+                  child: Text(type.label(l10n)),
                 );
               }).toList(),
               onChanged: (value) {
@@ -154,5 +154,17 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
         ),
       ),
     );
+  }
+}
+
+extension WalletTypeLabel on WalletType {
+  String label(AppLocalizations l10n) {
+    return switch (this) {
+      WalletType.checking => l10n.walletTypeChecking,
+      WalletType.savings => l10n.walletTypeSavings,
+      WalletType.cash => l10n.walletTypeCash,
+      WalletType.credit => l10n.walletTypeCredit,
+      WalletType.investment => l10n.walletTypeInvestment,
+    };
   }
 }

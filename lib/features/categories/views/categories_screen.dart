@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:waldo/core/utils/utils.dart';
 
 import '../../../core/widgets/empty_state.dart';
 import '../models/category.dart';
@@ -121,7 +120,7 @@ class _CategoriesBody extends ConsumerWidget {
         final category = categories[index];
         return ListTile(
           title: Text(category.name),
-          subtitle: Text(categoryTypeLabel(l10n, category.type)),
+          subtitle: Text(category.type.label(l10n)),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

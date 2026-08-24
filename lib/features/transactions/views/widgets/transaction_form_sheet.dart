@@ -149,7 +149,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                 items: TransactionType.values.map((type) {
                   return DropdownMenuItem(
                     value: type,
-                    child: Text(transactionTypeLabel(l10n, type)),
+                    child: Text(type.label(l10n)),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -246,5 +246,14 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
         ),
       ),
     );
+  }
+}
+
+extension TransactionTypeLabel on TransactionType {
+  String label(AppLocalizations l10n) {
+    return switch (this) {
+      TransactionType.income => l10n.transactionTypeIncome,
+      TransactionType.expense => l10n.transactionTypeExpense,
+    };
   }
 }
