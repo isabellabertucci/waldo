@@ -60,7 +60,7 @@
   "editCategory": "Editar categoria",
   "manageCategories": "Gerenciar categorias",
   "deleteCategory": "Apagar categoria?",
-  "deleteCategoryConfirm": "Isto vai apagar permanentemente \"{name}\".",
+  "deleteCategoryConfirm": "Isto vai apagar permanentemente \"{name}\". Transações que usam essa categoria manterão seus dados, mas perderão a categoria.",
   "categoryDeleted": "Categoria apagada",
   "categoriesError": "Houve um problema ao carregar suas categorias. Tente novamente.",
   "categorySaveError": "Houve um problema ao salvar a categoria. Tente novamente.",

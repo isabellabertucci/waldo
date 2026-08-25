@@ -196,7 +196,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deleteCategoryConfirm(String name) {
-    return 'This will permanently delete \"$name\".';
+    return 'This will permanently delete \"$name\". Any transactions using it will keep their data but lose this category.';
   }
 
   @override

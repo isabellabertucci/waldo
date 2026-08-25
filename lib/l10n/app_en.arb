@@ -242,7 +242,7 @@
   "@deleteCategory": {
     "description": "Delete confirmation dialog title"
   },
-  "deleteCategoryConfirm": "This will permanently delete \"{name}\".",
+  "deleteCategoryConfirm": "This will permanently delete \"{name}\". Any transactions using it will keep their data but lose this category.",
   "@deleteCategoryConfirm": {
     "description": "Delete confirmation dialog message",
     "placeholders": {

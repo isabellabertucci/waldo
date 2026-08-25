@@ -455,7 +455,7 @@ abstract class AppLocalizations {
   /// Delete confirmation dialog message
   ///
   /// In en, this message translates to:
-  /// **'This will permanently delete \"{name}\".'**
+  /// **'This will permanently delete \"{name}\". Any transactions using it will keep their data but lose this category.'**
   String deleteCategoryConfirm(String name);
 
   /// Snackbar message after deleting a category
