@@ -50,7 +50,10 @@ class TransactionRepositoryImpl implements ITransactionRepository {
         TransactionsTable.table,
         where: '${TransactionsTable.walletId} = ?',
         whereArgs: [walletId],
-        orderBy: '${TransactionsTable.date} $direction',
+        // Tie-break on id when dates are equal, so ordering is stable
+        // and deterministic instead of relying on unspecified SQLite order.
+        orderBy:
+            '${TransactionsTable.date} $direction, ${TransactionsTable.id} $direction',
       );
       _log.fine(
         'getByWallet succeeded: walletId=$walletId, rowCount=${maps.length}',
@@ -89,8 +92,11 @@ class TransactionRepositoryImpl implements ITransactionRepository {
           TransactionsTable.table,
           transaction.toMap(),
         );
-        final delta = transaction.type.balanceDelta(transaction.amount);
-        await _adjustWalletBalance(txn, transaction.walletId, delta);
+        await _adjustWalletBalance(
+          txn,
+          transaction.walletId,
+          transaction.signedAmount,
+        );
         _log.info('insert succeeded: id=$id, walletId=${transaction.walletId}');
         return id;
       });
@@ -121,15 +127,31 @@ class TransactionRepositoryImpl implements ITransactionRepository {
         }
         final existing = Transaction.fromMap(existingMaps.first);
 
-        final reverseDelta = -existing.type.balanceDelta(existing.amount);
-        await _adjustWalletBalance(txn, existing.walletId, reverseDelta);
+        // Reverse the old effect on the old wallet, then apply the new
+        // effect on the (possibly different) new wallet.
+        await _adjustWalletBalance(
+          txn,
+          existing.walletId,
+          -existing.signedAmount,
+        );
+        await _adjustWalletBalance(
+          txn,
+          transaction.walletId,
+          transaction.signedAmount,
+        );
 
-        final newDelta = transaction.type.balanceDelta(transaction.amount);
-        await _adjustWalletBalance(txn, transaction.walletId, newDelta);
-
+        // Only the fields a user can actually edit are written. id and
+        // created_at are never overwritten by an update.
         final affectedRows = await txn.update(
           TransactionsTable.table,
-          transaction.toMap(),
+          {
+            TransactionsTable.walletId: transaction.walletId,
+            TransactionsTable.categoryId: transaction.categoryId,
+            TransactionsTable.amount: transaction.amount,
+            TransactionsTable.type: transaction.type.name,
+            TransactionsTable.date: transaction.date,
+            TransactionsTable.description: transaction.description,
+          },
           where: '${TransactionsTable.id} = ?',
           whereArgs: [id],
         );
@@ -162,8 +184,11 @@ class TransactionRepositoryImpl implements ITransactionRepository {
           whereArgs: [id],
         );
 
-        final reverseDelta = -existing.type.balanceDelta(existing.amount);
-        await _adjustWalletBalance(txn, existing.walletId, reverseDelta);
+        await _adjustWalletBalance(
+          txn,
+          existing.walletId,
+          -existing.signedAmount,
+        );
 
         _log.info('delete succeeded: id=$id, affectedRows=$affectedRows');
       });

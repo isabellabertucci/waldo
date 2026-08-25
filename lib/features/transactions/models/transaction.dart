@@ -18,6 +18,8 @@ abstract class Transaction with _$Transaction {
     required String createdAt,
   }) = _Transaction;
 
+  int get signedAmount => type == TransactionType.income ? amount : -amount;
+
   Map<String, Object?> toMap() {
     return {
       'id': id,
