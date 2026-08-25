@@ -105,4 +105,130 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get walletTypeInvestment => 'Investment';
+
+  @override
+  String get noTransactionsYet => 'No transactions yet';
+
+  @override
+  String get addFirstTransaction => 'Tap + to add your first transaction';
+
+  @override
+  String get newTransaction => 'New Transaction';
+
+  @override
+  String get editTransaction => 'Edit Transaction';
+
+  @override
+  String get transactionDefaultDescription => 'Transaction';
+
+  @override
+  String get amount => 'Amount';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get wallet => 'Wallet';
+
+  @override
+  String get category => 'Category';
+
+  @override
+  String get transactionDescription => 'Description';
+
+  @override
+  String get deleteTransaction => 'Delete transaction?';
+
+  @override
+  String get deleteTransactionConfirm =>
+      'This will permanently delete this transaction.';
+
+  @override
+  String get transactionDeleted => 'Transaction deleted';
+
+  @override
+  String get transactionsError =>
+      'There was a problem loading your transactions. Please try again.';
+
+  @override
+  String get transactionSaveError =>
+      'There was a problem saving the transaction. Please try again.';
+
+  @override
+  String get transactionDeleteError =>
+      'There was a problem deleting the transaction. Please try again.';
+
+  @override
+  String get amountRequired => 'Amount is required';
+
+  @override
+  String get dateRequired => 'Date is required';
+
+  @override
+  String get walletRequired => 'Wallet is required';
+
+  @override
+  String get transactionTypeIncome => 'Income';
+
+  @override
+  String get transactionTypeExpense => 'Expense';
+
+  @override
+  String get categories => 'Categories';
+
+  @override
+  String get noCategoriesYet => 'No categories yet';
+
+  @override
+  String get addFirstCategory => 'Tap + to add your first category';
+
+  @override
+  String get newCategory => 'New Category';
+
+  @override
+  String get editCategory => 'Edit Category';
+
+  @override
+  String get manageCategories => 'Manage categories';
+
+  @override
+  String get deleteCategory => 'Delete category?';
+
+  @override
+  String deleteCategoryConfirm(String name) {
+    return 'This will permanently delete \"$name\". Any transactions using it will keep their data but lose this category.';
+  }
+
+  @override
+  String get categoryDeleted => 'Category deleted';
+
+  @override
+  String get categoriesError =>
+      'There was a problem loading your categories. Please try again.';
+
+  @override
+  String get categorySaveError =>
+      'There was a problem saving the category. Please try again.';
+
+  @override
+  String get categoryDeleteError =>
+      'There was a problem deleting the category. Please try again.';
+
+  @override
+  String get categoryTypeGroceries => 'Groceries';
+
+  @override
+  String get categoryTypeTransportation => 'Transportation';
+
+  @override
+  String get categoryTypeSubscriptions => 'Subscriptions';
+
+  @override
+  String get categoryTypeEducation => 'Education';
+
+  @override
+  String get categoryTypeInvestments => 'Investments';
+
+  @override
+  String get none => 'None';
 }

@@ -1,6 +1,4 @@
 import 'package:intl/intl.dart' show NumberFormat;
-import 'package:waldo/core/constants/enums.dart';
-import 'package:waldo/l10n/app_localizations.dart';
 
 /// Parses a plain amount such as "10", "10.5", or "10.50"
 /// into cents without using floating-point arithmetic.
@@ -36,15 +34,4 @@ String formatCents(
     decimalDigits: 2,
   );
   return formatter.format(cents / 100);
-}
-
-/// Returns the translated display label for a wallet type.
-String walletTypeLabel(AppLocalizations l10n, WalletType type) {
-  return switch (type) {
-    WalletType.checking => l10n.walletTypeChecking,
-    WalletType.savings => l10n.walletTypeSavings,
-    WalletType.cash => l10n.walletTypeCash,
-    WalletType.credit => l10n.walletTypeCredit,
-    WalletType.investment => l10n.walletTypeInvestment,
-  };
 }

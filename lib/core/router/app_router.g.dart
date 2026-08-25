@@ -6,7 +6,34 @@ part of 'app_router.dart';
 // GoRouterGenerator
 // **************************************************************************
 
-List<RouteBase> get $appRoutes => [$appShellRoute];
+List<RouteBase> get $appRoutes => [$categoriesRoute, $appShellRoute];
+
+RouteBase get $categoriesRoute => GoRouteData.$route(
+  path: '/categories',
+  hasOverriddenOnExit: false,
+  factory: $CategoriesRoute._fromState,
+);
+
+mixin $CategoriesRoute on GoRouteData {
+  static CategoriesRoute _fromState(GoRouterState state) =>
+      const CategoriesRoute();
+
+  @override
+  String get location => GoRouteData.$location('/categories');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
 
 RouteBase get $appShellRoute => StatefulShellRouteData.$route(
   factory: $AppShellRouteExtension._fromState,
@@ -23,30 +50,23 @@ RouteBase get $appShellRoute => StatefulShellRouteData.$route(
     StatefulShellBranchData.$branch(
       routes: [
         GoRouteData.$route(
-          path: '/transactions',
-          hasOverriddenOnExit: false,
-          factory: $TransactionsRoute._fromState,
-          routes: [
-            GoRouteData.$route(
-              path: 'new',
-              hasOverriddenOnExit: false,
-              factory: $TransactionNewRoute._fromState,
-            ),
-            GoRouteData.$route(
-              path: ':id',
-              hasOverriddenOnExit: false,
-              factory: $TransactionDetailRoute._fromState,
-            ),
-          ],
-        ),
-      ],
-    ),
-    StatefulShellBranchData.$branch(
-      routes: [
-        GoRouteData.$route(
           path: '/wallets',
           hasOverriddenOnExit: false,
           factory: $WalletsRoute._fromState,
+          routes: [
+            GoRouteData.$route(
+              path: ':walletId/transactions',
+              hasOverriddenOnExit: false,
+              factory: $TransactionsRoute._fromState,
+              routes: [
+                GoRouteData.$route(
+                  path: ':id',
+                  hasOverriddenOnExit: false,
+                  factory: $TransactionDetailRoute._fromState,
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     ),
@@ -87,12 +107,11 @@ mixin $DashboardRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-mixin $TransactionsRoute on GoRouteData {
-  static TransactionsRoute _fromState(GoRouterState state) =>
-      const TransactionsRoute();
+mixin $WalletsRoute on GoRouteData {
+  static WalletsRoute _fromState(GoRouterState state) => const WalletsRoute();
 
   @override
-  String get location => GoRouteData.$location('/transactions');
+  String get location => GoRouteData.$location('/wallets');
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -108,12 +127,16 @@ mixin $TransactionsRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-mixin $TransactionNewRoute on GoRouteData {
-  static TransactionNewRoute _fromState(GoRouterState state) =>
-      const TransactionNewRoute();
+mixin $TransactionsRoute on GoRouteData {
+  static TransactionsRoute _fromState(GoRouterState state) =>
+      TransactionsRoute(int.parse(state.pathParameters['walletId']!));
+
+  TransactionsRoute get _self => this as TransactionsRoute;
 
   @override
-  String get location => GoRouteData.$location('/transactions/new');
+  String get location => GoRouteData.$location(
+    '/wallets/${Uri.encodeComponent(_self.walletId.toString())}/transactions',
+  );
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -131,33 +154,17 @@ mixin $TransactionNewRoute on GoRouteData {
 
 mixin $TransactionDetailRoute on GoRouteData {
   static TransactionDetailRoute _fromState(GoRouterState state) =>
-      TransactionDetailRoute(state.pathParameters['id']!);
+      TransactionDetailRoute(
+        int.parse(state.pathParameters['walletId']!),
+        int.parse(state.pathParameters['id']!),
+      );
 
   TransactionDetailRoute get _self => this as TransactionDetailRoute;
 
   @override
-  String get location =>
-      GoRouteData.$location('/transactions/${Uri.encodeComponent(_self.id)}');
-
-  @override
-  void go(BuildContext context) => context.go(location);
-
-  @override
-  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
-
-  @override
-  void pushReplacement(BuildContext context) =>
-      context.pushReplacement(location);
-
-  @override
-  void replace(BuildContext context) => context.replace(location);
-}
-
-mixin $WalletsRoute on GoRouteData {
-  static WalletsRoute _fromState(GoRouterState state) => const WalletsRoute();
-
-  @override
-  String get location => GoRouteData.$location('/wallets');
+  String get location => GoRouteData.$location(
+    '/wallets/${Uri.encodeComponent(_self.walletId.toString())}/transactions/${Uri.encodeComponent(_self.id.toString())}',
+  );
 
   @override
   void go(BuildContext context) => context.go(location);

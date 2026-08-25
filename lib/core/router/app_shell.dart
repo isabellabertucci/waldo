@@ -26,10 +26,6 @@ class AppShell extends StatelessWidget {
             label: l10n.dashboard,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.bar_chart),
-            label: l10n.transactions,
-          ),
-          NavigationDestination(
             icon: const Icon(Icons.account_balance_wallet),
             label: l10n.wallets,
           ),

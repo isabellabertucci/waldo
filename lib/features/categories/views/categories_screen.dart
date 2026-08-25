@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:waldo/core/utils/utils.dart';
 
 import '../../../core/widgets/empty_state.dart';
-import '../models/wallet.dart';
-import '../viewmodels/wallet_list_view_model.dart';
-import 'widgets/wallet_form_sheet.dart';
+import '../models/category.dart';
+import '../viewmodels/category_list_view_model.dart';
+import 'widgets/category_form_sheet.dart';
 import 'package:waldo/l10n/app_localizations.dart';
-import 'package:waldo/core/router/app_router.dart';
 
-class WalletsScreen extends ConsumerWidget {
-  const WalletsScreen({super.key});
+class CategoriesScreen extends ConsumerWidget {
+  const CategoriesScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final walletsAsync = ref.watch(walletListViewModelProvider());
+    final categoriesAsync = ref.watch(categoryListViewModelProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.wallets)),
-      body: switch (walletsAsync) {
-        AsyncError() => Center(child: Text(l10n.walletsError)),
-        AsyncData(:final value) => _WalletsBody(wallets: value),
+      appBar: AppBar(title: Text(l10n.categories)),
+      body: switch (categoriesAsync) {
+        AsyncError() => Center(child: Text(l10n.categoriesError)),
+        AsyncData(:final value) => _CategoriesBody(categories: value),
         _ => const Center(child: CircularProgressIndicator()),
       },
       floatingActionButton: FloatingActionButton(
@@ -29,7 +27,7 @@ class WalletsScreen extends ConsumerWidget {
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
-            builder: (_) => const WalletFormSheet(),
+            builder: (_) => const CategoryFormSheet(),
           );
         },
         child: const Icon(Icons.add),
@@ -38,15 +36,15 @@ class WalletsScreen extends ConsumerWidget {
   }
 }
 
-class _WalletsBody extends ConsumerWidget {
-  const _WalletsBody({required this.wallets});
+class _CategoriesBody extends ConsumerWidget {
+  const _CategoriesBody({required this.categories});
 
-  final List<Wallet> wallets;
+  final List<Category> categories;
 
   Future<void> _confirmDelete(
     BuildContext context,
     WidgetRef ref,
-    Wallet wallet,
+    Category category,
   ) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -54,8 +52,8 @@ class _WalletsBody extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n.deleteWallet),
-        content: Text(l10n.deleteWalletConfirm(wallet.name)),
+        title: Text(l10n.deleteCategory),
+        content: Text(l10n.deleteCategoryConfirm(category.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -71,25 +69,22 @@ class _WalletsBody extends ConsumerWidget {
 
     if (confirmed != true) return;
 
-    final viewModel = ref.read(walletListViewModelProvider().notifier);
+    final viewModel = ref.read(categoryListViewModelProvider.notifier);
 
-    // Hide immediately from the UI, without deleting from the database yet.
-    // If the list hasn't loaded there's nothing to hide, so abort the flow
-    // instead of scheduling a delete with no way to undo it.
-    if (!viewModel.hideWallet(wallet.id!)) return;
+    if (!viewModel.hideCategory(category.id!)) return;
 
     var undone = false;
 
     messenger.showSnackBar(
       SnackBar(
-        content: Text(l10n.walletDeleted),
+        content: Text(l10n.categoryDeleted),
         duration: const Duration(seconds: 5),
         persist: false,
         action: SnackBarAction(
           label: l10n.undo,
           onPressed: () {
             undone = true;
-            viewModel.restoreWallet();
+            viewModel.restoreCategory();
           },
         ),
       ),
@@ -100,12 +95,10 @@ class _WalletsBody extends ConsumerWidget {
     if (undone) return;
 
     try {
-      await viewModel.confirmDelete(wallet.id!);
+      await viewModel.confirmDelete(category.id!);
     } catch (_) {
-      // If the real delete fails, restore it. Show a generic message,
-      // never the raw database error, to the user.
-      viewModel.restoreWallet();
-      messenger.showSnackBar(SnackBar(content: Text(l10n.deleteError)));
+      viewModel.restoreCategory();
+      messenger.showSnackBar(SnackBar(content: Text(l10n.categoryDeleteError)));
     }
   }
 
@@ -113,45 +106,37 @@ class _WalletsBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
 
-    if (wallets.isEmpty) {
+    if (categories.isEmpty) {
       return EmptyState(
-        icon: Icons.account_balance_wallet_outlined,
-        title: l10n.noWalletsYet,
-        subtitle: l10n.addFirstWallet,
+        icon: Icons.category_outlined,
+        title: l10n.noCategoriesYet,
+        subtitle: l10n.addFirstCategory,
       );
     }
 
     return ListView.builder(
-      itemCount: wallets.length,
+      itemCount: categories.length,
       itemBuilder: (context, index) {
-        final wallet = wallets[index];
+        final category = categories[index];
         return ListTile(
-          title: Text(wallet.name),
-          subtitle: Text(wallet.type.label(l10n)),
-          onTap: () {
-            TransactionsRoute(wallet.id!).push(context);
-          },
+          title: Text(category.name),
+          subtitle: Text(category.type.label(l10n)),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                formatCents(wallet.currentBalance),
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(width: 8),
               IconButton(
                 icon: const Icon(Icons.edit),
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,
-                    builder: (_) => WalletFormSheet(wallet: wallet),
+                    builder: (_) => CategoryFormSheet(category: category),
                   );
                 },
               ),
               IconButton(
                 icon: const Icon(Icons.delete),
-                onPressed: () => _confirmDelete(context, ref, wallet),
+                onPressed: () => _confirmDelete(context, ref, category),
               ),
             ],
           ),
