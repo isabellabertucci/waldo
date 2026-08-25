@@ -1,224 +1,93 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:waldo/core/constants/enums.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
+import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
-import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
-import 'package:waldo/features/wallets/models/wallet.dart';
-import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
-import 'package:waldo/features/transactions/models/transaction.dart';
+
 import '../../../helpers/test_app.dart';
 
 void main() {
   late Database db;
-  late TransactionRepositoryImpl repo;
-  late WalletRepositoryImpl walletRepo;
+  late CategoryRepositoryImpl repo;
 
   setUp(() async {
     db = await createTestDatabase();
-    repo = TransactionRepositoryImpl(db);
-    walletRepo = WalletRepositoryImpl(db);
+    repo = CategoryRepositoryImpl(db);
   });
 
   tearDown(() async {
     await db.close();
   });
 
-  Future<int> createWallet({int startingBalance = 0}) {
-    return walletRepo.insert(
-      Wallet(
-        name: 'Test Wallet',
-        startingBalance: startingBalance,
-        currentBalance: startingBalance,
-        createdAt: '2026-08-10T12:00:00.000',
-      ),
-    );
-  }
-
-  group('TransactionRepositoryImpl', () {
-    test(
-      'insert adds an income transaction and increases wallet balance',
-      () async {
-        final walletId = await createWallet(startingBalance: 1000);
-
-        await repo.insert(
-          Transaction(
-            walletId: walletId,
-            amount: 500,
-            type: TransactionType.income,
-            date: '2026-08-10',
-            createdAt: '2026-08-10T12:00:00.000',
-          ),
-        );
-
-        final wallet = await walletRepo.getById(walletId);
-        expect(wallet!.currentBalance, 1500);
-      },
-    );
-
-    test(
-      'insert adds an expense transaction and decreases wallet balance',
-      () async {
-        final walletId = await createWallet(startingBalance: 1000);
-
-        await repo.insert(
-          Transaction(
-            walletId: walletId,
-            amount: 300,
-            type: TransactionType.expense,
-            date: '2026-08-10',
-            createdAt: '2026-08-10T12:00:00.000',
-          ),
-        );
-
-        final wallet = await walletRepo.getById(walletId);
-        expect(wallet!.currentBalance, 700);
-      },
-    );
-
-    test('getByWallet only returns transactions for that wallet', () async {
-      final walletA = await createWallet();
-      final walletB = await createWallet();
-
+  group('CategoryRepositoryImpl', () {
+    test('insert then getAll returns the inserted category', () async {
       await repo.insert(
-        Transaction(
-          walletId: walletA,
-          amount: 100,
-          type: TransactionType.income,
-          date: '2026-08-10',
+        const Category(
+          name: 'Groceries',
+          type: CategoryType.groceries,
           createdAt: '2026-08-10T12:00:00.000',
         ),
       );
-      await repo.insert(
-        Transaction(
-          walletId: walletB,
-          amount: 200,
-          type: TransactionType.income,
-          date: '2026-08-10',
-          createdAt: '2026-08-10T12:00:00.000',
-        ),
-      );
-      final transactions = await repo.getByWallet(walletA);
-      expect(transactions, hasLength(1));
-      expect(transactions.first.walletId, walletA);
+
+      final categories = await repo.getAll();
+
+      expect(categories, hasLength(1));
+      expect(categories.first.name, 'Groceries');
     });
 
-    test(
-      'update reverses the old effect and applies the new one, even across wallets',
-      () async {
-        final walletA = await createWallet(startingBalance: 1000);
-        final walletB = await createWallet(startingBalance: 1000);
-        final id = await repo.insert(
-          Transaction(
-            walletId: walletA,
-            amount: 500,
-            type: TransactionType.expense,
-            date: '2026-08-10',
-            createdAt: '2026-08-10T12:00:00.000',
-          ),
-        );
-        // Wallet A: 1000 - 500 = 500
-        var wA = await walletRepo.getById(walletA);
-        expect(wA!.currentBalance, 500);
-        final existing = await repo.getById(id);
-        await repo.update(
-          existing!.copyWith(
-            walletId: walletB,
-            amount: 200,
-            type: TransactionType.income,
-          ),
-        );
-        // Wallet A: reversed back to 1000
-        wA = await walletRepo.getById(walletA);
-        expect(wA!.currentBalance, 1000);
-        // Wallet B: 1000 + 200 = 1200
-        final wB = await walletRepo.getById(walletB);
-        expect(wB!.currentBalance, 1200);
-      },
-    );
+    test('getById returns null for a non-existent id', () async {
+      expect(await repo.getById(999), isNull);
+    });
 
-    test('delete reverses the transaction effect on the wallet', () async {
-      final walletId = await createWallet(startingBalance: 1000);
+    test('update only changes name and type, not createdAt', () async {
       final id = await repo.insert(
-        Transaction(
-          walletId: walletId,
-          amount: 400,
-          type: TransactionType.income,
-          date: '2026-08-10',
+        const Category(
+          name: 'Groceries',
+          type: CategoryType.groceries,
           createdAt: '2026-08-10T12:00:00.000',
         ),
       );
-      var wallet = await walletRepo.getById(walletId);
-      expect(wallet!.currentBalance, 1400);
-      await repo.delete(id);
-      wallet = await walletRepo.getById(walletId);
-      expect(wallet!.currentBalance, 1000);
-      expect(await repo.getById(id), isNull);
+      final category = await repo.getById(id);
+
+      await repo.update(
+        category!.copyWith(
+          name: 'Mercado',
+          type: CategoryType.subscriptions,
+          createdAt: '2020-01-01T00:00:00.000',
+        ),
+      );
+      final updated = await repo.getById(id);
+
+      expect(updated!.name, 'Mercado');
+      expect(updated.type, CategoryType.subscriptions);
+      expect(updated.createdAt, '2026-08-10T12:00:00.000');
     });
 
-    test('update throws when the transaction has no id', () async {
-      final walletId = await createWallet();
-      const transactionWithoutId = Transaction(
-        walletId: 0,
-        amount: 100,
-        type: TransactionType.income,
-        date: '2026-08-10',
+    test('update throws when the category has no id', () async {
+      const categoryWithoutId = Category(
+        name: 'No id',
+        type: CategoryType.groceries,
         createdAt: '2026-08-10T12:00:00.000',
       );
 
       expect(
-        () => repo.update(transactionWithoutId),
+        () => repo.update(categoryWithoutId),
         throwsA(isA<ArgumentError>()),
       );
-      // walletId used only to avoid an unused variable warning
-      expect(walletId, isNotNull);
     });
 
-    test('insert throws when the wallet does not exist', () async {
-      const orphanTransaction = Transaction(
-        walletId: 999999,
-        amount: 100,
-        type: TransactionType.income,
-        date: '2026-08-10',
-        createdAt: '2026-08-10T12:00:00.000',
+    test('delete removes a category with no transactions', () async {
+      final id = await repo.insert(
+        const Category(
+          name: 'Groceries',
+          type: CategoryType.groceries,
+          createdAt: '2026-08-10T12:00:00.000',
+        ),
       );
 
-      expect(
-        () => repo.insert(orphanTransaction),
-        throwsA(isA<DatabaseException>()),
-      );
+      await repo.delete(id);
+
+      expect(await repo.getById(id), isNull);
     });
-
-    test(
-      'deleting a category sets categoryId to null on its transactions, without deleting them',
-      () async {
-        final categoryRepo = CategoryRepositoryImpl(db);
-        final categoryId = await categoryRepo.insert(
-          const Category(
-            name: 'Groceries',
-            type: CategoryType.groceries,
-            createdAt: '2026-08-10T12:00:00.000',
-          ),
-        );
-        final walletId = await createWallet();
-
-        final transactionId = await repo.insert(
-          Transaction(
-            walletId: walletId,
-            categoryId: categoryId,
-            amount: 100,
-            type: TransactionType.expense,
-            date: '2026-08-10',
-            createdAt: '2026-08-10T12:00:00.000',
-          ),
-        );
-
-        await categoryRepo.delete(categoryId);
-
-        final transaction = await repo.getById(transactionId);
-        expect(transaction, isNotNull);
-        expect(transaction!.categoryId, isNull);
-      },
-    );
   });
 }

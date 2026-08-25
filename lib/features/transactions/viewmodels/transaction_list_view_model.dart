@@ -25,11 +25,12 @@ class TransactionListViewModel extends _$TransactionListViewModel {
     return true;
   }
 
-  Future<void> confirmDelete(int id, int walletId) async {
+  Future<void> confirmDelete(int id) async {
     final repo = await ref.read(transactionRepositoryProvider.future);
     await repo.delete(id);
     ref.invalidateSelf();
-    ref.invalidate(walletListViewModelProvider());
+
+    ref.invalidate(walletListViewModelProvider);
     ref.invalidate(walletByIdProvider(walletId));
   }
 

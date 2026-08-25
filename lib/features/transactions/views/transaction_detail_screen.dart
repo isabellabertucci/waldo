@@ -53,7 +53,7 @@ class TransactionDetailScreen extends ConsumerWidget {
     );
 
     try {
-      await viewModel.confirmDelete(transaction.id!, walletId);
+      await viewModel.confirmDelete(transaction.id!);
       if (context.mounted) {
         messenger.showSnackBar(
           SnackBar(content: Text(l10n.transactionDeleted)),
