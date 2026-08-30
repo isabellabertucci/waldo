@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/app_scaffold.dart';
 
 import '../../../core/widgets/empty_state.dart';
 import '../models/transaction.dart';
@@ -23,7 +24,7 @@ class TransactionsScreen extends ConsumerWidget {
       transactionListViewModelProvider(walletId: walletId),
     );
 
-    return Scaffold(
+    return AppScaffold(
       appBar: AppBar(title: Text(l10n.transactions)),
       body: switch (transactionsAsync) {
         AsyncError() => Center(child: Text(l10n.transactionsError)),

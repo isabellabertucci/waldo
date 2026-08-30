@@ -7,6 +7,7 @@ import 'core/constants/app_constants.dart';
 import 'core/logging/app_logger.dart';
 import 'core/logging/provider_observer.dart';
 import 'core/router/app_router_provider.dart';
+import 'core/theme/app_theme.dart';
 import 'l10n/app_localizations.dart';
 
 final _log = Logger('waldo');
@@ -31,13 +32,14 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(goRouterProvider);
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       title: appName,
       routerConfig: router,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.system,
     );
   }
 }
