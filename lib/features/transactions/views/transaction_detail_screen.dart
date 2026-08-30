@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/utils/utils.dart';
-import 'package:waldo/core/widgets/app_scaffold.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_list_view_model.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_providers.dart';
@@ -73,7 +72,7 @@ class TransactionDetailScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final transactionAsync = ref.watch(transactionByIdProvider(id));
 
-    return AppScaffold(
+    return Scaffold(
       appBar: AppBar(title: Text(l10n.transactions)),
       body: switch (transactionAsync) {
         AsyncError() => Center(child: Text(l10n.transactionsError)),

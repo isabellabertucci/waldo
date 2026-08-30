@@ -32,7 +32,7 @@ class AppTheme {
       colorScheme: colorScheme,
       textTheme: textTheme,
       useMaterial3: true,
-      scaffoldBackgroundColor: colors.transparent,
+      scaffoldBackgroundColor: colors.surface,
 
       appBarTheme: Common.getAppBarTheme(colors),
       navigationBarTheme: Common.getNavigationBarTheme(colors),

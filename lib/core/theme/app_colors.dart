@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   const AppColors._({
     required this.transparent,
+    required this.surface,
     required this.primary,
     required this.secondary,
     required this.onPrimary,
@@ -11,6 +12,7 @@ class AppColors {
   });
 
   final Color transparent;
+  final Color surface;
   final Color primary;
   final Color secondary;
   final Color onPrimary;
@@ -25,6 +27,7 @@ class AppColors {
 
   static const light = AppColors._(
     transparent: Colors.transparent,
+    surface: Color(0xFF000000),
     primary: Color(0xFF3758F9),
     secondary: Color(0xFF589AFF),
     onPrimary: Color(0xFFFFFFFF),
@@ -34,6 +37,7 @@ class AppColors {
 
   static const dark = AppColors._(
     transparent: Colors.transparent,
+    surface: Color(0xFF000000),
     primary: Color(0xFF3758F9),
     secondary: Color(0xFF589AFF),
     onPrimary: Color(0xFFFFFFFF),

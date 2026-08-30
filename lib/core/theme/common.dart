@@ -6,8 +6,8 @@ class Common {
 
   static NavigationBarThemeData getNavigationBarTheme(AppColors color) {
     return NavigationBarThemeData(
-      backgroundColor: color.transparent,
-      indicatorColor: color.transparent,
+      backgroundColor: color.surface,
+      indicatorColor: color.surface,
       iconTheme: WidgetStateProperty.resolveWith((states) {
         final selected = states.contains(WidgetState.selected);
         return IconThemeData(
@@ -24,7 +24,7 @@ class Common {
   }
 
   static AppBarTheme getAppBarTheme(AppColors colors) {
-    return AppBarTheme(backgroundColor: colors.transparent);
+    return AppBarTheme(backgroundColor: colors.surface);
   }
 
   static FloatingActionButtonThemeData getFloatingActionButtonTheme(

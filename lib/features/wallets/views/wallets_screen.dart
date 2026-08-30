@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/utils/utils.dart';
-import 'package:waldo/core/widgets/app_scaffold.dart';
 
 import '../../../core/widgets/empty_state.dart';
 import '../models/wallet.dart';
@@ -18,7 +17,7 @@ class WalletsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final walletsAsync = ref.watch(walletListViewModelProvider());
 
-    return AppScaffold(
+    return Scaffold(
       appBar: AppBar(title: Text(l10n.wallets)),
       body: switch (walletsAsync) {
         AsyncError() => Center(child: Text(l10n.walletsError)),
