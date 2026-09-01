@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_form_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -59,7 +58,7 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final formState = ref.watch(categoryFormViewModelProvider(widget.category));
+    ref.watch(categoryFormViewModelProvider(widget.category));
     final viewModel = ref.read(
       categoryFormViewModelProvider(widget.category).notifier,
     );
@@ -87,20 +86,7 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
               onChanged: viewModel.updateName,
               decoration: InputDecoration(labelText: l10n.name),
               validator: (value) => _validateName(l10n, value),
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<CategoryType>(
-              initialValue: formState.type,
-              decoration: InputDecoration(labelText: l10n.type),
-              items: CategoryType.values.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(type.label(l10n)),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) viewModel.updateType(value);
-              },
+              autofocus: true,
             ),
             const SizedBox(height: 24),
             FilledButton(
@@ -111,17 +97,5 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
         ),
       ),
     );
-  }
-}
-
-extension CategoryTypeLabel on CategoryType {
-  String label(AppLocalizations l10n) {
-    return switch (this) {
-      CategoryType.groceries => l10n.categoryTypeGroceries,
-      CategoryType.transportation => l10n.categoryTypeTransportation,
-      CategoryType.subscriptions => l10n.categoryTypeSubscriptions,
-      CategoryType.education => l10n.categoryTypeEducation,
-      CategoryType.investments => l10n.categoryTypeInvestments,
-    };
   }
 }

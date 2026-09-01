@@ -120,7 +120,6 @@ class _CategoriesBody extends ConsumerWidget {
         final category = categories[index];
         return ListTile(
           title: Text(category.name),
-          subtitle: Text(category.type.label(l10n)),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/categories/models/category.dart';
 
 void main() {
@@ -8,7 +7,6 @@ void main() {
       const category = Category(
         id: 1,
         name: 'Groceries',
-        type: CategoryType.groceries,
         createdAt: '2026-08-10T12:00:00.000',
       );
 
@@ -18,21 +16,19 @@ void main() {
       expect(restored, category);
     });
 
-    test('toMap stores the enum as its string name', () {
+    test('toMap stores the name as-is', () {
       const category = Category(
         name: 'Netflix',
-        type: CategoryType.subscriptions,
         createdAt: '2026-08-10T12:00:00.000',
       );
 
-      expect(category.toMap()['type'], 'subscriptions');
+      expect(category.toMap()['name'], 'Netflix');
     });
 
     test('fromMap parses a null id as a new category', () {
       final map = {
         'id': null,
         'name': 'Bus fare',
-        'type': 'transportation',
         'created_at': '2026-08-10T12:00:00.000',
       };
 

@@ -69,6 +69,7 @@ class CategoryRepositoryImpl implements ICategoryRepository {
   }
 
   @override
+  @override
   Future<void> update(Category category) async {
     final id = category.id;
     if (id == null) {
@@ -77,10 +78,7 @@ class CategoryRepositoryImpl implements ICategoryRepository {
     try {
       final affectedRows = await _db.update(
         CategoriesTable.table,
-        {
-          CategoriesTable.name: category.name,
-          CategoriesTable.type: category.type.name,
-        },
+        {CategoriesTable.name: category.name},
         where: '${CategoriesTable.id} = ?',
         whereArgs: [id],
       );

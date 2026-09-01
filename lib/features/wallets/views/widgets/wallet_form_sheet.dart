@@ -6,6 +6,7 @@ import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_form_view_model.dart';
+import 'package:waldo/features/wallets/wallets_x.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 final _log = Logger('waldo.ui.wallet_form');
@@ -154,17 +155,5 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
         ),
       ),
     );
-  }
-}
-
-extension WalletTypeLabel on WalletType {
-  String label(AppLocalizations l10n) {
-    return switch (this) {
-      WalletType.checking => l10n.walletTypeChecking,
-      WalletType.savings => l10n.walletTypeSavings,
-      WalletType.cash => l10n.walletTypeCash,
-      WalletType.credit => l10n.walletTypeCredit,
-      WalletType.investment => l10n.walletTypeInvestment,
-    };
   }
 }

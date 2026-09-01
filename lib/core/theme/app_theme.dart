@@ -19,6 +19,7 @@ class AppTheme {
       primary: colors.primary,
       onPrimary: colors.onPrimary,
       onSurfaceVariant: colors.onSurfaceVariant,
+      error: colors.error,
     );
 
     final textTheme = GoogleFonts.interTextTheme(
@@ -32,11 +33,17 @@ class AppTheme {
       colorScheme: colorScheme,
       textTheme: textTheme,
       useMaterial3: true,
-      scaffoldBackgroundColor: colors.surface,
+      scaffoldBackgroundColor: colors.surfaceContainer,
 
       appBarTheme: Common.getAppBarTheme(colors),
       navigationBarTheme: Common.getNavigationBarTheme(colors),
       floatingActionButtonTheme: Common.getFloatingActionButtonTheme(colors),
+      cardTheme: Common.getCardTheme(colors),
+      dialogTheme: Common.getDialogTheme(colors),
+      snackBarTheme: Common.getSnackBarTheme(colors),
+      bottomSheetTheme: Common.getBottomSheetTheme(colors),
+      listTileTheme: Common.getListTileTheme(colors),
+      inputDecorationTheme: Common.getInputDecorationTheme(colors),
     );
   }
 }

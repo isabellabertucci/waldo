@@ -157,25 +157,29 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                 },
               ),
               const SizedBox(height: 16),
-              switch (walletsAsync) {
-                AsyncData(:final value) => DropdownButtonFormField<int>(
-                  initialValue: formState.walletId,
-                  decoration: InputDecoration(labelText: l10n.wallet),
-                  items: value.map((wallet) {
-                    return DropdownMenuItem(
-                      value: wallet.id,
-                      child: Text(wallet.name),
-                    );
-                  }).toList(),
-                  onChanged: (walletId) {
-                    if (walletId != null) viewModel.updateWalletId(walletId);
-                  },
-                  validator: (value) =>
-                      value == null ? l10n.walletRequired : null,
-                ),
-                _ => const SizedBox.shrink(),
-              },
-              const SizedBox(height: 16),
+
+              if (widget.initialWalletId == null) ...[
+                switch (walletsAsync) {
+                  AsyncData(:final value) => DropdownButtonFormField<int>(
+                    initialValue: formState.walletId,
+                    decoration: InputDecoration(labelText: l10n.wallet),
+                    items: value.map((wallet) {
+                      return DropdownMenuItem(
+                        value: wallet.id,
+                        child: Text(wallet.name),
+                      );
+                    }).toList(),
+                    onChanged: (walletId) {
+                      if (walletId != null) viewModel.updateWalletId(walletId);
+                    },
+                    validator: (value) =>
+                        value == null ? l10n.walletRequired : null,
+                  ),
+                  _ => const SizedBox.shrink(),
+                },
+                const SizedBox(height: 16),
+              ],
+
               switch (categoriesAsync) {
                 AsyncData(:final value) => DropdownButtonFormField<int?>(
                   initialValue: formState.categoryId,
