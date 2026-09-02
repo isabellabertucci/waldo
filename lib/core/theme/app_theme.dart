@@ -44,6 +44,8 @@ class AppTheme {
       bottomSheetTheme: Common.getBottomSheetTheme(colors),
       listTileTheme: Common.getListTileTheme(colors),
       inputDecorationTheme: Common.getInputDecorationTheme(colors),
+      datePickerTheme: Common.getDatePickerTheme(colors),
+      filledButtonTheme: Common.getFilledButtonTheme(colors),
     );
   }
 }

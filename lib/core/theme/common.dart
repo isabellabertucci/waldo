@@ -75,12 +75,7 @@ class Common {
   }
 
   static BottomSheetThemeData getBottomSheetTheme(AppColors colors) {
-    return BottomSheetThemeData(
-      backgroundColor: colors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Rounded.xl)),
-      ),
-    );
+    return BottomSheetThemeData(backgroundColor: colors.surface);
   }
 
   static ListTileThemeData getListTileTheme(AppColors colors) {
@@ -120,6 +115,54 @@ class Common {
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(Rounded.lg),
         borderSide: BorderSide(color: colors.error, width: 2),
+      ),
+    );
+  }
+
+  static DatePickerThemeData getDatePickerTheme(AppColors colors) {
+    Color onColor(Color background) {
+      return background.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+    }
+
+    return DatePickerThemeData(
+      backgroundColor: colors.surface,
+      surfaceTintColor: colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(Rounded.xl),
+      ),
+
+      dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return onColor(colors.primaryStrong);
+        }
+        if (states.contains(WidgetState.disabled)) {
+          return colors.onSurfaceVariant.withValues(alpha: 0.4);
+        }
+        return colors.onSurface;
+      }),
+      todayForegroundColor: WidgetStateProperty.all(colors.primaryStrong),
+
+      dividerColor: colors.onSurfaceVariant.withValues(alpha: 0.12),
+      cancelButtonStyle: TextButton.styleFrom(
+        foregroundColor: colors.onSurfaceVariant,
+      ),
+      confirmButtonStyle: TextButton.styleFrom(
+        foregroundColor: colors.primaryStrong,
+      ),
+    );
+  }
+
+  static FilledButtonThemeData getFilledButtonTheme(AppColors colors) {
+    return FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Rounded.lg),
+        ),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
       ),
     );
   }

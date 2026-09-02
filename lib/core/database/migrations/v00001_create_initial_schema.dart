@@ -27,11 +27,11 @@ Future<void> up(Database db) async {
     CREATE TABLE ${CategoriesTable.table} (
       ${CategoriesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT,
       ${CategoriesTable.name} TEXT NOT NULL,
+      ${CategoriesTable.isDefault} INTEGER NOT NULL DEFAULT 0,
       ${CategoriesTable.createdAt} TEXT NOT NULL
     )
   ''');
 
-  // Seed the 5 default categories every fresh install starts with.
   final now = DateTime.now().toIso8601String();
   const defaultCategoryNames = [
     'Groceries',
@@ -45,6 +45,7 @@ Future<void> up(Database db) async {
   for (final name in defaultCategoryNames) {
     batch.insert(CategoriesTable.table, {
       CategoriesTable.name: name,
+      CategoriesTable.isDefault: 1,
       CategoriesTable.createdAt: now,
     });
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waldo/core/theme/spacing.dart';
 
 import '../../../core/widgets/empty_state.dart';
 import '../models/category.dart';
@@ -114,31 +115,38 @@ class _CategoriesBody extends ConsumerWidget {
       );
     }
 
-    return ListView.builder(
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(
+        horizontal: Spacing.md,
+        vertical: Spacing.md,
+      ),
+      separatorBuilder: (context, index) => const SizedBox(height: Spacing.md),
       itemCount: categories.length,
       itemBuilder: (context, index) {
         final category = categories[index];
         return ListTile(
           title: Text(category.name),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (_) => CategoryFormSheet(category: category),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () => _confirmDelete(context, ref, category),
-              ),
-            ],
-          ),
+          trailing: category.isDefault
+              ? null
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit),
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (_) => CategoryFormSheet(category: category),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => _confirmDelete(context, ref, category),
+                    ),
+                  ],
+                ),
         );
       },
     );

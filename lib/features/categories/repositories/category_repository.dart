@@ -9,6 +9,8 @@ part 'category_repository.g.dart';
 
 final _log = Logger('waldo.repository.category');
 
+class CannotModifyDefaultCategoryException implements Exception {}
+
 abstract class ICategoryRepository {
   Future<List<Category>> getAll();
   Future<Category?> getById(int id);
@@ -69,13 +71,17 @@ class CategoryRepositoryImpl implements ICategoryRepository {
   }
 
   @override
-  @override
   Future<void> update(Category category) async {
     final id = category.id;
     if (id == null) {
       throw ArgumentError('Cannot update a category without an id');
     }
     try {
+      final existing = await getById(id);
+      if (existing != null && existing.isDefault) {
+        throw CannotModifyDefaultCategoryException();
+      }
+
       final affectedRows = await _db.update(
         CategoriesTable.table,
         {CategoriesTable.name: category.name},
@@ -96,6 +102,11 @@ class CategoryRepositoryImpl implements ICategoryRepository {
   @override
   Future<void> delete(int id) async {
     try {
+      final existing = await getById(id);
+      if (existing != null && existing.isDefault) {
+        throw CannotModifyDefaultCategoryException();
+      }
+
       final affectedRows = await _db.delete(
         CategoriesTable.table,
         where: '${CategoriesTable.id} = ?',

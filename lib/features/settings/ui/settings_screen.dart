@@ -13,15 +13,18 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
-          ListTile(
-            title: const Text('Dark mode'),
-            trailing: Switch.adaptive(
-              value: themeMode == ThemeMode.dark,
-              onChanged: (value) {
-                ref
-                    .read(themeModeProvider.notifier)
-                    .set(value ? ThemeMode.dark : ThemeMode.light);
-              },
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListTile(
+              title: const Text('Dark mode'),
+              trailing: Switch.adaptive(
+                value: themeMode == ThemeMode.dark,
+                onChanged: (value) {
+                  ref
+                      .read(themeModeProvider.notifier)
+                      .set(value ? ThemeMode.dark : ThemeMode.light);
+                },
+              ),
             ),
           ),
         ],

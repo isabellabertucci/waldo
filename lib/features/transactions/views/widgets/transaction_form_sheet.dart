@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/router/app_router.dart';
+import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
@@ -119,7 +120,10 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
         left: 16,
         right: 16,
         top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        bottom:
+            MediaQuery.of(context).viewInsets.bottom +
+            MediaQuery.of(context).padding.bottom +
+            16,
       ),
       child: SingleChildScrollView(
         child: Form(
@@ -202,6 +206,9 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: context.appColors.primaryStrong,
+                  ),
                   onPressed: () => const CategoriesRoute().push(context),
                   child: Text(l10n.manageCategories),
                 ),

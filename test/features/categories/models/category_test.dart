@@ -29,6 +29,7 @@ void main() {
       final map = {
         'id': null,
         'name': 'Bus fare',
+        'is_default': 0,
         'created_at': '2026-08-10T12:00:00.000',
       };
 

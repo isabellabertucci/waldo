@@ -94,7 +94,7 @@ class _TransactionsBody extends ConsumerWidget {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'Transactions in this wallet',
+              'Transactions',
               style: context.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),

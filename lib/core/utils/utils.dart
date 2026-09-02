@@ -1,11 +1,13 @@
 import 'package:intl/intl.dart' show NumberFormat;
 
-/// Parses a plain amount such as "10", "10.5", or "10.50"
-/// into cents without using floating-point arithmetic.
+/// Parses a plain amount such as "10", "10.5", "10,5", or "10.50"
+/// into cents without using floating-point arithmetic. Accepts both
+/// '.' and ',' as the decimal separator, since the app supports
+/// English (10.50) and Portuguese (10,50) input conventions.
 int? parseToCents(String input, {required bool allowNegative}) {
   final value = input.trim();
   if (value.isEmpty) return null;
-  final match = RegExp(r'^(-?)(\d+)(?:\.(\d{1,2}))?$').firstMatch(value);
+  final match = RegExp(r'^(-?)(\d+)(?:[.,](\d{1,2}))?$').firstMatch(value);
   if (match == null) return null;
   final isNegative = match.group(1) == '-';
   if (isNegative && !allowNegative) return null;
