@@ -65,13 +65,14 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
 
     return Padding(
       padding: EdgeInsets.only(
-  left: 16,
-  right: 16,
-  top: 16,
-  bottom: MediaQuery.of(context).viewInsets.bottom +
-      MediaQuery.of(context).padding.bottom +
-      16,
-),
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom:
+            MediaQuery.of(context).viewInsets.bottom +
+            MediaQuery.of(context).padding.bottom +
+            16,
+      ),
       child: Form(
         key: _formKey,
         child: Column(
