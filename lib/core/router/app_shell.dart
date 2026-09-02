@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 class AppShell extends StatelessWidget {
@@ -22,15 +23,18 @@ class AppShell extends StatelessWidget {
         },
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.dashboard),
+            icon: const Icon(AppIcons.dashboard),
+            selectedIcon: const Icon(AppIcons.dashboardSelected),
             label: l10n.dashboard,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.account_balance_wallet),
+            icon: const Icon(AppIcons.wallets),
+            selectedIcon: const Icon(AppIcons.walletsSelected),
             label: l10n.wallets,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(AppIcons.settings),
+            selectedIcon: const Icon(AppIcons.settingsSelected),
             label: l10n.settings,
           ),
         ],

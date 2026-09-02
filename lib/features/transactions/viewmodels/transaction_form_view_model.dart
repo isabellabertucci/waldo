@@ -4,6 +4,8 @@ import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
+import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
+import 'package:waldo/features/wallets/viewmodels/wallet_providers.dart';
 import 'transaction_form_state.dart';
 import 'transaction_list_view_model.dart';
 
@@ -96,6 +98,9 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
     );
 
     ref.invalidate(transactionListViewModelProvider(walletId: walletId));
+    ref.invalidate(walletListViewModelProvider);
+    ref.invalidate(walletByIdProvider(walletId));
+
     if (existingTransaction != null &&
         existingTransaction.walletId != walletId) {
       ref.invalidate(
@@ -103,6 +108,7 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
           walletId: existingTransaction.walletId,
         ),
       );
+      ref.invalidate(walletByIdProvider(existingTransaction.walletId));
     }
 
     return true;

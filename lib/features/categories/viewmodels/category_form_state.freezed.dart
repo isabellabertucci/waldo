@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CategoryFormState {
 
- String get name; CategoryType get type;
+ String get name;
 /// Create a copy of CategoryFormState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $CategoryFormStateCopyWith<CategoryFormState> get copyWith => _$CategoryFormStat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CategoryFormState&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CategoryFormState&&(identical(other.name, name) || other.name == name));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,type);
+int get hashCode => Object.hash(runtimeType,name);
 
 @override
 String toString() {
-  return 'CategoryFormState(name: $name, type: $type)';
+  return 'CategoryFormState(name: $name)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $CategoryFormStateCopyWith<$Res>  {
   factory $CategoryFormStateCopyWith(CategoryFormState value, $Res Function(CategoryFormState) _then) = _$CategoryFormStateCopyWithImpl;
 @useResult
 $Res call({
- String name, CategoryType type
+ String name
 });
 
 
@@ -62,11 +62,10 @@ class _$CategoryFormStateCopyWithImpl<$Res>
 
 /// Create a copy of CategoryFormState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? type = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,}) {
   return _then(_self.copyWith(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as CategoryType,
+as String,
   ));
 }
 
@@ -151,10 +150,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  CategoryType type)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CategoryFormState() when $default != null:
-return $default(_that.name,_that.type);case _:
+return $default(_that.name);case _:
   return orElse();
 
 }
@@ -172,10 +171,10 @@ return $default(_that.name,_that.type);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  CategoryType type)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name)  $default,) {final _that = this;
 switch (_that) {
 case _CategoryFormState():
-return $default(_that.name,_that.type);case _:
+return $default(_that.name);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -192,10 +191,10 @@ return $default(_that.name,_that.type);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  CategoryType type)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name)?  $default,) {final _that = this;
 switch (_that) {
 case _CategoryFormState() when $default != null:
-return $default(_that.name,_that.type);case _:
+return $default(_that.name);case _:
   return null;
 
 }
@@ -207,11 +206,10 @@ return $default(_that.name,_that.type);case _:
 
 
 class _CategoryFormState implements CategoryFormState {
-  const _CategoryFormState({this.name = '', this.type = CategoryType.groceries});
+  const _CategoryFormState({this.name = ''});
   
 
 @override@JsonKey() final  String name;
-@override@JsonKey() final  CategoryType type;
 
 /// Create a copy of CategoryFormState
 /// with the given fields replaced by the non-null parameter values.
@@ -223,16 +221,16 @@ _$CategoryFormStateCopyWith<_CategoryFormState> get copyWith => __$CategoryFormS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CategoryFormState&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CategoryFormState&&(identical(other.name, name) || other.name == name));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,type);
+int get hashCode => Object.hash(runtimeType,name);
 
 @override
 String toString() {
-  return 'CategoryFormState(name: $name, type: $type)';
+  return 'CategoryFormState(name: $name)';
 }
 
 
@@ -243,7 +241,7 @@ abstract mixin class _$CategoryFormStateCopyWith<$Res> implements $CategoryFormS
   factory _$CategoryFormStateCopyWith(_CategoryFormState value, $Res Function(_CategoryFormState) _then) = __$CategoryFormStateCopyWithImpl;
 @override @useResult
 $Res call({
- String name, CategoryType type
+ String name
 });
 
 
@@ -260,11 +258,10 @@ class __$CategoryFormStateCopyWithImpl<$Res>
 
 /// Create a copy of CategoryFormState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? type = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,}) {
   return _then(_CategoryFormState(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
-as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
-as CategoryType,
+as String,
   ));
 }
 

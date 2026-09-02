@@ -239,7 +239,6 @@ void main() {
         final categoryId = await categoryRepo.insert(
           const Category(
             name: 'Groceries',
-            type: CategoryType.groceries,
             createdAt: '2026-08-10T12:00:00.000',
           ),
         );

@@ -56,6 +56,12 @@ void main() {
     return (walletId, transactionId);
   }
 
+  /// Opens the AppBar's overflow menu with the Edit/Delete actions.
+  Future<void> openTransactionMenu(WidgetTester tester) async {
+    await tester.tap(find.byKey(const Key('transaction_menu_button')));
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('Shows the transaction description and amount', (tester) async {
     await pumpDetailScreen(tester, description: 'Groceries');
 
@@ -74,6 +80,7 @@ void main() {
   ) async {
     await pumpDetailScreen(tester);
 
+    await openTransactionMenu(tester);
     await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
 
@@ -88,6 +95,7 @@ void main() {
   testWidgets('Editing a transaction opens the edit form', (tester) async {
     await pumpDetailScreen(tester);
 
+    await openTransactionMenu(tester);
     await tester.tap(find.text('Edit Transaction'));
     await tester.pumpAndSettle();
 
