@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-import 'package:waldo/features/categories/views/categories_screen.dart';
+import 'package:waldo/features/categories/ui/categories_screen.dart';
 
 import '../../../helpers/test_app.dart';
 
