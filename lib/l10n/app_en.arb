@@ -290,5 +290,45 @@
   "none": "None",
   "@none": {
     "description": "Label for selecting no category on a transaction"
+  },
+  "darkMode": "Dark Mode",
+  "@darkMode": {
+    "description": "Dark mode section title in settings"
+  },
+  "themeSystem": "System",
+  "@themeSystem": {
+    "description": "Option to follow the device's theme setting"
+  },
+  "themeLight": "Light",
+  "@themeLight": {
+    "description": "Option to always use light theme"
+  },
+  "themeDark": "Dark",
+  "@themeDark": {
+    "description": "Option to always use dark theme"
+  },
+  "currency": "Currency",
+  "@currency": {
+    "description": "Currency section title in settings"
+  },
+  "dateFormat": "Date Format",
+  "@dateFormat": {
+    "description": "Date format section title in settings"
+  },
+  "preferencesError": "There was a problem loading your preferences. Please try again.",
+  "@preferencesError": {
+    "description": "Generic error message shown when preferences fail to load"
+  },
+  "currencyOptionUsd": "USD ($)",
+  "@currencyOptionUsd": {
+    "description": "US Dollar option label in the currency picker"
+  },
+  "currencyOptionEur": "EUR (€)",
+  "@currencyOptionEur": {
+    "description": "Euro option label in the currency picker"
+  },
+  "currencyOptionGbp": "GBP (£)",
+  "@currencyOptionGbp": {
+    "description": "British Pound option label in the currency picker"
   }
 }

@@ -1,8 +1,12 @@
 import 'package:logging/logging.dart';
 import 'package:sqflite/sqflite.dart';
 import 'migrations/v00001_create_initial_schema.dart' as m00001;
+import 'migrations/v00002_make_theme_dark_nullable.dart' as m00002;
 
-final List<Future<void> Function(Database db)> migrations = [m00001.up];
+final List<Future<void> Function(Database db)> migrations = [
+  m00001.up,
+  m00002.up,
+];
 
 final _log = Logger('waldo.db');
 

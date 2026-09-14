@@ -23,7 +23,18 @@ String formatCentsForInput(int cents) {
   return formatter.format(cents / 100);
 }
 
-/// Formats cents for display using the specified locale.
+/// Maps a currency code to its display symbol. Falls back to the
+/// code itself if unknown, rather than silently defaulting to '$'.
+String _currencySymbol(String currencyCode) {
+  return switch (currencyCode) {
+    'USD' => r'$',
+    'EUR' => '€',
+    'GBP' => '£',
+    _ => currencyCode,
+  };
+}
+
+/// Formats cents for display using the specified locale and currency.
 String formatCents(
   int cents, {
   String locale = 'en_US',
@@ -32,7 +43,7 @@ String formatCents(
   final formatter = NumberFormat.currency(
     locale: locale,
     name: currencyCode,
-    symbol: '\$',
+    symbol: _currencySymbol(currencyCode),
     decimalDigits: 2,
   );
   return formatter.format(cents / 100);

@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:waldo/core/theme/theme_provider.dart';
+import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 
 import 'core/constants/app_constants.dart';
 import 'core/logging/app_logger.dart';
@@ -26,13 +26,28 @@ void main() {
   );
 }
 
+ThemeMode _toThemeMode(bool? isDarkMode) {
+  return switch (isDarkMode) {
+    null => ThemeMode.system,
+    true => ThemeMode.dark,
+    false => ThemeMode.light,
+  };
+}
+
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(goRouterProvider);
-    final themeMode = ref.watch(themeModeProvider);
+    final preferencesAsync = ref.watch(preferencesViewModelProvider);
+
+    // Default to system theme while preferences are still loading,
+    // so there's no flash of the wrong theme on cold start.
+    final themeMode = switch (preferencesAsync) {
+      AsyncData(:final value) => _toThemeMode(value.isDarkMode),
+      _ => ThemeMode.system,
+    };
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,

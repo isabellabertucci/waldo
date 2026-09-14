@@ -517,6 +517,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'None'**
   String get none;
+
+  /// Dark mode section title in settings
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get darkMode;
+
+  /// Option to follow the device's theme setting
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// Option to always use light theme
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// Option to always use dark theme
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// Currency section title in settings
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get currency;
+
+  /// Date format section title in settings
+  ///
+  /// In en, this message translates to:
+  /// **'Date Format'**
+  String get dateFormat;
+
+  /// Generic error message shown when preferences fail to load
+  ///
+  /// In en, this message translates to:
+  /// **'There was a problem loading your preferences. Please try again.'**
+  String get preferencesError;
+
+  /// US Dollar option label in the currency picker
+  ///
+  /// In en, this message translates to:
+  /// **'USD (\$)'**
+  String get currencyOptionUsd;
+
+  /// Euro option label in the currency picker
+  ///
+  /// In en, this message translates to:
+  /// **'EUR (€)'**
+  String get currencyOptionEur;
+
+  /// British Pound option label in the currency picker
+  ///
+  /// In en, this message translates to:
+  /// **'GBP (£)'**
+  String get currencyOptionGbp;
 }
 
 class _AppLocalizationsDelegate
