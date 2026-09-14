@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/categories/viewmodels/category_form_view_model.dart';
@@ -14,11 +13,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      const Category(
-        name: '',
-        type: CategoryType.groceries,
-        createdAt: '2026-08-10T12:00:00.000',
-      ),
+      const Category(name: '', createdAt: '2026-08-10T12:00:00.000'),
     );
   });
 
@@ -33,25 +28,22 @@ void main() {
     container.dispose();
   });
 
-  test('build(null) starts empty with the default type', () {
+  test('build(null) starts with an empty name', () {
     final state = container.read(categoryFormViewModelProvider(null));
 
     expect(state.name, '');
-    expect(state.type, CategoryType.groceries);
   });
 
-  test('build(category) pre-fills fields from the existing category', () {
+  test('build(category) pre-fills the name from the existing category', () {
     const category = Category(
       id: 1,
       name: 'Groceries',
-      type: CategoryType.groceries,
       createdAt: '2026-08-10T12:00:00.000',
     );
 
     final state = container.read(categoryFormViewModelProvider(category));
 
     expect(state.name, 'Groceries');
-    expect(state.type, CategoryType.groceries);
   });
 
   test(
@@ -86,7 +78,6 @@ void main() {
     const existing = Category(
       id: 5,
       name: 'Old name',
-      type: CategoryType.groceries,
       createdAt: '2026-08-10T12:00:00.000',
     );
     when(() => mockRepo.update(any())).thenAnswer((_) async {});

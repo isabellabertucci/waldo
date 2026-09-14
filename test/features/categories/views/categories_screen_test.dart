@@ -22,6 +22,10 @@ void main() {
     );
   }
 
+  // Named so it always sorts last alphabetically (after the 5 seeded
+  // categories), keeping `.last` finders reliable across tests.
+  const testCategoryName = 'ZZZ Test Category';
+
   Future<void> createCategory(WidgetTester tester, String name) async {
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();
@@ -31,18 +35,21 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('Shows empty state when there are no categories', (tester) async {
+  testWidgets('Shows the 5 default categories on first launch', (tester) async {
     await pumpCategoriesScreen(tester);
 
-    expect(find.text('No categories yet'), findsOneWidget);
+    expect(find.text('Groceries'), findsOneWidget);
+    expect(find.text('Transportation'), findsOneWidget);
+    expect(find.text('Subscriptions'), findsOneWidget);
+    expect(find.text('Education'), findsOneWidget);
+    expect(find.text('Investments'), findsOneWidget);
   });
 
   testWidgets('Creating a category adds it to the list', (tester) async {
     await pumpCategoriesScreen(tester);
-    await createCategory(tester, 'Test Category');
+    await createCategory(tester, testCategoryName);
 
-    expect(find.text('Test Category'), findsOneWidget);
-    expect(find.text('No categories yet'), findsNothing);
+    expect(find.text(testCategoryName), findsOneWidget);
   });
 
   testWidgets('Shows validation error when name is empty', (tester) async {
@@ -61,33 +68,33 @@ void main() {
     tester,
   ) async {
     await pumpCategoriesScreen(tester);
-    await createCategory(tester, 'Test Category');
+    await createCategory(tester, testCategoryName);
 
-    await tester.tap(find.byIcon(Icons.delete));
+    await tester.tap(find.byIcon(Icons.delete).last);
     await tester.pumpAndSettle();
 
     expect(find.text('Delete category?'), findsOneWidget);
-    expect(find.text('Test Category'), findsOneWidget);
+    expect(find.text(testCategoryName), findsOneWidget);
 
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Test Category'), findsOneWidget);
+    expect(find.text(testCategoryName), findsOneWidget);
   });
 
   testWidgets(
     'Confirming delete hides the category immediately and shows a snackbar',
     (tester) async {
       await pumpCategoriesScreen(tester);
-      await createCategory(tester, 'Test Category');
+      await createCategory(tester, testCategoryName);
 
-      await tester.tap(find.byIcon(Icons.delete));
+      await tester.tap(find.byIcon(Icons.delete).last);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Delete'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 250));
 
-      expect(find.text('Test Category'), findsNothing);
+      expect(find.text(testCategoryName), findsNothing);
       expect(find.text('Category deleted'), findsOneWidget);
       expect(find.text('Undo'), findsOneWidget);
 
@@ -97,40 +104,39 @@ void main() {
 
   testWidgets('Tapping Undo restores the category to the list', (tester) async {
     await pumpCategoriesScreen(tester);
-    await createCategory(tester, 'Test Category');
+    await createCategory(tester, testCategoryName);
 
-    await tester.tap(find.byIcon(Icons.delete));
+    await tester.tap(find.byIcon(Icons.delete).last);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 250));
 
-    expect(find.text('Test Category'), findsNothing);
+    expect(find.text(testCategoryName), findsNothing);
 
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Test Category'), findsOneWidget);
+    expect(find.text(testCategoryName), findsOneWidget);
 
     await tester.pump(const Duration(seconds: 6));
-    expect(find.text('Test Category'), findsOneWidget);
+    expect(find.text(testCategoryName), findsOneWidget);
   });
 
   testWidgets(
     'Not tapping Undo permanently deletes the category after 5 seconds',
     (tester) async {
       await pumpCategoriesScreen(tester);
-      await createCategory(tester, 'Test Category');
-      await tester.tap(find.byIcon(Icons.delete));
+      await createCategory(tester, testCategoryName);
+      await tester.tap(find.byIcon(Icons.delete).last);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Delete'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 250));
-      expect(find.text('Test Category'), findsNothing);
+      expect(find.text(testCategoryName), findsNothing);
       await tester.pump(const Duration(seconds: 6));
       await pumpCategoriesScreen(tester, db: currentDb);
-      expect(find.text('Test Category'), findsNothing);
-      expect(find.text('No categories yet'), findsOneWidget);
+      expect(find.text(testCategoryName), findsNothing);
     },
   );
 }

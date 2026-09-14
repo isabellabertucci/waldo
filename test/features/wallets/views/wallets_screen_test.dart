@@ -31,6 +31,15 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  /// Opens the wallet's overflow menu and taps "Delete", which triggers
+  /// the confirmation dialog to open.
+  Future<void> openDeleteMenu(WidgetTester tester) async {
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('Shows empty state when there are no wallets', (tester) async {
     await pumpWalletsScreen(tester);
 
@@ -63,8 +72,7 @@ void main() {
     await pumpWalletsScreen(tester);
     await createWallet(tester, 'Test Wallet');
 
-    await tester.tap(find.byIcon(Icons.delete));
-    await tester.pumpAndSettle();
+    await openDeleteMenu(tester);
 
     expect(find.text('Delete wallet?'), findsOneWidget);
     expect(find.text('Test Wallet'), findsOneWidget);
@@ -81,8 +89,7 @@ void main() {
       await pumpWalletsScreen(tester);
       await createWallet(tester, 'Test Wallet');
 
-      await tester.tap(find.byIcon(Icons.delete));
-      await tester.pumpAndSettle();
+      await openDeleteMenu(tester);
       await tester.tap(find.text('Delete'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 250));
@@ -99,8 +106,7 @@ void main() {
     await pumpWalletsScreen(tester);
     await createWallet(tester, 'Test Wallet');
 
-    await tester.tap(find.byIcon(Icons.delete));
-    await tester.pumpAndSettle();
+    await openDeleteMenu(tester);
     await tester.tap(find.text('Delete'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 250));
@@ -122,8 +128,7 @@ void main() {
       await pumpWalletsScreen(tester);
       await createWallet(tester, 'Test Wallet');
 
-      await tester.tap(find.byIcon(Icons.delete));
-      await tester.pumpAndSettle();
+      await openDeleteMenu(tester);
       await tester.tap(find.text('Delete'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 250));
