@@ -2,6 +2,7 @@ import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:waldo/core/constants/db_constants.dart';
+import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/database/db_providers.dart';
 import '../models/preferences.dart';
 
@@ -11,7 +12,7 @@ final _log = Logger('waldo.repository.preferences');
 
 abstract class IPreferencesRepository {
   Future<Preferences> getPreferences();
-  Future<void> setCurrency(String currency);
+  Future<void> setCurrency(Currency currency);
   Future<void> setDarkMode(bool? isDarkMode);
   Future<void> setDateFormat(String dateFormat);
 }
@@ -41,7 +42,7 @@ class PreferencesRepositoryImpl implements IPreferencesRepository {
       const defaults = Preferences();
       await _db.insert(PreferencesTable.table, {
         PreferencesTable.id: _rowId,
-        PreferencesTable.preferredCurrency: defaults.currency,
+        PreferencesTable.preferredCurrency: defaults.currency.name,
         PreferencesTable.themeDark: null,
         PreferencesTable.dateFormat: defaults.dateFormat,
         PreferencesTable.updatedAt: DateTime.now().toIso8601String(),
@@ -54,8 +55,8 @@ class PreferencesRepositoryImpl implements IPreferencesRepository {
   }
 
   @override
-  Future<void> setCurrency(String currency) {
-    return _updateColumn(PreferencesTable.preferredCurrency, currency);
+  Future<void> setCurrency(Currency currency) {
+    return _updateColumn(PreferencesTable.preferredCurrency, currency.name);
   }
 
   @override

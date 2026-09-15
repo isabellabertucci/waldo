@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Preferences {
 
- String get currency;// null = no explicit choice yet, follow the system theme.
+ Currency get currency;// null = no explicit choice yet, follow the system theme.
 // true/false = user has explicitly chosen dark or light.
  bool? get isDarkMode; String get dateFormat;
 /// Create a copy of Preferences
@@ -47,7 +47,7 @@ abstract mixin class $PreferencesCopyWith<$Res>  {
   factory $PreferencesCopyWith(Preferences value, $Res Function(Preferences) _then) = _$PreferencesCopyWithImpl;
 @useResult
 $Res call({
- String currency, bool? isDarkMode, String dateFormat
+ Currency currency, bool? isDarkMode, String dateFormat
 });
 
 
@@ -67,7 +67,7 @@ class _$PreferencesCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? currency = null,Object? isDarkMode = freezed,Object? dateFormat = null,}) {
   return _then(_self.copyWith(
 currency: null == currency ? _self.currency : currency // ignore: cast_nullable_to_non_nullable
-as String,isDarkMode: freezed == isDarkMode ? _self.isDarkMode : isDarkMode // ignore: cast_nullable_to_non_nullable
+as Currency,isDarkMode: freezed == isDarkMode ? _self.isDarkMode : isDarkMode // ignore: cast_nullable_to_non_nullable
 as bool?,dateFormat: null == dateFormat ? _self.dateFormat : dateFormat // ignore: cast_nullable_to_non_nullable
 as String,
   ));
@@ -154,7 +154,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String currency,  bool? isDarkMode,  String dateFormat)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Currency currency,  bool? isDarkMode,  String dateFormat)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Preferences() when $default != null:
 return $default(_that.currency,_that.isDarkMode,_that.dateFormat);case _:
@@ -175,7 +175,7 @@ return $default(_that.currency,_that.isDarkMode,_that.dateFormat);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String currency,  bool? isDarkMode,  String dateFormat)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Currency currency,  bool? isDarkMode,  String dateFormat)  $default,) {final _that = this;
 switch (_that) {
 case _Preferences():
 return $default(_that.currency,_that.isDarkMode,_that.dateFormat);case _:
@@ -195,7 +195,7 @@ return $default(_that.currency,_that.isDarkMode,_that.dateFormat);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String currency,  bool? isDarkMode,  String dateFormat)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Currency currency,  bool? isDarkMode,  String dateFormat)?  $default,) {final _that = this;
 switch (_that) {
 case _Preferences() when $default != null:
 return $default(_that.currency,_that.isDarkMode,_that.dateFormat);case _:
@@ -210,10 +210,10 @@ return $default(_that.currency,_that.isDarkMode,_that.dateFormat);case _:
 
 
 class _Preferences extends Preferences {
-  const _Preferences({this.currency = 'USD', this.isDarkMode, this.dateFormat = 'yyyy-MM-dd'}): super._();
+  const _Preferences({this.currency = Currency.usd, this.isDarkMode, this.dateFormat = 'yyyy-MM-dd'}): super._();
   
 
-@override@JsonKey() final  String currency;
+@override@JsonKey() final  Currency currency;
 // null = no explicit choice yet, follow the system theme.
 // true/false = user has explicitly chosen dark or light.
 @override final  bool? isDarkMode;
@@ -249,7 +249,7 @@ abstract mixin class _$PreferencesCopyWith<$Res> implements $PreferencesCopyWith
   factory _$PreferencesCopyWith(_Preferences value, $Res Function(_Preferences) _then) = __$PreferencesCopyWithImpl;
 @override @useResult
 $Res call({
- String currency, bool? isDarkMode, String dateFormat
+ Currency currency, bool? isDarkMode, String dateFormat
 });
 
 
@@ -269,7 +269,7 @@ class __$PreferencesCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? currency = null,Object? isDarkMode = freezed,Object? dateFormat = null,}) {
   return _then(_Preferences(
 currency: null == currency ? _self.currency : currency // ignore: cast_nullable_to_non_nullable
-as String,isDarkMode: freezed == isDarkMode ? _self.isDarkMode : isDarkMode // ignore: cast_nullable_to_non_nullable
+as Currency,isDarkMode: freezed == isDarkMode ? _self.isDarkMode : isDarkMode // ignore: cast_nullable_to_non_nullable
 as bool?,dateFormat: null == dateFormat ? _self.dateFormat : dateFormat // ignore: cast_nullable_to_non_nullable
 as String,
   ));

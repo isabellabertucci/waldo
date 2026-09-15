@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:waldo/core/constants/enums.dart';
 import '../models/preferences.dart';
 import '../repositories/preferences_repository.dart';
 
@@ -15,7 +16,7 @@ class PreferencesViewModel extends _$PreferencesViewModel {
     return repo.getPreferences();
   }
 
-  Future<void> setCurrency(String currency) async {
+  Future<void> setCurrency(Currency currency) async {
     final repo = await ref.read(preferencesRepositoryProvider.future);
     await repo.setCurrency(currency);
     _log.info('setCurrency succeeded: currency=$currency');

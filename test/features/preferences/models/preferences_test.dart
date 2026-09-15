@@ -1,11 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/preferences/models/preferences.dart';
 
 void main() {
   group('Preferences mapping', () {
     test('toMap/fromMap round-trip preserves all fields', () {
       const preferences = Preferences(
-        currency: 'EUR',
+        currency: Currency.eur,
         isDarkMode: true,
         dateFormat: 'dd/MM/yyyy',
       );
@@ -36,7 +37,7 @@ void main() {
 
     test('fromMap parses a null theme_dark as no preference (system)', () {
       final map = {
-        'preferred_currency': 'USD',
+        'preferred_currency': 'usd',
         'theme_dark': null,
         'date_format': 'yyyy-MM-dd',
       };
@@ -47,7 +48,7 @@ void main() {
     test('default values match the schema defaults', () {
       const preferences = Preferences();
 
-      expect(preferences.currency, 'USD');
+      expect(preferences.currency, Currency.usd);
       expect(preferences.isDarkMode, isNull);
       expect(preferences.dateFormat, 'yyyy-MM-dd');
     });

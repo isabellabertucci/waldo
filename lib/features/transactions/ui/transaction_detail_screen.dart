@@ -194,7 +194,7 @@ class _TransactionDetailBody extends ConsumerWidget {
 
     final currency = switch (preferencesAsync) {
       AsyncData(:final value) => value.currency,
-      _ => 'USD',
+      _ => Currency.usd,
     };
     final dateFormatPattern = switch (preferencesAsync) {
       AsyncData(:final value) => value.dateFormat,
@@ -254,7 +254,7 @@ class _TransactionDetailBody extends ConsumerWidget {
                   ),
                   const SizedBox(height: Spacing.lg),
                   Text(
-                    '$sign${formatCents(transaction.amount, currencyCode: currency)}',
+                    '$sign${formatCents(transaction.amount, currencyCode: currency.name.toUpperCase())}',
                     style: context.textTheme.headlineLarge?.copyWith(
                       color: color,
                       fontWeight: FontWeight.w900,

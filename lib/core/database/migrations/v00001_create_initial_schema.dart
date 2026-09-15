@@ -73,8 +73,8 @@ Future<void> up(Database db) async {
   await db.execute('''
     CREATE TABLE ${PreferencesTable.table} (
       ${PreferencesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT,
-      ${PreferencesTable.preferredCurrency} TEXT NOT NULL DEFAULT 'USD',
-      ${PreferencesTable.themeDark} INTEGER NOT NULL DEFAULT 0,
+      ${PreferencesTable.preferredCurrency} TEXT NOT NULL DEFAULT '${Currency.usd.name}',
+      ${PreferencesTable.themeDark} INTEGER,
       ${PreferencesTable.dateFormat} TEXT NOT NULL DEFAULT 'yyyy-MM-dd',
       ${PreferencesTable.updatedAt} TEXT NOT NULL
     )

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/preferences/repositories/preferences_repository.dart';
 
 import '../../../helpers/test_app.dart';
@@ -21,27 +22,27 @@ void main() {
     test('getPreferences inserts and returns defaults on first run', () async {
       final preferences = await repo.getPreferences();
 
-      expect(preferences.currency, 'USD');
+      expect(preferences.currency, Currency.usd);
       expect(preferences.isDarkMode, isNull);
       expect(preferences.dateFormat, 'yyyy-MM-dd');
     });
 
     test('getPreferences returns the same row on subsequent reads', () async {
       await repo.getPreferences();
-      await repo.setCurrency('EUR');
+      await repo.setCurrency(Currency.eur);
 
       final preferences = await repo.getPreferences();
 
-      expect(preferences.currency, 'EUR');
+      expect(preferences.currency, Currency.eur);
     });
 
     test('setCurrency updates the currency', () async {
       await repo.getPreferences();
 
-      await repo.setCurrency('GBP');
+      await repo.setCurrency(Currency.gbp);
       final preferences = await repo.getPreferences();
 
-      expect(preferences.currency, 'GBP');
+      expect(preferences.currency, Currency.gbp);
     });
 
     test('setDateFormat updates the date format', () async {

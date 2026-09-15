@@ -7,6 +7,7 @@ import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
+import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_form_view_model.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
@@ -113,7 +114,12 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     );
     final walletsAsync = ref.watch(walletListViewModelProvider());
     final categoriesAsync = ref.watch(categoryListViewModelProvider);
-    final dateFormat = DateFormat.yMMMd();
+    final preferencesAsync = ref.watch(preferencesViewModelProvider);
+    final dateFormatPattern = switch (preferencesAsync) {
+      AsyncData(:final value) => value.dateFormat,
+      _ => 'yyyy-MM-dd',
+    };
+    final dateFormat = DateFormat(dateFormatPattern);
 
     return Padding(
       padding: EdgeInsets.only(

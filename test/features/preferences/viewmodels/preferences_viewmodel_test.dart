@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/preferences/models/preferences.dart';
 import 'package:waldo/features/preferences/repositories/preferences_repository.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
@@ -28,27 +29,27 @@ void main() {
   test('build reads preferences from the repository', () async {
     when(
       () => mockRepo.getPreferences(),
-    ).thenAnswer((_) async => const Preferences(currency: 'EUR'));
+    ).thenAnswer((_) async => const Preferences(currency: Currency.eur));
 
     final preferences = await container.read(
       preferencesViewModelProvider.future,
     );
 
-    expect(preferences.currency, 'EUR');
+    expect(preferences.currency, Currency.eur);
   });
 
   test('setCurrency calls the repository and invalidates', () async {
     when(
       () => mockRepo.getPreferences(),
     ).thenAnswer((_) async => const Preferences());
-    when(() => mockRepo.setCurrency('GBP')).thenAnswer((_) async {});
+    when(() => mockRepo.setCurrency(Currency.gbp)).thenAnswer((_) async {});
 
     await container.read(preferencesViewModelProvider.future);
     final notifier = container.read(preferencesViewModelProvider.notifier);
 
-    await notifier.setCurrency('GBP');
+    await notifier.setCurrency(Currency.gbp);
 
-    verify(() => mockRepo.setCurrency('GBP')).called(1);
+    verify(() => mockRepo.setCurrency(Currency.gbp)).called(1);
   });
 
   test('setDarkMode(true) calls the repository with true', () async {

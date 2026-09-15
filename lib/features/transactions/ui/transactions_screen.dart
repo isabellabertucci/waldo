@@ -68,7 +68,7 @@ class _TransactionsBody extends ConsumerWidget {
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
     final currency = switch (preferencesAsync) {
       AsyncData(:final value) => value.currency,
-      _ => 'USD',
+      _ => Currency.usd,
     };
     final dateFormatPattern = switch (preferencesAsync) {
       AsyncData(:final value) => value.dateFormat,
@@ -169,7 +169,7 @@ class _TransactionsBody extends ConsumerWidget {
                   ),
                 ),
                 trailing: Text(
-                  '$sign${formatCents(transaction.amount, currencyCode: currency)}',
+                  '$sign${formatCents(transaction.amount, currencyCode: currency.name.toUpperCase())}',
                   style: context.textTheme.titleSmall?.copyWith(
                     color: color,
                     fontWeight: FontWeight.bold,
@@ -193,7 +193,7 @@ class _SummaryHeader extends StatelessWidget {
 
   final int income;
   final int expense;
-  final String currency;
+  final Currency currency;
 
   @override
   Widget build(BuildContext context) {
@@ -206,7 +206,8 @@ class _SummaryHeader extends StatelessWidget {
           Expanded(
             child: _SummaryStat(
               label: 'Income',
-              value: '+${formatCents(income, currencyCode: currency)}',
+              value:
+                  '+${formatCents(income, currencyCode: currency.name.toUpperCase())}',
               color: colors.primaryStrong,
             ),
           ),
@@ -214,7 +215,8 @@ class _SummaryHeader extends StatelessWidget {
           Expanded(
             child: _SummaryStat(
               label: 'Expense',
-              value: '-${formatCents(expense, currencyCode: currency)}',
+              value:
+                  '-${formatCents(expense, currencyCode: currency.name.toUpperCase())}',
               color: colors.error,
             ),
           ),

@@ -56,7 +56,6 @@ void main() {
     return (walletId, transactionId);
   }
 
-  /// Opens the AppBar's overflow menu with the Edit/Delete actions.
   Future<void> openTransactionMenu(WidgetTester tester) async {
     await tester.tap(find.byKey(const Key('transaction_menu_button')));
     await tester.pumpAndSettle();
