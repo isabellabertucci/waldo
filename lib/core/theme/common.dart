@@ -86,10 +86,7 @@ class Common {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Rounded.xl),
       ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 6,
-      ), // era 12
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
     );
   }
 

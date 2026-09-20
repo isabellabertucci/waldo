@@ -70,5 +70,15 @@
   "categoryTypeSubscriptions": "Assinaturas",
   "categoryTypeEducation": "Educação",
   "categoryTypeInvestments": "Investimentos",
-  "none": "Nenhuma"
+  "none": "Nenhuma",
+  "darkMode": "Modo Escuro",
+  "themeSystem": "Sistema",
+  "themeLight": "Claro",
+  "themeDark": "Escuro",
+  "currency": "Moeda",
+  "dateFormat": "Formato de Data",
+  "preferencesError": "Houve um problema ao carregar suas preferências. Tente novamente.",
+  "currencyOptionUsd": "USD ($)",
+  "currencyOptionEur": "EUR (€)",
+  "currencyOptionGbp": "GBP (£)"
 }

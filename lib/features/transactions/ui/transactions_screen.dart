@@ -6,6 +6,7 @@ import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 
 import '../../../core/widgets/empty_state.dart';
 import '../models/transaction.dart';
@@ -64,6 +65,15 @@ class _TransactionsBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final preferencesAsync = ref.watch(preferencesViewModelProvider);
+    final currency = switch (preferencesAsync) {
+      AsyncData(:final value) => value.currency,
+      _ => Currency.usd,
+    };
+    final dateFormatPattern = switch (preferencesAsync) {
+      AsyncData(:final value) => value.dateFormat,
+      _ => 'yyyy-MM-dd',
+    };
 
     if (transactions.isEmpty) {
       return EmptyState(
@@ -80,7 +90,7 @@ class _TransactionsBody extends ConsumerWidget {
         .where((t) => t.type == TransactionType.expense)
         .fold<int>(0, (sum, t) => sum + t.amount);
 
-    final dateFormat = DateFormat.yMMMd();
+    final dateFormat = DateFormat(dateFormatPattern);
 
     return Column(
       children: [
@@ -101,7 +111,7 @@ class _TransactionsBody extends ConsumerWidget {
             ),
           ),
         ),
-        _SummaryHeader(income: income, expense: expense),
+        _SummaryHeader(income: income, expense: expense, currency: currency),
         Expanded(
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(
@@ -159,7 +169,7 @@ class _TransactionsBody extends ConsumerWidget {
                   ),
                 ),
                 trailing: Text(
-                  '$sign${formatCents(transaction.amount)}',
+                  '$sign${formatCents(transaction.amount, currencyCode: currency.name.toUpperCase())}',
                   style: context.textTheme.titleSmall?.copyWith(
                     color: color,
                     fontWeight: FontWeight.bold,
@@ -175,10 +185,15 @@ class _TransactionsBody extends ConsumerWidget {
 }
 
 class _SummaryHeader extends StatelessWidget {
-  const _SummaryHeader({required this.income, required this.expense});
+  const _SummaryHeader({
+    required this.income,
+    required this.expense,
+    required this.currency,
+  });
 
   final int income;
   final int expense;
+  final Currency currency;
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +206,8 @@ class _SummaryHeader extends StatelessWidget {
           Expanded(
             child: _SummaryStat(
               label: 'Income',
-              value: '+${formatCents(income)}',
+              value:
+                  '+${formatCents(income, currencyCode: currency.name.toUpperCase())}',
               color: colors.primaryStrong,
             ),
           ),
@@ -199,7 +215,8 @@ class _SummaryHeader extends StatelessWidget {
           Expanded(
             child: _SummaryStat(
               label: 'Expense',
-              value: '-${formatCents(expense)}',
+              value:
+                  '-${formatCents(expense, currencyCode: currency.name.toUpperCase())}',
               color: colors.error,
             ),
           ),

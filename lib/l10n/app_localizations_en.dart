@@ -231,4 +231,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get none => 'None';
+
+  @override
+  String get darkMode => 'Dark Mode';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get currency => 'Currency';
+
+  @override
+  String get dateFormat => 'Date Format';
+
+  @override
+  String get preferencesError =>
+      'There was a problem loading your preferences. Please try again.';
+
+  @override
+  String get currencyOptionUsd => 'USD (\$)';
+
+  @override
+  String get currencyOptionEur => 'EUR (€)';
+
+  @override
+  String get currencyOptionGbp => 'GBP (£)';
 }

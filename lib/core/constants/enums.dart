@@ -11,3 +11,5 @@ enum CategoryType {
 }
 
 enum SortOrder { asc, desc }
+
+enum Currency { usd, eur, gbp }

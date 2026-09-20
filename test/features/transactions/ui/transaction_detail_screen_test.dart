@@ -5,7 +5,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
-import 'package:waldo/features/transactions/views/transaction_detail_screen.dart';
+import 'package:waldo/features/transactions/ui/transaction_detail_screen.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
 
@@ -56,7 +56,6 @@ void main() {
     return (walletId, transactionId);
   }
 
-  /// Opens the AppBar's overflow menu with the Edit/Delete actions.
   Future<void> openTransactionMenu(WidgetTester tester) async {
     await tester.tap(find.byKey(const Key('transaction_menu_button')));
     await tester.pumpAndSettle();

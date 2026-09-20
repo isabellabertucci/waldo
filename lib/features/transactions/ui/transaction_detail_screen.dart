@@ -8,6 +8,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_list_view_model.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_providers.dart';
@@ -188,13 +189,23 @@ class _TransactionDetailBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final walletAsync = ref.watch(walletByIdProvider(transaction.walletId));
+    final preferencesAsync = ref.watch(preferencesViewModelProvider);
     final colors = context.appColors;
+
+    final currency = switch (preferencesAsync) {
+      AsyncData(:final value) => value.currency,
+      _ => Currency.usd,
+    };
+    final dateFormatPattern = switch (preferencesAsync) {
+      AsyncData(:final value) => value.dateFormat,
+      _ => 'yyyy-MM-dd',
+    };
 
     final isIncome = transaction.type == TransactionType.income;
     final color = isIncome ? colors.primaryStrong : colors.error;
     final sign = isIncome ? '+' : '-';
     final description = transaction.description?.trim();
-    final dateFormat = DateFormat.yMMMd();
+    final dateFormat = DateFormat(dateFormatPattern);
     final walletName = switch (walletAsync) {
       AsyncData(:final value) => value?.name ?? '',
       _ => '',
@@ -243,7 +254,7 @@ class _TransactionDetailBody extends ConsumerWidget {
                   ),
                   const SizedBox(height: Spacing.lg),
                   Text(
-                    '$sign${formatCents(transaction.amount)}',
+                    '$sign${formatCents(transaction.amount, currencyCode: currency.name.toUpperCase())}',
                     style: context.textTheme.headlineLarge?.copyWith(
                       color: color,
                       fontWeight: FontWeight.w900,

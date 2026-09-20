@@ -17,23 +17,19 @@ int? parseToCents(String input, {required bool allowNegative}) {
   return isNegative ? -cents : cents;
 }
 
-/// Formats cents for input fields, ensuring two decimal places.
 String formatCentsForInput(int cents) {
   final formatter = NumberFormat('0.00', 'en_US');
   return formatter.format(cents / 100);
 }
 
-/// Formats cents for display using the specified locale.
 String formatCents(
   int cents, {
   String locale = 'en_US',
   String currencyCode = 'USD',
 }) {
-  final formatter = NumberFormat.currency(
+  final formatter = NumberFormat.simpleCurrency(
     locale: locale,
     name: currencyCode,
-    symbol: '\$',
-    decimalDigits: 2,
   );
   return formatter.format(cents / 100);
 }

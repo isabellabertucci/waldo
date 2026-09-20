@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 
 import '../../../core/widgets/empty_state.dart';
 import '../models/wallet.dart';
@@ -131,6 +133,11 @@ class _WalletsBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final preferencesAsync = ref.watch(preferencesViewModelProvider);
+    final currency = switch (preferencesAsync) {
+      AsyncData(:final value) => value.currency,
+      _ => Currency.usd,
+    };
 
     if (wallets.isEmpty) {
       return EmptyState(
@@ -186,7 +193,10 @@ class _WalletsBody extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  formatCents(wallet.currentBalance),
+                  formatCents(
+                    wallet.currentBalance,
+                    currencyCode: currency.name.toUpperCase(),
+                  ),
                   style: context.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),

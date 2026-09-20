@@ -3,11 +3,11 @@ import 'package:go_router/go_router.dart';
 
 import 'app_shell.dart';
 import '../../features/dashboard/ui/dashboard_screen.dart';
-import '../../features/wallets/views/wallets_screen.dart';
+import '../../features/wallets/ui/wallets_screen.dart';
 import '../../features/settings/ui/settings_screen.dart';
-import '../../features/transactions/views/transaction_detail_screen.dart';
-import '../../features/transactions/views/transactions_screen.dart';
-import '../../features/categories/views/categories_screen.dart';
+import '../../features/transactions/ui/transaction_detail_screen.dart';
+import '../../features/transactions/ui/transactions_screen.dart';
+import '../../features/categories/ui/categories_screen.dart';
 
 part 'app_router.g.dart';
 
