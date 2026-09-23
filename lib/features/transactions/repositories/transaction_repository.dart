@@ -11,6 +11,7 @@ part 'transaction_repository.g.dart';
 final _log = Logger('waldo.repository.transaction');
 
 abstract class ITransactionRepository {
+  Future<List<Transaction>> getAll({SortOrder sortOrder = SortOrder.desc});
   Future<List<Transaction>> getByWallet(
     int walletId, {
     SortOrder sortOrder = SortOrder.desc,
@@ -37,6 +38,27 @@ class TransactionRepositoryImpl implements ITransactionRepository {
       'WHERE ${WalletsTable.id} = ?',
       [delta, walletId],
     );
+  }
+
+  @override
+  Future<List<Transaction>> getAll({
+    SortOrder sortOrder = SortOrder.desc,
+  }) async {
+    try {
+      final direction = sortOrder == SortOrder.desc ? 'DESC' : 'ASC';
+      final maps = await _db.query(
+        TransactionsTable.table,
+        // Tie-break on id when dates are equal, so ordering is stable
+        // and deterministic instead of relying on unspecified SQLite order.
+        orderBy:
+            '${TransactionsTable.date} $direction, ${TransactionsTable.id} $direction',
+      );
+      _log.fine('getAll succeeded: rowCount=${maps.length}');
+      return maps.map((map) => Transaction.fromMap(map)).toList();
+    } on DatabaseException catch (e) {
+      _log.severe('getAll failed', e);
+      rethrow;
+    }
   }
 
   @override
