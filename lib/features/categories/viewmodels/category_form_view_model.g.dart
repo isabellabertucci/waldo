@@ -59,7 +59,7 @@ final class CategoryFormViewModelProvider
 }
 
 String _$categoryFormViewModelHash() =>
-    r'ef1f974c94a81cf0f56726430b9dcb62c5363664';
+    r'1a0ca0f5e38aac1371b3619745034e3848cbc83b';
 
 final class CategoryFormViewModelFamily extends $Family
     with

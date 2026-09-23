@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
+import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
 import 'category_form_state.dart';
 import 'category_list_view_model.dart';
 
@@ -49,6 +50,7 @@ class CategoryFormViewModel extends _$CategoryFormViewModel {
 
     _log.info('Category save succeeded: isEditing=${existingCategory != null}');
     ref.invalidate(categoryListViewModelProvider);
+    ref.invalidate(dashboardViewModelProvider);
     return true;
   }
 }

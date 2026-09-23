@@ -2,6 +2,7 @@ import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
@@ -100,6 +101,7 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
     ref.invalidate(transactionListViewModelProvider(walletId: walletId));
     ref.invalidate(walletListViewModelProvider);
     ref.invalidate(walletByIdProvider(walletId));
+    ref.invalidate(dashboardViewModelProvider);
 
     if (existingTransaction != null &&
         existingTransaction.walletId != walletId) {

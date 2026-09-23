@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
+import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_list_view_model.dart';
 
 part 'category_list_view_model.g.dart';
@@ -25,6 +26,7 @@ class CategoryListViewModel extends _$CategoryListViewModel {
     await repo.delete(id);
     ref.invalidate(transactionListViewModelProvider);
     ref.invalidate(transactionByIdProvider);
+    ref.invalidate(dashboardViewModelProvider);
   }
 
   void restoreCategory() {
