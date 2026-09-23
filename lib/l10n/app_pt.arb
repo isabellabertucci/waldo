@@ -80,5 +80,18 @@
   "preferencesError": "Houve um problema ao carregar suas preferências. Tente novamente.",
   "currencyOptionUsd": "USD ($)",
   "currencyOptionEur": "EUR (€)",
-  "currencyOptionGbp": "GBP (£)"
+  "currencyOptionGbp": "GBP (£)",
+  "myFinances": "Minhas Finanças",
+  "overviewSubtitle": "Resumo de {month}",
+  "totalBalance": "Saldo Total",
+  "dashboardError": "Houve um problema ao carregar seu painel. Tente novamente.",
+  "spendingsByCategory": "Gastos por Categoria",
+  "seeAll": "Ver todas",
+  "noSpendingThisMonth": "Ainda não há gastos este mês",
+  "percentFromLastMonth": "{percent} em relação ao mês passado",
+  "cashFlow": "Fluxo de Caixa",
+  "overallRevenue": "Receita Total",
+  "periodMonthly": "Mensal",
+  "recentTransactions": "Transações Recentes",
+  "noRecentTransactions": "Ainda não há transações"
 }

@@ -262,4 +262,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currencyOptionGbp => 'GBP (£)';
+
+  @override
+  String get myFinances => 'My Finances';
+
+  @override
+  String overviewSubtitle(String month) {
+    return '$month Overview';
+  }
+
+  @override
+  String get totalBalance => 'Total Balance';
+
+  @override
+  String get dashboardError =>
+      'There was a problem loading your dashboard. Please try again.';
+
+  @override
+  String get spendingsByCategory => 'Spendings by Category';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get noSpendingThisMonth => 'No spending yet this month';
+
+  @override
+  String percentFromLastMonth(String percent) {
+    return '$percent from last month';
+  }
+
+  @override
+  String get cashFlow => 'Cash Flow';
+
+  @override
+  String get overallRevenue => 'Overall Revenue';
+
+  @override
+  String get periodMonthly => 'Monthly';
+
+  @override
+  String get recentTransactions => 'Recent Transactions';
+
+  @override
+  String get noRecentTransactions => 'No transactions yet';
 }
