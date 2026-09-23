@@ -84,7 +84,10 @@ class CategoryRepositoryImpl implements ICategoryRepository {
 
       final affectedRows = await _db.update(
         CategoriesTable.table,
-        {CategoriesTable.name: category.name},
+        {
+          CategoriesTable.name: category.name,
+          CategoriesTable.type: category.type.name,
+        },
         where: '${CategoriesTable.id} = ?',
         whereArgs: [id],
       );

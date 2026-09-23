@@ -18,6 +18,13 @@ abstract final class AppIcons {
   static const walletCredit = PhosphorIconsRegular.creditCard;
   static const walletInvestment = PhosphorIconsRegular.trendUp;
 
+  // Category types
+  static const categoryGroceries = PhosphorIconsRegular.shoppingCart;
+  static const categoryTransportation = PhosphorIconsRegular.car;
+  static const categorySubscriptions = PhosphorIconsRegular.repeat;
+  static const categoryEducation = PhosphorIconsRegular.graduationCap;
+  static const categoryInvestments = PhosphorIconsRegular.trendUp;
+
   // Transactions
   static const income = PhosphorIconsRegular.arrowDown;
   static const expense = PhosphorIconsRegular.arrowUp;

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_form_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -58,7 +60,7 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    ref.watch(categoryFormViewModelProvider(widget.category));
+    final formState = ref.watch(categoryFormViewModelProvider(widget.category));
     final viewModel = ref.read(
       categoryFormViewModelProvider(widget.category).notifier,
     );
@@ -90,6 +92,20 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
               decoration: InputDecoration(labelText: l10n.name),
               validator: (value) => _validateName(l10n, value),
               autofocus: true,
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<CategoryType>(
+              initialValue: formState.type,
+              decoration: InputDecoration(labelText: l10n.type),
+              items: CategoryType.values.map((type) {
+                return DropdownMenuItem(
+                  value: type,
+                  child: Text(type.label(l10n)),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) viewModel.updateType(value);
+              },
             ),
             const SizedBox(height: 24),
             FilledButton(

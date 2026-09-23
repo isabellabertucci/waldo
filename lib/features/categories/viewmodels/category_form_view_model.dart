@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'category_form_state.dart';
@@ -13,11 +14,18 @@ final _log = Logger('waldo.vm.category');
 class CategoryFormViewModel extends _$CategoryFormViewModel {
   @override
   CategoryFormState build(Category? existingCategory) {
-    return CategoryFormState(name: existingCategory?.name ?? '');
+    return CategoryFormState(
+      name: existingCategory?.name ?? '',
+      type: existingCategory?.type ?? CategoryType.groceries,
+    );
   }
 
   void updateName(String value) {
     state = state.copyWith(name: value);
+  }
+
+  void updateType(CategoryType value) {
+    state = state.copyWith(type: value);
   }
 
   Future<bool> save(Category? existingCategory) async {
@@ -26,11 +34,14 @@ class CategoryFormViewModel extends _$CategoryFormViewModel {
     final repo = await ref.read(categoryRepositoryProvider.future);
 
     if (existingCategory != null) {
-      await repo.update(existingCategory.copyWith(name: state.name.trim()));
+      await repo.update(
+        existingCategory.copyWith(name: state.name.trim(), type: state.type),
+      );
     } else {
       await repo.insert(
         Category(
           name: state.name.trim(),
+          type: state.type,
           createdAt: DateTime.now().toIso8601String(),
         ),
       );

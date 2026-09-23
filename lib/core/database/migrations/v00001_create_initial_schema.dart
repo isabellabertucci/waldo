@@ -28,24 +28,33 @@ Future<void> up(Database db) async {
       ${CategoriesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT,
       ${CategoriesTable.name} TEXT NOT NULL,
       ${CategoriesTable.isDefault} INTEGER NOT NULL DEFAULT 0,
+      ${CategoriesTable.type} TEXT NOT NULL DEFAULT '${CategoryType.groceries.name}'
+        CHECK (${CategoriesTable.type} IN (
+          '${CategoryType.groceries.name}',
+          '${CategoryType.transportation.name}',
+          '${CategoryType.subscriptions.name}',
+          '${CategoryType.education.name}',
+          '${CategoryType.investments.name}'
+        )),
       ${CategoriesTable.createdAt} TEXT NOT NULL
     )
   ''');
 
   final now = DateTime.now().toIso8601String();
-  const defaultCategoryNames = [
-    'Groceries',
-    'Transportation',
-    'Subscriptions',
-    'Education',
-    'Investments',
-  ];
+  const defaultCategories = {
+    'Groceries': CategoryType.groceries,
+    'Transportation': CategoryType.transportation,
+    'Subscriptions': CategoryType.subscriptions,
+    'Education': CategoryType.education,
+    'Investments': CategoryType.investments,
+  };
 
   final batch = db.batch();
-  for (final name in defaultCategoryNames) {
+  for (final entry in defaultCategories.entries) {
     batch.insert(CategoriesTable.table, {
-      CategoriesTable.name: name,
+      CategoriesTable.name: entry.key,
       CategoriesTable.isDefault: 1,
+      CategoriesTable.type: entry.value.name,
       CategoriesTable.createdAt: now,
     });
   }
