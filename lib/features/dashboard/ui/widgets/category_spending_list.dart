@@ -7,8 +7,11 @@ import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/empty_state.dart';
 import 'package:waldo/features/categories/categories_x.dart';
-import 'package:waldo/features/dashboard/models/dashboard_data.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+
+import '../../models/dashboard_data.dart';
+
+const _cardWidthDivisor = 1.5;
 
 class CategorySpendingList extends StatelessWidget {
   const CategorySpendingList({
@@ -48,7 +51,7 @@ class CategorySpendingList extends StatelessWidget {
                 child: Text(
                   l10n.seeAll,
                   style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.appColors.primaryStrong,
+                    color: context.appColors.secondary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -111,7 +114,7 @@ class _CategorySpendingCard extends StatelessWidget {
           );
 
     return Container(
-      width: MediaQuery.of(context).size.width / 1.5,
+      width: MediaQuery.of(context).size.width / _cardWidthDivisor,
       padding: const EdgeInsets.all(Spacing.md),
       decoration: BoxDecoration(
         color: colors.surface,
@@ -123,12 +126,12 @@ class _CategorySpendingCard extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: colors.primaryStrong.withValues(alpha: 0.12),
+              color: colors.secondary.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(
               spending.category.type.icon,
-              color: colors.primaryStrong,
+              color: colors.secondary,
               size: 18,
             ),
           ),

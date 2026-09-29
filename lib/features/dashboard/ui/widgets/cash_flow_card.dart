@@ -6,8 +6,9 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
-import 'package:waldo/features/dashboard/models/dashboard_data.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+
+import '../../models/dashboard_data.dart';
 
 class CashFlowCard extends StatelessWidget {
   const CashFlowCard({
@@ -101,6 +102,7 @@ class CashFlowCard extends StatelessWidget {
             child: _CashFlowChart(
               monthlyCashFlow: monthlyCashFlow,
               currencyCode: currencyCode,
+              locale: locale,
               monthFormat: monthFormat,
               incomeColor: colors.primaryStrong,
               expenseColor: colors.error,
@@ -114,9 +116,9 @@ class CashFlowCard extends StatelessWidget {
   }
 }
 
-String _compactCurrency(int cents, String currencyCode) {
+String _compactCurrency(int cents, String currencyCode, String locale) {
   final formatter = NumberFormat.compactSimpleCurrency(
-    locale: 'en_US',
+    locale: locale,
     name: currencyCode,
   );
   return formatter.format(cents / 100);
@@ -126,6 +128,7 @@ class _CashFlowChart extends StatelessWidget {
   const _CashFlowChart({
     required this.monthlyCashFlow,
     required this.currencyCode,
+    required this.locale,
     required this.monthFormat,
     required this.incomeColor,
     required this.expenseColor,
@@ -135,6 +138,7 @@ class _CashFlowChart extends StatelessWidget {
 
   final List<MonthlyCashFlow> monthlyCashFlow;
   final String currencyCode;
+  final String locale;
   final DateFormat monthFormat;
   final Color incomeColor;
   final Color expenseColor;
@@ -169,7 +173,7 @@ class _CashFlowChart extends StatelessWidget {
               getTitlesWidget: (value, meta) {
                 final amountCents = (value * 100).round();
                 return Text(
-                  _compactCurrency(amountCents, currencyCode),
+                  _compactCurrency(amountCents, currencyCode, locale),
                   style: TextStyle(fontSize: 11, color: labelColor),
                 );
               },

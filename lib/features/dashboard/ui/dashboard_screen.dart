@@ -3,14 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/features/dashboard/models/dashboard_data.dart';
-import 'package:waldo/features/dashboard/ui/widgets/balance_overview_card.dart';
-import 'package:waldo/features/dashboard/ui/widgets/cash_flow_card.dart';
-import 'package:waldo/features/dashboard/ui/widgets/category_spending_list.dart';
-import 'package:waldo/features/dashboard/ui/widgets/recent_transactions_list.dart';
-import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+
+import '../models/dashboard_data.dart';
+import '../viewmodels/dashboard_view_model.dart';
+import 'widgets/balance_overview_card.dart';
+import 'widgets/cash_flow_card.dart';
+import 'widgets/category_spending_list.dart';
+import 'widgets/recent_transactions_list.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});

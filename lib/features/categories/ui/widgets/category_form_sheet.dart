@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/constants/enums.dart';
-import 'package:waldo/features/categories/categories_x.dart';
-import 'package:waldo/features/categories/models/category.dart';
-import 'package:waldo/features/categories/viewmodels/category_form_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+
+import '../../categories_x.dart';
+import '../../models/category.dart';
+import '../../viewmodels/category_form_view_model.dart';
 
 class CategoryFormSheet extends ConsumerStatefulWidget {
   const CategoryFormSheet({super.key, this.category});

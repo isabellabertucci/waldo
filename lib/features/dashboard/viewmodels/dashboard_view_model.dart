@@ -2,10 +2,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
-import 'package:waldo/features/dashboard/models/dashboard_data.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
+
+import '../models/dashboard_data.dart';
 
 part 'dashboard_view_model.g.dart';
 
