@@ -73,25 +73,12 @@ class CashFlowCard extends StatelessWidget {
                 ),
               ),
               // Only monthly granularity is supported today, so this is a
-              // static label rather than a real dropdown for v1.
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.md,
-                  vertical: Spacing.sm,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.surfaceContainer,
-                  borderRadius: BorderRadius.circular(Rounded.pill),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      l10n.periodMonthly,
-                      style: context.textTheme.bodySmall,
-                    ),
-                    const Icon(Icons.keyboard_arrow_down, size: 16),
-                  ],
+              // plain label, not a control — no chevron or pressable
+              // styling, since it isn't actually tappable.
+              Text(
+                l10n.periodMonthly,
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: colors.onSurfaceVariant,
                 ),
               ),
             ],
