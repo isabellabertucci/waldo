@@ -47,7 +47,7 @@ class CategorySpendingList extends StatelessWidget {
               ),
               const SizedBox(width: Spacing.sm),
               GestureDetector(
-                onTap: () => const CategoriesRoute().push(context),
+                onTap: () => const AllTransactionsRoute().push(context),
                 child: Text(
                   l10n.seeAll,
                   style: context.textTheme.bodyMedium?.copyWith(

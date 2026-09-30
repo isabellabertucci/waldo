@@ -45,11 +45,7 @@ class RecentTransactionsList extends StatelessWidget {
               ),
               const SizedBox(width: Spacing.sm),
               GestureDetector(
-                // No wallet-agnostic transactions route exists yet (each
-                // TransactionsRoute needs a walletId), so this is a
-                // temporary landing spot until the nav restructuring
-                // flagged in the epic promotes Transactions to a tab.
-                onTap: () => const WalletsRoute().push(context),
+                onTap: () => const AllTransactionsRoute().push(context),
                 child: Text(
                   l10n.seeAll,
                   style: context.textTheme.bodyMedium?.copyWith(

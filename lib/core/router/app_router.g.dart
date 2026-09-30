@@ -6,7 +6,11 @@ part of 'app_router.dart';
 // GoRouterGenerator
 // **************************************************************************
 
-List<RouteBase> get $appRoutes => [$categoriesRoute, $appShellRoute];
+List<RouteBase> get $appRoutes => [
+  $categoriesRoute,
+  $allTransactionsRoute,
+  $appShellRoute,
+];
 
 RouteBase get $categoriesRoute => GoRouteData.$route(
   path: '/categories',
@@ -20,6 +24,33 @@ mixin $CategoriesRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/categories');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $allTransactionsRoute => GoRouteData.$route(
+  path: '/transactions',
+  hasOverriddenOnExit: false,
+  factory: $AllTransactionsRoute._fromState,
+);
+
+mixin $AllTransactionsRoute on GoRouteData {
+  static AllTransactionsRoute _fromState(GoRouterState state) =>
+      const AllTransactionsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/transactions');
 
   @override
   void go(BuildContext context) => context.go(location);
