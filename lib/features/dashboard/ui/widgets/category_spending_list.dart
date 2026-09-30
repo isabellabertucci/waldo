@@ -11,7 +11,7 @@ import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../models/dashboard_data.dart';
 
-const _cardWidthDivisor = 1.5;
+const _cardWidth = 240.0;
 
 class CategorySpendingList extends StatelessWidget {
   const CategorySpendingList({
@@ -69,21 +69,16 @@ class CategorySpendingList extends StatelessWidget {
             ),
           )
         else
-          SizedBox(
-            height: 108,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: Spacing.lg),
-              itemCount: spendingByCategory.length,
-              separatorBuilder: (context, index) =>
-                  const SizedBox(width: Spacing.md),
-              itemBuilder: (context, index) {
-                final spending = spendingByCategory[index];
-                return _CategorySpendingCard(
-                  spending: spending,
-                  currency: currency,
-                );
-              },
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: Spacing.lg),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: Spacing.md,
+              children: [
+                for (final spending in spendingByCategory)
+                  _CategorySpendingCard(spending: spending, currency: currency),
+              ],
             ),
           ),
       ],
@@ -114,7 +109,7 @@ class _CategorySpendingCard extends StatelessWidget {
           );
 
     return Container(
-      width: MediaQuery.of(context).size.width / _cardWidthDivisor,
+      width: _cardWidth,
       padding: const EdgeInsets.all(Spacing.md),
       decoration: BoxDecoration(
         color: colors.surface,
