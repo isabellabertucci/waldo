@@ -4,7 +4,7 @@ import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/l10n/app_localizations.dart';
-import '../../models/transaction.dart';
+import 'package:waldo/features/transactions/models/transaction.dart';
 
 class TransactionListTile extends StatelessWidget {
   const TransactionListTile({
@@ -62,7 +62,7 @@ class TransactionListTile extends StatelessWidget {
         ),
       ),
       trailing: Text(
-        '$sign${formatCents(transaction.amount, currencyCode: currency.name.toUpperCase())}',
+        '$sign${formatCents(transaction.amount, currencyCode: currency.code)}',
         style: context.textTheme.titleSmall?.copyWith(
           color: color,
           fontWeight: FontWeight.bold,

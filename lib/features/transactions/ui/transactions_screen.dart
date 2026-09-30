@@ -12,7 +12,7 @@ import '../../../core/widgets/empty_state.dart';
 import '../models/transaction.dart';
 import '../viewmodels/transaction_list_view_model.dart';
 import 'widgets/transaction_form_sheet.dart';
-import 'widgets/transaction_list_tile.dart';
+import 'package:waldo/core/widgets/transaction_list_tile.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_providers.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 

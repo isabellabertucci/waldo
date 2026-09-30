@@ -5,8 +5,8 @@ import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/empty_state.dart';
+import 'package:waldo/core/widgets/transaction_list_tile.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
-import 'package:waldo/features/transactions/ui/widgets/transaction_list_tile.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 class RecentTransactionsList extends StatelessWidget {
