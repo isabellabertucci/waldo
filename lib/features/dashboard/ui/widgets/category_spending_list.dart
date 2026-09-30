@@ -51,7 +51,7 @@ class CategorySpendingList extends StatelessWidget {
                 child: Text(
                   l10n.seeAll,
                   style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.appColors.secondary,
+                    color: context.appColors.onSurfaceVariant,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -126,12 +126,12 @@ class _CategorySpendingCard extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: colors.secondary.withValues(alpha: 0.12),
+              color: colors.onSurfaceVariant.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(
               spending.category.type.icon,
-              color: colors.secondary,
+              color: colors.onSurfaceVariant,
               size: 18,
             ),
           ),
