@@ -74,7 +74,7 @@ class _SettingsBody extends ConsumerWidget {
             SettingsRow(
               icon: Icons.attach_money,
               title: l10n.currency,
-              value: preferences.currency.name.toUpperCase(),
+              value: preferences.currency.code,
               onTap: () =>
                   _showCurrencySheet(context, l10n, viewModel, preferences),
             ),

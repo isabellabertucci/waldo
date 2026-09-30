@@ -12,4 +12,11 @@ enum CategoryType {
 
 enum SortOrder { asc, desc }
 
-enum Currency { usd, eur, gbp }
+enum Currency {
+  usd,
+  eur,
+  gbp;
+
+  /// ISO 4217 code, e.g. `USD`.
+  String get code => name.toUpperCase();
+}

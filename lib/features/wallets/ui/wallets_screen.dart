@@ -195,7 +195,7 @@ class _WalletsBody extends ConsumerWidget {
                 Text(
                   formatCents(
                     wallet.currentBalance,
-                    currencyCode: currency.name.toUpperCase(),
+                    currencyCode: currency.code,
                   ),
                   style: context.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w700,

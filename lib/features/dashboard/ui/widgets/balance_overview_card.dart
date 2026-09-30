@@ -32,7 +32,7 @@ class _BalanceOverviewCardState extends State<BalanceOverviewCard> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
-    final currencyCode = widget.currency.name.toUpperCase();
+    final currencyCode = widget.currency.code;
     final month = DateFormat.MMMM(
       Localizations.localeOf(context).toString(),
     ).format(DateTime.now());

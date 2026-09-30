@@ -254,7 +254,7 @@ class _TransactionDetailBody extends ConsumerWidget {
                   ),
                   const SizedBox(height: Spacing.lg),
                   Text(
-                    '$sign${formatCents(transaction.amount, currencyCode: currency.name.toUpperCase())}',
+                    '$sign${formatCents(transaction.amount, currencyCode: currency.code)}',
                     style: context.textTheme.headlineLarge?.copyWith(
                       color: color,
                       fontWeight: FontWeight.w900,

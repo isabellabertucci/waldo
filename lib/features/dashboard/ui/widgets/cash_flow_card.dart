@@ -24,7 +24,7 @@ class CashFlowCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
-    final currencyCode = currency.name.toUpperCase();
+    final currencyCode = currency.code;
     final locale = Localizations.localeOf(context).toString();
     final monthFormat = DateFormat.MMM(locale);
 
