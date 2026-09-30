@@ -23,14 +23,9 @@ class DashboardViewModel extends _$DashboardViewModel {
     );
     final categoryRepo = await ref.watch(categoryRepositoryProvider.future);
 
-    final wallets = await walletRepo.getAll();
+    final totalBalance = await walletRepo.getTotalBalance();
     final transactions = await transactionRepo.getAll();
     final categories = await categoryRepo.getAll();
-
-    final totalBalance = wallets.fold<int>(
-      0,
-      (sum, wallet) => sum + wallet.currentBalance,
-    );
 
     final now = DateTime.now();
     final currentMonthTransactions = _transactionsInMonth(
