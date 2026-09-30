@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
+import '../../../core/widgets/confirmation_dialog.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../categories_x.dart';
 import '../models/category.dart';
@@ -51,25 +52,14 @@ class _CategoriesBody extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.deleteCategory),
-        content: Text(l10n.deleteCategoryConfirm(category.name)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
+    final confirmed = await ConfirmationDialog.show(
+      context,
+      title: l10n.deleteCategory,
+      content: l10n.deleteCategoryConfirm(category.name),
+      confirmLabel: l10n.delete,
     );
 
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     final viewModel = ref.read(categoryListViewModelProvider.notifier);
 
