@@ -146,10 +146,7 @@ class _CategorySpendingCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  formatCents(
-                    spending.amount,
-                    currencyCode: currency.code,
-                  ),
+                  formatCents(spending.amount, currencyCode: currency.code),
                   style: context.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),

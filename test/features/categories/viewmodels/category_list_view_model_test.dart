@@ -52,10 +52,7 @@ void main() {
     final result = notifier.hideCategory(custom.id!);
 
     expect(result, isTrue);
-    expect(
-      container.read(categoryListViewModelProvider).value,
-      [groceries],
-    );
+    expect(container.read(categoryListViewModelProvider).value, [groceries]);
     verifyNever(() => mockRepo.delete(any()));
   });
 
@@ -77,15 +74,10 @@ void main() {
 
     final notifier = container.read(categoryListViewModelProvider.notifier);
     notifier.hideCategory(custom.id!);
-    expect(
-      container.read(categoryListViewModelProvider).value,
-      [groceries],
-    );
+    expect(container.read(categoryListViewModelProvider).value, [groceries]);
 
     notifier.restoreCategory();
-    final restored = await container.read(
-      categoryListViewModelProvider.future,
-    );
+    final restored = await container.read(categoryListViewModelProvider.future);
 
     expect(restored, [groceries, custom]);
   });

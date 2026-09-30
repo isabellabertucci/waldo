@@ -108,7 +108,9 @@ class _SettingsBody extends ConsumerWidget {
     try {
       await save();
     } catch (_) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.preferencesSaveError)));
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.preferencesSaveError)),
+      );
     }
   }
 
@@ -128,11 +130,8 @@ class _SettingsBody extends ConsumerWidget {
           Option(label: l10n.themeLight, value: false),
           Option(label: l10n.themeDark, value: true),
         ],
-        onSelected: (value) => _savePreference(
-          context,
-          l10n,
-          () => viewModel.setDarkMode(value),
-        ),
+        onSelected: (value) =>
+            _savePreference(context, l10n, () => viewModel.setDarkMode(value)),
       ),
     );
   }

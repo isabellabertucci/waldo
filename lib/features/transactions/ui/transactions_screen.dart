@@ -166,8 +166,7 @@ class _SummaryHeader extends StatelessWidget {
           Expanded(
             child: _SummaryStat(
               label: l10n.transactionTypeIncome,
-              value:
-                  '+${formatCents(income, currencyCode: currency.code)}',
+              value: '+${formatCents(income, currencyCode: currency.code)}',
               color: colors.primaryStrong,
             ),
           ),
@@ -175,8 +174,7 @@ class _SummaryHeader extends StatelessWidget {
           Expanded(
             child: _SummaryStat(
               label: l10n.transactionTypeExpense,
-              value:
-                  '-${formatCents(expense, currencyCode: currency.code)}',
+              value: '-${formatCents(expense, currencyCode: currency.code)}',
               color: colors.error,
             ),
           ),
