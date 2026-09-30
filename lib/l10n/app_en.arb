@@ -94,6 +94,10 @@
   "@cancel": {
     "description": "Cancel button label"
   },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Edit action label"
+  },
   "delete": "Delete",
   "@delete": {
     "description": "Delete button label"

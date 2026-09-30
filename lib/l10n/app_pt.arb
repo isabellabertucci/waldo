@@ -23,6 +23,7 @@
   "deleteWallet": "Apagar carteira?",
   "deleteWalletConfirm": "Isto vai apagar permanentemente \"{name}\".",
   "cancel": "Cancelar",
+  "edit": "Editar",
   "delete": "Apagar",
   "walletDeleted": "Carteira apagada",
   "undo": "Desfazer",

@@ -81,6 +81,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get cancel => 'Cancelar';
 
   @override
+  String get edit => 'Editar';
+
+  @override
   String get delete => 'Apagar';
 
   @override

@@ -223,13 +223,13 @@ class _WalletsBody extends ConsumerWidget {
                     ),
                   },
                   itemBuilder: (context) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: _WalletAction.edit,
                       child: Row(
                         children: [
-                          Icon(Icons.edit_outlined, size: 18),
-                          SizedBox(width: Spacing.sm),
-                          Text('Edit'),
+                          const Icon(Icons.edit_outlined, size: 18),
+                          const SizedBox(width: Spacing.sm),
+                          Text(l10n.edit),
                         ],
                       ),
                     ),

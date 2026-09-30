@@ -105,7 +105,7 @@ class _TransactionsBody extends ConsumerWidget {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'Transactions',
+              l10n.transactions,
               style: context.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -156,6 +156,7 @@ class _SummaryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
 
     return Padding(
@@ -164,18 +165,18 @@ class _SummaryHeader extends StatelessWidget {
         children: [
           Expanded(
             child: _SummaryStat(
-              label: 'Income',
+              label: l10n.transactionTypeIncome,
               value:
-                  '+${formatCents(income, currencyCode: currency.name.toUpperCase())}',
+                  '+${formatCents(income, currencyCode: currency.code)}',
               color: colors.primaryStrong,
             ),
           ),
           const SizedBox(width: Spacing.md),
           Expanded(
             child: _SummaryStat(
-              label: 'Expense',
+              label: l10n.transactionTypeExpense,
               value:
-                  '-${formatCents(expense, currencyCode: currency.name.toUpperCase())}',
+                  '-${formatCents(expense, currencyCode: currency.code)}',
               color: colors.error,
             ),
           ),
