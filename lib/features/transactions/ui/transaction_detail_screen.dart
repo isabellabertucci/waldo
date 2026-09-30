@@ -13,6 +13,7 @@ import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_list_view_model.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_providers.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import '../../../core/widgets/confirmation_dialog.dart';
 import 'widgets/transaction_form_sheet.dart';
 
 enum _TransactionAction { edit, delete }
@@ -35,57 +36,50 @@ class TransactionDetailScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.deleteTransaction),
-        content: Text(l10n.deleteTransactionConfirm),
-        actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-        actions: [
-          TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: context.appColors.surfaceContainer,
-              foregroundColor: context.appColors.onSurface,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(Rounded.lg),
-              ),
-            ),
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          const SizedBox(width: 8),
-          TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: context.appColors.error,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(Rounded.lg),
-              ),
-            ),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
+    final confirmed = await ConfirmationDialog.show(
+      context,
+      title: l10n.deleteTransaction,
+      content: l10n.deleteTransactionConfirm,
+      confirmLabel: l10n.delete,
     );
 
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     final viewModel = ref.read(
       transactionListViewModelProvider(walletId: walletId).notifier,
     );
 
+    if (!viewModel.hideTransaction(transaction.id!)) return;
+
+    var undone = false;
+
+    if (context.mounted) {
+      TransactionsRoute(walletId).go(context);
+    }
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(l10n.transactionDeleted),
+        duration: const Duration(seconds: 5),
+        persist: false,
+        action: SnackBarAction(
+          label: l10n.undo,
+          onPressed: () {
+            undone = true;
+            viewModel.restoreTransaction();
+          },
+        ),
+      ),
+    );
+
+    await Future.delayed(const Duration(seconds: 5));
+
+    if (undone) return;
+
     try {
       await viewModel.confirmDelete(transaction.id!);
-      if (context.mounted) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(l10n.transactionDeleted)),
-        );
-        TransactionsRoute(walletId).go(context);
-      }
     } catch (_) {
+      viewModel.restoreTransaction();
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.transactionDeleteError)),
       );
