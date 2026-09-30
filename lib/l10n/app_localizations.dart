@@ -566,6 +566,12 @@ abstract class AppLocalizations {
   /// **'There was a problem loading your preferences. Please try again.'**
   String get preferencesError;
 
+  /// Error message shown when a preference fails to save
+  ///
+  /// In en, this message translates to:
+  /// **'There was a problem saving your preference. Please try again.'**
+  String get preferencesSaveError;
+
   /// US Dollar option label in the currency picker
   ///
   /// In en, this message translates to:

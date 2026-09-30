@@ -323,6 +323,10 @@
   "@preferencesError": {
     "description": "Generic error message shown when preferences fail to load"
   },
+  "preferencesSaveError": "There was a problem saving your preference. Please try again.",
+  "@preferencesSaveError": {
+    "description": "Error message shown when a preference fails to save"
+  },
   "currencyOptionUsd": "USD ($)",
   "@currencyOptionUsd": {
     "description": "US Dollar option label in the currency picker"

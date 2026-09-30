@@ -258,6 +258,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'There was a problem loading your preferences. Please try again.';
 
   @override
+  String get preferencesSaveError =>
+      'There was a problem saving your preference. Please try again.';
+
+  @override
   String get currencyOptionUsd => 'USD (\$)';
 
   @override

@@ -93,4 +93,24 @@ void main() {
 
     verify(() => mockRepo.setDateFormat('dd/MM/yyyy')).called(1);
   });
+
+  test(
+    'a repository failure propagates, so the UI can show an error',
+    () async {
+      when(
+        () => mockRepo.getPreferences(),
+      ).thenAnswer((_) async => const Preferences());
+      when(
+        () => mockRepo.setCurrency(Currency.eur),
+      ).thenThrow(Exception('db write failed'));
+
+      await container.read(preferencesViewModelProvider.future);
+      final notifier = container.read(preferencesViewModelProvider.notifier);
+
+      expect(
+        () => notifier.setCurrency(Currency.eur),
+        throwsA(isA<Exception>()),
+      );
+    },
+  );
 }

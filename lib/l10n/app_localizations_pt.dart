@@ -261,6 +261,10 @@ class AppLocalizationsPt extends AppLocalizations {
       'Houve um problema ao carregar suas preferências. Tente novamente.';
 
   @override
+  String get preferencesSaveError =>
+      'Houve um problema ao guardar a sua preferência. Tente novamente.';
+
+  @override
   String get currencyOptionUsd => 'USD (\$)';
 
   @override
