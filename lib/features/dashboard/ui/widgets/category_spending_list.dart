@@ -141,7 +141,9 @@ class _CategorySpendingCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  spending.category.name,
+                  spending.category.isDefault
+                      ? spending.category.type.label(l10n)
+                      : spending.category.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: context.textTheme.titleSmall?.copyWith(

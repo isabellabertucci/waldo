@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
 import '../../../core/widgets/empty_state.dart';
+import '../categories_x.dart';
 import '../models/category.dart';
 import '../viewmodels/category_list_view_model.dart';
 import 'widgets/category_form_sheet.dart';
@@ -125,7 +126,9 @@ class _CategoriesBody extends ConsumerWidget {
       itemBuilder: (context, index) {
         final category = categories[index];
         return ListTile(
-          title: Text(category.name),
+          title: Text(
+            category.isDefault ? category.type.label(l10n) : category.name,
+          ),
           trailing: category.isDefault
               ? null
               : Row(
