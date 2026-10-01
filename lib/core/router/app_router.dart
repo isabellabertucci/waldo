@@ -5,6 +5,7 @@ import 'app_shell.dart';
 import '../../features/dashboard/ui/dashboard_screen.dart';
 import '../../features/wallets/ui/wallets_screen.dart';
 import '../../features/settings/ui/settings_screen.dart';
+import '../../features/transactions/ui/all_transactions_screen.dart';
 import '../../features/transactions/ui/transaction_detail_screen.dart';
 import '../../features/transactions/ui/transactions_screen.dart';
 import '../../features/categories/ui/categories_screen.dart';
@@ -18,6 +19,16 @@ class CategoriesRoute extends GoRouteData with $CategoriesRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const CategoriesScreen();
+  }
+}
+
+@TypedGoRoute<AllTransactionsRoute>(path: '/transactions')
+class AllTransactionsRoute extends GoRouteData with $AllTransactionsRoute {
+  const AllTransactionsRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const AllTransactionsScreen();
   }
 }
 

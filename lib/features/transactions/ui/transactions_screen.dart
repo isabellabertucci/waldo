@@ -12,6 +12,7 @@ import '../../../core/widgets/empty_state.dart';
 import '../models/transaction.dart';
 import '../viewmodels/transaction_list_view_model.dart';
 import 'widgets/transaction_form_sheet.dart';
+import 'package:waldo/core/widgets/transaction_list_tile.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_providers.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
@@ -104,7 +105,7 @@ class _TransactionsBody extends ConsumerWidget {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'Transactions',
+              l10n.transactions,
               style: context.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -123,58 +124,16 @@ class _TransactionsBody extends ConsumerWidget {
             itemCount: transactions.length,
             itemBuilder: (context, index) {
               final transaction = transactions[index];
-              final isIncome = transaction.type == TransactionType.income;
-              final color = isIncome
-                  ? context.appColors.primaryStrong
-                  : context.appColors.error;
-              final sign = isIncome ? '+' : '-';
-              final description = transaction.description?.trim();
-
-              return ListTile(
+              return TransactionListTile(
+                transaction: transaction,
+                currency: currency,
+                dateFormat: dateFormat,
                 onTap: () {
                   TransactionDetailRoute(
                     walletId,
                     transaction.id!,
                   ).push(context);
                 },
-                leading: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    isIncome
-                        ? Icons.arrow_downward_rounded
-                        : Icons.arrow_upward_rounded,
-                    color: color,
-                    size: 18,
-                  ),
-                ),
-                title: Text(
-                  description == null || description.isEmpty
-                      ? l10n.transactionDefaultDescription
-                      : description,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                subtitle: Text(
-                  dateFormat.format(DateTime.parse(transaction.date)),
-                  style: context.textTheme.bodySmall?.copyWith(
-                    color: context.appColors.onSurfaceVariant,
-                  ),
-                ),
-                trailing: Text(
-                  '$sign${formatCents(transaction.amount, currencyCode: currency.name.toUpperCase())}',
-                  style: context.textTheme.titleSmall?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
               );
             },
           ),
@@ -197,6 +156,7 @@ class _SummaryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
 
     return Padding(
@@ -205,18 +165,16 @@ class _SummaryHeader extends StatelessWidget {
         children: [
           Expanded(
             child: _SummaryStat(
-              label: 'Income',
-              value:
-                  '+${formatCents(income, currencyCode: currency.name.toUpperCase())}',
+              label: l10n.transactionTypeIncome,
+              value: '+${formatCents(income, currencyCode: currency.code)}',
               color: colors.primaryStrong,
             ),
           ),
           const SizedBox(width: Spacing.md),
           Expanded(
             child: _SummaryStat(
-              label: 'Expense',
-              value:
-                  '-${formatCents(expense, currencyCode: currency.name.toUpperCase())}',
+              label: l10n.transactionTypeExpense,
+              value: '-${formatCents(expense, currencyCode: currency.code)}',
               color: colors.error,
             ),
           ),

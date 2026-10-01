@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
@@ -11,11 +12,13 @@ part 'transaction_list_view_model.g.dart';
 class TransactionListViewModel extends _$TransactionListViewModel {
   @override
   Future<List<Transaction>> build({
-    required int walletId,
+    int? walletId,
     SortOrder sortOrder = SortOrder.desc,
   }) async {
     final repo = await ref.watch(transactionRepositoryProvider.future);
-    return repo.getByWallet(walletId, sortOrder: sortOrder);
+    return walletId == null
+        ? repo.getAll(sortOrder: sortOrder)
+        : repo.getByWallet(walletId, sortOrder: sortOrder);
   }
 
   bool hideTransaction(int id) {
@@ -31,7 +34,10 @@ class TransactionListViewModel extends _$TransactionListViewModel {
     ref.invalidateSelf();
 
     ref.invalidate(walletListViewModelProvider);
-    ref.invalidate(walletByIdProvider(walletId));
+    if (walletId != null) {
+      ref.invalidate(walletByIdProvider(walletId!));
+    }
+    ref.invalidate(dashboardViewModelProvider);
   }
 
   void restoreTransaction() {

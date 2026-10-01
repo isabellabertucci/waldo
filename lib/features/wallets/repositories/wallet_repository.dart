@@ -13,6 +13,7 @@ final _log = Logger('waldo.repository.wallet');
 abstract class IWalletRepository {
   Future<List<Wallet>> getAll({SortOrder sortOrder = SortOrder.desc});
   Future<Wallet?> getById(int id);
+  Future<int> getTotalBalance();
   Future<int> insert(Wallet wallet);
   Future<void> update(Wallet wallet);
   Future<void> delete(int id);
@@ -54,6 +55,22 @@ class WalletRepositoryImpl implements IWalletRepository {
       return Wallet.fromMap(maps.first);
     } on DatabaseException catch (e) {
       _log.severe('getById failed', e);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<int> getTotalBalance() async {
+    try {
+      final result = await _db.rawQuery(
+        'SELECT SUM(${WalletsTable.currentBalance}) AS total '
+        'FROM ${WalletsTable.table}',
+      );
+      final total = result.first['total'] as int?;
+      _log.fine('getTotalBalance succeeded: total=$total');
+      return total ?? 0;
+    } on DatabaseException catch (e) {
+      _log.severe('getTotalBalance failed', e);
       rethrow;
     }
   }

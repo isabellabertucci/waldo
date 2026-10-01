@@ -81,6 +81,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get cancel => 'Cancelar';
 
   @override
+  String get edit => 'Editar';
+
+  @override
   String get delete => 'Apagar';
 
   @override
@@ -258,6 +261,10 @@ class AppLocalizationsPt extends AppLocalizations {
       'Houve um problema ao carregar suas preferências. Tente novamente.';
 
   @override
+  String get preferencesSaveError =>
+      'Houve um problema ao guardar a sua preferência. Tente novamente.';
+
+  @override
   String get currencyOptionUsd => 'USD (\$)';
 
   @override
@@ -265,4 +272,48 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get currencyOptionGbp => 'GBP (£)';
+
+  @override
+  String get myFinances => 'Minhas Finanças';
+
+  @override
+  String overviewSubtitle(String month) {
+    return 'Resumo de $month';
+  }
+
+  @override
+  String get totalBalance => 'Saldo Total';
+
+  @override
+  String get dashboardError =>
+      'Houve um problema ao carregar seu painel. Tente novamente.';
+
+  @override
+  String get spendingsByCategory => 'Gastos por Categoria';
+
+  @override
+  String get seeAll => 'Ver todas';
+
+  @override
+  String get noSpendingThisMonth => 'Ainda não há gastos este mês';
+
+  @override
+  String percentFromLastMonth(String percent) {
+    return '$percent em relação ao mês passado';
+  }
+
+  @override
+  String get cashFlow => 'Fluxo de Caixa';
+
+  @override
+  String get overallRevenue => 'Receita Total';
+
+  @override
+  String get periodMonthly => 'Mensal';
+
+  @override
+  String get recentTransactions => 'Transações Recentes';
+
+  @override
+  String get noRecentTransactions => 'Ainda não há transações';
 }

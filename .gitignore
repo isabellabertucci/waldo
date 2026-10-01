@@ -46,3 +46,6 @@ app.*.map.json
 # FVM Version Cache
 .fvm/flutter_sdk
 .claude/
+
+# Local code-review scratch notes, not meant to be committed
+review.md

@@ -2,6 +2,7 @@ import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
 import 'wallet_form_state.dart';
@@ -62,6 +63,7 @@ class WalletFormViewModel extends _$WalletFormViewModel {
     }
     _log.info('Wallet save succeeded: isEditing=$isEditing');
     ref.invalidate(walletListViewModelProvider());
+    ref.invalidate(dashboardViewModelProvider);
     return true;
   }
 }

@@ -230,6 +230,12 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get cancel;
 
+  /// Edit action label
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
   /// Delete button label
   ///
   /// In en, this message translates to:
@@ -560,6 +566,12 @@ abstract class AppLocalizations {
   /// **'There was a problem loading your preferences. Please try again.'**
   String get preferencesError;
 
+  /// Error message shown when a preference fails to save
+  ///
+  /// In en, this message translates to:
+  /// **'There was a problem saving your preference. Please try again.'**
+  String get preferencesSaveError;
+
   /// US Dollar option label in the currency picker
   ///
   /// In en, this message translates to:
@@ -577,6 +589,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'GBP (£)'**
   String get currencyOptionGbp;
+
+  /// Dashboard balance overview card title
+  ///
+  /// In en, this message translates to:
+  /// **'My Finances'**
+  String get myFinances;
+
+  /// Dashboard balance overview card subtitle, e.g. 'July Overview'
+  ///
+  /// In en, this message translates to:
+  /// **'{month} Overview'**
+  String overviewSubtitle(String month);
+
+  /// Label above the total balance amount on the dashboard
+  ///
+  /// In en, this message translates to:
+  /// **'Total Balance'**
+  String get totalBalance;
+
+  /// Generic error message shown when dashboard data fails to load
+  ///
+  /// In en, this message translates to:
+  /// **'There was a problem loading your dashboard. Please try again.'**
+  String get dashboardError;
+
+  /// Dashboard section header for the category spending list
+  ///
+  /// In en, this message translates to:
+  /// **'Spendings by Category'**
+  String get spendingsByCategory;
+
+  /// Link that navigates to a full list from a dashboard section preview
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get seeAll;
+
+  /// Empty state title for the dashboard's category spending section
+  ///
+  /// In en, this message translates to:
+  /// **'No spending yet this month'**
+  String get noSpendingThisMonth;
+
+  /// Month-over-month change label under a category spending amount, e.g. '+12% from last month'
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} from last month'**
+  String percentFromLastMonth(String percent);
+
+  /// Dashboard cash flow chart card title
+  ///
+  /// In en, this message translates to:
+  /// **'Cash Flow'**
+  String get cashFlow;
+
+  /// Label above the total on the dashboard cash flow chart card
+  ///
+  /// In en, this message translates to:
+  /// **'Overall Revenue'**
+  String get overallRevenue;
+
+  /// Period dropdown value on the dashboard cash flow chart card
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get periodMonthly;
+
+  /// Dashboard section header for the recent transactions list
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Transactions'**
+  String get recentTransactions;
+
+  /// Empty state title for the dashboard's recent transactions section
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions yet'**
+  String get noRecentTransactions;
 }
 
 class _AppLocalizationsDelegate

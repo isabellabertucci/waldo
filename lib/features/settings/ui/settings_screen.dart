@@ -74,7 +74,7 @@ class _SettingsBody extends ConsumerWidget {
             SettingsRow(
               icon: Icons.attach_money,
               title: l10n.currency,
-              value: preferences.currency.name.toUpperCase(),
+              value: preferences.currency.code,
               onTap: () =>
                   _showCurrencySheet(context, l10n, viewModel, preferences),
             ),
@@ -99,6 +99,21 @@ class _SettingsBody extends ConsumerWidget {
     );
   }
 
+  Future<void> _savePreference(
+    BuildContext context,
+    AppLocalizations l10n,
+    Future<void> Function() save,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await save();
+    } catch (_) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.preferencesSaveError)),
+      );
+    }
+  }
+
   void _showThemeSheet(
     BuildContext context,
     AppLocalizations l10n,
@@ -115,7 +130,8 @@ class _SettingsBody extends ConsumerWidget {
           Option(label: l10n.themeLight, value: false),
           Option(label: l10n.themeDark, value: true),
         ],
-        onSelected: viewModel.setDarkMode,
+        onSelected: (value) =>
+            _savePreference(context, l10n, () => viewModel.setDarkMode(value)),
       ),
     );
   }
@@ -138,7 +154,9 @@ class _SettingsBody extends ConsumerWidget {
             )
             .toList(),
         onSelected: (value) {
-          if (value != null) viewModel.setCurrency(value);
+          if (value != null) {
+            _savePreference(context, l10n, () => viewModel.setCurrency(value));
+          }
         },
       ),
     );
@@ -171,7 +189,13 @@ class _SettingsBody extends ConsumerWidget {
           ),
         ],
         onSelected: (value) {
-          if (value != null) viewModel.setDateFormat(value);
+          if (value != null) {
+            _savePreference(
+              context,
+              l10n,
+              () => viewModel.setDateFormat(value),
+            );
+          }
         },
       ),
     );

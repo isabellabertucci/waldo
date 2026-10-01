@@ -34,7 +34,7 @@ final class CategoryListViewModelProvider
 }
 
 String _$categoryListViewModelHash() =>
-    r'dc8fbd508bbff1910275d78bf91413939d710435';
+    r'082a7e287be9d096005e4885f8eeb40ca61bf6b9';
 
 abstract class _$CategoryListViewModel extends $AsyncNotifier<List<Category>> {
   FutureOr<List<Category>> build();

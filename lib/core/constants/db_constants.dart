@@ -17,6 +17,7 @@ class CategoriesTable {
   static const id = 'id';
   static const name = 'name';
   static const isDefault = 'is_default';
+  static const type = 'type';
   static const createdAt = 'created_at';
 }
 

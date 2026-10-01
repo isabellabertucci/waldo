@@ -94,6 +94,10 @@
   "@cancel": {
     "description": "Cancel button label"
   },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Edit action label"
+  },
   "delete": "Delete",
   "@delete": {
     "description": "Delete button label"
@@ -319,6 +323,10 @@
   "@preferencesError": {
     "description": "Generic error message shown when preferences fail to load"
   },
+  "preferencesSaveError": "There was a problem saving your preference. Please try again.",
+  "@preferencesSaveError": {
+    "description": "Error message shown when a preference fails to save"
+  },
   "currencyOptionUsd": "USD ($)",
   "@currencyOptionUsd": {
     "description": "US Dollar option label in the currency picker"
@@ -330,5 +338,67 @@
   "currencyOptionGbp": "GBP (£)",
   "@currencyOptionGbp": {
     "description": "British Pound option label in the currency picker"
+  },
+  "myFinances": "My Finances",
+  "@myFinances": {
+    "description": "Dashboard balance overview card title"
+  },
+  "overviewSubtitle": "{month} Overview",
+  "@overviewSubtitle": {
+    "description": "Dashboard balance overview card subtitle, e.g. 'July Overview'",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "totalBalance": "Total Balance",
+  "@totalBalance": {
+    "description": "Label above the total balance amount on the dashboard"
+  },
+  "dashboardError": "There was a problem loading your dashboard. Please try again.",
+  "@dashboardError": {
+    "description": "Generic error message shown when dashboard data fails to load"
+  },
+  "spendingsByCategory": "Spendings by Category",
+  "@spendingsByCategory": {
+    "description": "Dashboard section header for the category spending list"
+  },
+  "seeAll": "See all",
+  "@seeAll": {
+    "description": "Link that navigates to a full list from a dashboard section preview"
+  },
+  "noSpendingThisMonth": "No spending yet this month",
+  "@noSpendingThisMonth": {
+    "description": "Empty state title for the dashboard's category spending section"
+  },
+  "percentFromLastMonth": "{percent} from last month",
+  "@percentFromLastMonth": {
+    "description": "Month-over-month change label under a category spending amount, e.g. '+12% from last month'",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "cashFlow": "Cash Flow",
+  "@cashFlow": {
+    "description": "Dashboard cash flow chart card title"
+  },
+  "overallRevenue": "Overall Revenue",
+  "@overallRevenue": {
+    "description": "Label above the total on the dashboard cash flow chart card"
+  },
+  "periodMonthly": "Monthly",
+  "@periodMonthly": {
+    "description": "Period dropdown value on the dashboard cash flow chart card"
+  },
+  "recentTransactions": "Recent Transactions",
+  "@recentTransactions": {
+    "description": "Dashboard section header for the recent transactions list"
+  },
+  "noRecentTransactions": "No transactions yet",
+  "@noRecentTransactions": {
+    "description": "Empty state title for the dashboard's recent transactions section"
   }
 }

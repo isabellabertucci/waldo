@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:waldo/core/constants/enums.dart';
 
 part 'category.freezed.dart';
 
@@ -10,6 +11,7 @@ abstract class Category with _$Category {
     int? id,
     required String name,
     @Default(false) bool isDefault,
+    @Default(CategoryType.groceries) CategoryType type,
     required String createdAt,
   }) = _Category;
 
@@ -18,6 +20,7 @@ abstract class Category with _$Category {
       'id': id,
       'name': name,
       'is_default': isDefault ? 1 : 0,
+      'type': type.name,
       'created_at': createdAt,
     };
   }
@@ -27,6 +30,7 @@ abstract class Category with _$Category {
       id: map['id'] as int?,
       name: map['name'] as String,
       isDefault: (map['is_default'] as int?) == 1,
+      type: CategoryType.values.byName(map['type'] as String),
       createdAt: map['created_at'] as String,
     );
   }

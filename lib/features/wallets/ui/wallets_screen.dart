@@ -7,6 +7,7 @@ import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 
+import '../../../core/widgets/confirmation_dialog.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../models/wallet.dart';
 import '../viewmodels/wallet_list_view_model.dart';
@@ -59,43 +60,14 @@ class _WalletsBody extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.deleteWallet),
-        content: Text(l10n.deleteWalletConfirm(wallet.name)),
-        actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-        actions: [
-          TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: context.appColors.surfaceContainer,
-              foregroundColor: context.appColors.onSurface,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(Rounded.lg),
-              ),
-            ),
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          const SizedBox(width: 8),
-          TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: context.appColors.error,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(Rounded.lg),
-              ),
-            ),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.delete),
-          ),
-        ],
-      ),
+    final confirmed = await ConfirmationDialog.show(
+      context,
+      title: l10n.deleteWallet,
+      content: l10n.deleteWalletConfirm(wallet.name),
+      confirmLabel: l10n.delete,
     );
 
-    if (confirmed != true) return;
+    if (!confirmed) return;
 
     final viewModel = ref.read(walletListViewModelProvider().notifier);
 
@@ -195,7 +167,7 @@ class _WalletsBody extends ConsumerWidget {
                 Text(
                   formatCents(
                     wallet.currentBalance,
-                    currencyCode: currency.name.toUpperCase(),
+                    currencyCode: currency.code,
                   ),
                   style: context.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w700,
@@ -223,13 +195,13 @@ class _WalletsBody extends ConsumerWidget {
                     ),
                   },
                   itemBuilder: (context) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: _WalletAction.edit,
                       child: Row(
                         children: [
-                          Icon(Icons.edit_outlined, size: 18),
-                          SizedBox(width: Spacing.sm),
-                          Text('Edit'),
+                          const Icon(Icons.edit_outlined, size: 18),
+                          const SizedBox(width: Spacing.sm),
+                          Text(l10n.edit),
                         ],
                       ),
                     ),
