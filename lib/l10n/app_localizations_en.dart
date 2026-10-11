@@ -446,6 +446,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String overspentPercentThisMonth(String percent) {
+    return 'Spent $percent more than you received';
+  }
+
+  @override
   String walletsCountLabel(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

@@ -568,6 +568,15 @@
       }
     }
   },
+  "overspentPercentThisMonth": "Spent {percent} more than you received",
+  "@overspentPercentThisMonth": {
+    "description": "Caption on the wallets screen when this month's expenses exceed its income, e.g. 'Spent 50% more than you received' - percent is pre-formatted and positive",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "walletsCountLabel": "{count, plural, one{1 wallet} other{{count} wallets}}",
   "@walletsCountLabel": {
     "description": "Fallback caption on the wallets screen's fixed total balance bar when there's no income yet this month to compute a savings percentage",

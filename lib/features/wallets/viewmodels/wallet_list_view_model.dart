@@ -1,8 +1,11 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
+import 'package:waldo/features/transactions/viewmodels/transaction_list_view_model.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
+
+import 'wallets_summary_view_model.dart';
 
 part 'wallet_list_view_model.g.dart';
 
@@ -25,6 +28,8 @@ class WalletListViewModel extends _$WalletListViewModel {
     final repo = await ref.read(walletRepositoryProvider.future);
     await repo.delete(id);
     ref.invalidate(dashboardViewModelProvider);
+    ref.invalidate(walletsSummaryViewModelProvider);
+    ref.invalidate(transactionListViewModelProvider);
   }
 
   void restoreWallet() {

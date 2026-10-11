@@ -132,5 +132,6 @@
   "transactionsGroupToday": "Hoje",
   "transactionsGroupYesterday": "Ontem",
   "savedPercentThisMonth": "Poupaste {percent} este mês",
+  "overspentPercentThisMonth": "Gastaste mais {percent} do que recebeste",
   "walletsCountLabel": "{count, plural, one{1 carteira} other{{count} carteiras}}"
 }

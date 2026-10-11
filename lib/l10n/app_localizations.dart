@@ -884,6 +884,12 @@ abstract class AppLocalizations {
   /// **'Saved {percent} this month'**
   String savedPercentThisMonth(String percent);
 
+  /// Caption on the wallets screen when this month's expenses exceed its income, e.g. 'Spent 50% more than you received' - percent is pre-formatted and positive
+  ///
+  /// In en, this message translates to:
+  /// **'Spent {percent} more than you received'**
+  String overspentPercentThisMonth(String percent);
+
   /// Fallback caption on the wallets screen's fixed total balance bar when there's no income yet this month to compute a savings percentage
   ///
   /// In en, this message translates to:
