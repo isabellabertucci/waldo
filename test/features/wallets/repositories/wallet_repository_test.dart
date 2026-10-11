@@ -142,5 +142,20 @@ void main() {
         expect(remainingTransactions, isEmpty);
       },
     );
+
+    test('getCount returns 0 for an empty table', () async {
+      expect(await repo.getCount(), 0);
+    });
+
+    test('getCount returns the number of wallets', () async {
+      await repo.insert(
+        const Wallet(name: 'Cash', createdAt: '2026-08-04T12:00:00.000'),
+      );
+      await repo.insert(
+        const Wallet(name: 'Bank', createdAt: '2026-08-05T12:00:00.000'),
+      );
+
+      expect(await repo.getCount(), 2);
+    });
   });
 }

@@ -95,6 +95,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get close => 'Close';
 
   @override
+  String get hideBalance => 'Hide balance';
+
+  @override
+  String get showBalance => 'Show balance';
+
+  @override
   String get edit => 'Edit';
 
   @override
@@ -347,6 +353,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String dashboardReceiptHeader(String month, String year) {
     return 'WALDO · $month $year';
   }
+
+  @override
+  String get uncategorized => 'Uncategorized';
 
   @override
   String get savedLabel => 'Saved';

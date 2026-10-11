@@ -260,6 +260,18 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get close;
 
+  /// Accessibility label and tooltip for the eye button when amounts are visible - tapping it masks them
+  ///
+  /// In en, this message translates to:
+  /// **'Hide balance'**
+  String get hideBalance;
+
+  /// Accessibility label and tooltip for the eye button when amounts are masked - tapping it reveals them
+  ///
+  /// In en, this message translates to:
+  /// **'Show balance'**
+  String get showBalance;
+
   /// Edit action label
   ///
   /// In en, this message translates to:
@@ -733,6 +745,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'WALDO · {month} {year}'**
   String dashboardReceiptHeader(String month, String year);
+
+  /// Receipt line for this month's expenses that have no category (never set, or their category was deleted)
+  ///
+  /// In en, this message translates to:
+  /// **'Uncategorized'**
+  String get uncategorized;
 
   /// Label for the net amount saved this month, shown (uppercased) as the total row in the dashboard's receipt summary
   ///

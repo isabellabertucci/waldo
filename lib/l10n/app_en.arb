@@ -114,6 +114,14 @@
   "@close": {
     "description": "Accessibility label and tooltip for the button that closes a sheet"
   },
+  "hideBalance": "Hide balance",
+  "@hideBalance": {
+    "description": "Accessibility label and tooltip for the eye button when amounts are visible - tapping it masks them"
+  },
+  "showBalance": "Show balance",
+  "@showBalance": {
+    "description": "Accessibility label and tooltip for the eye button when amounts are masked - tapping it reveals them"
+  },
   "edit": "Edit",
   "@edit": {
     "description": "Edit action label"
@@ -447,6 +455,10 @@
         "type": "String"
       }
     }
+  },
+  "uncategorized": "Uncategorized",
+  "@uncategorized": {
+    "description": "Receipt line for this month's expenses that have no category (never set, or their category was deleted)"
   },
   "savedLabel": "Saved",
   "@savedLabel": {
