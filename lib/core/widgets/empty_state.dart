@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/spacing.dart';
 
 class EmptyState extends StatelessWidget {
   const EmptyState({
@@ -18,7 +19,7 @@ class EmptyState extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
+        padding: const EdgeInsets.symmetric(horizontal: Spacing.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -27,7 +28,7 @@ class EmptyState extends StatelessWidget {
               size: 64,
               color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Spacing.sm),
             Text(
               title,
               textAlign: TextAlign.center,
@@ -36,7 +37,7 @@ class EmptyState extends StatelessWidget {
               ),
             ),
             if (subtitle != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: Spacing.xs),
               Text(
                 subtitle!,
                 textAlign: TextAlign.center,

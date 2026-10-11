@@ -45,10 +45,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startingBalance => 'Starting balance';
 
   @override
+  String get startingBalanceHint => 'You can change this later';
+
+  @override
   String get balanceLocked => 'Cannot be changed after creation';
 
   @override
+  String get walletNameHint => 'e.g. Home, Travel';
+
+  @override
+  String get createWallet => 'Create wallet';
+
+  @override
   String get save => 'Save';
+
+  @override
+  String get done => 'Done';
 
   @override
   String get nameRequired => 'Name is required';
@@ -78,6 +90,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cancel => 'Cancel';
+
+  @override
+  String get close => 'Close';
 
   @override
   String get edit => 'Edit';
@@ -119,9 +134,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newTransaction => 'New Transaction';
 
   @override
-  String get editTransaction => 'Edit Transaction';
-
-  @override
   String get transactionDefaultDescription => 'Transaction';
 
   @override
@@ -140,11 +152,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transactionDescription => 'Description';
 
   @override
+  String get descriptionHint => 'What was it for?';
+
+  @override
+  String get addExpense => 'Add expense';
+
+  @override
+  String get addIncome => 'Add income';
+
+  @override
+  String get addNewCategory => 'New';
+
+  @override
+  String get transactionNote => 'Note';
+
+  @override
+  String editingAmountLabel(String type) {
+    return '$type · editing amount';
+  }
+
+  @override
+  String get discardChangesTitle => 'Discard changes?';
+
+  @override
+  String get discardChangesMessage => 'You have unsaved changes to this field.';
+
+  @override
+  String get discard => 'Discard';
+
+  @override
   String get deleteTransaction => 'Delete transaction?';
 
   @override
   String get deleteTransactionConfirm =>
       'This will permanently delete this transaction.';
+
+  @override
+  String get editTransactionAction => 'Edit transaction';
+
+  @override
+  String get saveChanges => 'Save changes';
 
   @override
   String get transactionDeleted => 'Transaction deleted';
@@ -236,7 +283,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get none => 'None';
 
   @override
-  String get darkMode => 'Dark Mode';
+  String get theme => 'Theme';
 
   @override
   String get themeSystem => 'System';
@@ -251,7 +298,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currency => 'Currency';
 
   @override
-  String get dateFormat => 'Date Format';
+  String get dateFormat => 'Date format';
+
+  @override
+  String get moneySection => 'Money';
+
+  @override
+  String get appearanceSection => 'Appearance';
+
+  @override
+  String get currencyRowSubtitle => 'How amounts are shown';
+
+  @override
+  String get dateFormatRowSubtitle => 'Used in lists and details';
+
+  @override
+  String get currencyChangeNotice =>
+      'This changes the symbol only. Your amounts stay the same and are not converted.';
 
   @override
   String get preferencesError =>
@@ -262,55 +325,125 @@ class AppLocalizationsEn extends AppLocalizations {
       'There was a problem saving your preference. Please try again.';
 
   @override
-  String get currencyOptionUsd => 'USD (\$)';
+  String get currencyNameUsd => 'US dollar';
 
   @override
-  String get currencyOptionEur => 'EUR (€)';
+  String get currencyNameEur => 'Euro';
 
   @override
-  String get currencyOptionGbp => 'GBP (£)';
-
-  @override
-  String get myFinances => 'My Finances';
-
-  @override
-  String overviewSubtitle(String month) {
-    return '$month Overview';
-  }
+  String get currencyNameGbp => 'British pound';
 
   @override
   String get totalBalance => 'Total Balance';
+
+  @override
+  String get add => 'Add';
 
   @override
   String get dashboardError =>
       'There was a problem loading your dashboard. Please try again.';
 
   @override
-  String get spendingsByCategory => 'Spendings by Category';
+  String dashboardReceiptHeader(String month, String year) {
+    return 'WALDO · $month $year';
+  }
+
+  @override
+  String get savedLabel => 'Saved';
+
+  @override
+  String dashboardReceiptOtherCategories(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Other ($count)',
+      one: 'Other (1)',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get seeAll => 'See all';
 
   @override
-  String get noSpendingThisMonth => 'No spending yet this month';
+  String get categorySpendingEmptyHint =>
+      'Add your first transaction to see it broken down by category here.';
 
   @override
-  String percentFromLastMonth(String percent) {
-    return '$percent from last month';
-  }
+  String get addFirstTransactionButton => 'Add first transaction';
 
   @override
   String get cashFlow => 'Cash Flow';
-
-  @override
-  String get overallRevenue => 'Overall Revenue';
-
-  @override
-  String get periodMonthly => 'Monthly';
 
   @override
   String get recentTransactions => 'Recent Transactions';
 
   @override
   String get noRecentTransactions => 'No transactions yet';
+
+  @override
+  String get firstRunPeekCta => 'Slide in your first wallet';
+
+  @override
+  String get dashboardReceiptNoWallet =>
+      'Your month\'s receipt prints here after the first transaction.';
+
+  @override
+  String get zeroWalletsLabel => '0 wallets';
+
+  @override
+  String get filterTitle => 'Filter';
+
+  @override
+  String get filterReset => 'Reset';
+
+  @override
+  String get filterSectionMonth => 'Month';
+
+  @override
+  String get filterSectionType => 'Type';
+
+  @override
+  String get filterTypeAll => 'All';
+
+  @override
+  String filterShowTransactions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Show $count transactions',
+      one: 'Show 1 transaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String filterChipLabel(String type) {
+    return '$type transactions';
+  }
+
+  @override
+  String get noTransactionsForFilter => 'No transactions match this filter.';
+
+  @override
+  String get transactionsGroupToday => 'Today';
+
+  @override
+  String get transactionsGroupYesterday => 'Yesterday';
+
+  @override
+  String savedPercentThisMonth(String percent) {
+    return 'Saved $percent this month';
+  }
+
+  @override
+  String walletsCountLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wallets',
+      one: '1 wallet',
+    );
+    return '$_temp0';
+  }
 }

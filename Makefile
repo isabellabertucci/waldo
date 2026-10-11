@@ -1,4 +1,4 @@
-.PHONY: setup run analyze format test gen
+.PHONY: setup run analyze format test gen design-lint design-guardrail
 
 setup:
 	@echo "Initializing project Flutter SDK version..."
@@ -27,5 +27,12 @@ add:
 add-dev:
 	fvm flutter pub add dev:$(pkg)
 
-gen: 
+gen:
 	fvm dart run build_runner build --delete-conflicting-outputs
+
+design-lint:
+	@echo "Linting DESIGN.md..."
+	npx --yes @google/design.md@0.4.0 lint DESIGN.md
+
+design-guardrail:
+	@./scripts/design_guardrail.sh

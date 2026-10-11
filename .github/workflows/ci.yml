@@ -31,3 +31,14 @@ jobs:
 
       - name: Run tests
         run: flutter test
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Lint DESIGN.md
+        run: make design-lint
+
+      - name: Design guardrail
+        run: make design-guardrail

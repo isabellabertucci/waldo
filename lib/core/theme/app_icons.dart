@@ -24,12 +24,17 @@ abstract final class AppIcons {
   static const categorySubscriptions = PhosphorIconsRegular.repeat;
   static const categoryEducation = PhosphorIconsRegular.graduationCap;
   static const categoryInvestments = PhosphorIconsRegular.trendUp;
+  static const categoryGeneric = PhosphorIconsRegular.tag;
 
   // Transactions
   static const income = PhosphorIconsRegular.arrowDown;
   static const expense = PhosphorIconsRegular.arrowUp;
   static const calendar = PhosphorIconsRegular.calendar;
   static const receipt = PhosphorIconsRegular.receipt;
+
+  // Form fields
+  static const name = PhosphorIconsRegular.textT;
+  static const radioUnselected = PhosphorIconsRegular.circle;
 
   // Actions
   static const add = PhosphorIconsRegular.plus;
@@ -39,4 +44,8 @@ abstract final class AppIcons {
   static const close = PhosphorIconsRegular.x;
   static const back = PhosphorIconsRegular.caretLeft;
   static const search = PhosphorIconsRegular.magnifyingGlass;
+  static const backspace = PhosphorIconsRegular.backspace;
+  static const check = PhosphorIconsRegular.check;
+  static const chevronRight = PhosphorIconsRegular.caretRight;
+  static const info = PhosphorIconsRegular.info;
 }
