@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/theme/app_icons.dart';
+import 'package:waldo/core/theme/app_theme.dart';
+import 'package:waldo/core/theme/icon_size.dart';
+import 'package:waldo/core/theme/rounded.dart';
+import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/form_name_field.dart';
+import 'package:waldo/core/widgets/option_tile.dart';
+import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../categories_x.dart';
 import '../../models/category.dart';
 import '../../viewmodels/category_form_view_model.dart';
 
+/// Same shape as the wallet form: grabber, title + close, a Name field,
+/// a grid of types, and the dashed-stitch confirm pill.
 class CategoryFormSheet extends ConsumerStatefulWidget {
   const CategoryFormSheet({super.key, this.category});
 
@@ -39,6 +51,9 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
     if (value == null || value.trim().isEmpty) {
       return l10n.nameRequired;
     }
+    if (value.trim().length > maxWalletNameLength) {
+      return l10n.nameTooLong;
+    }
     return null;
   }
 
@@ -61,57 +76,94 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = context.appColors;
     final formState = ref.watch(categoryFormViewModelProvider(widget.category));
     final viewModel = ref.read(
       categoryFormViewModelProvider(widget.category).notifier,
     );
 
     return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom:
-            MediaQuery.of(context).viewInsets.bottom +
-            MediaQuery.of(context).padding.bottom +
-            16,
+      padding: EdgeInsets.fromLTRB(
+        Spacing.md,
+        Spacing.sm,
+        Spacing.md,
+        MediaQuery.of(context).viewInsets.bottom + Spacing.md,
       ),
       child: Form(
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              _isEditing ? l10n.editCategory : l10n.newCategory,
-              style: Theme.of(context).textTheme.titleLarge,
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colors.onSurface.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(Rounded.pill),
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
-            TextFormField(
+            const SizedBox(height: Spacing.md),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _isEditing ? l10n.editCategory : l10n.newCategory,
+                    style: context.headlineLgStrong,
+                  ),
+                ),
+                const SheetCloseButton(),
+              ],
+            ),
+            const SizedBox(height: Spacing.md),
+            FormNameField(
+              fieldKey: const Key('categoryNameField'),
               controller: _nameController,
+              label: l10n.name,
+              hint: l10n.categoryNameHint,
               onChanged: viewModel.updateName,
-              decoration: InputDecoration(labelText: l10n.name),
               validator: (value) => _validateName(l10n, value),
-              autofocus: true,
             ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<CategoryType>(
-              initialValue: formState.type,
-              decoration: InputDecoration(labelText: l10n.type),
-              items: CategoryType.values.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(type.label(l10n)),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) viewModel.updateType(value);
-              },
+            const SizedBox(height: Spacing.md),
+            Text(
+              l10n.type.toUpperCase(),
+              style: context.bodySmBold.copyWith(
+                color: colors.onSurfaceVariant,
+                letterSpacing: 0.4,
+              ),
             ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: () => _save(viewModel),
-              child: Text(l10n.save),
+            const SizedBox(height: Spacing.sm),
+            GridView.count(
+              crossAxisCount: 3,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: Spacing.sm,
+              crossAxisSpacing: Spacing.sm,
+              childAspectRatio: 1.05,
+              children: [
+                for (final type in CategoryType.values)
+                  OptionTile(
+                    icon: type.icon,
+                    label: type.label(l10n),
+                    selected: type == formState.type,
+                    onTap: () => viewModel.updateType(type),
+                  ),
+              ],
+            ),
+            const SizedBox(height: Spacing.md),
+            SizedBox(
+              width: double.infinity,
+              child: DashedStitchButton(
+                icon: const Icon(AppIcons.check, size: IconSize.md),
+                label: _isEditing ? l10n.saveChanges : l10n.createCategory,
+                onPressed: () => _save(viewModel),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Spacing.sm,
+                  vertical: Spacing.md,
+                ),
+              ),
             ),
           ],
         ),

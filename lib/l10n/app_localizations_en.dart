@@ -248,6 +248,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newCategory => 'New Category';
 
   @override
+  String get categoriesDefaultSection => 'Built-in';
+
+  @override
+  String get categoriesCustomSection => 'Custom';
+
+  @override
+  String get createCategory => 'Create category';
+
+  @override
+  String get categoryNameHint => 'e.g. Coffee, Gym';
+
+  @override
   String get editCategory => 'Edit Category';
 
   @override

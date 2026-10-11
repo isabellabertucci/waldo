@@ -554,6 +554,30 @@ abstract class AppLocalizations {
   /// **'New Category'**
   String get newCategory;
 
+  /// Section header on the categories screen for the categories that ship with the app and can't be edited
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in'**
+  String get categoriesDefaultSection;
+
+  /// Section header on the categories screen for the categories the user created
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get categoriesCustomSection;
+
+  /// Confirm button on the new-category sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Create category'**
+  String get createCategory;
+
+  /// Placeholder in the category name field
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Coffee, Gym'**
+  String get categoryNameHint;
+
   /// Title of the edit category form
   ///
   /// In en, this message translates to:
