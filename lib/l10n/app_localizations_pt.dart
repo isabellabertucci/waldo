@@ -96,6 +96,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get close => 'Fechar';
 
   @override
+  String get back => 'Voltar';
+
+  @override
+  String get deleteDigit => 'Apagar dígito';
+
+  @override
   String get hideBalance => 'Esconder saldo';
 
   @override

@@ -28,6 +28,8 @@
   "deleteWalletConfirm": "Isto vai apagar permanentemente \"{name}\".",
   "cancel": "Cancelar",
   "close": "Fechar",
+  "back": "Voltar",
+  "deleteDigit": "Apagar dígito",
   "hideBalance": "Esconder saldo",
   "showBalance": "Mostrar saldo",
   "edit": "Editar",

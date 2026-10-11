@@ -260,6 +260,18 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get close;
 
+  /// Accessibility label and tooltip for a back/chevron-left button
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// Accessibility label and tooltip for the backspace key on the amount keypad
+  ///
+  /// In en, this message translates to:
+  /// **'Delete digit'**
+  String get deleteDigit;
+
   /// Accessibility label and tooltip for the eye button when amounts are visible - tapping it masks them
   ///
   /// In en, this message translates to:

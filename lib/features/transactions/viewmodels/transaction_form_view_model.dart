@@ -6,7 +6,7 @@ import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
-import 'package:waldo/features/wallets/viewmodels/wallet_providers.dart';
+import 'package:waldo/features/wallets/viewmodels/wallets_summary_view_model.dart';
 import 'transaction_form_state.dart';
 import 'transaction_list_view_model.dart';
 
@@ -29,6 +29,7 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
         walletId: existingTransaction.walletId,
         categoryId: existingTransaction.categoryId,
         description: existingTransaction.description ?? '',
+        note: existingTransaction.note ?? '',
       );
     }
     return TransactionFormState(walletId: initialWalletId);
@@ -58,6 +59,15 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
     state = state.copyWith(description: value);
   }
 
+  void updateNote(String value) {
+    state = state.copyWith(note: value);
+  }
+
+  /// Puts back a state captured earlier - the edit sheet's Cancel.
+  void restore(TransactionFormState snapshot) {
+    state = snapshot;
+  }
+
   Future<bool> save(Transaction? existingTransaction) async {
     final walletId = state.walletId;
     final date = state.date;
@@ -68,6 +78,7 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
 
     final repo = await ref.read(transactionRepositoryProvider.future);
     final description = state.description.trim();
+    final note = state.note.trim();
 
     if (existingTransaction != null) {
       await repo.update(
@@ -78,6 +89,7 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
           type: state.type,
           date: date.toIso8601String(),
           description: description.isEmpty ? null : description,
+          note: note.isEmpty ? null : note,
         ),
       );
     } else {
@@ -89,6 +101,7 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
           type: state.type,
           date: date.toIso8601String(),
           description: description.isEmpty ? null : description,
+          note: note.isEmpty ? null : note,
           createdAt: DateTime.now().toIso8601String(),
         ),
       );
@@ -98,20 +111,12 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
       'Transaction save succeeded: isEditing=${existingTransaction != null}',
     );
 
-    ref.invalidate(transactionListViewModelProvider(walletId: walletId));
+    // The whole family: this wallet's list, the old wallet's list if it
+    // moved, and the "all transactions" list (no walletId).
+    ref.invalidate(transactionListViewModelProvider);
     ref.invalidate(walletListViewModelProvider);
-    ref.invalidate(walletByIdProvider(walletId));
     ref.invalidate(dashboardViewModelProvider);
-
-    if (existingTransaction != null &&
-        existingTransaction.walletId != walletId) {
-      ref.invalidate(
-        transactionListViewModelProvider(
-          walletId: existingTransaction.walletId,
-        ),
-      );
-      ref.invalidate(walletByIdProvider(existingTransaction.walletId));
-    }
+    ref.invalidate(walletsSummaryViewModelProvider);
 
     return true;
   }

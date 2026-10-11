@@ -1,10 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/database/db_providers.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
+import 'package:waldo/features/transactions/viewmodels/transaction_form_view_model.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_list_view_model.dart';
+import 'package:waldo/features/wallets/models/wallet.dart';
+import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
+
+import '../../../helpers/test_app.dart';
 
 class MockTransactionRepository extends Mock
     implements ITransactionRepository {}
@@ -77,4 +84,68 @@ void main() {
       verify(() => mockRepo.getByWallet(1, sortOrder: SortOrder.asc)).called(1);
     },
   );
+
+  group('the "all transactions" list (no walletId)', () {
+    late Database db;
+    late ProviderContainer real;
+    late int walletId;
+    late int transactionId;
+
+    setUp(() async {
+      db = await createTestDatabase();
+      real = ProviderContainer(
+        overrides: [appDatabaseProvider.overrideWith((ref) async => db)],
+      );
+      walletId = await WalletRepositoryImpl(db).insert(
+        const Wallet(name: 'Cash', createdAt: '2026-08-01T12:00:00.000'),
+      );
+      transactionId = await TransactionRepositoryImpl(db).insert(
+        Transaction(
+          walletId: walletId,
+          amount: 500,
+          type: TransactionType.expense,
+          date: '2026-08-10',
+          createdAt: '2026-08-10T12:00:00.000',
+        ),
+      );
+      // Both lists on screen, like opening a transaction from "All".
+      real.listen(transactionListViewModelProvider(), (_, _) {});
+      real.listen(
+        transactionListViewModelProvider(walletId: walletId),
+        (_, _) {},
+      );
+      await real.read(transactionListViewModelProvider().future);
+      await real.read(
+        transactionListViewModelProvider(walletId: walletId).future,
+      );
+    });
+
+    tearDown(() async {
+      real.dispose();
+      await db.close();
+    });
+
+    test('is refreshed after a transaction is edited', () async {
+      final existing = (await real.read(
+        transactionListViewModelProvider().future,
+      )).single;
+      final form = real.read(
+        transactionFormViewModelProvider(existing).notifier,
+      );
+      form.updateAmount('7.00');
+      await form.save(existing);
+
+      final all = await real.read(transactionListViewModelProvider().future);
+      expect(all.single.amount, 700);
+    });
+
+    test('is refreshed after a transaction is deleted', () async {
+      await real
+          .read(transactionListViewModelProvider(walletId: walletId).notifier)
+          .confirmDelete(transactionId);
+
+      final all = await real.read(transactionListViewModelProvider().future);
+      expect(all, isEmpty);
+    });
+  });
 }

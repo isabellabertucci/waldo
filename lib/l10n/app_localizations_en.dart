@@ -95,6 +95,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get close => 'Close';
 
   @override
+  String get back => 'Back';
+
+  @override
+  String get deleteDigit => 'Delete digit';
+
+  @override
   String get hideBalance => 'Hide balance';
 
   @override

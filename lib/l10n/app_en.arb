@@ -114,6 +114,14 @@
   "@close": {
     "description": "Accessibility label and tooltip for the button that closes a sheet"
   },
+  "back": "Back",
+  "@back": {
+    "description": "Accessibility label and tooltip for a back/chevron-left button"
+  },
+  "deleteDigit": "Delete digit",
+  "@deleteDigit": {
+    "description": "Accessibility label and tooltip for the backspace key on the amount keypad"
+  },
   "hideBalance": "Hide balance",
   "@hideBalance": {
     "description": "Accessibility label and tooltip for the eye button when amounts are visible - tapping it masks them"

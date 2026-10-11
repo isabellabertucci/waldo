@@ -262,5 +262,41 @@ void main() {
         expect(transaction!.categoryId, isNull);
       },
     );
+
+    test('insert persists the note', () async {
+      final walletId = await createWallet();
+      final id = await repo.insert(
+        Transaction(
+          walletId: walletId,
+          amount: 500,
+          type: TransactionType.expense,
+          date: '2026-08-10',
+          note: 'Split with Ana',
+          createdAt: '2026-08-10T12:00:00.000',
+        ),
+      );
+
+      final saved = await repo.getById(id);
+      expect(saved!.note, 'Split with Ana');
+    });
+
+    test('update changes the note', () async {
+      final walletId = await createWallet();
+      final id = await repo.insert(
+        Transaction(
+          walletId: walletId,
+          amount: 500,
+          type: TransactionType.expense,
+          date: '2026-08-10',
+          createdAt: '2026-08-10T12:00:00.000',
+        ),
+      );
+      final existing = await repo.getById(id);
+
+      await repo.update(existing!.copyWith(note: 'Added later'));
+
+      final updated = await repo.getById(id);
+      expect(updated!.note, 'Added later');
+    });
   });
 }
