@@ -175,11 +175,11 @@ void main() {
   ) async {
     await pumpSettingsScreen(tester);
 
-    await tester.tap(find.byIcon(Icons.calendar_today_outlined));
+    await tester.tap(find.text('Date format'));
     await tester.pumpAndSettle();
 
     expect(find.byType(SettingsOptionSheet<String>), findsOneWidget);
-    // The row's own icon plus one per option in the sheet.
-    expect(find.byIcon(Icons.calendar_today_outlined), findsNWidgets(4));
+    // One icon per format option in the sheet.
+    expect(find.byIcon(Icons.calendar_today_outlined), findsNWidgets(3));
   });
 }
