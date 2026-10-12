@@ -93,6 +93,22 @@ class _MonthSelectorState extends State<MonthSelector> {
     });
   }
 
+  /// The selected month is spelled out; the others are short so the
+  /// neighbours on either side fit whole instead of being cut mid-word. A
+  /// month from another year always carries its year, so e.g. last November
+  /// and next November never read as the same pill.
+  String _labelFor(DateTime month) {
+    final locale = widget.locale;
+    final isSelected = month == widget.selectedMonth;
+    final isThisYear = month.year == widget.currentMonth.year;
+    return switch ((isSelected, isThisYear)) {
+      (true, true) => DateFormat.MMMM(locale).format(month),
+      (true, false) => DateFormat.yMMMM(locale).format(month),
+      (false, true) => DateFormat.MMM(locale).format(month),
+      (false, false) => DateFormat.yMMM(locale).format(month),
+    };
+  }
+
   void _scrollBy(double delta) {
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
@@ -159,12 +175,7 @@ class _MonthSelectorState extends State<MonthSelector> {
                       for (final month in widget.months) ...[
                         _MonthPill(
                           key: _itemKeys[month],
-                          // A month from another year carries its year, so
-                          // e.g. last November and next November never read
-                          // as the same pill.
-                          label: month.year == widget.currentMonth.year
-                              ? DateFormat.MMMM(widget.locale).format(month)
-                              : DateFormat.yMMM(widget.locale).format(month),
+                          label: _labelFor(month),
                           selected: month == widget.selectedMonth,
                           // Defensive, not just decorative - nothing past
                           // the real current month is a month that could
