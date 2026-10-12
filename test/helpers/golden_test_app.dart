@@ -17,8 +17,11 @@ Widget wrapForGolden({
   bool isBalanceHidden = false,
 }) {
   return ProviderScope(
+    // Root scope of each golden; the lint can't tell, as it's built in a helper.
     overrides: [
+      // ignore: riverpod_lint/scoped_providers_should_specify_dependencies
       appDatabaseProvider.overrideWith((ref) async => db),
+      // ignore: riverpod_lint/scoped_providers_should_specify_dependencies
       clockProvider.overrideWithValue(() => DateTime(2026, 10, 8, 12)),
       if (isBalanceHidden)
         balanceHiddenProvider.overrideWith(_HiddenBalance.new),
