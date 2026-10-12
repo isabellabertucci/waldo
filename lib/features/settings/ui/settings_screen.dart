@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/clock.dart';
@@ -23,15 +24,33 @@ class SettingsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
 
+    // Same header as Wallets, so the title shares the page gutter.
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.settings)),
-      body: switch (preferencesAsync) {
-        AsyncValue(:final value?) => _SettingsBody(preferences: value),
-        AsyncValue(hasError: true) => Center(
-          child: Text(l10n.preferencesError),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                Spacing.pageMargin,
+                Spacing.xs,
+                Spacing.pageMargin,
+                0,
+              ),
+              child: Text(l10n.settings, style: context.headlineSmBold),
+            ),
+            Expanded(
+              child: switch (preferencesAsync) {
+                AsyncValue(:final value?) => _SettingsBody(preferences: value),
+                AsyncValue(hasError: true) => Center(
+                  child: Text(l10n.preferencesError),
+                ),
+                _ => const Center(child: CircularProgressIndicator()),
+              },
+            ),
+          ],
         ),
-        _ => const Center(child: CircularProgressIndicator()),
-      },
+      ),
     );
   }
 }
@@ -73,7 +92,7 @@ class _SettingsBody extends ConsumerWidget {
         SettingsCard(
           children: [
             SettingsRow(
-              icon: Icons.attach_money,
+              icon: AppIcons.currency,
               title: l10n.currency,
               subtitle: l10n.currencyRowSubtitle,
               value: preferences.currency.code,
@@ -87,7 +106,7 @@ class _SettingsBody extends ConsumerWidget {
               ),
             ),
             SettingsRow(
-              icon: Icons.calendar_today_outlined,
+              icon: AppIcons.calendar,
               title: l10n.dateFormat,
               subtitle: l10n.dateFormatRowSubtitle,
               value: DateFormat(
@@ -105,7 +124,7 @@ class _SettingsBody extends ConsumerWidget {
         SettingsCard(
           children: [
             SettingsRow(
-              icon: Icons.dark_mode_outlined,
+              icon: AppIcons.theme,
               title: l10n.theme,
               value: _themeLabel(l10n, preferences.isDarkMode),
               onTap: () =>
