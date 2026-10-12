@@ -208,71 +208,74 @@ class _WalletCard extends StatelessWidget {
                 ),
               ),
             ),
-          InkWell(
-            onTap: onTap,
-            splashColor: walletCardInkColor(context, alpha: 0.12),
-            highlightColor: walletCardInkColor(context, alpha: 0.08),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Spacing.sm,
-                Spacing.md,
-                Spacing.sm,
-                Spacing.sm,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    // Leaves room for the menu button, so long names ellipsize before it.
-                    padding: const EdgeInsets.only(right: 36),
-                    child: Text(
-                      wallet.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.headlineLgStrong.copyWith(
-                        color: walletCardInkColor(context, alpha: 1),
-                        shadows: walletCardTextShadow,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: Spacing.xs),
-                  Row(
-                    children: [
-                      Icon(
-                        wallet.type.icon,
-                        size: IconSize.sm,
-                        color: walletCardInkColor(context, alpha: 0.6),
-                      ),
-                      const SizedBox(width: Spacing.xs),
-                      Expanded(
-                        child: Text(
-                          wallet.type.label(l10n),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: walletCardInkColor(context, alpha: 0.6),
-                            shadows: walletCardTextShadow,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: Spacing.sm),
-                      Text(
-                        balanceText,
+          // Fill the card, so a tap anywhere on it opens the wallet, not just on the text.
+          Positioned.fill(
+            child: InkWell(
+              onTap: onTap,
+              splashColor: walletCardInkColor(context, alpha: 0.12),
+              highlightColor: walletCardInkColor(context, alpha: 0.08),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  Spacing.sm,
+                  Spacing.md,
+                  Spacing.sm,
+                  Spacing.sm,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      // Leaves room for the menu button, so long names ellipsize before it.
+                      padding: const EdgeInsets.only(right: 36),
+                      child: Text(
+                        wallet.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        // one-off: titleMedium + w800 for the card's balance figure.
-                        style: context.textTheme.titleMedium?.copyWith(
-                          color: isNegative && !isBalanceHidden
-                              ? walletCardNegativeColor(context)
-                              : walletCardInkColor(context, alpha: 1),
-                          fontWeight: FontWeight.w800,
+                        style: context.headlineLgStrong.copyWith(
+                          color: walletCardInkColor(context, alpha: 1),
                           shadows: walletCardTextShadow,
                         ),
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: Spacing.xs),
+                    Row(
+                      children: [
+                        Icon(
+                          wallet.type.icon,
+                          size: IconSize.sm,
+                          color: walletCardInkColor(context, alpha: 0.6),
+                        ),
+                        const SizedBox(width: Spacing.xs),
+                        Expanded(
+                          child: Text(
+                            wallet.type.label(l10n),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.textTheme.bodySmall?.copyWith(
+                              color: walletCardInkColor(context, alpha: 0.6),
+                              shadows: walletCardTextShadow,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: Spacing.sm),
+                        Text(
+                          balanceText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          // one-off: titleMedium + w800 for the card's balance figure.
+                          style: context.textTheme.titleMedium?.copyWith(
+                            color: isNegative && !isBalanceHidden
+                                ? walletCardNegativeColor(context)
+                                : walletCardInkColor(context, alpha: 1),
+                            fontWeight: FontWeight.w800,
+                            shadows: walletCardTextShadow,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
