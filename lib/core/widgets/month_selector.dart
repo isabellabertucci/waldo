@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:intl/intl.dart';
@@ -37,6 +38,9 @@ class _MonthSelectorState extends State<MonthSelector> {
   bool _canScrollBack = false;
   bool _canScrollForward = false;
 
+  /// True when every month fits on screen, so there's nothing to drag to.
+  bool _fits = false;
+
   @override
   void initState() {
     super.initState();
@@ -59,7 +63,10 @@ class _MonthSelectorState extends State<MonthSelector> {
       };
     }
     if (monthsChanged || oldWidget.selectedMonth != widget.selectedMonth) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelected());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToSelected();
+        _updateScrollAffordances();
+      });
     }
   }
 
@@ -78,13 +85,20 @@ class _MonthSelectorState extends State<MonthSelector> {
   void _updateScrollAffordances() {
     if (!mounted || !_scrollController.hasClients) return;
     final position = _scrollController.position;
-    final canScrollBack = position.pixels > position.minScrollExtent + 1;
-    final canScrollForward = position.pixels < position.maxScrollExtent - 1;
-    if (canScrollBack == _canScrollBack &&
+    // The scroll extent equals the months' width, since each edge pads half the viewport.
+    final fits = position.maxScrollExtent <= position.viewportDimension;
+    // Chevrons only light up when there's a pickable month that way.
+    final offsets = _pickableOffsets();
+    final canScrollBack = !fits && offsets.any((o) => o < position.pixels - 1);
+    final canScrollForward =
+        !fits && offsets.any((o) => o > position.pixels + 1);
+    if (fits == _fits &&
+        canScrollBack == _canScrollBack &&
         canScrollForward == _canScrollForward) {
       return;
     }
     setState(() {
+      _fits = fits;
       _canScrollBack = canScrollBack;
       _canScrollForward = canScrollForward;
     });
@@ -104,18 +118,46 @@ class _MonthSelectorState extends State<MonthSelector> {
     };
   }
 
-  void _scrollBy(double delta) {
-    if (!_scrollController.hasClients) return;
-    final position = _scrollController.position;
-    final target = (position.pixels + delta).clamp(
-      position.minScrollExtent,
-      position.maxScrollExtent,
-    );
+  /// The scroll offsets that centre each month you can pick (not future ones).
+  List<double> _pickableOffsets() {
+    return [
+      for (final month in widget.months)
+        if (!month.isAfter(widget.currentMonth))
+          if (_itemKeys[month]?.currentContext?.findRenderObject()
+              case final RenderObject box)
+            RenderAbstractViewport.of(box).getOffsetToReveal(box, 0.5).offset,
+    ];
+  }
+
+  void _animateTo(double offset) {
     _scrollController.animateTo(
-      target,
+      offset,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOut,
     );
+  }
+
+  /// After a drag, settle on the nearest pickable month so none sits half-cut.
+  void _snapToNearest() {
+    if (!mounted || !_scrollController.hasClients) return;
+    final offsets = _pickableOffsets();
+    if (offsets.isEmpty) return;
+    final pixels = _scrollController.position.pixels;
+    final nearest = offsets.reduce(
+      (a, b) => (a - pixels).abs() <= (b - pixels).abs() ? a : b,
+    );
+    if ((nearest - pixels).abs() > 1) _animateTo(nearest);
+  }
+
+  /// Chevron tap: centre the next pickable month that way.
+  void _step({required bool forward}) {
+    if (!_scrollController.hasClients) return;
+    final pixels = _scrollController.position.pixels;
+    final candidates = _pickableOffsets().where(
+      (o) => forward ? o > pixels + 1 : o < pixels - 1,
+    );
+    if (candidates.isEmpty) return;
+    _animateTo(forward ? candidates.first : candidates.last);
   }
 
   @override
@@ -132,7 +174,7 @@ class _MonthSelectorState extends State<MonthSelector> {
         const SizedBox(width: Spacing.lg),
         _ScrollHintChevron(
           enabled: _canScrollBack,
-          onTap: () => _scrollBy(-160),
+          onTap: () => _step(forward: false),
         ),
         const SizedBox(width: Spacing.xs),
         Expanded(
@@ -156,26 +198,38 @@ class _MonthSelectorState extends State<MonthSelector> {
                   stops: [0, 0.04, 0.92, 1],
                 ).createShader(bounds),
                 blendMode: BlendMode.dstIn,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: edgePadding),
-                  child: Row(
-                    children: [
-                      for (final month in widget.months) ...[
-                        _MonthPill(
-                          key: _itemKeys[month],
-                          label: _labelFor(month),
-                          selected: month == widget.selectedMonth,
-                          // Months after the current one can't have transactions yet.
-                          onTap: month.isAfter(widget.currentMonth)
-                              ? null
-                              : () => widget.onSelect(month),
-                        ),
-                        if (month != widget.months.last)
-                          const SizedBox(width: Spacing.md),
+                child: NotificationListener<ScrollEndNotification>(
+                  onNotification: (_) {
+                    WidgetsBinding.instance.addPostFrameCallback(
+                      (_) => _snapToNearest(),
+                    );
+                    return false;
+                  },
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    // The selected month still scrolls to the centre; only dragging stops.
+                    physics: _fits
+                        ? const NeverScrollableScrollPhysics()
+                        : null,
+                    padding: EdgeInsets.symmetric(horizontal: edgePadding),
+                    child: Row(
+                      children: [
+                        for (final month in widget.months) ...[
+                          _MonthPill(
+                            key: _itemKeys[month],
+                            label: _labelFor(month),
+                            selected: month == widget.selectedMonth,
+                            // Months after the current one can't have transactions yet.
+                            onTap: month.isAfter(widget.currentMonth)
+                                ? null
+                                : () => widget.onSelect(month),
+                          ),
+                          if (month != widget.months.last)
+                            const SizedBox(width: Spacing.md),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               );
@@ -186,7 +240,7 @@ class _MonthSelectorState extends State<MonthSelector> {
         _ChevronButton(
           direction: _ChevronDirection.right,
           enabled: _canScrollForward,
-          onTap: () => _scrollBy(160),
+          onTap: () => _step(forward: true),
         ),
         const SizedBox(width: Spacing.lg),
       ],
