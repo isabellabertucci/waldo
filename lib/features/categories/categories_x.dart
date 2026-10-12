@@ -11,6 +11,7 @@ extension CategoryTypeLabel on CategoryType {
       CategoryType.subscriptions => l10n.categoryTypeSubscriptions,
       CategoryType.education => l10n.categoryTypeEducation,
       CategoryType.investments => l10n.categoryTypeInvestments,
+      CategoryType.others => l10n.categoryTypeOthers,
     };
   }
 }
@@ -23,6 +24,7 @@ extension CategoryTypeIcon on CategoryType {
       CategoryType.subscriptions => AppIcons.categorySubscriptions,
       CategoryType.education => AppIcons.categoryEducation,
       CategoryType.investments => AppIcons.categoryInvestments,
+      CategoryType.others => AppIcons.categoryOthers,
     };
   }
 }

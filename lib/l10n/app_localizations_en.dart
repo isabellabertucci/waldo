@@ -304,6 +304,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryTypeInvestments => 'Investments';
 
   @override
+  String get categoryTypeOthers => 'Others';
+
+  @override
   String get none => 'None';
 
   @override
