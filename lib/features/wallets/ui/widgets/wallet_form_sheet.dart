@@ -11,7 +11,7 @@ import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
-import 'package:waldo/core/widgets/form_name_field.dart';
+import 'package:waldo/core/widgets/form_pill_field.dart';
 import 'package:waldo/core/widgets/option_tile.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/preferences/currency_x.dart';
@@ -122,9 +122,9 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
       walletFormViewModelProvider(widget.wallet).notifier,
     );
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
-    final currencySymbol = switch (preferencesAsync) {
-      AsyncValue(:final value?) => value.currency.symbol,
-      _ => Currency.usd.symbol,
+    final currency = switch (preferencesAsync) {
+      AsyncValue(:final value?) => value.currency,
+      _ => Currency.usd,
     };
 
     return Padding(
@@ -166,8 +166,10 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                 ],
               ),
               const SizedBox(height: Spacing.md),
-              FormNameField(
+              FormPillField(
                 fieldKey: const Key('walletNameField'),
+                leading: const Icon(AppIcons.name),
+                textCapitalization: TextCapitalization.sentences,
                 controller: _nameController,
                 label: l10n.name,
                 hint: l10n.walletNameHint,
@@ -202,77 +204,47 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                     ),
                 ],
               ),
-              const SizedBox(height: Spacing.sm),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(Spacing.md),
-                decoration: BoxDecoration(
-                  color: colors.surfaceContainer,
-                  borderRadius: BorderRadius.circular(Rounded.lg),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.startingBalance,
-                      style: context.textTheme.bodyMedium?.copyWith(
+              const SizedBox(height: Spacing.md),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.startingBalance.toUpperCase(),
+                      style: context.bodySmBold.copyWith(
                         color: colors.onSurfaceVariant,
+                        letterSpacing: 0.4,
                       ),
                     ),
-                    const SizedBox(height: Spacing.xs),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          currencySymbol,
-                          style: context.amountDisplayBold.copyWith(
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                        Expanded(
-                          child: TextFormField(
-                            key: const Key('walletBalanceField'),
-                            controller: _balanceController,
-                            enabled: !_isEditing,
-                            onChanged: viewModel.updateBalance,
-                            validator: (value) => _validateBalance(l10n, value),
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'[0-9.,\-]'),
-                              ),
-                            ],
-                            decoration: const InputDecoration(
-                              isCollapsed: true,
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              focusedErrorBorder: InputBorder.none,
-                              filled: false,
-                              hintText: '0.00',
-                            ),
-                            style: context.amountDisplayBold.copyWith(
-                              color: colors.onSurface,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: Spacing.xs),
+                  ),
+                  if (!_isEditing)
                     Text(
-                      _isEditing
-                          ? l10n.balanceLocked
-                          : l10n.startingBalanceHint,
+                      l10n.optional,
                       style: context.textTheme.bodySmall?.copyWith(
                         color: colors.onSurfaceVariant,
                       ),
                     ),
-                  ],
+                ],
+              ),
+              const SizedBox(height: Spacing.sm),
+              FormPillField(
+                fieldKey: const Key('walletBalanceField'),
+                leading: Text(currency.symbol),
+                trailing: currency.code,
+                controller: _balanceController,
+                // Locked once the wallet exists; the label says why.
+                enabled: !_isEditing,
+                label: _isEditing
+                    ? l10n.balanceLocked
+                    : l10n.startingBalancePrompt,
+                hint: '0.00',
+                onChanged: viewModel.updateBalance,
+                validator: (value) => _validateBalance(l10n, value),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
                 ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,\-]')),
+                ],
               ),
               const SizedBox(height: Spacing.md),
               SizedBox(
@@ -281,10 +253,6 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                   icon: const Icon(AppIcons.check, size: IconSize.md),
                   label: _isEditing ? l10n.saveChanges : l10n.createWallet,
                   onPressed: _save,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Spacing.sm,
-                    vertical: Spacing.md,
-                  ),
                 ),
               ),
             ],

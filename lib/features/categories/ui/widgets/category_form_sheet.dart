@@ -8,7 +8,7 @@ import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
-import 'package:waldo/core/widgets/form_name_field.dart';
+import 'package:waldo/core/widgets/form_pill_field.dart';
 import 'package:waldo/core/widgets/option_tile.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -175,8 +175,10 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
                 ],
               ),
               const SizedBox(height: Spacing.md),
-              FormNameField(
+              FormPillField(
                 fieldKey: const Key('categoryNameField'),
+                leading: const Icon(AppIcons.name),
+                textCapitalization: TextCapitalization.sentences,
                 controller: _nameController,
                 label: l10n.name,
                 hint: l10n.categoryNameHint,
@@ -218,10 +220,6 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
                   icon: const Icon(AppIcons.check, size: IconSize.md),
                   label: _isEditing ? l10n.saveChanges : l10n.createCategory,
                   onPressed: () => _save(viewModel),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Spacing.sm,
-                    vertical: Spacing.md,
-                  ),
                 ),
               ),
             ],

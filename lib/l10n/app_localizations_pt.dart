@@ -46,7 +46,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get startingBalance => 'Saldo inicial';
 
   @override
-  String get startingBalanceHint => 'Podes alterar isto depois';
+  String get startingBalancePrompt => 'Quanto tem hoje?';
+
+  @override
+  String get optional => 'Opcional';
 
   @override
   String get balanceLocked => 'Não pode ser alterado após a criação';
@@ -414,9 +417,6 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get recentTransactions => 'Transações Recentes';
-
-  @override
-  String get noRecentTransactions => 'Ainda não há transações';
 
   @override
   String get firstRunPeekCta => 'Desliza a tua primeira carteira';
