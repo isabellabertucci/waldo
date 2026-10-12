@@ -75,10 +75,7 @@ class DashboardViewModel extends _$DashboardViewModel {
       spendingByCategory: spendingByCategory,
       uncategorizedSpending: monthlyExpense - categorizedTotal,
       monthlyCashFlow: _buildMonthlyCashFlow(transactions, anchor),
-      // getAll() already sorts desc by date, and _transactionsInMonth
-      // preserves that order, so the first N are the most recent
-      // transactions within the selected month - keeping this in sync with
-      // the rest of the dashboard, which is all scoped to that month too.
+      // Already sorted newest first, so these are the month's most recent.
       recentTransactions: currentMonthTransactions
           .take(_recentTransactionsLimit)
           .toList(),

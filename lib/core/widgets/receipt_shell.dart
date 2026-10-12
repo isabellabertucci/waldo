@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// A horizontal dashed rule, matching the dashed stitch already used on the
-/// wallet's own `PouchBorder` so a receipt-style summary reads as the same
-/// visual family as the card above it.
+/// A horizontal dashed rule, matching the wallet card's stitch.
 class DashedDivider extends StatelessWidget {
   const DashedDivider({super.key, required this.color, this.thick = false});
 
@@ -31,9 +29,7 @@ class _DashedLinePainter extends CustomPainter {
   static const _dashLength = 5.0;
   static const _gapLength = 4.0;
 
-  // Evenly divides the line into whole dash+gap units and centers the
-  // result, so the pattern starts and ends with a full dash on both sides
-  // instead of trailing off mid-dash or mid-gap at the right edge.
+  // Whole dash+gap units, centered, so both ends are a full dash.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
@@ -59,10 +55,7 @@ class _DashedLinePainter extends CustomPainter {
       color != oldDelegate.color;
 }
 
-/// A dotted leader line, like the dots filling the gap between a label and
-/// its price on a printed receipt. Standalone so any receipt-style row
-/// (plain label/value, or one with its own tap target and trailing menu)
-/// can reuse the same leader instead of each row inventing its own.
+/// A dotted leader between a label and its value, like a printed receipt.
 class DottedLeader extends StatelessWidget {
   const DottedLeader({super.key, required this.color});
 
@@ -121,20 +114,14 @@ class ReceiptRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Receipt line-item typesetting: its own large/small, bold/regular
-    // print hierarchy, independent of the app's type scale (this widget
-    // renders a receipt, not a UI list).
+    // one-off: the receipt's own print hierarchy, not the app's type scale.
     final style = textStyles.bodyMedium?.copyWith(
       fontSize: large ? 15 : 12.5,
       fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
       color: color,
     );
 
-    // `label` and `value` share one `style`, so a plain center alignment
-    // already lines them up - what actually needs care is the dotted
-    // leader, which has no text baseline of its own. Nudging it down by
-    // the style's own descent lands its dots right on the same baseline
-    // the two Text widgets sit on, instead of floating mid-line.
+    // Nudged down by the text's descent, so the dots sit on the baseline.
     final descent = (style?.fontSize ?? 12.5) * 0.22;
 
     return Row(

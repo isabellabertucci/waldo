@@ -190,9 +190,7 @@ class _SettingsBody extends ConsumerWidget {
             .map(
               (currency) => SettingsOption(
                 label: currency.fullName(l10n),
-                // Same actual balance under every option, just reformatted
-                // with that currency's own symbol - proof, not just a
-                // claim, that picking one here doesn't convert anything.
+                // The same balance in each currency - showing nothing gets converted.
                 subtitle:
                     '${currency.code} · '
                     '${isBalanceHidden ? hiddenAmount : formatCents(totalBalance, currencyCode: currency.code)}',

@@ -103,9 +103,7 @@ class RecentTransactionsList extends ConsumerWidget {
   }
 }
 
-/// Mirrors the "show the shape" ghost-card treatment used for the category
-/// spending empty state - no CTA here, since "Add first transaction" already
-/// lives higher up on the page.
+/// Ghost rows showing where transactions will appear.
 class _EmptyTransactionsCard extends StatelessWidget {
   const _EmptyTransactionsCard({required this.caption});
 
@@ -208,9 +206,7 @@ class _GhostBar extends StatelessWidget {
         height: 10,
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.12),
-          // A skeleton-placeholder pill, not a real component radius - sits
-          // below `Rounded.sm` (12) on purpose, so it reads as a thin text
-          // bar rather than a small card.
+          // A skeleton bar, smaller than `Rounded.sm` on purpose.
           borderRadius: BorderRadius.circular(4),
         ),
       ),

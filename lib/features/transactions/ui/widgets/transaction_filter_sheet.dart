@@ -10,16 +10,10 @@ import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../models/transaction_filter.dart';
 
-/// How many months back the filter's month row scrolls - matches the
-/// dashboard's own trailing window, since this reuses that same
-/// [MonthSelector] component rather than a separate picker.
+/// How many months back the filter's month row goes.
 const _monthRange = 12;
 
-/// Month-chips + income/expense bottom sheet for the wallet transactions
-/// screen - the month row reuses the dashboard's own [MonthSelector]
-/// verbatim, and the dashed stitch on "Show transactions" mirrors the
-/// wallet card and navbar, so every solid-black control in the app reads
-/// as the same material instead of a one-off.
+/// Bottom sheet to filter a wallet's transactions by month and type.
 class TransactionFilterSheet extends StatefulWidget {
   const TransactionFilterSheet({
     super.key,
@@ -227,9 +221,7 @@ class _TypeSegment extends StatelessWidget {
             child: Text(
               label,
               textAlign: TextAlign.center,
-              // one-off: the selected/unselected weight pair is this toggle's
-              // own selected-state treatment (same as the month chips), not a
-              // named type-scale step.
+              // one-off: the toggle's own selected/unselected weights.
               style: context.textTheme.bodySmall?.copyWith(
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
                 color: selected ? colors.onSurface : colors.onSurfaceVariant,

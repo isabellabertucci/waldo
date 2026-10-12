@@ -39,12 +39,8 @@ class TransactionsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    // Reuses the Wallets screen's own (already-loaded) list instead of a
-    // fresh per-id fetch - that fetch's own loading frame was the header
-    // (and its Hero thumbnail) not existing yet on the very first frame
-    // after the push, which made Flutter skip the push's Hero flight
-    // entirely and only ever fly it on the pop back to a fully-settled
-    // Wallets screen.
+    // Uses the already-loaded wallets list (not a per-id fetch), so the header
+    // exists on the first frame and the Hero flight runs.
     final walletsAsync = ref.watch(walletListViewModelProvider());
     final transactionsAsync = ref.watch(
       transactionListViewModelProvider(walletId: walletId),
@@ -97,10 +93,8 @@ class _TransactionsBody extends ConsumerStatefulWidget {
 class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
   late TransactionFilter _filter;
 
-  // The Hero only needs to exist for the push's own flight - once that
-  // finishes, it's dropped, so a later pop back to the Wallets screen finds
-  // no matching Hero here and just does a plain page transition instead of
-  // flying the thumbnail back into the card.
+  // The Hero is only kept for the push; once it lands it's dropped, so popping
+  // back is a plain transition.
   bool _showHero = true;
   Animation<double>? _routeAnimation;
 
@@ -252,10 +246,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                 child: SizedBox(
                   width: 52,
                   height: 40,
-                  // Same finish as the wallet's own card on the Wallets
-                  // screen, and a Hero flight back to it on the way in -
-                  // dropped once that flight finishes (see `_showHero`), so
-                  // popping back doesn't fly it a second time in reverse.
+                  // The wallet's own finish, with a Hero from its card (see `_showHero`).
                   child: _showHero
                       ? Hero(
                           tag: 'walletCardBg_${widget.walletId}',
@@ -269,9 +260,6 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // The name leads as a real headline now; type and
-                    // balance share one caption line below it, with the
-                    // balance in bold so it still reads as the key number.
                     Text(
                       widget.wallet.name,
                       maxLines: 1,
@@ -291,9 +279,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                                     widget.wallet.currentBalance,
                                     currencyCode: currency.code,
                                   ),
-                            // one-off: inherits the surrounding line's style
-                            // and only bolds the balance figure - not a base
-                            // type-scale role, so no named getter fits.
+                            // one-off: bolds only the balance in the inherited line style.
                             style: TextStyle(
                               fontWeight: FontWeight.w800,
                               color:

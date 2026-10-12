@@ -8,10 +8,7 @@ import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
-/// One choice in a [SettingsOptionSheet] - either [icon] or [symbolText] is
-/// given, never both: an [IconData] for most pickers (theme, date format),
-/// or a currency symbol ("$", "€"...) where a generic icon wouldn't tell
-/// the options apart.
+/// One choice in a [SettingsOptionSheet]: either an [icon] or a [symbolText].
 class SettingsOption<T> {
   const SettingsOption({
     required this.value,
@@ -31,13 +28,7 @@ class SettingsOption<T> {
   final String? symbolText;
 }
 
-/// Floating bottom sheet shared by every settings picker (theme, currency,
-/// date format) - a dashed-stitch card in the app's own surface/on-surface
-/// tokens, so it reads as a light card in light mode and a dark one in
-/// dark mode, same as every other sheet - only the orange accent (used for
-/// the selected option and the Done button) stays constant across both. A
-/// choice only takes effect when "Done" is pressed, not the instant a row
-/// is tapped, so picking the wrong row by accident is still recoverable.
+/// The bottom sheet for every settings picker. A choice only applies on "Done".
 class SettingsOptionSheet<T> extends StatefulWidget {
   const SettingsOptionSheet({
     required this.title,
@@ -140,11 +131,6 @@ class _SettingsOptionSheetState<T> extends State<SettingsOptionSheet<T>> {
                             _NoticeBox(text: widget.notice!),
                           ],
                           const SizedBox(height: Spacing.lg),
-                          // The app's own "main action" pill - solid
-                          // `primary` (ink black in light mode, cream in
-                          // dark) with the same dashed stitch as the
-                          // navbar's active tab and the wallet card's own
-                          // border, not a one-off orange fill.
                           SizedBox(
                             width: double.infinity,
                             child: DashedStitchButton(
@@ -221,11 +207,7 @@ class _OptionRow<T> extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
-                      // Selected: `onPrimary` on the solid `primary` fill - the
-                      // same ink/cream pair as the Done button.
-                      // Unselected: the adaptive muted text color, since the
-                      // badge itself is a neutral, theme-aware fill
-                      // (`fieldFill`).
+                      // Selected: `onPrimary` on `primary`; unselected: muted on a neutral fill.
                       child: option.symbolText != null
                           ? Text(
                               option.symbolText!,
@@ -335,11 +317,8 @@ class _NoticeBox extends StatelessWidget {
   }
 }
 
-/// Dashed stitch border, matching the balance card's own [PouchBorder] -
-/// the same visual family, just a plain rounded rect instead of the pouch
-/// silhouette (a sheet has no dip notch to trace). `opaque` draws a
-/// brighter, more solid-reading stitch for a selected option row, where it
-/// needs to read as an active highlight rather than decoration.
+/// A dashed stitch around a rounded rect; [opaque] makes it stronger, for the
+/// selected row.
 class _DashedBorderPainter extends CustomPainter {
   const _DashedBorderPainter({
     required this.color,

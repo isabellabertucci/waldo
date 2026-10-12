@@ -7,10 +7,7 @@ import 'package:waldo/core/widgets/transaction_row.dart';
 
 import '../../models/transaction.dart';
 
-/// A transaction list grouped under month headers ("October 2026"), each
-/// month's transactions in their own soft-shadow card - statement-style,
-/// rather than one flat list with a date repeated as its own section for
-/// every single day.
+/// Transactions grouped by month, each month in its own card.
 class DateGroupedTransactionList extends StatelessWidget {
   const DateGroupedTransactionList({
     super.key,
