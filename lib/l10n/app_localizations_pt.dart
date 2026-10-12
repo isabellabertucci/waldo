@@ -383,7 +383,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get uncategorized => 'Sem categoria';
 
   @override
-  String get savedLabel => 'Poupado';
+  String get monthNetLabel => 'Balanço';
 
   @override
   String dashboardReceiptOtherCategories(int count) {
@@ -467,8 +467,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get transactionsGroupYesterday => 'Ontem';
 
   @override
-  String savedPercentThisMonth(String percent) {
-    return 'Poupaste $percent este mês';
+  String keptPercentThisMonth(String percent) {
+    return 'Ficaste com $percent do que recebeste';
   }
 
   @override

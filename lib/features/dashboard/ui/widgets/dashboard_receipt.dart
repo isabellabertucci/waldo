@@ -197,7 +197,7 @@ class DashboardReceipt extends StatelessWidget {
                       const SizedBox(height: Spacing.sm),
                       ReceiptRow(
                         textStyles: textStyles,
-                        label: l10n.savedLabel.toUpperCase(),
+                        label: l10n.monthNetLabel.toUpperCase(),
                         value: amount(
                           formatCents(saved, currencyCode: currencyCode),
                         ),
