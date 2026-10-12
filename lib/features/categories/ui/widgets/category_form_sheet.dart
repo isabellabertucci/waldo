@@ -15,7 +15,9 @@ import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../categories_x.dart';
 import '../../models/category.dart';
+import '../../repositories/category_repository.dart';
 import '../../viewmodels/category_form_view_model.dart';
+import '../../viewmodels/category_list_view_model.dart';
 
 /// Same shape as the wallet form: grabber, title + close, a Name field,
 /// a grid of types, and the dashed-stitch confirm pill.
@@ -59,13 +61,23 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
     super.dispose();
   }
 
-  String? _validateName(AppLocalizations l10n, String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return l10n.nameRequired;
-    }
-    if (value.trim().length > maxWalletNameLength) {
-      return l10n.nameTooLong;
-    }
+  String? _validateName(
+    AppLocalizations l10n,
+    String? value,
+    List<Category> categories,
+  ) {
+    final name = value?.trim() ?? '';
+    if (name.isEmpty) return l10n.nameRequired;
+    if (name.length > maxWalletNameLength) return l10n.nameTooLong;
+
+    // Compare with what's on screen, so built-ins match in the current language.
+    final lower = name.toLowerCase();
+    final taken = categories.any(
+      (c) =>
+          c.id != widget.category?.id &&
+          c.displayName(l10n).toLowerCase() == lower,
+    );
+    if (taken) return l10n.categoryNameTaken;
     return null;
   }
 
@@ -80,6 +92,13 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
         onSaved(id);
       } else {
         Navigator.of(context).pop();
+      }
+    } on DuplicateCategoryNameException {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.categoryNameTaken)));
       }
     } catch (_) {
       if (mounted) {
@@ -96,6 +115,8 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
     final formState = ref.watch(categoryFormViewModelProvider(widget.category));
+    final categories =
+        ref.watch(categoryListViewModelProvider).value ?? const <Category>[];
     final viewModel = ref.read(
       categoryFormViewModelProvider(widget.category).notifier,
     );
@@ -157,7 +178,7 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
               label: l10n.name,
               hint: l10n.categoryNameHint,
               onChanged: viewModel.updateName,
-              validator: (value) => _validateName(l10n, value),
+              validator: (value) => _validateName(l10n, value, categories),
             ),
             const SizedBox(height: Spacing.md),
             Text(

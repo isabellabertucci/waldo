@@ -285,6 +285,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'There was a problem saving the category. Please try again.';
 
   @override
+  String get categoryNameTaken => 'A category with this name already exists';
+
+  @override
   String get categoryDeleteError =>
       'There was a problem deleting the category. Please try again.';
 
