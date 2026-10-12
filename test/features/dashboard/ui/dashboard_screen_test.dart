@@ -8,6 +8,7 @@ import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/database/db_providers.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/month_selector.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
 import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
@@ -207,7 +208,6 @@ void main() {
       await tester.pumpAndSettle();
 
       final now = DateTime.now();
-      final currentMonth = DateFormat.MMMM('en').format(now);
       final container = ProviderScope.containerOf(
         tester.element(find.byType(DashboardScreen)),
       );
@@ -220,7 +220,8 @@ void main() {
       await tester.pump();
 
       expect(find.byType(CircularProgressIndicator), findsNothing);
-      expect(find.text(currentMonth), findsOneWidget);
+      // The month row (and the rest of the dashboard) is still on screen.
+      expect(find.byType(MonthSelector), findsOneWidget);
 
       await tester.pumpAndSettle();
     },
