@@ -794,11 +794,11 @@ abstract class AppLocalizations {
   /// **'Uncategorized'**
   String get uncategorized;
 
-  /// Label for the net amount saved this month, shown (uppercased) as the total row in the dashboard's receipt summary
+  /// Label for this month's income minus expenses (can be negative), shown (uppercased) as the total row of the dashboard's receipt. Deliberately not 'saved', which reads as money put into savings
   ///
   /// In en, this message translates to:
-  /// **'Saved'**
-  String get savedLabel;
+  /// **'Net'**
+  String get monthNetLabel;
 
   /// Rollup row label on the dashboard's receipt summary for categories past the first few, e.g. 'Other (3)' summing their combined amount
   ///
@@ -920,11 +920,11 @@ abstract class AppLocalizations {
   /// **'Yesterday'**
   String get transactionsGroupYesterday;
 
-  /// Caption on the wallets screen's fixed total balance bar showing this month's savings rate, e.g. 'Saved 60% this month' - percent is pre-formatted
+  /// Caption on the wallets screen: the share of this month's income not spent, e.g. 'Kept 60% of what you received' - percent is pre-formatted
   ///
   /// In en, this message translates to:
-  /// **'Saved {percent} this month'**
-  String savedPercentThisMonth(String percent);
+  /// **'Kept {percent} of what you received'**
+  String keptPercentThisMonth(String percent);
 
   /// Caption on the wallets screen when this month's expenses exceed its income, e.g. 'Spent 50% more than you received' - percent is pre-formatted and positive
   ///
