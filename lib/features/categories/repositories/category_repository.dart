@@ -11,6 +11,8 @@ final _log = Logger('waldo.repository.category');
 
 class CannotModifyDefaultCategoryException implements Exception {}
 
+class DuplicateCategoryNameException implements Exception {}
+
 abstract class ICategoryRepository {
   Future<List<Category>> getAll();
   Future<Category?> getById(int id);
@@ -65,6 +67,10 @@ class CategoryRepositoryImpl implements ICategoryRepository {
       _log.info('insert succeeded: id=$id');
       return id;
     } on DatabaseException catch (e) {
+      if (e.isUniqueConstraintError()) {
+        _log.warning('insert rejected: duplicate name');
+        throw DuplicateCategoryNameException();
+      }
       _log.severe('insert failed', e);
       rethrow;
     }
@@ -97,6 +103,10 @@ class CategoryRepositoryImpl implements ICategoryRepository {
       }
       _log.info('update succeeded: id=$id, affectedRows=$affectedRows');
     } on DatabaseException catch (e) {
+      if (e.isUniqueConstraintError()) {
+        _log.warning('update rejected: duplicate name, id=$id');
+        throw DuplicateCategoryNameException();
+      }
       _log.severe('update failed', e);
       rethrow;
     }

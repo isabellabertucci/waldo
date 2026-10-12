@@ -8,24 +8,14 @@ part of 'clock.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Where the app reads "now" from. The real app uses the device clock;
-/// golden tests override it with a fixed date so their screenshots don't
-/// change from one day to the next.
-///
-/// Returns a function rather than a [DateTime] so the provider can stay
-/// alive for the whole app without freezing time at the moment it was
-/// first read.
+/// Where the app reads "now" from; golden tests override it with a fixed date.
+/// A function, so the long-lived provider never freezes time.
 
 @ProviderFor(clock)
 const clockProvider = ClockProvider._();
 
-/// Where the app reads "now" from. The real app uses the device clock;
-/// golden tests override it with a fixed date so their screenshots don't
-/// change from one day to the next.
-///
-/// Returns a function rather than a [DateTime] so the provider can stay
-/// alive for the whole app without freezing time at the moment it was
-/// first read.
+/// Where the app reads "now" from; golden tests override it with a fixed date.
+/// A function, so the long-lived provider never freezes time.
 
 final class ClockProvider
     extends
@@ -35,13 +25,8 @@ final class ClockProvider
           DateTime Function()
         >
     with $Provider<DateTime Function()> {
-  /// Where the app reads "now" from. The real app uses the device clock;
-  /// golden tests override it with a fixed date so their screenshots don't
-  /// change from one day to the next.
-  ///
-  /// Returns a function rather than a [DateTime] so the provider can stay
-  /// alive for the whole app without freezing time at the moment it was
-  /// first read.
+  /// Where the app reads "now" from; golden tests override it with a fixed date.
+  /// A function, so the long-lived provider never freezes time.
   const ClockProvider._()
     : super(
         from: null,
