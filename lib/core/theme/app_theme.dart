@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/common.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   AppTheme._();
@@ -39,16 +38,16 @@ class AppTheme {
     );
 
     final textTheme = _applyTypeScale(
-      GoogleFonts.interTextTheme(
-        brightness == Brightness.dark
-            ? ThemeData.dark().textTheme
-            : ThemeData.light().textTheme,
-      ),
+      (brightness == Brightness.dark
+              ? ThemeData.dark().textTheme
+              : ThemeData.light().textTheme)
+          .apply(fontFamily: _fontFamily),
     );
 
     return ThemeData(
       brightness: brightness,
       colorScheme: colorScheme,
+      fontFamily: _fontFamily,
       textTheme: textTheme,
       useMaterial3: true,
       scaffoldBackgroundColor: colors.surfaceContainer,
@@ -66,6 +65,9 @@ class AppTheme {
       filledButtonTheme: Common.getFilledButtonTheme(colors),
     );
   }
+
+  /// Bundled in assets/fonts/inter (see pubspec.yaml) - never downloaded.
+  static const _fontFamily = 'Inter';
 
   /// Headlines/titles at weight 500 with tight (-2%) tracking; body copy at
   /// weight 400 with a slightly tightened (-0.5%) tracking to compensate for
