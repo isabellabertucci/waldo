@@ -133,6 +133,49 @@ void main() {
     expect(find.text('Name is required'), findsOneWidget);
   });
 
+  testWidgets('Warns when the name matches a built-in, ignoring case', (
+    tester,
+  ) async {
+    await pumpCategoriesScreen(tester);
+
+    await createCategory(tester, 'groceries');
+
+    expect(
+      find.text('A category with this name already exists'),
+      findsOneWidget,
+    );
+    expect(find.text('New Category'), findsOneWidget);
+  });
+
+  testWidgets('Warns when the name matches another custom category', (
+    tester,
+  ) async {
+    await pumpCategoriesScreen(tester);
+    await createCategory(tester, testCategoryName);
+
+    await createCategory(tester, testCategoryName);
+
+    expect(
+      find.text('A category with this name already exists'),
+      findsOneWidget,
+    );
+    // Caught by the form, not by the database safety net's snackbar.
+    expect(find.byType(SnackBar), findsNothing);
+  });
+
+  testWidgets('Editing a category can keep its own name', (tester) async {
+    await pumpCategoriesScreen(tester);
+    await createCategory(tester, testCategoryName);
+
+    await chooseFromMenu(tester, 'Edit');
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('A category with this name already exists'), findsNothing);
+    expect(find.text('Edit Category'), findsNothing);
+    expect(find.text(testCategoryName), findsOneWidget);
+  });
+
   testWidgets('Deleting a category shows a confirmation dialog first', (
     tester,
   ) async {

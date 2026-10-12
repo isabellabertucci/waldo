@@ -620,6 +620,12 @@ abstract class AppLocalizations {
   /// **'There was a problem saving the category. Please try again.'**
   String get categorySaveError;
 
+  /// Validation error when the user types a category name that is already shown in the list
+  ///
+  /// In en, this message translates to:
+  /// **'A category with this name already exists'**
+  String get categoryNameTaken;
+
   /// Generic error message shown when deleting a category fails
   ///
   /// In en, this message translates to:
