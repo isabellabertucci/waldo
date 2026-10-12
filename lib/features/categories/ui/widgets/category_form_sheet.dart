@@ -127,99 +127,105 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
         Spacing.md,
         Spacing.sm,
         Spacing.md,
-        MediaQuery.of(context).viewInsets.bottom + Spacing.md,
+        MediaQuery.viewInsetsOf(context).bottom +
+            MediaQuery.paddingOf(context).bottom +
+            Spacing.md,
       ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Inside another sheet, the ‹ already says how to leave - no
-            // grabber of its own (same as the transaction sheet's editors).
-            if (onBack == null) ...[
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: colors.onSurface.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(Rounded.pill),
+      child: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Inside another sheet, the ‹ already says how to leave - no
+              // grabber of its own (same as the transaction sheet's editors).
+              if (onBack == null) ...[
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: colors.onSurface.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(Rounded.pill),
+                    ),
                   ),
                 ),
+                const SizedBox(height: Spacing.md),
+              ],
+              Row(
+                children: [
+                  if (onBack != null) ...[
+                    IconButton(
+                      tooltip: l10n.back,
+                      onPressed: onBack,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      icon: const Icon(AppIcons.back),
+                    ),
+                    const SizedBox(width: Spacing.xs),
+                  ],
+                  Expanded(
+                    child: Text(
+                      _isEditing ? l10n.editCategory : l10n.newCategory,
+                      style: context.headlineLgStrong,
+                    ),
+                  ),
+                  if (onBack == null) const SheetCloseButton(),
+                ],
               ),
               const SizedBox(height: Spacing.md),
-            ],
-            Row(
-              children: [
-                if (onBack != null) ...[
-                  IconButton(
-                    tooltip: l10n.back,
-                    onPressed: onBack,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    icon: const Icon(AppIcons.back),
-                  ),
-                  const SizedBox(width: Spacing.xs),
+              FormNameField(
+                fieldKey: const Key('categoryNameField'),
+                controller: _nameController,
+                label: l10n.name,
+                hint: l10n.categoryNameHint,
+                onChanged: viewModel.updateName,
+                validator: (value) => _validateName(l10n, value, categories),
+              ),
+              const SizedBox(height: Spacing.md),
+              Text(
+                l10n.type.toUpperCase(),
+                style: context.bodySmBold.copyWith(
+                  color: colors.onSurfaceVariant,
+                  letterSpacing: 0.4,
+                ),
+              ),
+              const SizedBox(height: Spacing.sm),
+              GridView.count(
+                // Scroll views add the screen's safe-area inset by default; this grid sits mid-sheet.
+                padding: EdgeInsets.zero,
+                crossAxisCount: 3,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: Spacing.sm,
+                crossAxisSpacing: Spacing.sm,
+                childAspectRatio: 1.05,
+                children: [
+                  for (final type in CategoryType.values)
+                    OptionTile(
+                      icon: type.icon,
+                      label: type.label(l10n),
+                      selected: type == formState.type,
+                      onTap: () => viewModel.updateType(type),
+                    ),
                 ],
-                Expanded(
-                  child: Text(
-                    _isEditing ? l10n.editCategory : l10n.newCategory,
-                    style: context.headlineLgStrong,
+              ),
+              const SizedBox(height: Spacing.md),
+              SizedBox(
+                width: double.infinity,
+                child: DashedStitchButton(
+                  icon: const Icon(AppIcons.check, size: IconSize.md),
+                  label: _isEditing ? l10n.saveChanges : l10n.createCategory,
+                  onPressed: () => _save(viewModel),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.sm,
+                    vertical: Spacing.md,
                   ),
                 ),
-                if (onBack == null) const SheetCloseButton(),
-              ],
-            ),
-            const SizedBox(height: Spacing.md),
-            FormNameField(
-              fieldKey: const Key('categoryNameField'),
-              controller: _nameController,
-              label: l10n.name,
-              hint: l10n.categoryNameHint,
-              onChanged: viewModel.updateName,
-              validator: (value) => _validateName(l10n, value, categories),
-            ),
-            const SizedBox(height: Spacing.md),
-            Text(
-              l10n.type.toUpperCase(),
-              style: context.bodySmBold.copyWith(
-                color: colors.onSurfaceVariant,
-                letterSpacing: 0.4,
               ),
-            ),
-            const SizedBox(height: Spacing.sm),
-            GridView.count(
-              crossAxisCount: 3,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: Spacing.sm,
-              crossAxisSpacing: Spacing.sm,
-              childAspectRatio: 1.05,
-              children: [
-                for (final type in CategoryType.values)
-                  OptionTile(
-                    icon: type.icon,
-                    label: type.label(l10n),
-                    selected: type == formState.type,
-                    onTap: () => viewModel.updateType(type),
-                  ),
-              ],
-            ),
-            const SizedBox(height: Spacing.md),
-            SizedBox(
-              width: double.infinity,
-              child: DashedStitchButton(
-                icon: const Icon(AppIcons.check, size: IconSize.md),
-                label: _isEditing ? l10n.saveChanges : l10n.createCategory,
-                onPressed: () => _save(viewModel),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.sm,
-                  vertical: Spacing.md,
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
