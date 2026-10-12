@@ -11,6 +11,8 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/dashed_border.dart';
+import 'package:waldo/core/widgets/secondary_button.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/categories/categories_x.dart';
@@ -56,6 +58,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _amountController;
   late final TextEditingController _descriptionController;
+  final _amountFocus = FocusNode();
 
   @override
   void initState() {
@@ -68,12 +71,15 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     );
     _amountController = TextEditingController(text: initial.amount);
     _descriptionController = TextEditingController(text: initial.description);
+    // Redraw so the amount card's stitch follows focus.
+    _amountFocus.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _amountController.dispose();
     _descriptionController.dispose();
+    _amountFocus.dispose();
     super.dispose();
   }
 
@@ -209,72 +215,80 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                 ],
               ),
               const SizedBox(height: Spacing.md),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.sm,
-                  vertical: Spacing.sm,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.surfaceContainer,
-                  borderRadius: BorderRadius.circular(Rounded.lg),
-                  border: Border.all(color: colors.primary, width: 2),
-                ),
-                child: Column(
-                  children: [
-                    TransactionTypeToggle(
-                      selected: formState.type,
-                      onChanged: viewModel.updateType,
-                    ),
-                    const SizedBox(height: Spacing.xs),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          '${isIncome ? '+' : '-'}$currencySymbol',
-                          style: context.amountDisplayBold.copyWith(
-                            color: amountColor,
-                          ),
-                        ),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 160),
-                          child: TextFormField(
-                            key: const Key('transactionAmountField'),
-                            controller: _amountController,
-                            onChanged: viewModel.updateAmount,
-                            validator: (value) => _validateAmount(l10n, value),
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'[0-9.,]'),
-                              ),
-                            ],
-                            textAlign: TextAlign.center,
-                            decoration: InputDecoration(
-                              isCollapsed: true,
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              focusedErrorBorder: InputBorder.none,
-                              filled: false,
-                              hintText: '0.00',
-                              hintStyle: context.amountDisplayBold.copyWith(
-                                color: colors.onSurfaceVariant,
-                              ),
-                            ),
+              DashedBorder(
+                radius: Rounded.lg,
+                color: _amountFocus.hasFocus
+                    ? colors.primary
+                    : colors.transparent,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.sm,
+                    vertical: Spacing.sm,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.surfaceContainer,
+                    borderRadius: BorderRadius.circular(Rounded.lg),
+                  ),
+                  child: Column(
+                    children: [
+                      TransactionTypeToggle(
+                        selected: formState.type,
+                        onChanged: viewModel.updateType,
+                      ),
+                      const SizedBox(height: Spacing.xs),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            '${isIncome ? '+' : '-'}$currencySymbol',
                             style: context.amountDisplayBold.copyWith(
-                              color: colors.onSurface,
+                              color: amountColor,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 160),
+                            child: TextFormField(
+                              key: const Key('transactionAmountField'),
+                              controller: _amountController,
+                              focusNode: _amountFocus,
+                              onChanged: viewModel.updateAmount,
+                              validator: (value) =>
+                                  _validateAmount(l10n, value),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'[0-9.,]'),
+                                ),
+                              ],
+                              textAlign: TextAlign.center,
+                              decoration: InputDecoration(
+                                isCollapsed: true,
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
+                                errorBorder: InputBorder.none,
+                                focusedErrorBorder: InputBorder.none,
+                                filled: false,
+                                hintText: '0.00',
+                                hintStyle: context.amountDisplayBold.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                              ),
+                              style: context.amountDisplayBold.copyWith(
+                                color: colors.onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: Spacing.md),
@@ -289,15 +303,10 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                       ),
                     ),
                   ),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      foregroundColor: colors.primaryStrong,
-                      padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
+                  SecondaryButton(
+                    label: l10n.manageCategories,
+                    onSheet: true,
                     onPressed: () => const CategoriesRoute().push(context),
-                    child: Text(l10n.manageCategories),
                   ),
                 ],
               ),
@@ -482,10 +491,6 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                   icon: const Icon(AppIcons.check, size: IconSize.md),
                   label: isIncome ? l10n.addIncome : l10n.addExpense,
                   onPressed: () => _save(viewModel),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Spacing.sm,
-                    vertical: Spacing.md,
-                  ),
                 ),
               ),
             ],
@@ -557,41 +562,39 @@ class _CategoryChip extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(Rounded.pill),
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.only(
-            left: Spacing.xs,
-            right: Spacing.sm,
-            top: Spacing.xs,
-            bottom: Spacing.xs,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Rounded.pill),
-            border: selected
-                ? Border.all(color: colors.primary, width: 1.5)
-                : null,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: colors.surface,
-                  shape: BoxShape.circle,
+        child: DashedBorder(
+          radius: Rounded.pill,
+          color: selected ? colors.primary : colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.only(
+              left: Spacing.xs,
+              right: Spacing.sm,
+              top: Spacing.xs,
+              bottom: Spacing.xs,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    size: IconSize.sm,
+                    color: colors.onSurfaceVariant,
+                  ),
                 ),
-                child: Icon(
-                  icon,
-                  size: IconSize.sm,
-                  color: colors.onSurfaceVariant,
+                const SizedBox(width: Spacing.xs),
+                Text(
+                  label,
+                  style: selected ? context.bodyMdBold : context.bodyMdStrong,
                 ),
-              ),
-              const SizedBox(width: Spacing.xs),
-              Text(
-                label,
-                style: selected ? context.bodyMdBold : context.bodyMdStrong,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -617,34 +620,31 @@ class _NewCategoryChip extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(Rounded.pill),
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: Spacing.sm,
-            vertical: Spacing.sm,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Rounded.pill),
-            border: Border.all(
-              color: colors.onSurfaceVariant.withValues(alpha: 0.4),
-              style: BorderStyle.solid,
+        child: DashedBorder(
+          radius: Rounded.pill,
+          color: colors.onSurfaceVariant.withValues(alpha: 0.4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: Spacing.sm,
+              vertical: Spacing.sm,
             ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                AppIcons.add,
-                size: IconSize.md,
-                color: colors.onSurfaceVariant,
-              ),
-              const SizedBox(width: Spacing.xxs),
-              Text(
-                l10n.addNewCategory,
-                style: context.bodyMdStrong.copyWith(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  AppIcons.add,
+                  size: IconSize.md,
                   color: colors.onSurfaceVariant,
                 ),
-              ),
-            ],
+                const SizedBox(width: Spacing.xxs),
+                Text(
+                  l10n.addNewCategory,
+                  style: context.bodyMdStrong.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
