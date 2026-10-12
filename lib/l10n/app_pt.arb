@@ -117,7 +117,7 @@
   "dashboardError": "Ocorreu um problema ao carregar o teu painel. Tenta novamente.",
   "dashboardReceiptHeader": "WALDO · {month} {year}",
   "uncategorized": "Sem categoria",
-  "savedLabel": "Poupado",
+  "monthNetLabel": "Balanço",
   "dashboardReceiptOtherCategories": "{count, plural, one{Outra (1)} other{Outras ({count})}}",
   "seeAll": "Ver todas",
   "categorySpendingEmptyHint": "Adiciona a tua primeira transação para a veres dividida por categoria aqui.",
@@ -138,7 +138,7 @@
   "noTransactionsForFilter": "Nenhuma transação corresponde a este filtro.",
   "transactionsGroupToday": "Hoje",
   "transactionsGroupYesterday": "Ontem",
-  "savedPercentThisMonth": "Poupaste {percent} este mês",
+  "keptPercentThisMonth": "Ficaste com {percent} do que recebeste",
   "overspentPercentThisMonth": "Gastaste mais {percent} do que recebeste",
   "walletsCountLabel": "{count, plural, one{1 carteira} other{{count} carteiras}}"
 }

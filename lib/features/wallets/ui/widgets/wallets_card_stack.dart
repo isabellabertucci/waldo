@@ -55,7 +55,7 @@ class WalletsCardStack extends StatelessWidget {
     final captionText = switch (roundedPercent) {
       null => l10n.walletsCountLabel(n),
       final p when p < 0 => l10n.overspentPercentThisMonth('${-p}%'),
-      final p => l10n.savedPercentThisMonth('$p%'),
+      final p => l10n.keptPercentThisMonth('$p%'),
     };
 
     // Not reversed, and not pinned outside the scroll either - Total
