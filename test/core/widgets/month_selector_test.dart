@@ -31,4 +31,36 @@ void main() {
     expect(find.text('Nov'), findsOneWidget); // next November, this year
     expect(find.text('Nov 2025'), findsOneWidget); // last November
   });
+
+  testWidgets('Dragging past the current month snaps back to it, so no '
+      'month is left half-cut', (tester) async {
+    tester.view.physicalSize = const Size(402, 874);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final months = [
+      for (var i = 11; i >= 0; i--) DateTime(2026, 10 - i),
+      DateTime(2026, 11),
+    ];
+    final db = await pumpWidgetWithProviders(
+      tester,
+      Scaffold(
+        body: MonthSelector(
+          months: months,
+          selectedMonth: DateTime(2026, 10),
+          currentMonth: DateTime(2026, 10),
+          locale: 'en',
+          onSelect: (_) {},
+        ),
+      ),
+    );
+    addTearDown(db.close);
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.text('October'), const Offset(-300, 0));
+    await tester.pumpAndSettle();
+
+    final center = tester.getCenter(find.text('October')).dx;
+    final rowCenter = tester.getCenter(find.byType(SingleChildScrollView)).dx;
+    expect(center, moreOrLessEquals(rowCenter, epsilon: 1));
+  });
 }
