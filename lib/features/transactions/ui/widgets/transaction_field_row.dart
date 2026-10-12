@@ -29,6 +29,10 @@ class FieldBadge extends StatelessWidget {
 /// badge plus label/value in its own card, with a trailing chevron.
 /// [hasError] outlines the card in the error color when the field is
 /// required but still empty.
+///
+/// With [grouped], the row has no card of its own - it sits inside a shared
+/// card with other rows (divided by hairlines), and [hasError] colors the
+/// value instead of outlining it.
 class EditFieldRow extends StatelessWidget {
   const EditFieldRow({
     super.key,
@@ -37,6 +41,7 @@ class EditFieldRow extends StatelessWidget {
     required this.value,
     required this.onTap,
     this.hasError = false,
+    this.grouped = false,
   });
 
   final IconData icon;
@@ -44,19 +49,21 @@ class EditFieldRow extends StatelessWidget {
   final String value;
   final VoidCallback onTap;
   final bool hasError;
+  final bool grouped;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final radius = grouped ? null : BorderRadius.circular(Rounded.lg);
 
     return Material(
-      color: colors.surfaceContainer,
-      borderRadius: BorderRadius.circular(Rounded.lg),
+      color: grouped ? colors.transparent : colors.surfaceContainer,
+      borderRadius: radius,
       child: InkWell(
-        borderRadius: BorderRadius.circular(Rounded.lg),
+        borderRadius: radius,
         onTap: onTap,
         child: Container(
-          decoration: hasError
+          decoration: hasError && !grouped
               ? BoxDecoration(
                   borderRadius: BorderRadius.circular(Rounded.lg),
                   border: Border.all(color: colors.error, width: 1.5),
@@ -85,7 +92,9 @@ class EditFieldRow extends StatelessWidget {
                       value,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: context.bodyMdBold,
+                      style: hasError && grouped
+                          ? context.bodyMdBold.copyWith(color: colors.error)
+                          : context.bodyMdBold,
                     ),
                   ],
                 ),
