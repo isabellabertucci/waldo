@@ -26,6 +26,7 @@ class CategoriesScreen extends ConsumerWidget {
       context: context,
       useRootNavigator: true,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (_) => CategoryFormSheet(category: category),
     );
   }

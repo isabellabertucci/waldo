@@ -175,7 +175,9 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
         Spacing.md,
         Spacing.sm,
         Spacing.md,
-        MediaQuery.of(context).viewInsets.bottom + Spacing.md,
+        MediaQuery.viewInsetsOf(context).bottom +
+            MediaQuery.paddingOf(context).bottom +
+            Spacing.md,
       ),
       child: SingleChildScrollView(
         child: Form(
