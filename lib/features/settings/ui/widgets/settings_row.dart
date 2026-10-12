@@ -13,7 +13,7 @@ class SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: Spacing.sm, left: Spacing.xxs),
+      padding: const EdgeInsets.only(bottom: Spacing.xs),
       child: Text(
         title.toUpperCase(),
         style: context.labelXs.copyWith(
@@ -33,6 +33,8 @@ class SettingsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      // No outer margin, so the card lines up with the page gutter.
+      margin: EdgeInsets.zero,
       child: Column(
         children: [
           for (var i = 0; i < children.length; i++) ...[
@@ -52,7 +54,8 @@ class _RowDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Divider(
       height: 1,
-      indent: Spacing.lg + 36 + Spacing.sm,
+      // Starts under the title: row padding + badge + title gap.
+      indent: Spacing.sm + 36 + Spacing.component,
       color: context.appColors.onSurfaceVariant.withValues(alpha: 0.12),
     );
   }
@@ -83,9 +86,10 @@ class SettingsRow extends StatelessWidget {
     return ListTile(
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(
-        horizontal: Spacing.lg,
-        vertical: Spacing.xs,
+        horizontal: Spacing.sm,
+        vertical: Spacing.xxs,
       ),
+      horizontalTitleGap: Spacing.component,
       leading: Container(
         width: 36,
         height: 36,

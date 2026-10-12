@@ -49,4 +49,8 @@ abstract final class AppIcons {
   static const check = PhosphorIconsRegular.check;
   static const chevronRight = PhosphorIconsRegular.caretRight;
   static const info = PhosphorIconsRegular.info;
+
+  // Settings
+  static const currency = PhosphorIconsRegular.currencyDollar;
+  static const theme = PhosphorIconsRegular.moon;
 }
