@@ -7,8 +7,8 @@ description: >
   all. The only hue in the system is a single burnt orange, reserved
   exclusively for errors and negative/expense amounts, so it reads as a true
   signal rather than decoration. Shapes lean soft and pill-like (stadium
-  buttons, large-radius cards), type is Inter with tight negative tracking on
-  display text, and the one piece of "material" flourish - a leather wallet
+  buttons, large-radius cards), type is the platform's system font (SF Pro
+  on iOS, Roboto on Android) with tight negative tracking on display text, and the one piece of "material" flourish - a leather wallet
   card with a metallic finish - is deliberately fixed (dark ink + cream)
   across both themes, because a physical wallet doesn't change color when
   the room lights dim.
@@ -41,121 +41,121 @@ colors:
   field-border-dark: "#353330"
 typography:
   headline-display:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 32px
     fontWeight: 500
     lineHeight: 1.15
     letterSpacing: -0.64px
   headline-lg:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 22px
     fontWeight: 500
     lineHeight: 1.2
     letterSpacing: -0.44px
   headline-md:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 16px
     fontWeight: 500
     lineHeight: 1.2
     letterSpacing: -0.32px
   body-lg:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 16px
     fontWeight: 400
     lineHeight: 1.4
     letterSpacing: -0.08px
   body-md:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 14px
     fontWeight: 400
     lineHeight: 1.4
     letterSpacing: -0.07px
   body-sm:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 12px
     fontWeight: 400
     lineHeight: 1.4
     letterSpacing: -0.06px
   label-lg:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 14px
     fontWeight: 500
     lineHeight: 1.1
     letterSpacing: -0.42px
   label-md:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 12px
     fontWeight: 500
     lineHeight: 1.1
     letterSpacing: -0.36px
   label-sm:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 11px
     fontWeight: 500
     lineHeight: 1.1
     letterSpacing: -0.33px
   label-xs:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 11px
     fontWeight: 600
     lineHeight: 1.1
     letterSpacing: 0.4px
   body-md-strong:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 14px
     fontWeight: 600
     lineHeight: 1.4
     letterSpacing: -0.07px
   body-md-bold:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 14px
     fontWeight: 700
     lineHeight: 1.4
     letterSpacing: -0.07px
   body-sm-bold:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 12px
     fontWeight: 700
     lineHeight: 1.4
     letterSpacing: -0.06px
   label-lg-strong:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 14px
     fontWeight: 700
     lineHeight: 1.1
     letterSpacing: -0.42px
   label-sm-bold:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 11px
     fontWeight: 700
     lineHeight: 1.1
     letterSpacing: -0.33px
   headline-md-strong:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 16px
     fontWeight: 600
     lineHeight: 1.2
     letterSpacing: -0.32px
   headline-lg-strong:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 22px
     fontWeight: 800
     lineHeight: 1.2
     letterSpacing: -0.44px
   headline-sm-bold:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 24px
     fontWeight: 800
     lineHeight: 1.2
     letterSpacing: -0.48px
   amount-display-bold:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 28px
     fontWeight: 800
     lineHeight: 1.2
     letterSpacing: -0.56px
   headline-display-strong:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 28px
     fontWeight: 900
     lineHeight: 1.1
@@ -301,7 +301,8 @@ leather wallet doesn't change color because the room got darker.
 
 ## Typography
 
-Everything is set in **Inter**. The base system has two weights - `500` for
+Everything is set in the **platform's system font** - SF Pro on iOS, Roboto
+on Android - so nothing is bundled or downloaded. The base system has two weights - `500` for
 anything that reads as a heading/label (with tight, slightly negative
 tracking), and `400` for body copy (with a touch of negative tracking to
 compensate for the lack of a true 450 weight) - plus four heavier "strong"
