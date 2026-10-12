@@ -24,6 +24,7 @@ abstract final class AppIcons {
   static const categorySubscriptions = PhosphorIconsRegular.repeat;
   static const categoryEducation = PhosphorIconsRegular.graduationCap;
   static const categoryInvestments = PhosphorIconsRegular.trendUp;
+  static const categoryOthers = PhosphorIconsRegular.dotsThreeCircle;
   static const categoryGeneric = PhosphorIconsRegular.tag;
 
   // Transactions

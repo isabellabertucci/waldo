@@ -656,6 +656,12 @@ abstract class AppLocalizations {
   /// **'Investments'**
   String get categoryTypeInvestments;
 
+  /// Label for the catch-all category type, for anything that fits none of the others
+  ///
+  /// In en, this message translates to:
+  /// **'Others'**
+  String get categoryTypeOthers;
+
   /// Label for selecting no category on a transaction
   ///
   /// In en, this message translates to:
