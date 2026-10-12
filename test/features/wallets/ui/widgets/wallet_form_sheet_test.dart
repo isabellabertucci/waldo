@@ -49,4 +49,49 @@ void main() {
       expect(find.text('Create wallet').hitTestable(), findsOneWidget);
     },
   );
+
+  testWidgets('On a small Android phone with large text, dragging the sheet '
+      'reveals the button above the navigation bar', (tester) async {
+    // 360x640 with a 24dp status bar and a 48dp three-button nav bar.
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1.0;
+    tester.view.padding = const FakeViewPadding(top: 24, bottom: 48);
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    currentDb = await pumpWidgetWithProviders(
+      tester,
+      Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => showWalletFormSheet(context),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+
+    await tester.drag(find.text('TYPE'), const Offset(0, -400));
+    await tester.pumpAndSettle();
+
+    // The content really overflowed, so the drag scrolled it.
+    final scrollable = tester.state<ScrollableState>(
+      find
+          .descendant(
+            of: find.byType(WalletFormSheet),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    expect(scrollable.position.pixels, greaterThan(0));
+
+    final button = find.text('Create wallet');
+    expect(button.hitTestable(), findsOneWidget);
+    expect(tester.getBottomLeft(button).dy, lessThanOrEqualTo(640 - 48));
+  });
 }
