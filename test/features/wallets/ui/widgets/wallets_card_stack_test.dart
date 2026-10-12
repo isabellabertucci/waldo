@@ -7,7 +7,11 @@ import 'package:waldo/features/wallets/ui/widgets/wallets_card_stack.dart';
 import '../../../../helpers/test_app.dart';
 
 void main() {
-  Future<void> pumpStack(WidgetTester tester, double? savedPercent) async {
+  Future<void> pumpStack(
+    WidgetTester tester,
+    double? savedPercent, {
+    ValueChanged<Wallet>? onTapWallet,
+  }) async {
     final db = await pumpWidgetWithProviders(
       tester,
       Scaffold(
@@ -18,7 +22,7 @@ void main() {
           currency: Currency.usd,
           isBalanceHidden: false,
           savedPercent: savedPercent,
-          onTapWallet: (_) {},
+          onTapWallet: onTapWallet ?? (_) {},
           onEditWallet: (_) {},
           onDeleteWallet: (_) {},
         ),
@@ -40,5 +44,19 @@ void main() {
   testWidgets('A rate that rounds to 0 reads as kept 0%', (tester) async {
     await pumpStack(tester, -0.3);
     expect(find.text('Kept 0% of what you received'), findsOneWidget);
+  });
+
+  testWidgets('Tapping the empty lower part of a card opens the wallet', (
+    tester,
+  ) async {
+    Wallet? tapped;
+    await pumpStack(tester, null, onTapWallet: (w) => tapped = w);
+
+    // Bottom-left corner, well away from the name, type and balance.
+    final card = tester.getRect(find.byKey(const Key('walletCard_1')));
+    await tester.tapAt(card.bottomLeft + const Offset(24, -16));
+    await tester.pumpAndSettle();
+
+    expect(tapped?.id, 1);
   });
 }
