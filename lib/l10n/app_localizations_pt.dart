@@ -308,6 +308,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get categoryTypeInvestments => 'Investimentos';
 
   @override
+  String get categoryTypeOthers => 'Outros';
+
+  @override
   String get none => 'Nenhuma';
 
   @override

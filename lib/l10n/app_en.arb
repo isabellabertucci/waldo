@@ -388,6 +388,10 @@
   "@categoryTypeInvestments": {
     "description": "Investments category type"
   },
+  "categoryTypeOthers": "Others",
+  "@categoryTypeOthers": {
+    "description": "Label for the catch-all category type, for anything that fits none of the others"
+  },
   "none": "None",
   "@none": {
     "description": "Label for selecting no category on a transaction"
