@@ -24,10 +24,7 @@ class BadgeStyle {
 }
 
 extension WalletTypeStyle on WalletType {
-  /// Wallet types are told apart by icon, not color - the design system
-  /// keeps a single restrained palette. Credit is the one exception: it can
-  /// carry a negative (debt) balance, so it borrows the app's one sparing
-  /// accent color to flag that.
+  /// Types are told apart by icon; only Credit gets the accent, as it can be negative.
   BadgeStyle style(AppColors colors) {
     final color = this == WalletType.credit
         ? colors.error

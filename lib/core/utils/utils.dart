@@ -4,10 +4,8 @@ import 'package:intl/intl.dart' show NumberFormat;
 /// (the eye button) is on.
 const hiddenAmount = '••••••';
 
-/// Parses a plain amount such as "10", "10.5", "10,5", or "10.50"
-/// into cents without using floating-point arithmetic. Accepts both
-/// '.' and ',' as the decimal separator, since the app supports
-/// English (10.50) and Portuguese (10,50) input conventions.
+/// Parses an amount like "10", "10.5" or "10,50" into cents, with no floating
+/// point. Accepts '.' and ',' as the decimal separator.
 int? parseToCents(String input, {required bool allowNegative}) {
   final value = input.trim();
   if (value.isEmpty) return null;

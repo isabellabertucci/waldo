@@ -58,10 +58,6 @@ class WalletsCardStack extends StatelessWidget {
       final p => l10n.keptPercentThisMonth('$p%'),
     };
 
-    // Not reversed, and not pinned outside the scroll either - Total
-    // Balance is just the first thing in normal top-to-bottom order, so
-    // it's visible immediately on load without needing any fixed/sticky
-    // treatment, and still scrolls away naturally like everything else.
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(
         Spacing.pageMargin,
@@ -170,11 +166,7 @@ class _WalletCard extends StatelessWidget {
             ),
           ),
 
-          // A soft shadow along the top edge - every card here sits in
-          // front of the one before it, so this reads as depth at the
-          // seam instead of each card looking like a flat layer pasted
-          // on top of the last. Lighter than on the old dark cards - the
-          // same strength would read as a smudge on these light metals.
+          // A soft shadow along the top edge, for depth where the cards overlap.
           Positioned(
             top: 0,
             left: 0,
@@ -232,9 +224,7 @@ class _WalletCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    // Clears the kebab button overlaid in the corner, so a
-                    // long name ellipsizes before running under it instead
-                    // of behind it.
+                    // Leaves room for the menu button, so long names ellipsize before it.
                     padding: const EdgeInsets.only(right: 36),
                     child: Text(
                       wallet.name,
@@ -271,10 +261,7 @@ class _WalletCard extends StatelessWidget {
                         balanceText,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        // titleMedium+w800 is a one-off here, not
-                        // headline-md-strong (titleMedium+w600) - this is
-                        // the wallet card's own balance figure, a step
-                        // heavier than the section-header use of titleMedium.
+                        // one-off: titleMedium + w800 for the card's balance figure.
                         style: context.textTheme.titleMedium?.copyWith(
                           color: isNegative && !isBalanceHidden
                               ? walletCardNegativeColor(context)
@@ -300,9 +287,7 @@ class _WalletCard extends StatelessWidget {
   }
 }
 
-/// The edit/delete overflow menu, now a real sibling in the top Row
-/// instead of an absolutely-`Positioned` overlay guessed into alignment
-/// with it.
+/// The card's edit/delete menu.
 class _CardMenuButton extends StatelessWidget {
   const _CardMenuButton({required this.onEdit, required this.onDelete});
 

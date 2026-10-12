@@ -12,26 +12,14 @@ import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../models/dashboard_data.dart';
 
-/// Width of the receipt's paper strip - narrower than the wallet above it
-/// (like a real receipt sticking out of a pocket), so it reads as one
-/// continuous object with the balance card rather than a separate section.
+/// The receipt is narrower than the wallet card above it.
 const _receiptWidth = 300.0;
 
-/// How many category rows the receipt lists individually before collapsing
-/// the rest into one "Other" line - a heavy user with dozens of categories
-/// in a month would otherwise turn this into an endlessly scrolling slip.
-/// [spendingByCategory] already arrives sorted by amount descending, so
-/// this keeps the biggest, most useful lines and rolls the long tail into
-/// one total that still reconciles with EXPENSE above it; the whole receipt
-/// is already a tap-through to the full list for anyone who wants the rest.
+/// Category rows shown before the rest collapse into one "Other" line.
 const _maxCategoryRows = 5;
 
-/// This month's income, expense and category breakdown, drawn as a
-/// receipt attached directly under the balance card instead of as
-/// separate stat cards - replaces [MonthlySummaryRow] and
-/// [CategorySpendingList]. The whole receipt is one tap target through to
-/// the full transaction list, since that's what a real receipt is a
-/// shorthand for.
+/// This month's income, expense and categories, drawn as a receipt under the
+/// balance card. Tapping it opens the full transaction list.
 class DashboardReceipt extends StatelessWidget {
   const DashboardReceipt({
     super.key,
@@ -59,10 +47,7 @@ class DashboardReceipt extends StatelessWidget {
   final bool isBalanceHidden;
   final Currency currency;
 
-  /// Whether at least one wallet exists yet - with none, there is nothing
-  /// to tap through to and no transaction to add, so the receipt shows a
-  /// simple "comes later" message instead of the dashed hint-box CTA used
-  /// when a wallet exists but this month has no transactions yet.
+  /// With no wallet yet, the receipt shows a "comes later" message instead.
   final bool hasWallets;
   final VoidCallback onTap;
   final VoidCallback onAddTransaction;
@@ -111,9 +96,7 @@ class DashboardReceipt extends StatelessWidget {
                           '$year',
                         ),
                         textAlign: TextAlign.center,
-                        // Receipt-print header: its own fixed small-caps
-                        // size + wide tracking, distinct from the app's
-                        // label-xs (which uses a tighter 0.4 tracking).
+                        // The receipt header's own size and tracking.
                         style: textStyles.bodySmall?.copyWith(
                           fontSize: 11, // one-off
                           letterSpacing: 0.8,
@@ -223,9 +206,7 @@ class DashboardReceipt extends StatelessWidget {
   }
 }
 
-/// The receipt's shell (header, dashed divider, zigzag paper edge) with no
-/// wallets to report on yet - same object as the filled-in receipt, just
-/// with nothing printed on it yet.
+/// An empty receipt, for when there are no wallets yet.
 class _NoWalletReceipt extends StatelessWidget {
   const _NoWalletReceipt({required this.monthLabel, required this.year});
 
@@ -287,9 +268,7 @@ class _NoWalletReceipt extends StatelessWidget {
   }
 }
 
-/// Shown instead of the receipt when there's no income, expense or category
-/// spending yet this month - matches the old [CategorySpendingList] empty
-/// state so the "nothing here yet" call to action survives the redesign.
+/// Shown instead of the receipt when this month has no transactions yet.
 class _EmptyReceipt extends StatelessWidget {
   const _EmptyReceipt({required this.onAddTransaction});
 
