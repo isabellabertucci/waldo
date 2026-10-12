@@ -5,11 +5,8 @@ import 'package:waldo/features/transactions/repositories/transaction_repository.
 
 part 'wallets_summary_view_model.g.dart';
 
-/// This calendar month's income/expense across every wallet, independent of
-/// the dashboard's own month picker - the wallets screen isn't scoped to a
-/// selected month, so it can't reuse [dashboardViewModelProvider]'s figures
-/// without risking a stale "this month" if the user left the dashboard
-/// pointed at a different month.
+/// This calendar month's income/expense across all wallets, independent of
+/// the dashboard's selected month.
 class WalletsSummary {
   const WalletsSummary({
     required this.savedThisMonth,

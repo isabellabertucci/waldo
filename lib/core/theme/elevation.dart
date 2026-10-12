@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Waldo is almost entirely flat - most surfaces sit directly on the page
-/// with no shadow, separated only by a `surface`/`surfaceContainer` color
-/// step. These two levels cover the rare cases that need to visibly lift
-/// off the page: a large, low-opacity spread rather than a hard drop
-/// shadow, so elevation reads as "resting slightly above" rather than a
-/// directional light source.
+/// Shadows for the few surfaces that lift off the page: a large, soft spread
+/// rather than a hard drop shadow.
 class Elevation {
   Elevation._();
 
@@ -27,8 +23,6 @@ class Elevation {
     ),
   ];
 
-  /// `shadowColor` form of [high], for widgets (`Card`, `Material`) that
-  /// take a single shadow color + `elevation` rather than a `BoxShadow`
-  /// list.
+  /// [high] as a single `shadowColor`, for widgets that take `elevation`.
   static const highShadowColor = Color(0x1F000000);
 }

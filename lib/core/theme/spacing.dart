@@ -1,9 +1,7 @@
 class Spacing {
   Spacing._();
 
-  // Micro scale - internals of small, dense widgets (pill toggles, filter
-  // chips, dialog action rows) where the page scale below reads as too
-  // loose.
+  // Micro scale - inside small, dense widgets (toggles, chips).
   static const double xxs = 4;
   static const double component = 12;
 

@@ -3,10 +3,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
-/// A plain `surface` disc with a soft shadow, used for secondary header
-/// actions (edit/delete/back) on the wallets and per-wallet-transactions
-/// screens - distinct from the dashed-stitch pill, which is reserved for
-/// the one primary action on a screen.
+/// A `surface` disc with a soft shadow, for secondary header actions.
 class CircleIconButton extends StatelessWidget {
   const CircleIconButton({
     super.key,

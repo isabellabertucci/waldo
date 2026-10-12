@@ -28,9 +28,7 @@ import 'transaction_type_toggle.dart';
 
 final _log = Logger('waldo.ui.transaction_form');
 
-/// Opens the classic field-by-field form for creating a brand-new
-/// transaction - kept separate from [showTransactionEditSheet], which is
-/// reserved for viewing/editing a transaction that already exists.
+/// Opens the form for a new transaction.
 Future<void> showTransactionFormSheet(
   BuildContext context, {
   int? initialWalletId,
@@ -303,8 +301,8 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
               ),
               const SizedBox(height: Spacing.sm),
               switch (categoriesAsync) {
-                // One row that scrolls sideways, not a wrapping grid - every
-                // extra category used to add a whole row to the sheet.
+                // One row that scrolls sideways, so more categories never make
+                // the sheet taller.
                 AsyncValue(:final value?) => SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(

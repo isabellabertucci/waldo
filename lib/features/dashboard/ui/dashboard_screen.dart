@@ -76,9 +76,7 @@ class _DashboardBody extends ConsumerWidget {
         _monthPickerRange,
         (i) => DateTime(now.year, now.month - i),
       ).reversed,
-      // One month past "today", shown (but disabled) so the row doesn't
-      // dead-end right at the selected pill - same reasoning as keeping a
-      // calendar's "next month" arrow visible even with nothing on it yet.
+      // Next month too, shown disabled, so the row doesn't end at the selected pill.
       DateTime(now.year, now.month + 1),
     ];
     final hasCashFlowData = data.monthlyCashFlow.any(
@@ -88,9 +86,7 @@ class _DashboardBody extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: Spacing.lg),
       children: [
-        // Nothing to filter by month yet with zero wallets - the selector
-        // only makes sense once there's at least one wallet's worth of
-        // transactions it could actually narrow down.
+        // No month row until there's a wallet.
         if (data.walletCount > 0) ...[
           MonthSelector(
             months: months,
