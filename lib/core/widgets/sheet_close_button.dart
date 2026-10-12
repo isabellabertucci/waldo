@@ -5,9 +5,7 @@ import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
-/// The ✕ in the top corner of a bottom sheet - a tinted, shadowless disc
-/// (the sheet is already its own raised surface, unlike [CircleIconButton]'s
-/// page-level buttons) that closes the sheet.
+/// The ✕ that closes a bottom sheet: a tinted disc with no shadow.
 class SheetCloseButton extends StatelessWidget {
   const SheetCloseButton({super.key});
 

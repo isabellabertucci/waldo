@@ -201,9 +201,8 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-/// A [SurfaceCard] of category rows with a hairline divider between each -
-/// the same statement-card look as the transaction lists. Rows only get the
-/// edit/delete menu when [onEdit]/[onDelete] are given (custom categories).
+/// A [SurfaceCard] of category rows. Rows get the edit/delete menu only when
+/// [onEdit]/[onDelete] are given (custom categories).
 class _CategoryGroup extends StatelessWidget {
   const _CategoryGroup({required this.categories, this.onEdit, this.onDelete});
 

@@ -5,10 +5,7 @@ import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
-/// The Expense/Income segmented control shared by the transaction edit and
-/// create forms - Expense fills orange (the app's one accent, already used
-/// for a negative/expense amount), Income fills the app's primary
-/// ink/cream, unselected is plain.
+/// The Expense/Income toggle: Expense fills orange, Income fills `primary`.
 class TransactionTypeToggle extends StatelessWidget {
   const TransactionTypeToggle({
     super.key,

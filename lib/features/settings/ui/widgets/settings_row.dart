@@ -71,9 +71,7 @@ class SettingsRow extends StatelessWidget {
   final IconData icon;
   final String title;
 
-  /// A second line under [title] explaining what the row controls, e.g.
-  /// "How amounts are shown" - optional, since a row as self-explanatory as
-  /// Theme doesn't need one.
+  /// Optional second line under [title], e.g. "How amounts are shown".
   final String? subtitle;
   final String value;
   final VoidCallback onTap;

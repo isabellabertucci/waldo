@@ -12,16 +12,8 @@ import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
-/// A single transaction row: leading icon circle, description/date, and a
-/// signed, colored amount. Used (within a [TransactionGroupCard]) by the
-/// dashboard's recent-transactions list and the all-transactions screen.
-/// The per-wallet transactions screen has its own day-grouped variant
-/// (category · time subtitle, plus an edit/delete menu) on purpose.
-///
-/// When [category] is known, the leading icon shows the category's own icon
-/// on a neutral tint (the dashboard's treatment). When it isn't available
-/// (the all-transactions list doesn't look categories up), it falls back to
-/// a plain income/expense direction icon on a color tint instead.
+/// One transaction row: icon, description/date and a signed amount.
+/// Shows the category icon when [category] is given, else an income/expense arrow.
 class TransactionRow extends StatelessWidget {
   const TransactionRow({
     super.key,
@@ -113,9 +105,7 @@ class TransactionRow extends StatelessWidget {
   }
 }
 
-/// A [SurfaceCard] of [TransactionRow]s with a hairline divider between
-/// each one - the shared "statement card" look used by every transaction
-/// list in the app.
+/// A [SurfaceCard] of [TransactionRow]s with hairline dividers.
 class TransactionGroupCard extends StatelessWidget {
   const TransactionGroupCard({
     super.key,

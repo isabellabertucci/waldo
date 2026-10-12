@@ -5,9 +5,8 @@ import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
-/// The Name field shared by the wallet and category forms: an ink badge,
-/// a small label, and a borderless text field, with an ink outline while
-/// focused (DESIGN.md: 2px `primary` when focused).
+/// The Name field of the wallet and category forms, with an ink outline
+/// while focused.
 class FormNameField extends StatefulWidget {
   const FormNameField({
     super.key,

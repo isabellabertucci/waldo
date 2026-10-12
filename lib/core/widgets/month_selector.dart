@@ -7,10 +7,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
-/// Horizontal strip of month pills - the selected month sits in a filled
-/// pill, the rest read as plain text that fades out toward the edges to
-/// hint that more months are a swipe away. Replaces the old "October ▾"
-/// header button + bottom sheet list with direct, one-tap selection.
+/// A horizontal row of month pills; the selected month is a filled pill.
 class MonthSelector extends StatefulWidget {
   const MonthSelector({
     super.key,
@@ -93,10 +90,8 @@ class _MonthSelectorState extends State<MonthSelector> {
     });
   }
 
-  /// The selected month is spelled out; the others are short so the
-  /// neighbours on either side fit whole instead of being cut mid-word. A
-  /// month from another year always carries its year, so e.g. last November
-  /// and next November never read as the same pill.
+  /// The selected month is spelled out and the rest are short, so neighbours
+  /// fit whole. Months from another year show the year.
   String _labelFor(DateTime month) {
     final locale = widget.locale;
     final isSelected = month == widget.selectedMonth;
@@ -143,16 +138,11 @@ class _MonthSelectorState extends State<MonthSelector> {
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              // Half the viewport as leading/trailing padding - without
-              // this, the first or last month (often the selected one,
-              // since "today" is always the last entry) can't actually
-              // reach the center: there's no scroll extent left to push it
-              // there, so it stays pinned to the edge instead.
+              // Half the viewport as padding, so the first and last months can scroll
+              // to the center.
               final edgePadding = constraints.maxWidth / 2;
 
-              // one-off: Colors.transparent/black below are an alpha mask
-              // (BlendMode.dstIn only reads opacity) that fades the month
-              // row out at both edges - never painted, so no theme color.
+              // one-off: an alpha mask (dstIn only reads opacity), never painted.
               return ShaderMask(
                 shaderCallback: (bounds) => const LinearGradient(
                   begin: Alignment.centerLeft,
@@ -177,9 +167,7 @@ class _MonthSelectorState extends State<MonthSelector> {
                           key: _itemKeys[month],
                           label: _labelFor(month),
                           selected: month == widget.selectedMonth,
-                          // Defensive, not just decorative - nothing past
-                          // the real current month is a month that could
-                          // have any transactions yet.
+                          // Months after the current one can't have transactions yet.
                           onTap: month.isAfter(widget.currentMonth)
                               ? null
                               : () => widget.onSelect(month),
@@ -208,13 +196,8 @@ class _MonthSelectorState extends State<MonthSelector> {
 
 enum _ChevronDirection { left, right }
 
-/// A small chevron that nudges left twice, once, right after the dashboard
-/// first appears - a one-time hint that the month row scrolls, instead of
-/// a gradient or clipped edge alone (neither read as "scrollable" on their
-/// own in testing). Settles back to a static resting chevron afterward. Also
-/// a real scroll-back control - tapping it steps the row backward, and it
-/// dims (without disappearing, to avoid shifting the layout) once there is
-/// nothing earlier left to scroll to.
+/// The left chevron: nudges once on first show to hint the row scrolls, then
+/// steps the row back on tap, dimming when there's nothing earlier.
 class _ScrollHintChevron extends StatefulWidget {
   const _ScrollHintChevron({required this.enabled, required this.onTap});
 
@@ -315,11 +298,7 @@ class _ScrollHintChevronState extends State<_ScrollHintChevron>
   }
 }
 
-/// The right-side mirror of [_ScrollHintChevron], without the one-time nudge
-/// animation (that hint only needs to play once, pointing the direction the
-/// row scrolls by default) but with the same tap-to-scroll and dim-when-idle
-/// behavior - so going far back in time doesn't strand the user without an
-/// easy way to scroll forward again.
+/// The right chevron: steps the row forward on tap, dimming at the end.
 class _ChevronButton extends StatelessWidget {
   const _ChevronButton({
     required this.direction,

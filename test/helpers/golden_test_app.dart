@@ -8,14 +8,8 @@ import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
-/// Wraps [child] with the same provider/localization/theme stack the real
-/// app uses, so golden tests exercise the actual `AppTheme.light`/`.dark`
-/// rather than stock Material defaults - unlike [pumpWidgetWithProviders] in
-/// `test_app.dart`, which pumps a bare, untheme'd `MaterialApp` because its
-/// callers only assert on text/finder presence, not pixels.
-///
-/// [isBalanceHidden] starts the app with the eye toggle on (every amount
-/// masked).
+/// Wraps [child] in the real app's providers, theme and localizations.
+/// [isBalanceHidden] starts with the eye toggle on.
 Widget wrapForGolden({
   required Widget child,
   required Database db,

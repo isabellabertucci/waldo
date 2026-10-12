@@ -30,10 +30,7 @@ void main() {
   });
 
   Future<void> pumpDashboardScreen(WidgetTester tester, {Database? db}) async {
-    // The dashboard's content is taller than the default 800x600 test
-    // surface, so a ListView further down (e.g. RecentTransactionsList)
-    // never gets built by the lazy sliver unless the viewport is tall
-    // enough to fit everything without scrolling.
+    // Tall enough to build the whole dashboard without scrolling.
     tester.view.physicalSize = const Size(400, 2400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -50,10 +47,7 @@ void main() {
     (tester) async {
       await pumpDashboardScreen(tester);
 
-      // The normal dashboard shell (balance card, receipt) renders even
-      // with zero wallets now - no separate first-run screen. The month
-      // selector itself stays hidden, though: there's nothing to filter by
-      // month yet with no wallets.
+      // With no wallets the dashboard still renders, but without the month row.
       final currentMonth = DateFormat.MMMM('en').format(DateTime.now());
       expect(find.text(currentMonth), findsNothing);
       expect(find.text('Slide in your first wallet'), findsOneWidget);
@@ -189,9 +183,7 @@ void main() {
         ProviderScope(
           overrides: [
             appDatabaseProvider.overrideWith((ref) async => db),
-            // On a device, sqflite answers over a platform channel and takes
-            // a few frames; the in-memory test DB answers instantly, which
-            // would hide the reload state this test is about.
+            // The in-memory DB answers instantly; this slows it down like a real device.
             transactionRepositoryProvider.overrideWith(
               (ref) async => _SlowTransactionRepository(db),
             ),

@@ -116,9 +116,6 @@ class WalletsScreen extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Same header pattern as the per-wallet transactions screen:
-            // a dashed-stitch pill for the primary "add" action and a
-            // plain circular button for the balance-hidden toggle.
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 Spacing.pageMargin,

@@ -28,15 +28,8 @@ import '../../viewmodels/transaction_list_view_model.dart';
 import 'transaction_field_row.dart';
 import 'transaction_type_toggle.dart';
 
-/// Opens a transaction as a bottom sheet - tapping a row anywhere in the
-/// app (the wallet's own list, the dashboard's recent list, "all
-/// transactions") lands here instead of a separate pushed page, with every
-/// field editable in place rather than through a generic add/edit form.
-///
-/// It opens read-only unless [startInEditMode] is set - a plain tap shows
-/// the transaction with no edit affordances at all, and only an explicit
-/// "Edit" action (the wallet screen's row menu) opens it editable. New
-/// transactions are added through [showTransactionFormSheet] instead.
+/// Opens a transaction in a bottom sheet, read-only unless [startInEditMode].
+/// New transactions use [showTransactionFormSheet].
 Future<void> showTransactionEditSheet(
   BuildContext context, {
   required Transaction transaction,
@@ -54,15 +47,8 @@ Future<void> showTransactionEditSheet(
   );
 }
 
-/// Deletes [transaction] the same way every delete in the app works:
-/// confirm, hide it from the wallet's list straight away, show a 5 s
-/// snackbar with Undo, and only then delete it from the database.
-///
-/// Uses the app's [ProviderContainer] rather than a widget's `ref`, because
-/// the edit sheet closes before the 5 s are up and a closed sheet's `ref`
-/// can no longer be used. The `listen` keeps the wallet's list provider
-/// alive (and loaded) for the whole flow, even when no screen is showing
-/// it - e.g. a delete started from the dashboard.
+/// Confirm, hide the transaction, show a 5 s Undo snackbar, then delete.
+/// Uses the [ProviderContainer] because the sheet closes before the 5 s are up.
 Future<void> deleteTransactionWithUndo(
   BuildContext context,
   Transaction transaction, {
@@ -122,11 +108,7 @@ Future<void> deleteTransactionWithUndo(
   }
 }
 
-/// Which field (if any) is currently being edited in place. Editing never
-/// opens a second bottom sheet stacked on top of this one - the sheet's own
-/// content swaps to the field's editor, with a back chevron to return, like
-/// a tab rather than a stack of modals. Date keeps the platform's native
-/// date/time pickers, which are a different (and already modal) paradigm.
+/// The field being edited in place - the sheet's content swaps to its editor.
 enum _EditField { amount, name, type, category, note }
 
 class TransactionEditSheet extends ConsumerStatefulWidget {
@@ -145,9 +127,7 @@ class TransactionEditSheet extends ConsumerStatefulWidget {
 }
 
 class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
-  /// Starts wherever [widget.startInEditMode] says, but - unlike before -
-  /// can now flip on in-sheet: the view screen's "Edit transaction" button
-  /// switches into the edit screen without closing and reopening the sheet.
+  /// Starts as [widget.startInEditMode] says; "Edit transaction" flips it on.
   late bool _editable = widget.startInEditMode;
 
   _EditField? _activeField;
@@ -215,10 +195,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     };
   }
 
-  /// Leaving a text-entry field editor (Amount/Name/Note) via the back
-  /// chevron - rather than its own "Done" button - would otherwise silently
-  /// drop whatever was typed. Type/Category commit the instant an option is
-  /// tapped, so there is never anything unsaved to ask about for those.
+  /// Asks before the back chevron drops unsaved text in Amount/Name/Note.
   Future<void> _handleFieldBack(_EditField field) async {
     if (!_isFieldDirty(field)) {
       _closeField();
@@ -262,10 +239,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     }
   }
 
-  // Every field just stages its change on the form view-model - nothing
-  // reaches the database until "Save changes" is pressed, matching the new
-  // edit screen's own Cancel/Save pair instead of the old commit-per-field
-  // behavior (which had no way to back out of an in-progress edit).
+  // Fields only stage changes on the view model; "Save changes" writes them.
   void _confirmAmount() {
     _viewModel(ref).updateAmount(_amountController.text);
     _closeField();
@@ -443,10 +417,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     );
   }
 
-  /// Read-only: a category badge + name/category/type header, the amount
-  /// in its own card, a grouped card for Date/Wallet/Note, and Delete +
-  /// "Edit transaction" actions at the bottom - tapping Edit switches this
-  /// same sheet into [_buildEditList] rather than opening anything new.
+  /// Read-only view, with Delete and "Edit transaction" at the bottom.
   Widget _buildViewList(
     BuildContext context,
     TransactionFormState formState,
@@ -629,11 +600,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     );
   }
 
-  /// Editable: a Type toggle + Amount in one card, Name directly editable
-  /// in place (the dashed accent border marks it as "already open for
-  /// typing"), Category/Date drilling into their own pickers same as
-  /// before, Note directly editable too, then Cancel/Save changes. Nothing
-  /// here reaches the database until Save is pressed.
+  /// Edit view; nothing is saved until "Save changes".
   Widget _buildEditList(
     BuildContext context,
     TransactionFormState formState,
@@ -674,9 +641,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // No grabber here - the back chevron already signals how to leave
-          // this screen, so a second "drag me" affordance above it is just
-          // visual noise.
+          // No grabber - the back chevron already says how to leave.
           Row(
             children: [
               IconButton(
@@ -865,9 +830,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           const SizedBox(height: Spacing.md),
           Row(
             children: [
-              // As close to equal width as "Save changes" (the longer
-              // label) allows without wrapping - Cancel and Save carry the
-              // same hierarchy, so neither should dominate the other.
+              // Cancel and Save get (nearly) equal widths.
               Expanded(
                 flex: 5,
                 child: TextButton(
@@ -1102,10 +1065,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   }
 }
 
-/// The category-icon badge leading the view screen's header - a dashed
-/// ring around a tinted circle, the same "physical token" language as the
-/// app's other dashed-stitch accents, colored by income/expense like the
-/// amount itself.
+/// The header's category badge: a dashed ring around a tinted circle.
 class _DashedCircleBadge extends StatelessWidget {
   const _DashedCircleBadge({required this.icon, required this.color});
 
@@ -1314,9 +1274,7 @@ class _NumpadKey extends StatelessWidget {
   }
 }
 
-/// "10.00" -> "10", "10.50" -> "10.5", "10.25" -> "10.25" - so the amount
-/// keypad (max two decimals) has room to keep typing straight away. The
-/// value is the same either way.
+/// "10.00" -> "10", "10.50" -> "10.5", so the keypad can keep typing.
 String _trimTrailingZeros(String amount) {
   if (!amount.contains('.')) return amount;
   final trimmed = amount.replaceFirst(RegExp(r'0+$'), '');

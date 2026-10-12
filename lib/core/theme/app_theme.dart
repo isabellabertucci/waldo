@@ -18,15 +18,11 @@ class AppTheme {
       primary: colors.primary,
       onPrimary: colors.onPrimary,
       primaryContainer: colors.primaryContainer,
-      // The container's a light near-white tint in both themes, so ink-dark
-      // `onSurface` is the readable pairing - `onPrimary` would be the
-      // light cream meant for the dark `primary` fill, invisible here.
+      // The container is near-white in both themes, so it pairs with `onSurface`.
       onPrimaryContainer: colors.onSurface,
       onSurfaceVariant: colors.onSurfaceVariant,
       error: colors.error,
-      // `onPrimary` already *is* the ink/cream pair that flips with
-      // brightness - it happens to contrast correctly against `error` in
-      // both themes too, so there's no need for a separate token.
+      // `onPrimary` already contrasts with `error` in both themes.
       onError: colors.onPrimary,
       surface: colors.surface,
       onSurface: colors.onSurface,
@@ -64,10 +60,7 @@ class AppTheme {
     );
   }
 
-  /// Headlines/titles at weight 500 with tight (-2%) tracking; body copy at
-  /// weight 400 with a slightly tightened (-0.5%) tracking to compensate for
-  /// the source system's weight 450, which Flutter's FontWeight can't
-  /// express; nav/button labels at weight 500 with -3% tracking.
+  /// Headlines w500 at -2% tracking, body w400 at -0.5%, labels w500 at -3%.
   static TextTheme _applyTypeScale(TextTheme base) {
     TextStyle? display(TextStyle? style) =>
         _tracked(style, FontWeight.w500, -0.02);
@@ -114,15 +107,11 @@ extension ThemeContext on BuildContext {
 
   TextTheme get textTheme => Theme.of(this).textTheme;
 
-  /// `body-md` pushed one step, semibold - a touch heavier without reading
-  /// as bold (e.g. the dashboard's "see all" link, a transaction row's
-  /// description).
+  /// `body-md`, semibold (w600).
   TextStyle get bodyMdStrong =>
       textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w600);
 
-  /// `body-md`, bold - the common "this row's value matters" weight: form
-  /// labels, confirm/cancel button text, list-row emphasis. The most
-  /// frequently used escalation step in the app.
+  /// `body-md`, bold (w700) - the most common emphasis step.
   TextStyle get bodyMdBold =>
       textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w700);
 
@@ -151,28 +140,19 @@ extension ThemeContext on BuildContext {
   TextStyle get headlineLgStrong =>
       textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w800);
 
-  /// Material's `headlineSmall` role (not otherwise named in the type
-  /// scale) pushed to extra-bold - an alternate large title used by a
-  /// handful of dialogs/cards instead of `headline-lg-strong`.
+  /// `headlineSmall`, extra-bold - an alternate large title.
   TextStyle get headlineSmBold =>
       textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w800);
 
-  /// Material's `headlineMedium` role pushed to extra-bold - the large
-  /// numeric figure shown while editing an amount (transaction/wallet
-  /// balance input), one step lighter than [headlineDisplayStrong].
+  /// `headlineMedium`, extra-bold - the amount being edited.
   TextStyle get amountDisplayBold =>
       textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w800);
 
-  /// `headline-display` pushed to black - reserved for the single biggest
-  /// number on a screen (the dashboard's total balance figure). Backed by
-  /// Material's `headlineMedium` role, matching the balance figure's
-  /// actual size - not `headlineLarge`, which nothing in the app uses.
+  /// `headlineMedium`, black (w900) - the dashboard's total balance.
   TextStyle get headlineDisplayStrong =>
       textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w900);
 
-  /// A micro eyebrow-label step below `label-sm` - uppercase section
-  /// dividers (e.g. the "OCTOBER 2026" month header in the transactions
-  /// list). Callers are responsible for upper-casing the string themselves.
+  /// A small uppercase eyebrow label. Callers upper-case the text themselves.
   TextStyle get labelXs => textTheme.labelSmall!.copyWith(
     fontWeight: FontWeight.w600,
     letterSpacing: 0.4,
