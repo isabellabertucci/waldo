@@ -49,9 +49,13 @@
   "@startingBalance": {
     "description": "Starting balance field label"
   },
-  "startingBalanceHint": "You can change this later",
-  "@startingBalanceHint": {
-    "description": "Helper text under the starting balance field when creating a new wallet"
+  "startingBalancePrompt": "How much is in it today?",
+  "@startingBalancePrompt": {
+    "description": "Label inside the starting balance field of the new-wallet form"
+  },
+  "optional": "Optional",
+  "@optional": {
+    "description": "Tag beside a form section title that doesn't need filling in"
   },
   "balanceLocked": "Cannot be changed after creation",
   "@balanceLocked": {
@@ -524,10 +528,6 @@
   "recentTransactions": "Recent Transactions",
   "@recentTransactions": {
     "description": "Dashboard section header for the recent transactions list"
-  },
-  "noRecentTransactions": "No transactions yet",
-  "@noRecentTransactions": {
-    "description": "Empty state title for the dashboard's recent transactions section"
   },
   "firstRunPeekCta": "Slide in your first wallet",
   "@firstRunPeekCta": {

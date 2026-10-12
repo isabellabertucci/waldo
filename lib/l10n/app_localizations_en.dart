@@ -45,7 +45,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startingBalance => 'Starting balance';
 
   @override
-  String get startingBalanceHint => 'You can change this later';
+  String get startingBalancePrompt => 'How much is in it today?';
+
+  @override
+  String get optional => 'Optional';
 
   @override
   String get balanceLocked => 'Cannot be changed after creation';
@@ -410,9 +413,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recentTransactions => 'Recent Transactions';
-
-  @override
-  String get noRecentTransactions => 'No transactions yet';
 
   @override
   String get firstRunPeekCta => 'Slide in your first wallet';
