@@ -65,7 +65,7 @@ class DashedStitchButton extends StatelessWidget {
                       ? const EdgeInsets.all(Spacing.component)
                       : EdgeInsets.symmetric(
                           horizontal: compact ? Spacing.sm : Spacing.md,
-                          vertical: compact ? Spacing.xs : Spacing.sm + 2,
+                          vertical: compact ? Spacing.xs : Spacing.sm,
                         )),
               child: Row(
                 mainAxisSize: MainAxisSize.min,

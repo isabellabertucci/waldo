@@ -8,6 +8,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
@@ -589,7 +590,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                   onPressed: _enterEditMode,
                   padding: const EdgeInsets.symmetric(
                     horizontal: Spacing.xs,
-                    vertical: 14,
+                    vertical: Spacing.sm,
                   ),
                 ),
               ),
@@ -699,20 +700,23 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           const SizedBox(height: Spacing.sm),
           ListenableBuilder(
             listenable: _nameFocusNode,
-            builder: (context, child) => Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                horizontal: Spacing.md,
-                vertical: Spacing.sm,
+            builder: (context, child) => DashedBorder(
+              radius: Rounded.lg,
+              color: _nameFocusNode.hasFocus
+                  ? colors.primary
+                  : colors.transparent,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Spacing.md,
+                  vertical: Spacing.sm,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainer,
+                  borderRadius: BorderRadius.circular(Rounded.lg),
+                ),
+                child: child,
               ),
-              decoration: BoxDecoration(
-                color: colors.surfaceContainer,
-                borderRadius: BorderRadius.circular(Rounded.lg),
-                border: _nameFocusNode.hasFocus
-                    ? Border.all(color: colors.primary, width: 2)
-                    : null,
-              ),
-              child: child,
             ),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -860,7 +864,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                   compact: true,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 4,
-                    vertical: 14,
+                    vertical: Spacing.sm,
                   ),
                 ),
               ),
