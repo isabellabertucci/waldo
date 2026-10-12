@@ -65,89 +65,75 @@ class _SettingsOptionSheetState<T> extends State<SettingsOptionSheet<T>> {
         ),
         child: DecoratedBox(
           decoration: BoxDecoration(color: colors.surface),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: CustomPaint(
-                    painter: _DashedBorderPainter(
-                      color: colors.onSurface,
-                      radius: Rounded.lg,
-                    ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: Spacing.sm),
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: colors.onSurfaceVariant.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(Rounded.pill),
                   ),
                 ),
-              ),
-              SafeArea(
-                top: false,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: Spacing.sm),
-                    Container(
-                      width: 36,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: colors.onSurfaceVariant.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(Rounded.pill),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        Spacing.lg,
-                        Spacing.md,
-                        Spacing.lg,
-                        Spacing.lg,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    Spacing.lg,
+                    Spacing.md,
+                    Spacing.lg,
+                    Spacing.lg,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  widget.title,
-                                  style: context.headlineSmBold.copyWith(
-                                    color: colors.onSurface,
-                                  ),
-                                ),
-                              ),
-                              const SheetCloseButton(),
-                            ],
-                          ),
-                          const SizedBox(height: Spacing.md),
-                          for (var i = 0; i < widget.options.length; i++) ...[
-                            if (i > 0) const SizedBox(height: Spacing.sm),
-                            _OptionRow<T>(
-                              option: widget.options[i],
-                              selected: widget.options[i].value == _selected,
-                              onTap: () => setState(
-                                () => _selected = widget.options[i].value,
+                          Expanded(
+                            child: Text(
+                              widget.title,
+                              style: context.headlineSmBold.copyWith(
+                                color: colors.onSurface,
                               ),
                             ),
-                          ],
-                          if (widget.notice != null) ...[
-                            const SizedBox(height: Spacing.md),
-                            _NoticeBox(text: widget.notice!),
-                          ],
-                          const SizedBox(height: Spacing.lg),
-                          SizedBox(
-                            width: double.infinity,
-                            child: DashedStitchButton(
-                              label: l10n.done,
-                              onPressed: () {
-                                widget.onConfirm(_selected);
-                                Navigator.of(context).pop();
-                              },
-                            ),
                           ),
+                          const SheetCloseButton(),
                         ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: Spacing.md),
+                      for (var i = 0; i < widget.options.length; i++) ...[
+                        if (i > 0) const SizedBox(height: Spacing.sm),
+                        _OptionRow<T>(
+                          option: widget.options[i],
+                          selected: widget.options[i].value == _selected,
+                          onTap: () => setState(
+                            () => _selected = widget.options[i].value,
+                          ),
+                        ),
+                      ],
+                      if (widget.notice != null) ...[
+                        const SizedBox(height: Spacing.md),
+                        _NoticeBox(text: widget.notice!),
+                      ],
+                      const SizedBox(height: Spacing.lg),
+                      SizedBox(
+                        width: double.infinity,
+                        child: DashedStitchButton(
+                          label: l10n.done,
+                          onPressed: () {
+                            widget.onConfirm(_selected);
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
