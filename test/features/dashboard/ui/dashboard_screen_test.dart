@@ -95,7 +95,9 @@ void main() {
       final currentMonth = DateFormat.MMMM('en').format(DateTime.now());
       expect(find.text(currentMonth), findsOneWidget);
       expect(find.text('Add first transaction'), findsOneWidget);
-      expect(find.text('No transactions yet'), findsOneWidget);
+      // No ghost rows: the section stays hidden until the first transaction.
+      expect(find.text('Recent Transactions'), findsNothing);
+      expect(find.text('See all'), findsNothing);
     },
   );
 

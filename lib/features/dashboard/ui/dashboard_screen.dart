@@ -140,13 +140,16 @@ class _DashboardBody extends ConsumerWidget {
             ),
           ),
         ],
-        const SizedBox(height: Spacing.xl),
-        RecentTransactionsList(
-          transactions: data.recentTransactions,
-          currency: currency,
-          dateFormat: DateFormat(dateFormatPattern),
-          isBalanceHidden: isBalanceHidden,
-        ),
+        // Hidden until the first transaction; the receipt already says so.
+        if (data.recentTransactions.isNotEmpty) ...[
+          const SizedBox(height: Spacing.xl),
+          RecentTransactionsList(
+            transactions: data.recentTransactions,
+            currency: currency,
+            dateFormat: DateFormat(dateFormatPattern),
+            isBalanceHidden: isBalanceHidden,
+          ),
+        ],
       ],
     );
   }
