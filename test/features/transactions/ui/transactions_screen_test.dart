@@ -130,6 +130,78 @@ void main() {
     expect(find.byTooltip('Hide balance'), findsOneWidget);
   });
 
+  String amountFieldText(WidgetTester tester) => tester
+      .widget<EditableText>(
+        find.descendant(
+          of: find.byKey(const Key('transactionAmountField')),
+          matching: find.byType(EditableText),
+        ),
+      )
+      .controller
+      .text;
+
+  testWidgets('"+ New" category opens in the same sheet, and back keeps the '
+      'typed amount', (tester) async {
+    await pumpTransactionsScreen(tester);
+    await tester.tap(find.byIcon(AppIcons.add));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('transactionAmountField')),
+      '7.00',
+    );
+
+    // The categories row scrolls sideways; bring "+ New" into view first.
+    await tester.ensureVisible(find.text('New'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('New'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('New Category'), findsOneWidget);
+    expect(find.byType(BottomSheet), findsOneWidget);
+
+    // The sheet's own ‹ (the wallet screen behind it has one too).
+    await tester.tap(
+      find.descendant(
+        of: find.byType(BottomSheet),
+        matching: find.byTooltip('Back'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('New Transaction'), findsOneWidget);
+    expect(amountFieldText(tester), '7.00');
+  });
+
+  testWidgets('A category created from "+ New" is picked for the transaction', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await tester.tap(find.byIcon(AppIcons.add));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('transactionAmountField')),
+      '5.00',
+    );
+
+    // The categories row scrolls sideways; bring "+ New" into view first.
+    await tester.ensureVisible(find.text('New'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('New'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('categoryNameField')),
+      'Coffee',
+    );
+    await tester.tap(find.text('Create category'));
+    await tester.pumpAndSettle();
+
+    await setDate(tester);
+    await tapAddExpense(tester);
+
+    // The row's subtitle is its category.
+    expect(find.text('Coffee'), findsOneWidget);
+  });
+
   testWidgets('Shows empty state when there are no transactions', (
     tester,
   ) async {

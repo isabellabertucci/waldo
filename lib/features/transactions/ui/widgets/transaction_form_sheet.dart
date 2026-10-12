@@ -39,6 +39,7 @@ Future<void> showTransactionFormSheet(
     context: context,
     useRootNavigator: true,
     isScrollControlled: true,
+    useSafeArea: true,
     builder: (_) => TransactionFormSheet(initialWalletId: initialWalletId),
   );
 }
@@ -98,14 +99,11 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     );
   }
 
-  void _openNewCategorySheet() {
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      builder: (_) => const CategoryFormSheet(),
-    );
-  }
+  /// Whether this sheet is showing the new-category form in place of the
+  /// transaction form - swapped in, never stacked as a second sheet.
+  bool _creatingCategory = false;
+
+  void _openNewCategory() => setState(() => _creatingCategory = true);
 
   Future<void> _save(TransactionFormViewModel viewModel) async {
     if (!_formKey.currentState!.validate()) {
@@ -143,6 +141,16 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
         initialWalletId: widget.initialWalletId,
       ).notifier,
     );
+    if (_creatingCategory) {
+      return CategoryFormSheet(
+        onBack: () => setState(() => _creatingCategory = false),
+        onSaved: (categoryId) {
+          viewModel.updateCategoryId(categoryId);
+          setState(() => _creatingCategory = false);
+        },
+      );
+    }
+
     final walletsAsync = ref.watch(walletListViewModelProvider());
     final categoriesAsync = ref.watch(categoryListViewModelProvider);
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
@@ -218,7 +226,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                       selected: formState.type,
                       onChanged: viewModel.updateType,
                     ),
-                    const SizedBox(height: Spacing.sm),
+                    const SizedBox(height: Spacing.xs),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -295,157 +303,171 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
               ),
               const SizedBox(height: Spacing.sm),
               switch (categoriesAsync) {
-                AsyncValue(:final value?) => Wrap(
-                  spacing: Spacing.sm,
-                  runSpacing: Spacing.sm,
-                  children: [
-                    for (final category in value)
-                      _CategoryChip(
-                        icon: category.type.icon,
-                        label: category.isDefault
-                            ? category.type.label(l10n)
-                            : category.name,
-                        selected: formState.categoryId == category.id,
-                        onTap: () => viewModel.updateCategoryId(category.id),
-                      ),
-                    _NewCategoryChip(onTap: _openNewCategorySheet),
-                  ],
+                // One row that scrolls sideways, not a wrapping grid - every
+                // extra category used to add a whole row to the sheet.
+                AsyncValue(:final value?) => SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (final category in value) ...[
+                        _CategoryChip(
+                          icon: category.type.icon,
+                          label: category.isDefault
+                              ? category.type.label(l10n)
+                              : category.name,
+                          selected: formState.categoryId == category.id,
+                          onTap: () => viewModel.updateCategoryId(category.id),
+                        ),
+                        const SizedBox(width: Spacing.xs),
+                      ],
+                      _NewCategoryChip(onTap: _openNewCategory),
+                    ],
+                  ),
                 ),
                 _ => const SizedBox.shrink(),
               },
               const SizedBox(height: Spacing.sm),
-              FormField<DateTime>(
-                initialValue: formState.date,
-                validator: (value) => value == null ? l10n.dateRequired : null,
-                builder: (field) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              // Date, Wallet and Description share one card divided by
+              // hairlines - same as the edit sheet's Date/Wallet/Note card.
+              Material(
+                color: colors.surfaceContainer,
+                borderRadius: BorderRadius.circular(Rounded.lg),
+                clipBehavior: Clip.antiAlias,
+                child: Column(
                   children: [
-                    EditFieldRow(
-                      key: const Key('transactionDateField'),
-                      icon: Icons.calendar_today_outlined,
-                      label: l10n.date,
-                      value: formState.date == null
-                          ? '—'
-                          : dateFormat.format(formState.date!),
-                      hasError: field.hasError,
-                      onTap: () async {
-                        final picked = await _pickDate(formState.date);
-                        if (picked == null) return;
-                        viewModel.updateDate(picked);
-                        field.didChange(picked);
-                      },
-                    ),
-                    if (field.hasError)
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          top: Spacing.xs,
-                          left: Spacing.md,
-                        ),
-                        child: Text(
-                          field.errorText!,
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: colors.error,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              if (widget.initialWalletId == null) ...[
-                const SizedBox(height: Spacing.sm),
-                switch (walletsAsync) {
-                  AsyncValue(:final value?) => FormField<int>(
-                    initialValue: formState.walletId,
-                    validator: (walletId) =>
-                        walletId == null ? l10n.walletRequired : null,
-                    builder: (field) => Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        EditFieldRow(
-                          icon: Icons.account_balance_wallet_outlined,
-                          label: l10n.wallet,
-                          value: walletName ?? l10n.none,
-                          hasError: field.hasError,
-                          onTap: () => _showWalletPicker(
-                            context,
-                            value,
-                            viewModel,
-                            field,
-                          ),
-                        ),
-                        if (field.hasError)
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: Spacing.xs,
-                              left: Spacing.md,
-                            ),
-                            child: Text(
-                              field.errorText!,
-                              style: context.textTheme.bodySmall?.copyWith(
-                                color: colors.error,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  _ => const SizedBox.shrink(),
-                },
-              ],
-              const SizedBox(height: Spacing.sm),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.md,
-                  vertical: Spacing.sm,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.surfaceContainer,
-                  borderRadius: BorderRadius.circular(Rounded.lg),
-                ),
-                child: Row(
-                  children: [
-                    FieldBadge(
-                      icon: Icons.notes_outlined,
-                      color: colors.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: Spacing.sm),
-                    Expanded(
-                      child: Column(
+                    FormField<DateTime>(
+                      initialValue: formState.date,
+                      validator: (value) =>
+                          value == null ? l10n.dateRequired : null,
+                      builder: (field) => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            l10n.transactionDescription,
-                            style: context.textTheme.bodySmall?.copyWith(
-                              color: colors.onSurfaceVariant,
-                            ),
+                          EditFieldRow(
+                            key: const Key('transactionDateField'),
+                            grouped: true,
+                            icon: Icons.calendar_today_outlined,
+                            label: l10n.date,
+                            value: formState.date == null
+                                ? '—'
+                                : dateFormat.format(formState.date!),
+                            hasError: field.hasError,
+                            onTap: () async {
+                              final picked = await _pickDate(formState.date);
+                              if (picked == null) return;
+                              viewModel.updateDate(picked);
+                              field.didChange(picked);
+                            },
                           ),
-                          TextFormField(
-                            key: const Key('transactionDescriptionField'),
-                            controller: _descriptionController,
-                            onChanged: viewModel.updateDescription,
-                            textCapitalization: TextCapitalization.sentences,
-                            decoration: InputDecoration(
-                              isCollapsed: true,
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              focusedErrorBorder: InputBorder.none,
-                              filled: false,
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: Spacing.xs,
+                          if (field.hasError)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: Spacing.md,
+                                bottom: Spacing.sm,
                               ),
-                              hintText: l10n.descriptionHint,
-                              hintStyle: context.bodyMdBold.copyWith(
-                                color: colors.onSurfaceVariant.withValues(
-                                  alpha: 0.6,
+                              child: Text(
+                                field.errorText!,
+                                style: context.textTheme.bodySmall?.copyWith(
+                                  color: colors.error,
                                 ),
                               ),
                             ),
-                            style: context.bodyMdBold,
+                        ],
+                      ),
+                    ),
+                    if (widget.initialWalletId == null) ...[
+                      const _GroupDivider(),
+                      switch (walletsAsync) {
+                        AsyncValue(:final value?) => FormField<int>(
+                          initialValue: formState.walletId,
+                          validator: (walletId) =>
+                              walletId == null ? l10n.walletRequired : null,
+                          builder: (field) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              EditFieldRow(
+                                grouped: true,
+                                icon: Icons.account_balance_wallet_outlined,
+                                label: l10n.wallet,
+                                value: walletName ?? l10n.none,
+                                hasError: field.hasError,
+                                onTap: () => _showWalletPicker(
+                                  context,
+                                  value,
+                                  viewModel,
+                                  field,
+                                ),
+                              ),
+                              if (field.hasError)
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: Spacing.md,
+                                    bottom: Spacing.sm,
+                                  ),
+                                  child: Text(
+                                    field.errorText!,
+                                    style: context.textTheme.bodySmall
+                                        ?.copyWith(color: colors.error),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        _ => const SizedBox.shrink(),
+                      },
+                    ],
+                    const _GroupDivider(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Spacing.md,
+                        vertical: Spacing.sm,
+                      ),
+                      child: Row(
+                        children: [
+                          FieldBadge(
+                            icon: Icons.notes_outlined,
+                            color: colors.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: Spacing.sm),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  l10n.transactionDescription,
+                                  style: context.textTheme.bodySmall?.copyWith(
+                                    color: colors.onSurfaceVariant,
+                                  ),
+                                ),
+                                TextFormField(
+                                  key: const Key('transactionDescriptionField'),
+                                  controller: _descriptionController,
+                                  onChanged: viewModel.updateDescription,
+                                  textCapitalization:
+                                      TextCapitalization.sentences,
+                                  decoration: InputDecoration(
+                                    isCollapsed: true,
+                                    border: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    disabledBorder: InputBorder.none,
+                                    errorBorder: InputBorder.none,
+                                    focusedErrorBorder: InputBorder.none,
+                                    filled: false,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      vertical: Spacing.xs,
+                                    ),
+                                    hintText: l10n.descriptionHint,
+                                    hintStyle: context.bodyMdBold.copyWith(
+                                      color: colors.onSurfaceVariant.withValues(
+                                        alpha: 0.6,
+                                      ),
+                                    ),
+                                  ),
+                                  style: context.bodyMdBold,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -626,6 +648,20 @@ class _NewCategoryChip extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The hairline between rows of the Date/Wallet/Description card.
+class _GroupDivider extends StatelessWidget {
+  const _GroupDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 1,
+      margin: const EdgeInsets.symmetric(horizontal: Spacing.md),
+      color: context.appColors.onSurfaceVariant.withValues(alpha: 0.1),
     );
   }
 }

@@ -46,21 +46,18 @@ void main() {
     expect(state.name, 'Groceries');
   });
 
-  test(
-    'save with an empty name returns false and never calls insert',
-    () async {
-      final notifier = container.read(
-        categoryFormViewModelProvider(null).notifier,
-      );
+  test('save with an empty name returns null and never calls insert', () async {
+    final notifier = container.read(
+      categoryFormViewModelProvider(null).notifier,
+    );
 
-      final success = await notifier.save(null);
+    final id = await notifier.save(null);
 
-      expect(success, isFalse);
-      verifyNever(() => mockRepo.insert(any()));
-    },
-  );
+    expect(id, isNull);
+    verifyNever(() => mockRepo.insert(any()));
+  });
 
-  test('save with a valid name calls insert', () async {
+  test('save with a valid name calls insert and returns the new id', () async {
     when(() => mockRepo.insert(any())).thenAnswer((_) async => 1);
 
     final notifier = container.read(
@@ -68,9 +65,9 @@ void main() {
     );
     notifier.updateName('Groceries');
 
-    final success = await notifier.save(null);
+    final id = await notifier.save(null);
 
-    expect(success, isTrue);
+    expect(id, 1);
     verify(() => mockRepo.insert(any())).called(1);
   });
 
@@ -87,9 +84,9 @@ void main() {
     );
     notifier.updateName('New name');
 
-    final success = await notifier.save(existing);
+    final id = await notifier.save(existing);
 
-    expect(success, isTrue);
+    expect(id, 5);
     verify(() => mockRepo.update(any())).called(1);
     verifyNever(() => mockRepo.insert(any()));
   });

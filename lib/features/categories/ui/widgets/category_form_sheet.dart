@@ -20,9 +20,21 @@ import '../../viewmodels/category_form_view_model.dart';
 /// Same shape as the wallet form: grabber, title + close, a Name field,
 /// a grid of types, and the dashed-stitch confirm pill.
 class CategoryFormSheet extends ConsumerStatefulWidget {
-  const CategoryFormSheet({super.key, this.category});
+  const CategoryFormSheet({
+    super.key,
+    this.category,
+    this.onBack,
+    this.onSaved,
+  });
 
   final Category? category;
+
+  /// Set when the form is shown inside another sheet: a ‹ back button
+  /// replaces the ✕, and there's no grabber of its own.
+  final VoidCallback? onBack;
+
+  /// Called with the saved category's id instead of closing the sheet.
+  final ValueChanged<int>? onSaved;
 
   @override
   ConsumerState<CategoryFormSheet> createState() => _CategoryFormSheetState();
@@ -61,8 +73,14 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
     if (!_formKey.currentState!.validate()) return;
 
     try {
-      final success = await viewModel.save(widget.category);
-      if (success && mounted) Navigator.of(context).pop();
+      final id = await viewModel.save(widget.category);
+      if (id == null || !mounted) return;
+      final onSaved = widget.onSaved;
+      if (onSaved != null) {
+        onSaved(id);
+      } else {
+        Navigator.of(context).pop();
+      }
     } catch (_) {
       if (mounted) {
         final l10n = AppLocalizations.of(context);
@@ -81,6 +99,7 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
     final viewModel = ref.read(
       categoryFormViewModelProvider(widget.category).notifier,
     );
+    final onBack = widget.onBack;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -95,26 +114,40 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: colors.onSurface.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(Rounded.pill),
+            // Inside another sheet, the ‹ already says how to leave - no
+            // grabber of its own (same as the transaction sheet's editors).
+            if (onBack == null) ...[
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: colors.onSurface.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(Rounded.pill),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: Spacing.md),
+              const SizedBox(height: Spacing.md),
+            ],
             Row(
               children: [
+                if (onBack != null) ...[
+                  IconButton(
+                    tooltip: l10n.back,
+                    onPressed: onBack,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: const Icon(AppIcons.back),
+                  ),
+                  const SizedBox(width: Spacing.xs),
+                ],
                 Expanded(
                   child: Text(
                     _isEditing ? l10n.editCategory : l10n.newCategory,
                     style: context.headlineLgStrong,
                   ),
                 ),
-                const SheetCloseButton(),
+                if (onBack == null) const SheetCloseButton(),
               ],
             ),
             const SizedBox(height: Spacing.md),
