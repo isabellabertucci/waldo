@@ -32,13 +32,13 @@ void main() {
     expect(find.text('Spent 50% more than you received'), findsOneWidget);
   });
 
-  testWidgets('A positive savings rate reads as saved', (tester) async {
+  testWidgets('A positive rate reads as kept', (tester) async {
     await pumpStack(tester, 75);
-    expect(find.text('Saved 75% this month'), findsOneWidget);
+    expect(find.text('Kept 75% of what you received'), findsOneWidget);
   });
 
-  testWidgets('A rate that rounds to 0 reads as saved 0%', (tester) async {
+  testWidgets('A rate that rounds to 0 reads as kept 0%', (tester) async {
     await pumpStack(tester, -0.3);
-    expect(find.text('Saved 0% this month'), findsOneWidget);
+    expect(find.text('Kept 0% of what you received'), findsOneWidget);
   });
 }
