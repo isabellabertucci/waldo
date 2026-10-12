@@ -10,9 +10,7 @@ import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../models/dashboard_data.dart';
 
-/// Shows one series (income or expense) at a time via a pill toggle, rather
-/// than both at once - half the bars on screen, and no axis labels, since
-/// exact values are a tap away via the chart's own tooltip.
+/// One series (income or expense) at a time; exact values are in the tooltip.
 class CashFlowCard extends StatefulWidget {
   const CashFlowCard({
     super.key,
@@ -214,9 +212,7 @@ class _CashFlowChart extends StatelessWidget {
                 if (index < 0 || index > lastIndex) {
                   return const SizedBox.shrink();
                 }
-                // Every-other-month is skipped to avoid 12 labels
-                // overlapping - except the last one, always kept so the
-                // chart doesn't look cut off before the current month.
+                // Every other month, to avoid overlap - but always the last one.
                 if (index.isOdd && index != lastIndex) {
                   return const SizedBox.shrink();
                 }
@@ -270,9 +266,7 @@ class _CashFlowChart extends StatelessWidget {
               return LineTooltipItem(
                 '${monthFormat.format(month)} · '
                 '${formatCents(amountCents, currencyCode: currencyCode)}',
-                // Chart tooltip chrome, not a UI text style - fl_chart
-                // renders this over the chart canvas directly, independent
-                // of the app's type scale.
+                // Tooltip text drawn by fl_chart on the canvas, not a UI text style.
                 TextStyle(
                   color: colors.onPrimary,
                   fontWeight: FontWeight.bold,

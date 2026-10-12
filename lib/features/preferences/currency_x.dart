@@ -2,9 +2,7 @@ import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 extension CurrencyLabel on Currency {
-  /// The currency's full name, e.g. "US dollar" - used in the currency
-  /// picker sheet, where [code] (already shown alongside it) covers the
-  /// short "USD" form.
+  /// The currency's full name, e.g. "US dollar".
   String fullName(AppLocalizations l10n) {
     return switch (this) {
       Currency.usd => l10n.currencyNameUsd,

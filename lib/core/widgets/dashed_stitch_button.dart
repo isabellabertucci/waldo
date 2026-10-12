@@ -4,11 +4,8 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
-/// A solid [AppColors.primary] pill with a dashed stitch traced just inside
-/// its own edge - the same identity as the wallet card's own border and the
-/// navbar's active tab, reused anywhere else a "primary action" pill shows
-/// up (filter sheet's selected month, "Save"/"Show" buttons, a round icon
-/// button) so none of them read as a one-off.
+/// A `primary` pill with a dashed stitch just inside its edge - the app's
+/// primary-action button.
 class DashedStitchButton extends StatelessWidget {
   const DashedStitchButton({
     super.key,

@@ -99,10 +99,7 @@ class ConfirmationDialog extends StatelessWidget {
                   child: TextButton(
                     style: TextButton.styleFrom(
                       backgroundColor: accent,
-                      // `onPrimary` is the ink/cream pair that flips with
-                      // brightness - it contrasts correctly against both
-                      // `primary` and `error`, so no destructive-specific
-                      // override is needed.
+                      // `onPrimary` contrasts with both `primary` and `error`.
                       foregroundColor: colors.onPrimary,
                       padding: const EdgeInsets.symmetric(
                         vertical: Spacing.component,
@@ -125,10 +122,7 @@ class ConfirmationDialog extends StatelessWidget {
   }
 }
 
-/// A dashed ring around a tinted circle - the same "physical token"
-/// treatment used for category badges elsewhere, reused here so a
-/// destructive confirmation reads as part of the same visual language
-/// instead of a generic system dialog.
+/// A dashed ring around a tinted circle, holding the dialog's icon.
 class _DashedCircleBadge extends StatelessWidget {
   const _DashedCircleBadge({required this.icon, required this.color});
 

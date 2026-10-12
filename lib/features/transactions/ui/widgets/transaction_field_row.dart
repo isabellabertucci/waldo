@@ -25,14 +25,8 @@ class FieldBadge extends StatelessWidget {
   }
 }
 
-/// A field row that opens its own picker (Category, Date, Wallet) - icon
-/// badge plus label/value in its own card, with a trailing chevron.
-/// [hasError] outlines the card in the error color when the field is
-/// required but still empty.
-///
-/// With [grouped], the row has no card of its own - it sits inside a shared
-/// card with other rows (divided by hairlines), and [hasError] colors the
-/// value instead of outlining it.
+/// A field row that opens a picker: icon, label/value and a chevron.
+/// With [grouped] it sits inside a shared card instead of its own.
 class EditFieldRow extends StatelessWidget {
   const EditFieldRow({
     super.key,

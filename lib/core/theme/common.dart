@@ -44,17 +44,10 @@ class Common {
   }
 
   static SnackBarThemeData getSnackBarTheme(AppColors colors) {
-    // `onSurface` + a hardcoded white content color used to pair up by
-    // coincidence in light mode (onSurface is dark there), but `onSurface`
-    // flips to a light cream in dark mode - which left white-on-white text
-    // and an invisible "Undo" action. A snackbar reads as a solid dark
-    // pill either way, so it uses the theme-constant leather pair instead
-    // of a token that was only ever dark by accident.
+    // The leather pair, so the snackbar is a dark pill with readable text in
+    // both themes (`onSurface` turns light in dark mode).
     return SnackBarThemeData(
-      // A touch lighter than pure `leather`, not the flat color itself -
-      // in dark mode the page behind it is the same near-black as
-      // `leather`, so the pill had no visible edge to lift off the page
-      // with (same issue as the dashboard's peek card).
+      // Slightly lighter than `leather`, so it shows against the dark-mode page.
       backgroundColor: Color.lerp(
         colors.leather,
         colors.onSurfaceVariant,

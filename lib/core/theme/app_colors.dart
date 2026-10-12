@@ -24,27 +24,17 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color onSurface;
   final Color surfaceContainer;
   final Color primary;
-  // A punchier tonal step beyond `primary` - same ink/cream hue family,
-  // pushed to the far end (pure black / pure white) rather than a new
-  // color - reserved for the few things that need to read as the single
-  // most emphasized element on a plain surface (income amounts, the "see
-  // all" link, the date picker's "today" marker). Not a substitute for
-  // `primary` on filled buttons/chips.
+  // Pure black / pure white, for the few things that must stand out most
+  // (income amounts, links). Not for filled buttons - use `primary`.
   final Color primaryStrong;
   final Color primaryContainer;
   final Color onPrimary;
   final Color onSurfaceVariant;
   final Color error;
-  // Neutral gray, deliberately not tinted toward the warm cream palette -
-  // text fields need to read as "a field", visually distinct from the cream
-  // cards and page background around them.
+  // Neutral gray, so text fields stand apart from the cream surfaces.
   final Color fieldFill;
   final Color fieldBorder;
-  // The wallet/balance card's own dark leather material - a physical
-  // object, not a themed surface, so unlike `primary` (which deliberately
-  // inverts in dark mode as the CTA color) this pair stays the same dark
-  // ink + cream text in both themes. A real leather wallet doesn't turn
-  // pale just because the room lights dimmed.
+  // The leather wallet card: the same in both themes, since it's a physical object.
   final Color leather;
   final Color onLeather;
 

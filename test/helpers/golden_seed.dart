@@ -7,10 +7,7 @@ import 'package:waldo/features/transactions/repositories/transaction_repository.
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
 
-/// A small, representative seed (one wallet, one income + one expense
-/// transaction) shared by every screen's golden test, so each screen's
-/// "normal" state - not its empty state - is what's captured as the
-/// baseline.
+/// One wallet with one income and one expense, shared by the golden tests.
 class GoldenSeed {
   const GoldenSeed({required this.walletId});
 
