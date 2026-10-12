@@ -74,12 +74,7 @@ class WalletsScreen extends ConsumerWidget {
   }
 
   void _editWallet(BuildContext context, Wallet wallet) {
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      builder: (_) => WalletFormSheet(wallet: wallet),
-    );
+    showWalletFormSheet(context, wallet: wallet);
   }
 
   void _openWallet(BuildContext context, Wallet wallet) {
@@ -87,12 +82,7 @@ class WalletsScreen extends ConsumerWidget {
   }
 
   void _addWallet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      builder: (_) => const WalletFormSheet(),
-    );
+    showWalletFormSheet(context);
   }
 
   @override

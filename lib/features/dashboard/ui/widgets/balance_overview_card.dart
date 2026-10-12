@@ -54,86 +54,86 @@ class BalanceOverviewCard extends StatelessWidget {
         ? hiddenAmount
         : formatCents(totalBalance, currencyCode: currencyCode);
 
-    return Padding(
-      padding: const EdgeInsets.only(top: _cardPeek),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // The card peeking out behind: another wallet, or a "create a wallet"
-          // placeholder. Taller than the peek so its corners hide behind the front card.
-          Positioned(
-            top: -_cardPeek,
-            left: 0,
-            right: 0,
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: FractionallySizedBox(
-                widthFactor: 0.88,
-                child: isEmpty
-                    ? _EmptyPeekCard(onTap: onCreateWallet)
-                    : ClipRRect(
-                        borderRadius: BorderRadius.circular(Rounded.lg),
-                        child: SizedBox(
-                          height: _cardPeek + 24,
-                          child: Stack(
-                            children: [
-                              // The first wallet, which always gets the platinum finish.
-                              const Positioned.fill(
-                                child: WalletCardBackground(
-                                  finish: WalletCardFinish.platinum,
-                                ),
+    return Stack(
+      children: [
+        // The card peeking out behind: another wallet, or a "create a wallet"
+        // placeholder. Taller than the peek so its corners hide behind the front card.
+        // Kept inside the Stack's bounds, or taps on it are never delivered.
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: FractionallySizedBox(
+              widthFactor: 0.88,
+              child: isEmpty
+                  ? _EmptyPeekCard(onTap: onCreateWallet)
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(Rounded.lg),
+                      child: SizedBox(
+                        height: _cardPeek + 24,
+                        child: Stack(
+                          children: [
+                            // The first wallet, which always gets the platinum finish.
+                            const Positioned.fill(
+                              child: WalletCardBackground(
+                                finish: WalletCardFinish.platinum,
                               ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: Spacing.md,
-                                  vertical: Spacing.sm,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        peekWalletName ?? '',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        // The wallet card's engraved ink style, not a type-scale step.
-                                        style: context.textTheme.bodySmall
-                                            ?.copyWith(
-                                              color: walletCardInkColor(
-                                                context,
-                                                alpha: 0.6,
-                                              ),
-                                              fontWeight: FontWeight.w600,
-                                              letterSpacing: 0.2,
-                                              shadows: walletCardTextShadow,
-                                            ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: Spacing.sm),
-                                    Text(
-                                      cardMonthLabel.toUpperCase(),
-                                      style: context.textTheme.labelSmall
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: Spacing.md,
+                                vertical: Spacing.sm,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      peekWalletName ?? '',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      // The wallet card's engraved ink style, not a type-scale step.
+                                      style: context.textTheme.bodySmall
                                           ?.copyWith(
                                             color: walletCardInkColor(
                                               context,
                                               alpha: 0.6,
                                             ),
-                                            letterSpacing: 0.6,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 0.2,
                                             shadows: walletCardTextShadow,
                                           ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  const SizedBox(width: Spacing.sm),
+                                  Text(
+                                    cardMonthLabel.toUpperCase(),
+                                    style: context.textTheme.labelSmall
+                                        ?.copyWith(
+                                          color: walletCardInkColor(
+                                            context,
+                                            alpha: 0.6,
+                                          ),
+                                          letterSpacing: 0.6,
+                                          shadows: walletCardTextShadow,
+                                        ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-              ),
+                    ),
             ),
           ),
-          Container(
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: _cardPeek),
+          child: Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(
               Spacing.md,
@@ -217,8 +217,8 @@ class BalanceOverviewCard extends StatelessWidget {
               ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
