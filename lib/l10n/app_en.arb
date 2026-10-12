@@ -364,6 +364,10 @@
   "@categorySaveError": {
     "description": "Generic error message shown when saving a category fails"
   },
+  "categoryNameTaken": "A category with this name already exists",
+  "@categoryNameTaken": {
+    "description": "Validation error when the user types a category name that is already shown in the list"
+  },
   "categoryDeleteError": "There was a problem deleting the category. Please try again.",
   "@categoryDeleteError": {
     "description": "Generic error message shown when deleting a category fails"

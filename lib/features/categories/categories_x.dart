@@ -3,6 +3,8 @@ import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
+import 'models/category.dart';
+
 extension CategoryTypeLabel on CategoryType {
   String label(AppLocalizations l10n) {
     return switch (this) {
@@ -27,4 +29,10 @@ extension CategoryTypeIcon on CategoryType {
       CategoryType.others => AppIcons.categoryOthers,
     };
   }
+}
+
+extension CategoryDisplayName on Category {
+  /// The name the user sees: built-ins are translated from their type.
+  String displayName(AppLocalizations l10n) =>
+      isDefault ? type.label(l10n) : name;
 }
