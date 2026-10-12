@@ -46,8 +46,10 @@ class _MonthSelectorState extends State<MonthSelector> {
     super.initState();
     _itemKeys = {for (final month in widget.months) month: GlobalKey()};
     _scrollController.addListener(_updateScrollAffordances);
+    // Jump, not animate: the selected month is known up front, so the row
+    // opens already on it instead of sliding there while a sheet rises.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToSelected();
+      _scrollToSelected(animate: false);
       _updateScrollAffordances();
     });
   }
@@ -70,16 +72,21 @@ class _MonthSelectorState extends State<MonthSelector> {
     }
   }
 
-  void _scrollToSelected() {
-    if (!mounted) return;
-    final itemContext = _itemKeys[widget.selectedMonth]?.currentContext;
-    if (itemContext == null) return;
-    Scrollable.ensureVisible(
-      itemContext,
-      alignment: 0.5,
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOut,
-    );
+  void _scrollToSelected({bool animate = true}) {
+    if (!mounted || !_scrollController.hasClients) return;
+    final box = _itemKeys[widget.selectedMonth]?.currentContext
+        ?.findRenderObject();
+    if (box == null) return;
+    final position = _scrollController.position;
+    final target = RenderAbstractViewport.of(box)
+        .getOffsetToReveal(box, 0.5)
+        .offset
+        .clamp(position.minScrollExtent, position.maxScrollExtent);
+    if (animate) {
+      _animateTo(target);
+    } else {
+      _scrollController.jumpTo(target);
+    }
   }
 
   void _updateScrollAffordances() {
