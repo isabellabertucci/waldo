@@ -1,14 +1,8 @@
 import 'package:logging/logging.dart';
 import 'package:sqflite/sqflite.dart';
 import 'migrations/v00001_create_initial_schema.dart' as m00001;
-import 'migrations/v00002_add_transaction_note.dart' as m00002;
-import 'migrations/v00003_add_others_category_type.dart' as m00003;
 
-final List<Future<void> Function(Database db)> migrations = [
-  m00001.up,
-  m00002.up,
-  m00003.up,
-];
+final List<Future<void> Function(Database db)> migrations = [m00001.up];
 
 final _log = Logger('waldo.db');
 
