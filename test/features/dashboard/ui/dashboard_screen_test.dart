@@ -61,6 +61,21 @@ void main() {
     },
   );
 
+  testWidgets('Tapping the first-wallet prompt opens the wallet form', (
+    tester,
+  ) async {
+    await pumpDashboardScreen(tester);
+
+    // Fatal, so a tap that lands on nothing fails instead of just warning.
+    WidgetController.hitTestWarningShouldBeFatal = true;
+    addTearDown(() => WidgetController.hitTestWarningShouldBeFatal = false);
+
+    await tester.tap(find.text('Slide in your first wallet'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('New Wallet'), findsOneWidget);
+  });
+
   testWidgets(
     'Shows per-section empty states when there is a wallet but no transactions',
     (tester) async {

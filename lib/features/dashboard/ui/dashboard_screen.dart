@@ -110,12 +110,7 @@ class _DashboardBody extends ConsumerWidget {
             ).format(selectedMonth),
             peekWalletName: peekWalletName,
             walletCount: data.walletCount,
-            onCreateWallet: () => showModalBottomSheet(
-              context: context,
-              useRootNavigator: true,
-              isScrollControlled: true,
-              builder: (_) => const WalletFormSheet(),
-            ),
+            onCreateWallet: () => showWalletFormSheet(context),
             onAddPressed: () => _showQuickAddSheet(context),
             onToggleBalanceHidden: () =>
                 ref.read(balanceHiddenProvider.notifier).toggle(),
@@ -186,12 +181,7 @@ void _showQuickAddSheet(BuildContext context) {
               title: Text(l10n.newWallet),
               onTap: () {
                 Navigator.of(sheetContext).pop();
-                showModalBottomSheet(
-                  context: context,
-                  useRootNavigator: true,
-                  isScrollControlled: true,
-                  builder: (_) => const WalletFormSheet(),
-                );
+                showWalletFormSheet(context);
               },
             ),
           ],
