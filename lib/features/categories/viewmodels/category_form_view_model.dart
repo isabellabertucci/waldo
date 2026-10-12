@@ -29,17 +29,20 @@ class CategoryFormViewModel extends _$CategoryFormViewModel {
     state = state.copyWith(type: value);
   }
 
-  Future<bool> save(Category? existingCategory) async {
-    if (state.name.trim().isEmpty) return false;
+  /// The saved category's id, or null if the form isn't valid yet.
+  Future<int?> save(Category? existingCategory) async {
+    if (state.name.trim().isEmpty) return null;
 
     final repo = await ref.read(categoryRepositoryProvider.future);
 
+    final int id;
     if (existingCategory != null) {
       await repo.update(
         existingCategory.copyWith(name: state.name.trim(), type: state.type),
       );
+      id = existingCategory.id!;
     } else {
-      await repo.insert(
+      id = await repo.insert(
         Category(
           name: state.name.trim(),
           type: state.type,
@@ -51,6 +54,6 @@ class CategoryFormViewModel extends _$CategoryFormViewModel {
     _log.info('Category save succeeded: isEditing=${existingCategory != null}');
     ref.invalidate(categoryListViewModelProvider);
     ref.invalidate(dashboardViewModelProvider);
-    return true;
+    return id;
   }
 }
