@@ -170,11 +170,17 @@ abstract class AppLocalizations {
   /// **'Starting balance'**
   String get startingBalance;
 
-  /// Helper text under the starting balance field when creating a new wallet
+  /// Label inside the starting balance field of the new-wallet form
   ///
   /// In en, this message translates to:
-  /// **'You can change this later'**
-  String get startingBalanceHint;
+  /// **'How much is in it today?'**
+  String get startingBalancePrompt;
+
+  /// Tag beside a form section title that doesn't need filling in
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get optional;
 
   /// Helper text for locked balance field
   ///
@@ -841,12 +847,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recent Transactions'**
   String get recentTransactions;
-
-  /// Empty state title for the dashboard's recent transactions section
-  ///
-  /// In en, this message translates to:
-  /// **'No transactions yet'**
-  String get noRecentTransactions;
 
   /// Label on the dashed placeholder card peeking behind the balance card when there are no wallets yet
   ///
