@@ -6,6 +6,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/receipt_shell.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -279,44 +280,42 @@ class _EmptyReceipt extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
 
+    // Unlike the receipt, this box doesn't tuck under the card, so it needs a gap.
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Spacing.lg),
-      child: Container(
-        padding: const EdgeInsets.all(Spacing.md),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: colors.onSurfaceVariant.withValues(alpha: 0.4),
-            width: 1.5,
+      padding: const EdgeInsets.fromLTRB(Spacing.lg, Spacing.md, Spacing.lg, 0),
+      child: DashedBorder(
+        radius: Rounded.lg,
+        color: colors.onSurfaceVariant.withValues(alpha: 0.4),
+        child: Container(
+          padding: const EdgeInsets.all(Spacing.md),
+          child: Column(
+            children: [
+              Text(
+                l10n.categorySpendingEmptyHint,
+                textAlign: TextAlign.center,
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: Spacing.sm),
+              TextButton.icon(
+                onPressed: onAddTransaction,
+                style: TextButton.styleFrom(
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.onPrimary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.md,
+                    vertical: Spacing.sm,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(Rounded.pill),
+                  ),
+                ),
+                icon: const Icon(AppIcons.add, size: IconSize.lg),
+                label: Text(l10n.addFirstTransactionButton),
+              ),
+            ],
           ),
-          borderRadius: BorderRadius.circular(Rounded.lg),
-        ),
-        child: Column(
-          children: [
-            Text(
-              l10n.categorySpendingEmptyHint,
-              textAlign: TextAlign.center,
-              style: context.textTheme.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: Spacing.sm),
-            TextButton.icon(
-              onPressed: onAddTransaction,
-              style: TextButton.styleFrom(
-                backgroundColor: colors.primary,
-                foregroundColor: colors.onPrimary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.md,
-                  vertical: Spacing.sm,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(Rounded.pill),
-                ),
-              ),
-              icon: const Icon(AppIcons.add, size: IconSize.lg),
-              label: Text(l10n.addFirstTransactionButton),
-            ),
-          ],
         ),
       ),
     );
