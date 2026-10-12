@@ -289,6 +289,9 @@ class AppLocalizationsPt extends AppLocalizations {
       'Ocorreu um problema ao guardar a categoria. Tenta novamente.';
 
   @override
+  String get categoryNameTaken => 'Já existe uma categoria com esse nome';
+
+  @override
   String get categoryDeleteError =>
       'Ocorreu um problema ao apagar a categoria. Tenta novamente.';
 

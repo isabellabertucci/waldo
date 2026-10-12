@@ -41,6 +41,13 @@ Future<void> up(Database db) async {
     )
   ''');
 
+  // Unique only among user-created categories; built-ins are named by type.
+  await db.execute('''
+    CREATE UNIQUE INDEX idx_categories_custom_name
+      ON ${CategoriesTable.table} (${CategoriesTable.name} COLLATE NOCASE)
+      WHERE ${CategoriesTable.isDefault} = 0
+  ''');
+
   final now = DateTime.now().toIso8601String();
   const defaultCategories = {
     'Groceries': CategoryType.groceries,

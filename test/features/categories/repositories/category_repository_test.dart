@@ -72,6 +72,57 @@ void main() {
       );
     });
 
+    test(
+      'insert rejects a second custom category with the same name',
+      () async {
+        await repo.insert(_custom('Escola'));
+
+        expect(
+          () => repo.insert(_custom('Escola')),
+          throwsA(isA<DuplicateCategoryNameException>()),
+        );
+      },
+    );
+
+    test(
+      'insert treats names that differ only in case as duplicates',
+      () async {
+        await repo.insert(_custom('Escola'));
+
+        expect(
+          () => repo.insert(_custom('escola')),
+          throwsA(isA<DuplicateCategoryNameException>()),
+        );
+      },
+    );
+
+    test('insert allows a custom category named like a built-in', () async {
+      // Built-ins are shown translated, so their stored name doesn't count.
+      final id = await repo.insert(_custom('Groceries'));
+
+      expect(id, greaterThan(0));
+    });
+
+    test('update rejects renaming to another custom category name', () async {
+      await repo.insert(_custom('Escola'));
+      final id = await repo.insert(_custom('Café'));
+      final cafe = await repo.getById(id);
+
+      expect(
+        () => repo.update(cafe!.copyWith(name: 'Escola')),
+        throwsA(isA<DuplicateCategoryNameException>()),
+      );
+    });
+
+    test('update allows changing only the case of its own name', () async {
+      final id = await repo.insert(_custom('Café'));
+      final cafe = await repo.getById(id);
+
+      await repo.update(cafe!.copyWith(name: 'café'));
+
+      expect((await repo.getById(id))!.name, 'café');
+    });
+
     test('delete removes a category with no transactions', () async {
       final id = await repo.insert(
         const Category(
@@ -86,3 +137,6 @@ void main() {
     });
   });
 }
+
+Category _custom(String name) =>
+    Category(name: name, createdAt: '2026-08-10T12:00:00.000');
