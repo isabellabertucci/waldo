@@ -403,6 +403,8 @@ wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
 - **Outlines and placeholders** use a faint stitch (`on-surface-variant` at low
   alpha).
 - Nothing has a border at rest unless it is a placeholder.
+- **Sheets and dialogs have no frame stitch.** The stitch marks what's selected
+  inside them, so a stitched frame would compete with it.
 - **Errors are the one solid border** (`error`), so a broken field differs from a
   selected one by line as well as color.
 
