@@ -280,8 +280,7 @@ leather wallet doesn't change color because the room got darker.
 - **Primary Strong (`#000000` light / `#FFFFFF` dark):** A punchier tonal
   step beyond `primary` for the few places that need to read as the single
   most emphasized thing on a plain surface - income amounts, the chart's
-  income series, the dashboard's "see all" link, and the date picker's
-  "today" marker. It's the same ink/cream hue family as `primary`, just
+  income series, and the date picker's "today" marker. It's the same ink/cream hue family as `primary`, just
   pushed to the far end (pure black / pure white) rather than a new color,
   which keeps Waldo's "almost no color" rule intact while still giving these
   specific moments real visual weight. It's a token for *emphasis on a plain
@@ -395,10 +394,26 @@ small and large tiers so the UI reads as either "a small control" or
 
 The middle ground most systems have (8-16px) is intentionally absent.
 
+## Borders
+
+**Stitch, never solid.** Waldo draws borders as a dashed stitch, the leather
+wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
+
+- **Selected and focused** states use an ink stitch (`primary`).
+- **Outlines and placeholders** use a faint stitch (`on-surface-variant` at low
+  alpha).
+- Nothing has a border at rest unless it is a placeholder.
+- **Errors are the one solid border** (`error`), so a broken field differs from a
+  selected one by line as well as color.
+
 ## Components
 
 - **Buttons (primary):** `primary`-filled pill, `on-primary` text, `label-lg-strong`
   typography, `rounded.md`, 16px padding.
+- **Buttons (secondary):** `SecondaryButton` - a `rounded.pill` with a
+  `surface` fill on the page and no fill on a sheet (where filled pills are
+  fields), `on-surface` text in `body-md-strong`, 12px x 4px padding. For
+  low-emphasis actions beside a section title ("See all", "Manage categories").
 - **Cards:** `surface`-filled, `rounded.lg`, no elevation unless grouping
   list rows (see Elevation: Low).
 - **Input fields:** `field-fill` background (never tinted toward the cream
