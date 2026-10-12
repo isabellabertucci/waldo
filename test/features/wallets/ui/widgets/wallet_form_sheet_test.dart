@@ -4,6 +4,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:waldo/features/wallets/ui/widgets/wallet_form_sheet.dart';
 
+import '../../../../helpers/sheet_keyboard.dart';
 import '../../../../helpers/test_app.dart';
 
 void main() {
@@ -93,5 +94,30 @@ void main() {
     final button = find.text('Create wallet');
     expect(button.hitTestable(), findsOneWidget);
     expect(tester.getBottomLeft(button).dy, lessThanOrEqualTo(640 - 48));
+  });
+
+  testWidgets('With the keyboard open the sheet scrolls instead of '
+      'overflowing', (tester) async {
+    useSmallAndroidPhone(tester);
+    currentDb = await pumpWidgetWithProviders(
+      tester,
+      Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => showWalletFormSheet(context),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    await expectSheetScrollsWithKeyboard(
+      tester,
+      field: find.byKey(const Key('walletNameField')),
+      sheet: find.byType(WalletFormSheet),
+      lastButton: find.text('Create wallet'),
+    );
   });
 }

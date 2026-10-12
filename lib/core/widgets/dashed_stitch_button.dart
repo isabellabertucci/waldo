@@ -80,16 +80,21 @@ class DashedStitchButton extends StatelessWidget {
                     ),
                   if (icon != null && label != null)
                     const SizedBox(width: Spacing.xs),
+                  // Flexible so a narrow button (or large text) ellipsizes instead of overflowing.
                   if (label != null)
-                    Text(
-                      label!,
-                      textAlign: TextAlign.center,
-                      style:
-                          (labelStyle ??
-                                  (compact
-                                      ? context.bodySmBold
-                                      : context.labelLgStrong))
-                              .copyWith(color: colors.onPrimary),
+                    Flexible(
+                      child: Text(
+                        label!,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style:
+                            (labelStyle ??
+                                    (compact
+                                        ? context.bodySmBold
+                                        : context.labelLgStrong))
+                                .copyWith(color: colors.onPrimary),
+                      ),
                     ),
                 ],
               ),
