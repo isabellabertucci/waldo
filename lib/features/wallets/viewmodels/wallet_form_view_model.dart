@@ -38,7 +38,20 @@ class WalletFormViewModel extends _$WalletFormViewModel {
     state = state.copyWith(startingBalance: value);
   }
 
+  /// True while a save is writing, so a double tap can't save twice.
+  bool _saving = false;
+
   Future<bool> save(Wallet? existingWallet) async {
+    if (_saving) return false;
+    _saving = true;
+    try {
+      return await _save(existingWallet);
+    } finally {
+      _saving = false;
+    }
+  }
+
+  Future<bool> _save(Wallet? existingWallet) async {
     final isEditing = existingWallet != null;
     final allowsNegative = state.type == WalletType.credit;
     final balanceInCents = isEditing

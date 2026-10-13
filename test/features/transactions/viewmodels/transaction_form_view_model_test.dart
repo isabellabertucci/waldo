@@ -186,6 +186,27 @@ void main() {
     verifyNever(() => mockCategoryRepo.getOthers());
   });
 
+  test('a second save while the first is still writing does nothing', () async {
+    // A double tap on Save: both calls land before the first insert returns.
+    when(() => mockRepo.insert(any())).thenAnswer(
+      (_) => Future.delayed(const Duration(milliseconds: 10), () => 1),
+    );
+    final provider = transactionFormViewModelProvider(null, initialWalletId: 1);
+    // Kept alive like the open sheet keeps it.
+    container.listen(provider, (_, _) {});
+    final notifier = container.read(provider.notifier);
+    notifier.updateAmount('5.00');
+    notifier.updateDate(DateTime(2026, 8, 10));
+
+    final results = await Future.wait([
+      notifier.save(null),
+      notifier.save(null),
+    ]);
+
+    expect(results, [true, false]);
+    verify(() => mockRepo.insert(any())).called(1);
+  });
+
   test('save while editing calls update, not insert', () async {
     final existing = const Transaction(
       id: 9,
