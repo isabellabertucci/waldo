@@ -1,5 +1,4 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 
@@ -20,20 +19,9 @@ class WalletsSummary {
 @riverpod
 Future<WalletsSummary> walletsSummaryViewModel(Ref ref) async {
   final transactionRepo = await ref.watch(transactionRepositoryProvider.future);
-  final transactions = await transactionRepo.getAll();
   final now = ref.watch(clockProvider)();
-
-  var income = 0;
-  var expense = 0;
-  for (final t in transactions) {
-    final date = DateTime.parse(t.date);
-    if (date.year != now.year || date.month != now.month) continue;
-    if (t.type == TransactionType.income) {
-      income += t.amount;
-    } else {
-      expense += t.amount;
-    }
-  }
+  // Summed in SQL, so it doesn't load every transaction ever saved.
+  final (:income, :expense) = await transactionRepo.monthTotals(now);
 
   final net = income - expense;
   return WalletsSummary(
