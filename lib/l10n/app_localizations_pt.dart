@@ -464,6 +464,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get filterSectionMonth => 'Mês';
 
   @override
+  String get earlierMonths => 'Meses anteriores';
+
+  @override
+  String get laterMonths => 'Meses seguintes';
+
+  @override
   String get filterSectionType => 'Tipo';
 
   @override

@@ -134,6 +134,8 @@
   "filterTitle": "Filtro",
   "filterReset": "Repor",
   "filterSectionMonth": "Mês",
+  "earlierMonths": "Meses anteriores",
+  "laterMonths": "Meses seguintes",
   "filterSectionType": "Tipo",
   "filterTypeAll": "Todas",
   "filterShowTransactions": "{count, plural, one{Ver 1 transação} other{Ver {count} transações}}",
