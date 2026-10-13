@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
-import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
 class SectionLabel extends StatelessWidget {
@@ -55,7 +54,7 @@ class _RowDivider extends StatelessWidget {
     return Divider(
       height: 1,
       // Starts under the title: row padding + badge + title gap.
-      indent: Spacing.sm + 36 + Spacing.component,
+      indent: Spacing.sm + 40 + Spacing.component,
       color: context.appColors.onSurfaceVariant.withValues(alpha: 0.12),
     );
   }
@@ -90,12 +89,13 @@ class SettingsRow extends StatelessWidget {
         vertical: Spacing.xxs,
       ),
       horizontalTitleGap: Spacing.component,
+      // Same disc as the option sheet's, so both screens match.
       leading: Container(
-        width: 36,
-        height: 36,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
-          color: colors.surfaceContainer,
-          borderRadius: BorderRadius.circular(Rounded.md),
+          color: colors.fieldFill,
+          shape: BoxShape.circle,
         ),
         child: Icon(icon, size: IconSize.lg, color: colors.onSurfaceVariant),
       ),
