@@ -577,6 +577,14 @@
   "@filterSectionMonth": {
     "description": "Section label (shown uppercased) above the month grid in the filter sheet"
   },
+  "earlierMonths": "Earlier months",
+  "@earlierMonths": {
+    "description": "Name of the month selector's left chevron, which scrolls to earlier months"
+  },
+  "laterMonths": "Later months",
+  "@laterMonths": {
+    "description": "Name of the month selector's right chevron, which scrolls to later months"
+  },
   "filterSectionType": "Type",
   "@filterSectionType": {
     "description": "Section label (shown uppercased) above the income/expense toggle in the filter sheet"
