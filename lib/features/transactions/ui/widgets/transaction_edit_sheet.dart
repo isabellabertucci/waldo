@@ -509,17 +509,17 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             child: Column(
               children: [
                 _ViewInfoRow(
-                  icon: Icons.calendar_today_outlined,
+                  icon: AppIcons.calendar,
                   label: l10n.date,
                   value: dateLabel,
                 ),
                 _ViewInfoRow(
-                  icon: Icons.account_balance_wallet_outlined,
+                  icon: AppIcons.wallets,
                   label: l10n.wallet,
                   value: walletLabel,
                 ),
                 _ViewInfoRow(
-                  icon: Icons.notes_outlined,
+                  icon: AppIcons.note,
                   label: l10n.transactionNote,
                   value: noteLabel,
                   showDivider: false,
@@ -741,7 +741,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           ),
           const SizedBox(height: Spacing.sm),
           EditFieldRow(
-            icon: Icons.calendar_today_outlined,
+            icon: AppIcons.calendar,
             label: l10n.date,
             value: dateLabel,
             onTap: () => _editDate(formState),
@@ -763,7 +763,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               child: Row(
                 children: [
                   FieldBadge(
-                    icon: Icons.notes_outlined,
+                    icon: AppIcons.note,
                     color: colors.onSurfaceVariant,
                   ),
                   const SizedBox(width: Spacing.sm),

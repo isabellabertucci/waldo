@@ -182,17 +182,17 @@ class _SettingsBody extends ConsumerWidget {
           SettingsOption(
             label: l10n.themeSystem,
             value: null,
-            icon: Icons.brightness_auto_outlined,
+            icon: AppIcons.themeSystem,
           ),
           SettingsOption(
             label: l10n.themeLight,
             value: false,
-            icon: Icons.light_mode_outlined,
+            icon: AppIcons.themeLight,
           ),
           SettingsOption(
             label: l10n.themeDark,
             value: true,
-            icon: Icons.dark_mode_outlined,
+            icon: AppIcons.themeDark,
           ),
         ],
         onConfirm: (value) =>
@@ -256,17 +256,17 @@ class _SettingsBody extends ConsumerWidget {
           SettingsOption(
             label: DateFormat('dd/MM/yyyy').format(now),
             value: 'dd/MM/yyyy',
-            icon: Icons.calendar_today_outlined,
+            icon: AppIcons.calendar,
           ),
           SettingsOption(
             label: DateFormat('MM/dd/yyyy').format(now),
             value: 'MM/dd/yyyy',
-            icon: Icons.calendar_today_outlined,
+            icon: AppIcons.calendar,
           ),
           SettingsOption(
             label: DateFormat('yyyy-MM-dd').format(now),
             value: 'yyyy-MM-dd',
-            icon: Icons.calendar_today_outlined,
+            icon: AppIcons.calendar,
           ),
         ],
         onConfirm: (value) => _savePreference(
