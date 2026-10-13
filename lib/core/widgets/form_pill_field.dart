@@ -24,6 +24,8 @@ class FormPillField extends StatefulWidget {
     this.inputFormatters,
     this.textCapitalization = TextCapitalization.none,
     this.maxLength,
+    this.onSubmitted,
+    this.onPage = false,
     this.fieldKey,
   });
 
@@ -44,6 +46,13 @@ class FormPillField extends StatefulWidget {
 
   /// Stops typing at this length; a counter shows near it.
   final int? maxLength;
+
+  /// The keyboard's done key; also makes that key read "done".
+  final ValueChanged<String>? onSubmitted;
+
+  /// True on the page background rather than a sheet: the pill fills with
+  /// `surface`, like the cards around it, and the disc steps the other way.
+  final bool onPage;
 
   /// Put on the inner [TextFormField], so tests can type into it.
   final Key? fieldKey;
@@ -82,7 +91,7 @@ class _FormPillFieldState extends State<FormPillField> {
               vertical: Spacing.sm,
             ),
             decoration: BoxDecoration(
-              color: colors.surfaceContainer,
+              color: widget.onPage ? colors.surface : colors.surfaceContainer,
               borderRadius: BorderRadius.circular(Rounded.lg),
             ),
             child: Row(
@@ -92,7 +101,11 @@ class _FormPillFieldState extends State<FormPillField> {
                   height: 36,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: focused ? colors.primary : colors.surface,
+                    color: focused
+                        ? colors.primary
+                        : (widget.onPage
+                              ? colors.surfaceContainer
+                              : colors.surface),
                     shape: BoxShape.circle,
                   ),
                   child: IconTheme(
@@ -126,6 +139,10 @@ class _FormPillFieldState extends State<FormPillField> {
                         inputFormatters: widget.inputFormatters,
                         textCapitalization: widget.textCapitalization,
                         maxLength: widget.maxLength,
+                        onFieldSubmitted: widget.onSubmitted,
+                        textInputAction: widget.onSubmitted == null
+                            ? null
+                            : TextInputAction.done,
                         buildCounter: nearLimitCounter,
                         decoration: InputDecoration(
                           isCollapsed: true,

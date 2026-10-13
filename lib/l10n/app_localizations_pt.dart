@@ -178,9 +178,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get addIncome => 'Adicionar receita';
 
   @override
-  String get addNewCategory => 'Nova';
-
-  @override
   String get transactionNote => 'Nota';
 
   @override
@@ -255,19 +252,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get newCategory => 'Nova categoria';
 
   @override
-  String get categoriesDefaultSection => 'Padrão';
-
-  @override
-  String get categoriesCustomSection => 'Personalizadas';
-
-  @override
-  String get createCategory => 'Criar categoria';
-
-  @override
   String get categoryNameHint => 'ex: Café, Ginásio';
-
-  @override
-  String get editCategory => 'Editar categoria';
 
   @override
   String get manageCategories => 'Gerir categorias';
@@ -277,7 +262,36 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String deleteCategoryConfirm(String name) {
-    return 'Isto vai apagar permanentemente \"$name\". As transações que a usam mantêm os seus dados, mas perdem a categoria.';
+    return 'Isto vai apagar \"$name\".';
+  }
+
+  @override
+  String deleteCategoryMovesTransactions(
+    int count,
+    String name,
+    String others,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transações usam \"$name\"',
+      one: '1 transação usa \"$name\"',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'passam',
+      one: 'passa',
+    );
+    return '$_temp0. Se a apagares, $_temp1 para $others.';
+  }
+
+  @override
+  String get addCategory => 'Adicionar categoria';
+
+  @override
+  String deleteCategoryNamed(String name) {
+    return 'Apagar $name';
   }
 
   @override

@@ -132,9 +132,9 @@ class DashboardReceipt extends StatelessWidget {
                       for (var i = 0; i < visibleCategories.length; i++) ...[
                         ReceiptRow(
                           textStyles: textStyles,
-                          label: visibleCategories[i].category.isDefault
-                              ? visibleCategories[i].category.type.label(l10n)
-                              : visibleCategories[i].category.name,
+                          label: visibleCategories[i].category.displayName(
+                            l10n,
+                          ),
                           value: amount(
                             formatCents(
                               visibleCategories[i].amount,

@@ -233,7 +233,7 @@ void main() {
     });
 
     test(
-      'deleting a category sets categoryId to null on its transactions, without deleting them',
+      'deleting a category moves its transactions to Others, without deleting them',
       () async {
         final categoryRepo = CategoryRepositoryImpl(db);
         final categoryId = await categoryRepo.insert(
@@ -259,7 +259,7 @@ void main() {
 
         final transaction = await repo.getById(transactionId);
         expect(transaction, isNotNull);
-        expect(transaction!.categoryId, isNull);
+        expect(transaction!.categoryId, (await categoryRepo.getOthers()).id);
       },
     );
 
