@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_icons.dart';
-import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/dashed_circle_badge.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 class ConfirmationDialog extends StatelessWidget {
@@ -59,7 +59,7 @@ class ConfirmationDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _DashedCircleBadge(icon: icon, color: accent),
+            DashedCircleBadge(icon: icon, color: accent),
             const SizedBox(height: Spacing.sm),
             Text(
               title,
@@ -120,65 +120,4 @@ class ConfirmationDialog extends StatelessWidget {
       ),
     );
   }
-}
-
-/// A dashed ring around a tinted circle, holding the dialog's icon.
-class _DashedCircleBadge extends StatelessWidget {
-  const _DashedCircleBadge({required this.icon, required this.color});
-
-  final IconData icon;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 56,
-      height: 56,
-      child: CustomPaint(
-        painter: _DashedCirclePainter(color: color),
-        child: Center(
-          child: Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: IconSize.xl, color: color),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _DashedCirclePainter extends CustomPainter {
-  const _DashedCirclePainter({required this.color});
-
-  final Color color;
-
-  static const _dashLength = 4.0;
-  static const _gapLength = 3.0;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final path = Path()..addOval(Rect.fromLTWH(0, 0, size.width, size.height));
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.6)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    for (final metric in path.computeMetrics()) {
-      var distance = 0.0;
-      while (distance < metric.length) {
-        final next = (distance + _dashLength).clamp(0.0, metric.length);
-        canvas.drawPath(metric.extractPath(distance, next), paint);
-        distance = next + _gapLength;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedCirclePainter oldDelegate) =>
-      color != oldDelegate.color;
 }
