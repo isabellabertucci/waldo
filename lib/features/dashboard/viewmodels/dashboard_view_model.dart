@@ -38,6 +38,8 @@ class DashboardViewModel extends _$DashboardViewModel {
     );
     final categoryRepo = await ref.watch(categoryRepositoryProvider.future);
     final anchor = ref.watch(selectedDashboardMonthProvider);
+    final now = ref.watch(clockProvider)();
+    final isCurrentMonth = anchor == DateTime(now.year, now.month);
 
     final totalBalance = await walletRepo.getTotalBalance();
     final walletCount = await walletRepo.getCount();
@@ -80,10 +82,12 @@ class DashboardViewModel extends _$DashboardViewModel {
       spendingByCategory: spendingByCategory,
       uncategorizedSpending: monthlyExpense - categorizedTotal,
       monthlyCashFlow: _buildMonthlyCashFlow(transactions, anchor),
-      // Already sorted newest first, so these are the month's most recent.
-      recentTransactions: currentMonthTransactions
-          .take(_recentTransactionsLimit)
-          .toList(),
+      // Newest first. On the current month, from any date, so the 1st isn't
+      // empty; on a past month, that month's, to match the receipt.
+      recentTransactions:
+          (isCurrentMonth ? transactions : currentMonthTransactions)
+              .take(_recentTransactionsLimit)
+              .toList(),
     );
   }
 
