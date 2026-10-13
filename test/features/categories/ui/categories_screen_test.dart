@@ -131,6 +131,16 @@ void main() {
     expect(find.text('A category with this name already exists'), findsOne);
   });
 
+  testWidgets('A built-in name in another language warns too', (tester) async {
+    await pumpCategoriesScreen(tester);
+
+    // "Groceries" in Portuguese, typed while the app is in English.
+    await typeName(tester, 'supermercado');
+    await tapAdd(tester);
+
+    expect(find.text('A category with this name already exists'), findsOne);
+  });
+
   testWidgets('The name stops at 30 characters and shows a counter', (
     tester,
   ) async {
