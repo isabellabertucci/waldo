@@ -111,9 +111,10 @@ class Common {
   }
 
   static DatePickerThemeData getDatePickerTheme(AppColors colors) {
-    Color onColor(Color background) {
-      return background.computeLuminance() > 0.5 ? Colors.black : Colors.white;
-    }
+    // The selected day (today included) is an ink disc with on-primary text,
+    // like every other selected pill in the app.
+    Color? selectedFill(Set<WidgetState> states) =>
+        states.contains(WidgetState.selected) ? colors.primary : null;
 
     return DatePickerThemeData(
       backgroundColor: colors.surface,
@@ -123,16 +124,26 @@ class Common {
         borderRadius: BorderRadius.circular(Rounded.lg),
       ),
 
+      dayBackgroundColor: WidgetStateProperty.resolveWith(selectedFill),
       dayForegroundColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) {
-          return onColor(colors.primaryStrong);
-        }
+        if (states.contains(WidgetState.selected)) return colors.onPrimary;
         if (states.contains(WidgetState.disabled)) {
           return colors.onSurfaceVariant.withValues(alpha: 0.4);
         }
         return colors.onSurface;
       }),
-      todayForegroundColor: WidgetStateProperty.all(colors.primaryStrong),
+      todayBackgroundColor: WidgetStateProperty.resolveWith(selectedFill),
+      todayForegroundColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? colors.onPrimary
+            : colors.primaryStrong,
+      ),
+      yearBackgroundColor: WidgetStateProperty.resolveWith(selectedFill),
+      yearForegroundColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? colors.onPrimary
+            : colors.onSurface,
+      ),
 
       dividerColor: colors.onSurfaceVariant.withValues(alpha: 0.12),
       cancelButtonStyle: TextButton.styleFrom(
