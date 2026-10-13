@@ -106,7 +106,7 @@ Future<void> deleteTransactionWithUndo(
 }
 
 /// The field being edited in place - the sheet's content swaps to its editor.
-enum _EditField { amount, name, type, category, note }
+enum _EditField { amount, category }
 
 class TransactionEditSheet extends ConsumerStatefulWidget {
   const TransactionEditSheet({
@@ -169,11 +169,6 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     switch (field) {
       case _EditField.amount:
         _amountController.text = _trimTrailingZeros(formState.amount);
-      case _EditField.name:
-        _nameController.text = formState.description;
-      case _EditField.note:
-        _noteController.text = formState.note;
-      case _EditField.type:
       case _EditField.category:
         break;
     }
@@ -186,13 +181,11 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final formState = _formState;
     return switch (field) {
       _EditField.amount => _amountController.text != formState.amount,
-      _EditField.name => _nameController.text != formState.description,
-      _EditField.note => _noteController.text != formState.note,
-      _EditField.type || _EditField.category => false,
+      _EditField.category => false,
     };
   }
 
-  /// Asks before the back chevron drops unsaved text in Amount/Name/Note.
+  /// Asks before the back chevron drops an unsaved amount.
   Future<void> _handleFieldBack(_EditField field) async {
     if (!_isFieldDirty(field)) {
       _closeField();
@@ -223,11 +216,6 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
       switch (field) {
         case _EditField.amount:
           _confirmAmount();
-        case _EditField.name:
-          _confirmName();
-        case _EditField.note:
-          _confirmNote();
-        case _EditField.type:
         case _EditField.category:
           break;
       }
@@ -239,21 +227,6 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   // Fields only stage changes on the view model; "Save changes" writes them.
   void _confirmAmount() {
     _viewModel(ref).updateAmount(_amountController.text);
-    _closeField();
-  }
-
-  void _confirmName() {
-    _viewModel(ref).updateDescription(_nameController.text);
-    _closeField();
-  }
-
-  void _confirmNote() {
-    _viewModel(ref).updateNote(_noteController.text);
-    _closeField();
-  }
-
-  void _selectType(TransactionType value) {
-    _viewModel(ref).updateType(value);
     _closeField();
   }
 
@@ -360,10 +333,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   String _fieldTitle(_EditField field, AppLocalizations l10n) {
     return switch (field) {
       _EditField.amount => l10n.amount,
-      _EditField.name => l10n.name,
-      _EditField.type => l10n.type,
       _EditField.category => l10n.category,
-      _EditField.note => l10n.transactionNote,
     };
   }
 
@@ -915,17 +885,6 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               formState,
               currency.code,
             ),
-            _EditField.name => _buildTextEditor(
-              _nameController,
-              _confirmName,
-              maxLength: maxTransactionDescriptionLength,
-            ),
-            _EditField.note => _buildTextEditor(
-              _noteController,
-              _confirmNote,
-              maxLength: maxTransactionNoteLength,
-            ),
-            _EditField.type => _buildTypeEditor(context, formState),
             _EditField.category => _buildCategoryEditor(
               context,
               formState,
@@ -996,56 +955,6 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
         const SizedBox(height: Spacing.md),
         DashedStitchButton(label: l10n.done, onPressed: _confirmAmount),
       ],
-    );
-  }
-
-  Widget _buildTextEditor(
-    TextEditingController controller,
-    VoidCallback onConfirm, {
-    int? maxLength,
-  }) {
-    final l10n = AppLocalizations.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextField(
-          controller: controller,
-          autofocus: true,
-          textCapitalization: TextCapitalization.sentences,
-          maxLength: maxLength,
-          buildCounter: nearLimitCounter,
-          onSubmitted: (_) => onConfirm(),
-        ),
-        const SizedBox(height: Spacing.md),
-        DashedStitchButton(label: l10n.done, onPressed: onConfirm),
-      ],
-    );
-  }
-
-  Widget _buildTypeEditor(
-    BuildContext context,
-    TransactionFormState formState,
-  ) {
-    final l10n = AppLocalizations.of(context);
-
-    return RadioGroup<TransactionType>(
-      groupValue: formState.type,
-      onChanged: (value) {
-        if (value != null) _selectType(value);
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: TransactionType.values
-            .map(
-              (t) => RadioListTile<TransactionType>(
-                title: Text(t.label(l10n)),
-                value: t,
-                contentPadding: EdgeInsets.zero,
-              ),
-            )
-            .toList(),
-      ),
     );
   }
 
