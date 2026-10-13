@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -13,7 +12,6 @@ import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/wallet_card_finish.dart';
-import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
@@ -28,7 +26,7 @@ import 'package:waldo/core/widgets/eye_icon.dart';
 import '../models/transaction.dart';
 import '../models/transaction_filter.dart';
 import '../viewmodels/transaction_list_view_model.dart';
-import 'widgets/transaction_edit_sheet.dart';
+import 'widgets/day_grouped_transaction_list.dart';
 import 'widgets/transaction_form_sheet.dart';
 import 'widgets/transaction_filter_sheet.dart';
 
@@ -372,252 +370,21 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                   icon: AppIcons.receipt,
                   title: l10n.noTransactionsForFilter,
                 )
-              : _GroupedList(
+              : DayGroupedTransactionList(
                   transactions: filtered,
                   categoriesById: categoriesById,
                   currency: currency,
-                  locale: locale,
                   now: now,
                   isAmountHidden: isBalanceHidden,
+                  padding: const EdgeInsets.fromLTRB(
+                    Spacing.pageMargin,
+                    Spacing.md,
+                    Spacing.pageMargin,
+                    Spacing.lg + _navBarClearance,
+                  ),
                 ),
         ),
       ],
     );
   }
 }
-
-class _GroupedList extends StatelessWidget {
-  const _GroupedList({
-    required this.transactions,
-    required this.categoriesById,
-    required this.currency,
-    required this.locale,
-    required this.now,
-    required this.isAmountHidden,
-  });
-
-  final List<Transaction> transactions;
-  final Map<int, Category> categoriesById;
-  final Currency currency;
-  final String locale;
-  final DateTime now;
-  final bool isAmountHidden;
-
-  Map<DateTime, List<Transaction>> _groupByDay() {
-    final groups = <DateTime, List<Transaction>>{};
-    for (final t in transactions) {
-      final date = DateTime.parse(t.date);
-      final day = DateTime(date.year, date.month, date.day);
-      groups.putIfAbsent(day, () => []).add(t);
-    }
-    return groups;
-  }
-
-  String _dayLabel(AppLocalizations l10n, DateTime day) {
-    final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-    if (day == today) return l10n.transactionsGroupToday.toUpperCase();
-    if (day == yesterday) return l10n.transactionsGroupYesterday.toUpperCase();
-    return DateFormat('EEE d MMM', locale).format(day).toUpperCase();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final colors = context.appColors;
-    final groups = _groupByDay();
-    final days = groups.keys.toList();
-
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(
-        Spacing.pageMargin,
-        Spacing.md,
-        Spacing.pageMargin,
-        Spacing.lg + _navBarClearance,
-      ),
-      itemCount: days.length,
-      itemBuilder: (context, index) {
-        final day = days[index];
-        final dayTransactions = groups[day]!;
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: Spacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: Spacing.xxs),
-                child: Text(
-                  _dayLabel(l10n, day),
-                  style: context.labelSmBold.copyWith(
-                    color: colors.onSurfaceVariant,
-                    letterSpacing: 0.4,
-                  ),
-                ),
-              ),
-              const SizedBox(height: Spacing.xs),
-              Container(
-                decoration: BoxDecoration(
-                  color: colors.surface,
-                  borderRadius: BorderRadius.circular(Rounded.md),
-                ),
-                child: Column(
-                  children: [
-                    for (var i = 0; i < dayTransactions.length; i++) ...[
-                      _TransactionRow(
-                        transaction: dayTransactions[i],
-                        category: categoriesById[dayTransactions[i].categoryId],
-                        currency: currency,
-                        isAmountHidden: isAmountHidden,
-                      ),
-                      if (i < dayTransactions.length - 1)
-                        Divider(
-                          height: 1,
-                          indent: Spacing.sm + BadgeSize.md + Spacing.sm,
-                          endIndent: Spacing.sm,
-                          color: colors.onSurfaceVariant.withValues(alpha: 0.1),
-                        ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _TransactionRow extends StatelessWidget {
-  const _TransactionRow({
-    required this.transaction,
-    required this.category,
-    required this.currency,
-    required this.isAmountHidden,
-  });
-
-  final Transaction transaction;
-  final Category? category;
-  final Currency currency;
-  final bool isAmountHidden;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final colors = context.appColors;
-    final isIncome = transaction.type == TransactionType.income;
-    final amountColor = isIncome ? colors.primaryStrong : colors.error;
-    final sign = isIncome ? '+' : '-';
-    final description = transaction.description?.trim();
-    final categoryLabel = category?.displayName(l10n);
-
-    return InkWell(
-      // A plain tap opens a read-only view - only the "⋯" menu's Edit
-      // action opens it editable, so chevrons never appear by accident.
-      onTap: () => showTransactionEditSheet(context, transaction: transaction),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Spacing.sm,
-          vertical: Spacing.sm,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: BadgeSize.md,
-              height: BadgeSize.md,
-              decoration: BoxDecoration(
-                color: colors.onSurface.withValues(alpha: 0.06),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                category?.icon ?? AppIcons.receipt,
-                size: IconSize.md,
-                color: colors.onSurface,
-              ),
-            ),
-            const SizedBox(width: Spacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    description == null || description.isEmpty
-                        ? l10n.transactionDefaultDescription
-                        : description,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.bodyMdBold,
-                  ),
-                  Text(
-                    categoryLabel ?? l10n.uncategorized,
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              isAmountHidden
-                  ? hiddenAmount
-                  : '$sign${formatCents(transaction.amount, locale: moneyLocale(context), currencyCode: currency.code)}',
-              style: context.bodyMdBold.copyWith(color: amountColor),
-            ),
-            PopupMenuButton<_RowAction>(
-              padding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(Rounded.md),
-              ),
-              icon: Icon(
-                AppIcons.more,
-                size: IconSize.lg,
-                color: colors.onSurfaceVariant,
-              ),
-              onSelected: (action) {
-                switch (action) {
-                  case _RowAction.edit:
-                    showTransactionEditSheet(
-                      context,
-                      transaction: transaction,
-                      startInEditMode: true,
-                    );
-                  case _RowAction.delete:
-                    deleteTransactionWithUndo(context, transaction);
-                }
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: _RowAction.edit,
-                  child: Row(
-                    children: [
-                      const Icon(AppIcons.edit, size: IconSize.lg),
-                      const SizedBox(width: Spacing.xs),
-                      Text(l10n.edit),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: _RowAction.delete,
-                  child: Row(
-                    children: [
-                      Icon(
-                        AppIcons.delete,
-                        size: IconSize.lg,
-                        color: colors.error,
-                      ),
-                      const SizedBox(width: Spacing.xs),
-                      Text(l10n.delete, style: TextStyle(color: colors.error)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-enum _RowAction { edit, delete }

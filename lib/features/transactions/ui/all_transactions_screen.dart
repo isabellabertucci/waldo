@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/constants/enums.dart';
-import 'widgets/date_grouped_transaction_list.dart';
 import 'package:waldo/core/widgets/empty_state.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
-import 'package:waldo/features/transactions/ui/widgets/transaction_edit_sheet.dart';
+import 'package:waldo/core/utils/clock.dart';
+import 'package:waldo/features/categories/models/category.dart';
+import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 import '../models/transaction.dart';
 import '../viewmodels/transaction_list_view_model.dart';
+import 'widgets/day_grouped_transaction_list.dart';
 
 class AllTransactionsScreen extends ConsumerWidget {
   const AllTransactionsScreen({super.key});
@@ -47,11 +48,13 @@ class _AllTransactionsBody extends ConsumerWidget {
       AsyncValue(:final value?) => value.currency,
       _ => Currency.usd,
     };
-    final dateFormatPattern = switch (preferencesAsync) {
-      AsyncValue(:final value?) => value.dateFormat,
-      _ => 'yyyy-MM-dd',
+    final categoriesById = switch (ref.watch(categoryListViewModelProvider)) {
+      AsyncValue(:final value?) => {
+        for (final c in value)
+          if (c.id != null) c.id!: c,
+      },
+      _ => const <int, Category>{},
     };
-    final dateFormat = DateFormat(dateFormatPattern);
     final isBalanceHidden = ref.watch(balanceHiddenProvider);
 
     if (transactions.isEmpty) {
@@ -62,14 +65,12 @@ class _AllTransactionsBody extends ConsumerWidget {
       );
     }
 
-    return DateGroupedTransactionList(
+    return DayGroupedTransactionList(
       transactions: transactions,
+      categoriesById: categoriesById,
       currency: currency,
-      dateFormat: dateFormat,
+      now: ref.watch(clockProvider)(),
       isAmountHidden: isBalanceHidden,
-      onTapTransaction: (transaction) {
-        showTransactionEditSheet(context, transaction: transaction);
-      },
     );
   }
 }
