@@ -75,7 +75,20 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
     return (await categories.getOthers()).id;
   }
 
+  /// True while a save is writing, so a double tap can't save twice.
+  bool _saving = false;
+
   Future<bool> save(Transaction? existingTransaction) async {
+    if (_saving) return false;
+    _saving = true;
+    try {
+      return await _save(existingTransaction);
+    } finally {
+      _saving = false;
+    }
+  }
+
+  Future<bool> _save(Transaction? existingTransaction) async {
     final walletId = state.walletId;
     final date = state.date;
     if (walletId == null || date == null) return false;
