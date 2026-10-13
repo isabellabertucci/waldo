@@ -111,7 +111,7 @@ class DashboardReceipt extends StatelessWidget {
                         textStyles: textStyles,
                         label: l10n.transactionTypeIncome.toUpperCase(),
                         value: amount(
-                          '+${formatCents(monthlyIncome, currencyCode: currencyCode)}',
+                          '+${formatCents(monthlyIncome, locale: moneyLocale(context), currencyCode: currencyCode)}',
                         ),
                         color: colors.primaryStrong,
                         bold: true,
@@ -121,7 +121,7 @@ class DashboardReceipt extends StatelessWidget {
                         textStyles: textStyles,
                         label: l10n.transactionTypeExpense.toUpperCase(),
                         value: amount(
-                          '-${formatCents(monthlyExpense, currencyCode: currencyCode)}',
+                          '-${formatCents(monthlyExpense, locale: moneyLocale(context), currencyCode: currencyCode)}',
                         ),
                         color: colors.error,
                         bold: true,
@@ -138,6 +138,7 @@ class DashboardReceipt extends StatelessWidget {
                           value: amount(
                             formatCents(
                               visibleCategories[i].amount,
+                              locale: moneyLocale(context),
                               currencyCode: currencyCode,
                             ),
                           ),
@@ -156,6 +157,7 @@ class DashboardReceipt extends StatelessWidget {
                           value: amount(
                             formatCents(
                               otherAmount,
+                              locale: moneyLocale(context),
                               currencyCode: currencyCode,
                             ),
                           ),
@@ -170,6 +172,7 @@ class DashboardReceipt extends StatelessWidget {
                           value: amount(
                             formatCents(
                               uncategorizedSpending,
+                              locale: moneyLocale(context),
                               currencyCode: currencyCode,
                             ),
                           ),
@@ -183,7 +186,11 @@ class DashboardReceipt extends StatelessWidget {
                         textStyles: textStyles,
                         label: l10n.monthNetLabel.toUpperCase(),
                         value: amount(
-                          formatCents(saved, currencyCode: currencyCode),
+                          formatCents(
+                            saved,
+                            locale: moneyLocale(context),
+                            currencyCode: currencyCode,
+                          ),
                         ),
                         color: saved < 0 ? colors.error : colors.onSurface,
                         bold: true,

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:waldo/core/utils/utils.dart';
 
@@ -50,8 +51,51 @@ void main() {
 
     for (final (cents, expected) in cases) {
       test('formatCents($cents) => "$expected"', () {
-        expect(formatCents(cents), expected);
+        expect(formatCents(cents, locale: 'en_US'), expected);
       });
     }
+  });
+
+  test('formatCents follows the locale: a Portuguese phone puts the euro '
+      'after the number, with a decimal comma and spaced thousands', () {
+    expect(
+      formatCents(123450, locale: 'pt_PT', currencyCode: 'EUR'),
+      '1\u00a0234,50\u00a0€',
+    );
+    expect(formatCents(100, locale: 'en_US', currencyCode: 'EUR'), '€1.00');
+  });
+
+  testWidgets('moneyLocale reads the device region', (tester) async {
+    tester.platformDispatcher.localeTestValue = const Locale('pt', 'PT');
+    addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+    late String locale;
+    await tester.pumpWidget(
+      Builder(
+        builder: (context) {
+          locale = moneyLocale(context);
+          return const SizedBox();
+        },
+      ),
+    );
+
+    expect(locale, 'pt_PT');
+  });
+
+  testWidgets('moneyLocale falls back to en_US for a region intl lacks', (
+    tester,
+  ) async {
+    tester.platformDispatcher.localeTestValue = const Locale('xx', 'YY');
+    addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+    late String locale;
+    await tester.pumpWidget(
+      Builder(
+        builder: (context) {
+          locale = moneyLocale(context);
+          return const SizedBox();
+        },
+      ),
+    );
+
+    expect(locale, 'en_US');
   });
 }

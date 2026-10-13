@@ -225,7 +225,7 @@ class _SettingsBody extends ConsumerWidget {
                 // The same balance in each currency - showing nothing gets converted.
                 subtitle:
                     '${currency.code} · '
-                    '${isBalanceHidden ? hiddenAmount : formatCents(totalBalance, currencyCode: currency.code)}',
+                    '${isBalanceHidden ? hiddenAmount : formatCents(totalBalance, locale: moneyLocale(context), currencyCode: currency.code)}',
                 value: currency,
                 symbolText: currency.symbol,
               ),

@@ -49,7 +49,11 @@ class WalletsCardStack extends StatelessWidget {
     );
     final totalText = isBalanceHidden
         ? hiddenAmount
-        : formatCents(totalBalance, currencyCode: currency.code);
+        : formatCents(
+            totalBalance,
+            locale: moneyLocale(context),
+            currencyCode: currency.code,
+          );
     final roundedPercent = savedPercent?.round();
     final isOverspent = roundedPercent != null && roundedPercent < 0;
     final captionText = switch (roundedPercent) {
@@ -150,7 +154,11 @@ class _WalletCard extends StatelessWidget {
     final isNegative = wallet.currentBalance < 0;
     final balanceText = isBalanceHidden
         ? hiddenAmount
-        : formatCents(wallet.currentBalance, currencyCode: currency.code);
+        : formatCents(
+            wallet.currentBalance,
+            locale: moneyLocale(context),
+            currencyCode: currency.code,
+          );
 
     return Material(
       borderRadius: BorderRadius.circular(Rounded.lg),
