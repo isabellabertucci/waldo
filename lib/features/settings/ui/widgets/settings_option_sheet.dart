@@ -5,6 +5,7 @@ import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/sheet_grabber.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -72,14 +73,7 @@ class _SettingsOptionSheetState<T> extends State<SettingsOptionSheet<T>> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(height: Spacing.sm),
-                Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(Rounded.pill),
-                  ),
-                ),
+                const SheetGrabber(),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
                     Spacing.md,
