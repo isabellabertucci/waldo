@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
@@ -272,8 +273,8 @@ class _CategoryRow extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 36,
-            height: 36,
+            width: BadgeSize.md,
+            height: BadgeSize.md,
             decoration: BoxDecoration(
               color: colors.onSurface.withValues(alpha: 0.06),
               shape: BoxShape.circle,

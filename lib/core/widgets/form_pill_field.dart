@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
@@ -97,8 +98,8 @@ class _FormPillFieldState extends State<FormPillField> {
             child: Row(
               children: [
                 Container(
-                  width: 36,
-                  height: 36,
+                  width: BadgeSize.md,
+                  height: BadgeSize.md,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: focused
