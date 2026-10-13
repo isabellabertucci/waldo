@@ -75,6 +75,34 @@ void main() {
       },
     );
 
+    test('monthTotals sums income and expense inside the month only', () async {
+      final walletId = await createWallet();
+      Future<void> add(int amount, TransactionType type, String date) =>
+          repo.insert(
+            Transaction(
+              walletId: walletId,
+              amount: amount,
+              type: type,
+              date: date,
+              createdAt: '2026-10-01T12:00:00.000',
+            ),
+          );
+      await add(1000, TransactionType.income, '2026-10-01');
+      await add(500, TransactionType.income, '2026-10-31T23:59:00.000');
+      await add(300, TransactionType.expense, '2026-10-15T09:30:00.000');
+      // Just outside October on each side.
+      await add(9999, TransactionType.income, '2026-09-30T23:59:00.000');
+      await add(9999, TransactionType.expense, '2026-11-01');
+
+      final october = await repo.monthTotals(DateTime(2026, 10, 20));
+      expect(october.income, 1500);
+      expect(october.expense, 300);
+
+      final empty = await repo.monthTotals(DateTime(2026, 12));
+      expect(empty.income, 0);
+      expect(empty.expense, 0);
+    });
+
     test('getByWallet only returns transactions for that wallet', () async {
       final walletA = await createWallet();
       final walletB = await createWallet(name: 'Second Wallet');
