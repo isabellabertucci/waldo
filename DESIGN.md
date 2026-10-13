@@ -412,9 +412,9 @@ wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
 
 - **Buttons (primary):** `primary`-filled pill, `on-primary` text, `label-lg-strong`
   typography, `rounded.md`, 16px padding.
-- **Buttons (secondary):** `SecondaryButton` - a `rounded.pill` with a
-  `surface` fill on the page and no fill on a sheet (where filled pills are
-  fields), `on-surface` text in `body-md-strong`, 12px x 4px padding. For
+- **Buttons (secondary):** `SecondaryButton` - no fill, on the page and on
+  sheets alike; `on-surface` text in `body-md-strong`, 12px x 4px padding that
+  keeps the tap target and the `rounded.pill` press ripple. For
   low-emphasis actions beside a section title ("See all", "Manage categories").
 - **Cards:** `surface`-filled, `rounded.lg`, no elevation unless grouping
   list rows (see Elevation: Low).
