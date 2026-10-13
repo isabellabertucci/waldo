@@ -36,3 +36,8 @@ extension CategoryDisplayName on Category {
   String displayName(AppLocalizations l10n) =>
       isDefault ? type.label(l10n) : name;
 }
+
+extension CategoryIcon on Category {
+  /// Built-ins keep their own icon; a user-named category gets a plain tag.
+  IconData get icon => isDefault ? type.icon : AppIcons.categoryGeneric;
+}

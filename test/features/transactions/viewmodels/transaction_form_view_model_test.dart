@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/features/categories/models/category.dart';
+import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_form_view_model.dart';
@@ -9,8 +11,19 @@ import 'package:waldo/features/transactions/viewmodels/transaction_form_view_mod
 class MockTransactionRepository extends Mock
     implements ITransactionRepository {}
 
+class MockCategoryRepository extends Mock implements ICategoryRepository {}
+
+const _others = Category(
+  id: 6,
+  name: 'Others',
+  isDefault: true,
+  type: CategoryType.others,
+  createdAt: '2026-08-10T12:00:00.000',
+);
+
 void main() {
   late MockTransactionRepository mockRepo;
+  late MockCategoryRepository mockCategoryRepo;
   late ProviderContainer container;
 
   setUpAll(() {
@@ -27,9 +40,12 @@ void main() {
 
   setUp(() {
     mockRepo = MockTransactionRepository();
+    mockCategoryRepo = MockCategoryRepository();
+    when(() => mockCategoryRepo.getOthers()).thenAnswer((_) async => _others);
     container = ProviderContainer(
       overrides: [
         transactionRepositoryProvider.overrideWith((ref) => mockRepo),
+        categoryRepositoryProvider.overrideWith((ref) => mockCategoryRepo),
       ],
     );
   });
@@ -126,6 +142,40 @@ void main() {
 
     expect(success, isTrue);
     verify(() => mockRepo.insert(any())).called(1);
+  });
+
+  test('save with no category files the transaction under Others', () async {
+    when(() => mockRepo.insert(any())).thenAnswer((_) async => 1);
+    final notifier = container.read(
+      transactionFormViewModelProvider(null, initialWalletId: 1).notifier,
+    );
+    notifier.updateAmount('5.00');
+    notifier.updateDate(DateTime(2026, 8, 10));
+
+    await notifier.save(null);
+
+    final saved =
+        verify(() => mockRepo.insert(captureAny())).captured.single
+            as Transaction;
+    expect(saved.categoryId, _others.id);
+  });
+
+  test('save keeps a picked category', () async {
+    when(() => mockRepo.insert(any())).thenAnswer((_) async => 1);
+    final notifier = container.read(
+      transactionFormViewModelProvider(null, initialWalletId: 1).notifier,
+    );
+    notifier.updateAmount('5.00');
+    notifier.updateDate(DateTime(2026, 8, 10));
+    notifier.updateCategoryId(2);
+
+    await notifier.save(null);
+
+    final saved =
+        verify(() => mockRepo.insert(captureAny())).captured.single
+            as Transaction;
+    expect(saved.categoryId, 2);
+    verifyNever(() => mockCategoryRepo.getOthers());
   });
 
   test('save while editing calls update, not insert', () async {

@@ -422,12 +422,6 @@ abstract class AppLocalizations {
   /// **'Add income'**
   String get addIncome;
 
-  /// Short label for the chip that opens the new-category form from the transaction form
-  ///
-  /// In en, this message translates to:
-  /// **'New'**
-  String get addNewCategory;
-
   /// Transaction note field label - a free-text note separate from its name
   ///
   /// In en, this message translates to:
@@ -557,38 +551,14 @@ abstract class AppLocalizations {
   /// Title of the create category form
   ///
   /// In en, this message translates to:
-  /// **'New Category'**
+  /// **'New category'**
   String get newCategory;
-
-  /// Section header on the categories screen for the categories that ship with the app and can't be edited
-  ///
-  /// In en, this message translates to:
-  /// **'Built-in'**
-  String get categoriesDefaultSection;
-
-  /// Section header on the categories screen for the categories the user created
-  ///
-  /// In en, this message translates to:
-  /// **'Custom'**
-  String get categoriesCustomSection;
-
-  /// Confirm button on the new-category sheet
-  ///
-  /// In en, this message translates to:
-  /// **'Create category'**
-  String get createCategory;
 
   /// Placeholder in the category name field
   ///
   /// In en, this message translates to:
   /// **'e.g. Coffee, Gym'**
   String get categoryNameHint;
-
-  /// Title of the edit category form
-  ///
-  /// In en, this message translates to:
-  /// **'Edit Category'**
-  String get editCategory;
 
   /// Link from the transaction form to manage categories
   ///
@@ -605,8 +575,26 @@ abstract class AppLocalizations {
   /// Delete confirmation dialog message
   ///
   /// In en, this message translates to:
-  /// **'This will permanently delete \"{name}\". Any transactions using it will keep their data but lose this category.'**
+  /// **'This will delete \"{name}\".'**
   String deleteCategoryConfirm(String name);
+
+  /// Delete confirmation when transactions use the category; they are reassigned to the Others category
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 transaction uses \"{name}\"} other{{count} transactions use \"{name}\"}}. If you delete it, {count, plural, =1{it moves} other{they move}} to {others}.'**
+  String deleteCategoryMovesTransactions(int count, String name, String others);
+
+  /// Tooltip for the button that adds the typed category name
+  ///
+  /// In en, this message translates to:
+  /// **'Add category'**
+  String get addCategory;
+
+  /// Tooltip for the delete (X) button on a category row
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}'**
+  String deleteCategoryNamed(String name);
 
   /// Snackbar message after deleting a category
   ///

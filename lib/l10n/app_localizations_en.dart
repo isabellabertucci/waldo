@@ -176,9 +176,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addIncome => 'Add income';
 
   @override
-  String get addNewCategory => 'New';
-
-  @override
   String get transactionNote => 'Note';
 
   @override
@@ -248,22 +245,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addFirstCategory => 'Tap + to add your first category';
 
   @override
-  String get newCategory => 'New Category';
-
-  @override
-  String get categoriesDefaultSection => 'Built-in';
-
-  @override
-  String get categoriesCustomSection => 'Custom';
-
-  @override
-  String get createCategory => 'Create category';
+  String get newCategory => 'New category';
 
   @override
   String get categoryNameHint => 'e.g. Coffee, Gym';
-
-  @override
-  String get editCategory => 'Edit Category';
 
   @override
   String get manageCategories => 'Manage categories';
@@ -273,7 +258,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deleteCategoryConfirm(String name) {
-    return 'This will permanently delete \"$name\". Any transactions using it will keep their data but lose this category.';
+    return 'This will delete \"$name\".';
+  }
+
+  @override
+  String deleteCategoryMovesTransactions(
+    int count,
+    String name,
+    String others,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions use \"$name\"',
+      one: '1 transaction uses \"$name\"',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'they move',
+      one: 'it moves',
+    );
+    return '$_temp0. If you delete it, $_temp1 to $others.';
+  }
+
+  @override
+  String get addCategory => 'Add category';
+
+  @override
+  String deleteCategoryNamed(String name) {
+    return 'Delete $name';
   }
 
   @override
