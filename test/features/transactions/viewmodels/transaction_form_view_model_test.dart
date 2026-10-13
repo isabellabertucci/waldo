@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
@@ -46,6 +47,8 @@ void main() {
       overrides: [
         transactionRepositoryProvider.overrideWith((ref) => mockRepo),
         categoryRepositoryProvider.overrideWith((ref) => mockCategoryRepo),
+        // A fixed clock, so createdAt is checkable.
+        clockProvider.overrideWithValue(() => DateTime(2026, 10, 13, 9, 30)),
       ],
     );
   });
@@ -158,6 +161,11 @@ void main() {
         verify(() => mockRepo.insert(captureAny())).captured.single
             as Transaction;
     expect(saved.categoryId, _others.id);
+    expect(
+      saved.createdAt,
+      '2026-10-13T09:30:00.000',
+      reason: 'stamped by the clock',
+    );
   });
 
   test('save keeps a picked category', () async {

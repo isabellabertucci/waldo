@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -262,7 +263,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   /// Date only - the app doesn't track a time of day. Whatever time the
   /// transaction already had is kept as-is, just never shown.
   Future<void> _editDate(TransactionFormState formState) async {
-    final current = formState.date ?? DateTime.now();
+    final current = formState.date ?? ref.read(clockProvider)();
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: current,
