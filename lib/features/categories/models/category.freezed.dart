@@ -14,7 +14,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Category {
 
- int? get id; String get name; bool get isDefault; CategoryType get type; String get createdAt;
+ int? get id; String get name; bool get isDefault;// Custom categories are named by the user; their type only matters for
+// built-ins, so it defaults to the catch-all.
+ CategoryType get type; String get createdAt;
 /// Create a copy of Category
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -210,12 +212,14 @@ return $default(_that.id,_that.name,_that.isDefault,_that.type,_that.createdAt);
 
 
 class _Category extends Category {
-  const _Category({this.id, required this.name, this.isDefault = false, this.type = CategoryType.groceries, required this.createdAt}): super._();
+  const _Category({this.id, required this.name, this.isDefault = false, this.type = CategoryType.others, required this.createdAt}): super._();
   
 
 @override final  int? id;
 @override final  String name;
 @override@JsonKey() final  bool isDefault;
+// Custom categories are named by the user; their type only matters for
+// built-ins, so it defaults to the catch-all.
 @override@JsonKey() final  CategoryType type;
 @override final  String createdAt;
 

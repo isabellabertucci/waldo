@@ -18,7 +18,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get transactions => 'Transações';
 
   @override
-  String get settings => 'Configurações';
+  String get settings => 'Definições';
 
   @override
   String get wallets => 'Carteiras';
@@ -28,7 +28,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get addFirstWallet =>
-      'Toque em + para adicionar a sua primeira carteira';
+      'Toca em + para adicionares a tua primeira carteira';
 
   @override
   String get newWallet => 'Nova carteira';
@@ -46,28 +46,43 @@ class AppLocalizationsPt extends AppLocalizations {
   String get startingBalance => 'Saldo inicial';
 
   @override
+  String get startingBalancePrompt => 'Quanto tem hoje?';
+
+  @override
+  String get optional => 'Opcional';
+
+  @override
   String get balanceLocked => 'Não pode ser alterado após a criação';
 
   @override
-  String get save => 'Salvar';
+  String get walletNameHint => 'ex: Casa, Viagem';
+
+  @override
+  String get createWallet => 'Criar carteira';
+
+  @override
+  String get save => 'Guardar';
+
+  @override
+  String get done => 'Concluído';
 
   @override
   String get nameRequired => 'O nome é obrigatório';
 
   @override
-  String get invalidNumber => 'Digite um número válido';
+  String get invalidNumber => 'Introduz um número válido';
 
   @override
   String get walletsError =>
-      'Houve um problema ao carregar suas carteiras. Tente novamente.';
+      'Ocorreu um problema ao carregar as tuas carteiras. Tenta novamente.';
 
   @override
   String get saveError =>
-      'Houve um problema ao salvar a carteira. Tente novamente.';
+      'Ocorreu um problema ao guardar a carteira. Tenta novamente.';
 
   @override
   String get deleteError =>
-      'Houve um problema ao apagar a carteira. Tente novamente.';
+      'Ocorreu um problema ao apagar a carteira. Tenta novamente.';
 
   @override
   String get deleteWallet => 'Apagar carteira?';
@@ -81,6 +96,21 @@ class AppLocalizationsPt extends AppLocalizations {
   String get cancel => 'Cancelar';
 
   @override
+  String get close => 'Fechar';
+
+  @override
+  String get back => 'Voltar';
+
+  @override
+  String get deleteDigit => 'Apagar dígito';
+
+  @override
+  String get hideBalance => 'Esconder saldo';
+
+  @override
+  String get showBalance => 'Mostrar saldo';
+
+  @override
   String get edit => 'Editar';
 
   @override
@@ -90,13 +120,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get walletDeleted => 'Carteira apagada';
 
   @override
+  String get walletRestored => 'Carteira reposta';
+
+  @override
   String get undo => 'Desfazer';
 
   @override
-  String get nameTooLong => 'O nome é muito longo';
+  String get nameTooLong => 'O nome é demasiado longo';
 
   @override
-  String get walletTypeChecking => 'Conta Corrente';
+  String get walletTypeChecking => 'Conta à ordem';
 
   @override
   String get walletTypeSavings => 'Poupança';
@@ -105,7 +138,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get walletTypeCash => 'Dinheiro';
 
   @override
-  String get walletTypeCredit => 'Cartão de Crédito';
+  String get walletTypeCredit => 'Cartão de crédito';
 
   @override
   String get walletTypeInvestment => 'Investimento';
@@ -115,13 +148,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get addFirstTransaction =>
-      'Toque em + para adicionar a sua primeira transação';
+      'Toca em + para adicionares a tua primeira transação';
 
   @override
   String get newTransaction => 'Nova transação';
-
-  @override
-  String get editTransaction => 'Editar transação';
 
   @override
   String get transactionDefaultDescription => 'Transação';
@@ -142,6 +172,33 @@ class AppLocalizationsPt extends AppLocalizations {
   String get transactionDescription => 'Descrição';
 
   @override
+  String get descriptionHint => 'Para que foi?';
+
+  @override
+  String get addExpense => 'Adicionar despesa';
+
+  @override
+  String get addIncome => 'Adicionar receita';
+
+  @override
+  String get transactionNote => 'Nota';
+
+  @override
+  String editingAmountLabel(String type) {
+    return '$type · a editar valor';
+  }
+
+  @override
+  String get discardChangesTitle => 'Descartar alterações?';
+
+  @override
+  String get discardChangesMessage =>
+      'Tens alterações por guardar neste campo.';
+
+  @override
+  String get discard => 'Descartar';
+
+  @override
   String get deleteTransaction => 'Apagar transação?';
 
   @override
@@ -149,19 +206,28 @@ class AppLocalizationsPt extends AppLocalizations {
       'Isto vai apagar permanentemente esta transação.';
 
   @override
+  String get editTransactionAction => 'Editar transação';
+
+  @override
+  String get saveChanges => 'Guardar alterações';
+
+  @override
   String get transactionDeleted => 'Transação apagada';
 
   @override
+  String get transactionRestored => 'Transação reposta';
+
+  @override
   String get transactionsError =>
-      'Houve um problema ao carregar suas transações. Tente novamente.';
+      'Ocorreu um problema ao carregar as tuas transações. Tenta novamente.';
 
   @override
   String get transactionSaveError =>
-      'Houve um problema ao salvar a transação. Tente novamente.';
+      'Ocorreu um problema ao guardar a transação. Tenta novamente.';
 
   @override
   String get transactionDeleteError =>
-      'Houve um problema ao apagar a transação. Tente novamente.';
+      'Ocorreu um problema ao apagar a transação. Tenta novamente.';
 
   @override
   String get amountRequired => 'O valor é obrigatório';
@@ -186,48 +252,86 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get addFirstCategory =>
-      'Toque em + para adicionar a sua primeira categoria';
+      'Toca em + para adicionares a tua primeira categoria';
 
   @override
   String get newCategory => 'Nova categoria';
 
   @override
-  String get editCategory => 'Editar categoria';
+  String get categoryNameHint => 'ex: Café, Ginásio';
 
   @override
-  String get manageCategories => 'Gerenciar categorias';
+  String get manageCategories => 'Gerir categorias';
 
   @override
   String get deleteCategory => 'Apagar categoria?';
 
   @override
   String deleteCategoryConfirm(String name) {
-    return 'Isto vai apagar permanentemente \"$name\". Transações que usam essa categoria manterão seus dados, mas perderão a categoria.';
+    return 'Isto vai apagar \"$name\".';
+  }
+
+  @override
+  String deleteCategoryMovesTransactions(
+    int count,
+    String name,
+    String others,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transações usam \"$name\"',
+      one: '1 transação usa \"$name\"',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'passam',
+      one: 'passa',
+    );
+    return '$_temp0. Se a apagares, $_temp1 para $others.';
+  }
+
+  @override
+  String get addCategory => 'Adicionar categoria';
+
+  @override
+  String deleteCategoryNamed(String name) {
+    return 'Apagar $name';
   }
 
   @override
   String get categoryDeleted => 'Categoria apagada';
 
   @override
+  String get categoryRestored => 'Categoria reposta';
+
+  @override
   String get categoriesError =>
-      'Houve um problema ao carregar suas categorias. Tente novamente.';
+      'Ocorreu um problema ao carregar as tuas categorias. Tenta novamente.';
 
   @override
   String get categorySaveError =>
-      'Houve um problema ao salvar a categoria. Tente novamente.';
+      'Ocorreu um problema ao guardar a categoria. Tenta novamente.';
+
+  @override
+  String get categoryNameTaken => 'Já existe uma categoria com esse nome';
+
+  @override
+  String get walletNameTaken => 'Já existe uma carteira com esse nome';
 
   @override
   String get categoryDeleteError =>
-      'Houve um problema ao apagar a categoria. Tente novamente.';
+      'Ocorreu um problema ao apagar a categoria. Tenta novamente.';
 
   @override
-  String get categoryTypeGroceries => 'Mercado';
+  String get categoryTypeGroceries => 'Supermercado';
 
   @override
   String get categoryTypeTransportation => 'Transporte';
 
   @override
-  String get categoryTypeSubscriptions => 'Assinaturas';
+  String get categoryTypeSubscriptions => 'Subscrições';
 
   @override
   String get categoryTypeEducation => 'Educação';
@@ -236,10 +340,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get categoryTypeInvestments => 'Investimentos';
 
   @override
+  String get categoryTypeOthers => 'Outros';
+
+  @override
   String get none => 'Nenhuma';
 
   @override
-  String get darkMode => 'Modo Escuro';
+  String get theme => 'Tema';
 
   @override
   String get themeSystem => 'Sistema';
@@ -254,66 +361,164 @@ class AppLocalizationsPt extends AppLocalizations {
   String get currency => 'Moeda';
 
   @override
-  String get dateFormat => 'Formato de Data';
+  String get dateFormat => 'Formato de data';
+
+  @override
+  String get moneySection => 'Dinheiro';
+
+  @override
+  String get appearanceSection => 'Aparência';
+
+  @override
+  String get currencyRowSubtitle => 'Como os valores são apresentados';
+
+  @override
+  String get dateFormatRowSubtitle => 'Usado em listas e detalhes';
+
+  @override
+  String get currencyChangeNotice =>
+      'Isto altera apenas o símbolo. Os teus valores mantêm-se e não são convertidos.';
 
   @override
   String get preferencesError =>
-      'Houve um problema ao carregar suas preferências. Tente novamente.';
+      'Ocorreu um problema ao carregar as tuas preferências. Tenta novamente.';
 
   @override
   String get preferencesSaveError =>
-      'Houve um problema ao guardar a sua preferência. Tente novamente.';
+      'Ocorreu um problema ao guardar a tua preferência. Tenta novamente.';
 
   @override
-  String get currencyOptionUsd => 'USD (\$)';
+  String get currencyNameUsd => 'Dólar americano';
 
   @override
-  String get currencyOptionEur => 'EUR (€)';
+  String get currencyNameEur => 'Euro';
 
   @override
-  String get currencyOptionGbp => 'GBP (£)';
+  String get currencyNameGbp => 'Libra esterlina';
 
   @override
-  String get myFinances => 'Minhas Finanças';
+  String get totalBalance => 'Saldo total';
 
   @override
-  String overviewSubtitle(String month) {
-    return 'Resumo de $month';
-  }
-
-  @override
-  String get totalBalance => 'Saldo Total';
+  String get add => 'Adicionar';
 
   @override
   String get dashboardError =>
-      'Houve um problema ao carregar seu painel. Tente novamente.';
+      'Ocorreu um problema ao carregar o teu painel. Tenta novamente.';
 
   @override
-  String get spendingsByCategory => 'Gastos por Categoria';
+  String dashboardReceiptHeader(String month, String year) {
+    return 'WALDO · $month $year';
+  }
+
+  @override
+  String get uncategorized => 'Sem categoria';
+
+  @override
+  String get monthNetLabel => 'Balanço';
+
+  @override
+  String dashboardReceiptOtherCategories(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Outras ($count)',
+      one: 'Outra (1)',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get seeAll => 'Ver todas';
 
   @override
-  String get noSpendingThisMonth => 'Ainda não há gastos este mês';
+  String get categorySpendingEmptyHint =>
+      'Adiciona a tua primeira transação para a veres dividida por categoria aqui.';
 
   @override
-  String percentFromLastMonth(String percent) {
-    return '$percent em relação ao mês passado';
+  String get addFirstTransactionButton => 'Adicionar primeira transação';
+
+  @override
+  String get cashFlow => 'Fluxo de caixa';
+
+  @override
+  String get recentTransactions => 'Transações recentes';
+
+  @override
+  String get firstRunPeekCta => 'Desliza a tua primeira carteira';
+
+  @override
+  String get dashboardReceiptNoWallet =>
+      'O recibo do mês aparece aqui depois da primeira transação.';
+
+  @override
+  String get zeroWalletsLabel => '0 carteiras';
+
+  @override
+  String get filterTitle => 'Filtro';
+
+  @override
+  String get filterReset => 'Repor';
+
+  @override
+  String get filterSectionMonth => 'Mês';
+
+  @override
+  String get earlierMonths => 'Meses anteriores';
+
+  @override
+  String get laterMonths => 'Meses seguintes';
+
+  @override
+  String get filterSectionType => 'Tipo';
+
+  @override
+  String get filterTypeAll => 'Todas';
+
+  @override
+  String filterShowTransactions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ver $count transações',
+      one: 'Ver 1 transação',
+    );
+    return '$_temp0';
   }
 
   @override
-  String get cashFlow => 'Fluxo de Caixa';
+  String filterChipLabel(String type) {
+    return 'Tipo: $type';
+  }
 
   @override
-  String get overallRevenue => 'Receita Total';
+  String get noTransactionsForFilter =>
+      'Nenhuma transação corresponde a este filtro.';
 
   @override
-  String get periodMonthly => 'Mensal';
+  String get transactionsGroupToday => 'Hoje';
 
   @override
-  String get recentTransactions => 'Transações Recentes';
+  String get transactionsGroupYesterday => 'Ontem';
 
   @override
-  String get noRecentTransactions => 'Ainda não há transações';
+  String keptPercentThisMonth(String percent) {
+    return 'Ficaste com $percent do que recebeste';
+  }
+
+  @override
+  String overspentPercentThisMonth(String percent) {
+    return 'Gastaste mais $percent do que recebeste';
+  }
+
+  @override
+  String walletsCountLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count carteiras',
+      one: '1 carteira',
+    );
+    return '$_temp0';
+  }
 }

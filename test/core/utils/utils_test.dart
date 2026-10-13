@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:waldo/core/utils/utils.dart';
 
@@ -13,6 +14,8 @@ void main() {
       ('-5', false, null),
       ('-5', true, -500),
       ('10.999', false, null),
+      ('123456789.99', false, 12345678999),
+      ('9999999999999999999999', false, null),
     ];
 
     for (final (input, allowNegative, expected) in cases) {
@@ -24,6 +27,11 @@ void main() {
         },
       );
     }
+  });
+
+  test('zeroAmountHint uses the phone\'s decimal separator', () {
+    expect(zeroAmountHint('en_US'), '0.00');
+    expect(zeroAmountHint('pt_PT'), '0,00');
   });
 
   group('formatCentsForInput', () {
@@ -50,8 +58,51 @@ void main() {
 
     for (final (cents, expected) in cases) {
       test('formatCents($cents) => "$expected"', () {
-        expect(formatCents(cents), expected);
+        expect(formatCents(cents, locale: 'en_US'), expected);
       });
     }
+  });
+
+  test('formatCents follows the locale: a Portuguese phone puts the euro '
+      'after the number, with a decimal comma and spaced thousands', () {
+    expect(
+      formatCents(123450, locale: 'pt_PT', currencyCode: 'EUR'),
+      '1\u00a0234,50\u00a0€',
+    );
+    expect(formatCents(100, locale: 'en_US', currencyCode: 'EUR'), '€1.00');
+  });
+
+  testWidgets('moneyLocale reads the device region', (tester) async {
+    tester.platformDispatcher.localeTestValue = const Locale('pt', 'PT');
+    addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+    late String locale;
+    await tester.pumpWidget(
+      Builder(
+        builder: (context) {
+          locale = moneyLocale(context);
+          return const SizedBox();
+        },
+      ),
+    );
+
+    expect(locale, 'pt_PT');
+  });
+
+  testWidgets('moneyLocale falls back to en_US for a region intl lacks', (
+    tester,
+  ) async {
+    tester.platformDispatcher.localeTestValue = const Locale('xx', 'YY');
+    addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+    late String locale;
+    await tester.pumpWidget(
+      Builder(
+        builder: (context) {
+          locale = moneyLocale(context);
+          return const SizedBox();
+        },
+      ),
+    );
+
+    expect(locale, 'en_US');
   });
 }

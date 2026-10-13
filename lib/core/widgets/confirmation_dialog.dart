@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/dashed_circle_badge.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 class ConfirmationDialog extends StatelessWidget {
@@ -11,12 +13,14 @@ class ConfirmationDialog extends StatelessWidget {
     required this.content,
     required this.confirmLabel,
     this.isDestructive = true,
+    this.icon = AppIcons.delete,
   });
 
   final String title;
   final String content;
   final String confirmLabel;
   final bool isDestructive;
+  final IconData icon;
 
   static Future<bool> show(
     BuildContext context, {
@@ -24,6 +28,7 @@ class ConfirmationDialog extends StatelessWidget {
     required String content,
     required String confirmLabel,
     bool isDestructive = true,
+    IconData icon = AppIcons.delete,
   }) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -32,6 +37,7 @@ class ConfirmationDialog extends StatelessWidget {
         content: content,
         confirmLabel: confirmLabel,
         isDestructive: isDestructive,
+        icon: icon,
       ),
     );
     return confirmed ?? false;
@@ -41,49 +47,77 @@ class ConfirmationDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
+    final accent = isDestructive ? colors.error : colors.primary;
 
-    return AlertDialog(
-      title: Text(title),
-      content: Text(content),
-      actionsPadding: const EdgeInsets.fromLTRB(
-        Spacing.xl,
-        0,
-        Spacing.xl,
-        Spacing.lg,
+    return Dialog(
+      backgroundColor: colors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(Rounded.lg),
       ),
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            backgroundColor: colors.surfaceContainer,
-            foregroundColor: colors.onSurface,
-            padding: const EdgeInsets.symmetric(
-              horizontal: Spacing.lg,
-              vertical: Spacing.md,
+      child: Padding(
+        padding: const EdgeInsets.all(Spacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DashedCircleBadge(icon: icon, color: accent),
+            const SizedBox(height: Spacing.sm),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: context.headlineSmBold.copyWith(color: colors.onSurface),
             ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(Rounded.lg),
+            const SizedBox(height: Spacing.xs),
+            Text(
+              content,
+              textAlign: TextAlign.center,
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
             ),
-          ),
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text(l10n.cancel),
+            const SizedBox(height: Spacing.lg),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: colors.surfaceContainer,
+                      foregroundColor: colors.onSurface,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: Spacing.component,
+                      ),
+                      textStyle: context.bodyMdBold,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(Rounded.pill),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text(l10n.cancel),
+                  ),
+                ),
+                const SizedBox(width: Spacing.sm),
+                Expanded(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: accent,
+                      // `onPrimary` contrasts with both `primary` and `error`.
+                      foregroundColor: colors.onPrimary,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: Spacing.component,
+                      ),
+                      textStyle: context.bodyMdBold,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(Rounded.pill),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: Text(confirmLabel),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        const SizedBox(width: Spacing.sm),
-        TextButton(
-          style: TextButton.styleFrom(
-            backgroundColor: isDestructive ? colors.error : colors.primary,
-            foregroundColor: isDestructive ? Colors.white : colors.onPrimary,
-            padding: const EdgeInsets.symmetric(
-              horizontal: Spacing.lg,
-              vertical: Spacing.md,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(Rounded.lg),
-            ),
-          ),
-          onPressed: () => Navigator.of(context).pop(true),
-          child: Text(confirmLabel),
-        ),
-      ],
+      ),
     );
   }
 }

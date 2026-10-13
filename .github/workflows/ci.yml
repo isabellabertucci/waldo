@@ -31,3 +31,23 @@ jobs:
 
       - name: Run tests
         run: flutter test
+
+      # Golden diffs only exist on the runner, so keep them when a golden fails.
+      - name: Upload golden failures
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-failures
+          path: test/golden/failures/
+          if-no-files-found: ignore
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Lint DESIGN.md
+        run: make design-lint
+
+      - name: Design guardrail
+        run: make design-guardrail

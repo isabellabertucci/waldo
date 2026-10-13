@@ -49,13 +49,33 @@
   "@startingBalance": {
     "description": "Starting balance field label"
   },
+  "startingBalancePrompt": "How much is in it today?",
+  "@startingBalancePrompt": {
+    "description": "Label inside the starting balance field of the new-wallet form"
+  },
+  "optional": "Optional",
+  "@optional": {
+    "description": "Tag beside a form section title that doesn't need filling in"
+  },
   "balanceLocked": "Cannot be changed after creation",
   "@balanceLocked": {
     "description": "Helper text for locked balance field"
   },
+  "walletNameHint": "e.g. Home, Travel",
+  "@walletNameHint": {
+    "description": "Placeholder text for the wallet name field"
+  },
+  "createWallet": "Create wallet",
+  "@createWallet": {
+    "description": "Button label for creating a new wallet"
+  },
   "save": "Save",
   "@save": {
     "description": "Save button label"
+  },
+  "done": "Done",
+  "@done": {
+    "description": "Confirm button label on a single-field edit sheet (e.g. editing just the amount or just the name of a transaction)"
   },
   "nameRequired": "Name is required",
   "@nameRequired": {
@@ -94,6 +114,26 @@
   "@cancel": {
     "description": "Cancel button label"
   },
+  "close": "Close",
+  "@close": {
+    "description": "Accessibility label and tooltip for the button that closes a sheet"
+  },
+  "back": "Back",
+  "@back": {
+    "description": "Accessibility label and tooltip for a back/chevron-left button"
+  },
+  "deleteDigit": "Delete digit",
+  "@deleteDigit": {
+    "description": "Accessibility label and tooltip for the backspace key on the amount keypad"
+  },
+  "hideBalance": "Hide balance",
+  "@hideBalance": {
+    "description": "Accessibility label and tooltip for the eye button when amounts are visible - tapping it masks them"
+  },
+  "showBalance": "Show balance",
+  "@showBalance": {
+    "description": "Accessibility label and tooltip for the eye button when amounts are masked - tapping it reveals them"
+  },
   "edit": "Edit",
   "@edit": {
     "description": "Edit action label"
@@ -105,6 +145,10 @@
   "walletDeleted": "Wallet deleted",
   "@walletDeleted": {
     "description": "Snackbar message after deleting a wallet"
+  },
+  "walletRestored": "Wallet restored",
+  "@walletRestored": {
+    "description": "Short confirmation after tapping Undo on a deleted wallet"
   },
   "undo": "Undo",
   "@undo": {
@@ -146,10 +190,6 @@
   "@newTransaction": {
     "description": "Title of the create transaction form"
   },
-  "editTransaction": "Edit Transaction",
-  "@editTransaction": {
-    "description": "Title of the edit transaction form"
-  },
   "transactionDefaultDescription": "Transaction",
   "@transactionDefaultDescription": {
     "description": "Fallback label when a transaction has no description"
@@ -174,6 +214,43 @@
   "@transactionDescription": {
     "description": "Transaction description field label"
   },
+  "descriptionHint": "What was it for?",
+  "@descriptionHint": {
+    "description": "Placeholder text for the new transaction's description field"
+  },
+  "addExpense": "Add expense",
+  "@addExpense": {
+    "description": "Button label for creating a new expense transaction"
+  },
+  "addIncome": "Add income",
+  "@addIncome": {
+    "description": "Button label for creating a new income transaction"
+  },
+  "transactionNote": "Note",
+  "@transactionNote": {
+    "description": "Transaction note field label - a free-text note separate from its name"
+  },
+  "editingAmountLabel": "{type} · editing amount",
+  "@editingAmountLabel": {
+    "description": "Caption above the amount keypad, e.g. 'Expense · editing amount'",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "discardChangesTitle": "Discard changes?",
+  "@discardChangesTitle": {
+    "description": "Title of the dialog shown when leaving a field editor with unsaved edits"
+  },
+  "discardChangesMessage": "You have unsaved changes to this field.",
+  "@discardChangesMessage": {
+    "description": "Message of the dialog shown when leaving a field editor with unsaved edits"
+  },
+  "discard": "Discard",
+  "@discard": {
+    "description": "Discard button label, paired with Save on the unsaved-changes dialog"
+  },
   "deleteTransaction": "Delete transaction?",
   "@deleteTransaction": {
     "description": "Delete confirmation dialog title"
@@ -182,9 +259,21 @@
   "@deleteTransactionConfirm": {
     "description": "Delete confirmation dialog message"
   },
+  "editTransactionAction": "Edit transaction",
+  "@editTransactionAction": {
+    "description": "Button on a transaction's read-only view that switches it into edit mode"
+  },
+  "saveChanges": "Save changes",
+  "@saveChanges": {
+    "description": "Button that commits every field's changes on a transaction's edit screen at once"
+  },
   "transactionDeleted": "Transaction deleted",
   "@transactionDeleted": {
     "description": "Snackbar message after deleting a transaction"
+  },
+  "transactionRestored": "Transaction restored",
+  "@transactionRestored": {
+    "description": "Short confirmation after tapping Undo on a deleted transaction"
   },
   "transactionsError": "There was a problem loading your transactions. Please try again.",
   "@transactionsError": {
@@ -230,13 +319,13 @@
   "@addFirstCategory": {
     "description": "Empty state subtitle for categories list"
   },
-  "newCategory": "New Category",
+  "newCategory": "New category",
   "@newCategory": {
     "description": "Title of the create category form"
   },
-  "editCategory": "Edit Category",
-  "@editCategory": {
-    "description": "Title of the edit category form"
+  "categoryNameHint": "e.g. Coffee, Gym",
+  "@categoryNameHint": {
+    "description": "Placeholder in the category name field"
   },
   "manageCategories": "Manage categories",
   "@manageCategories": {
@@ -246,9 +335,37 @@
   "@deleteCategory": {
     "description": "Delete confirmation dialog title"
   },
-  "deleteCategoryConfirm": "This will permanently delete \"{name}\". Any transactions using it will keep their data but lose this category.",
+  "deleteCategoryConfirm": "This will delete \"{name}\".",
   "@deleteCategoryConfirm": {
     "description": "Delete confirmation dialog message",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteCategoryMovesTransactions": "{count, plural, =1{1 transaction uses \"{name}\"} other{{count} transactions use \"{name}\"}}. If you delete it, {count, plural, =1{it moves} other{they move}} to {others}.",
+  "@deleteCategoryMovesTransactions": {
+    "description": "Delete confirmation when transactions use the category; they are reassigned to the Others category",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      },
+      "others": {
+        "type": "String"
+      }
+    }
+  },
+  "addCategory": "Add category",
+  "@addCategory": {
+    "description": "Tooltip for the button that adds the typed category name"
+  },
+  "deleteCategoryNamed": "Delete {name}",
+  "@deleteCategoryNamed": {
+    "description": "Tooltip for the delete (X) button on a category row",
     "placeholders": {
       "name": {
         "type": "String"
@@ -259,6 +376,10 @@
   "@categoryDeleted": {
     "description": "Snackbar message after deleting a category"
   },
+  "categoryRestored": "Category restored",
+  "@categoryRestored": {
+    "description": "Short confirmation after tapping Undo on a deleted category"
+  },
   "categoriesError": "There was a problem loading your categories. Please try again.",
   "@categoriesError": {
     "description": "Generic error message shown when categories fail to load"
@@ -266,6 +387,14 @@
   "categorySaveError": "There was a problem saving the category. Please try again.",
   "@categorySaveError": {
     "description": "Generic error message shown when saving a category fails"
+  },
+  "categoryNameTaken": "A category with this name already exists",
+  "@categoryNameTaken": {
+    "description": "Validation error when the user types a category name that is already shown in the list"
+  },
+  "walletNameTaken": "A wallet with this name already exists",
+  "@walletNameTaken": {
+    "description": "Validation error when the user types a wallet name another wallet already uses, ignoring case"
   },
   "categoryDeleteError": "There was a problem deleting the category. Please try again.",
   "@categoryDeleteError": {
@@ -291,13 +420,17 @@
   "@categoryTypeInvestments": {
     "description": "Investments category type"
   },
+  "categoryTypeOthers": "Others",
+  "@categoryTypeOthers": {
+    "description": "Label for the catch-all category type, for anything that fits none of the others"
+  },
   "none": "None",
   "@none": {
     "description": "Label for selecting no category on a transaction"
   },
-  "darkMode": "Dark Mode",
-  "@darkMode": {
-    "description": "Dark mode section title in settings"
+  "theme": "Theme",
+  "@theme": {
+    "description": "Theme row/section title and sheet title in settings"
   },
   "themeSystem": "System",
   "@themeSystem": {
@@ -313,11 +446,31 @@
   },
   "currency": "Currency",
   "@currency": {
-    "description": "Currency section title in settings"
+    "description": "Currency row title and sheet title in settings"
   },
-  "dateFormat": "Date Format",
+  "dateFormat": "Date format",
   "@dateFormat": {
-    "description": "Date format section title in settings"
+    "description": "Date format row title and sheet title in settings"
+  },
+  "moneySection": "Money",
+  "@moneySection": {
+    "description": "Section header grouping the currency and date format rows in settings"
+  },
+  "appearanceSection": "Appearance",
+  "@appearanceSection": {
+    "description": "Section header grouping the theme row in settings"
+  },
+  "currencyRowSubtitle": "How amounts are shown",
+  "@currencyRowSubtitle": {
+    "description": "Subtitle under the Currency row in settings"
+  },
+  "dateFormatRowSubtitle": "Used in lists and details",
+  "@dateFormatRowSubtitle": {
+    "description": "Subtitle under the Date format row in settings"
+  },
+  "currencyChangeNotice": "This changes the symbol only. Your amounts stay the same and are not converted.",
+  "@currencyChangeNotice": {
+    "description": "Notice shown at the bottom of the currency picker sheet"
   },
   "preferencesError": "There was a problem loading your preferences. Please try again.",
   "@preferencesError": {
@@ -327,78 +480,174 @@
   "@preferencesSaveError": {
     "description": "Error message shown when a preference fails to save"
   },
-  "currencyOptionUsd": "USD ($)",
-  "@currencyOptionUsd": {
-    "description": "US Dollar option label in the currency picker"
+  "currencyNameUsd": "US dollar",
+  "@currencyNameUsd": {
+    "description": "US Dollar full name in the currency picker"
   },
-  "currencyOptionEur": "EUR (€)",
-  "@currencyOptionEur": {
-    "description": "Euro option label in the currency picker"
+  "currencyNameEur": "Euro",
+  "@currencyNameEur": {
+    "description": "Euro full name in the currency picker"
   },
-  "currencyOptionGbp": "GBP (£)",
-  "@currencyOptionGbp": {
-    "description": "British Pound option label in the currency picker"
-  },
-  "myFinances": "My Finances",
-  "@myFinances": {
-    "description": "Dashboard balance overview card title"
-  },
-  "overviewSubtitle": "{month} Overview",
-  "@overviewSubtitle": {
-    "description": "Dashboard balance overview card subtitle, e.g. 'July Overview'",
-    "placeholders": {
-      "month": {
-        "type": "String"
-      }
-    }
+  "currencyNameGbp": "British pound",
+  "@currencyNameGbp": {
+    "description": "British Pound full name in the currency picker"
   },
   "totalBalance": "Total Balance",
   "@totalBalance": {
     "description": "Label above the total balance amount on the dashboard"
   },
+  "add": "Add",
+  "@add": {
+    "description": "Short label for the quick-add button on the balance card"
+  },
   "dashboardError": "There was a problem loading your dashboard. Please try again.",
   "@dashboardError": {
     "description": "Generic error message shown when dashboard data fails to load"
   },
-  "spendingsByCategory": "Spendings by Category",
-  "@spendingsByCategory": {
-    "description": "Dashboard section header for the category spending list"
+  "dashboardReceiptHeader": "WALDO · {month} {year}",
+  "@dashboardReceiptHeader": {
+    "description": "Header line on the dashboard's receipt-style monthly summary, e.g. 'WALDO · OCTOBER 2026'",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "uncategorized": "Uncategorized",
+  "@uncategorized": {
+    "description": "Receipt line for this month's expenses that have no category (never set, or their category was deleted)"
+  },
+  "monthNetLabel": "Net",
+  "@monthNetLabel": {
+    "description": "Label for this month's income minus expenses (can be negative), shown (uppercased) as the total row of the dashboard's receipt. Deliberately not 'saved', which reads as money put into savings"
+  },
+  "dashboardReceiptOtherCategories": "{count, plural, one{Other (1)} other{Other ({count})}}",
+  "@dashboardReceiptOtherCategories": {
+    "description": "Rollup row label on the dashboard's receipt summary for categories past the first few, e.g. 'Other (3)' summing their combined amount",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "seeAll": "See all",
   "@seeAll": {
     "description": "Link that navigates to a full list from a dashboard section preview"
   },
-  "noSpendingThisMonth": "No spending yet this month",
-  "@noSpendingThisMonth": {
-    "description": "Empty state title for the dashboard's category spending section"
+  "categorySpendingEmptyHint": "Add your first transaction to see it broken down by category here.",
+  "@categorySpendingEmptyHint": {
+    "description": "Empty state hint for the dashboard's category spending section"
   },
-  "percentFromLastMonth": "{percent} from last month",
-  "@percentFromLastMonth": {
-    "description": "Month-over-month change label under a category spending amount, e.g. '+12% from last month'",
+  "addFirstTransactionButton": "Add first transaction",
+  "@addFirstTransactionButton": {
+    "description": "Button label in the dashboard's category spending empty state"
+  },
+  "cashFlow": "Cash Flow",
+  "@cashFlow": {
+    "description": "Dashboard cash flow chart card title"
+  },
+  "recentTransactions": "Recent Transactions",
+  "@recentTransactions": {
+    "description": "Dashboard section header for the recent transactions list"
+  },
+  "firstRunPeekCta": "Slide in your first wallet",
+  "@firstRunPeekCta": {
+    "description": "Label on the dashed placeholder card peeking behind the balance card when there are no wallets yet"
+  },
+  "dashboardReceiptNoWallet": "Your month's receipt prints here after the first transaction.",
+  "@dashboardReceiptNoWallet": {
+    "description": "Message shown in place of the receipt body when there are no wallets yet"
+  },
+  "zeroWalletsLabel": "0 wallets",
+  "@zeroWalletsLabel": {
+    "description": "Wallet count shown on the balance card's empty state, always exactly zero"
+  },
+  "filterTitle": "Filter",
+  "@filterTitle": {
+    "description": "Title of the wallet transactions filter bottom sheet"
+  },
+  "filterReset": "Reset",
+  "@filterReset": {
+    "description": "Link that clears the filter bottom sheet back to its defaults"
+  },
+  "filterSectionMonth": "Month",
+  "@filterSectionMonth": {
+    "description": "Section label (shown uppercased) above the month grid in the filter sheet"
+  },
+  "earlierMonths": "Earlier months",
+  "@earlierMonths": {
+    "description": "Name of the month selector's left chevron, which scrolls to earlier months"
+  },
+  "laterMonths": "Later months",
+  "@laterMonths": {
+    "description": "Name of the month selector's right chevron, which scrolls to later months"
+  },
+  "filterSectionType": "Type",
+  "@filterSectionType": {
+    "description": "Section label (shown uppercased) above the income/expense toggle in the filter sheet"
+  },
+  "filterTypeAll": "All",
+  "@filterTypeAll": {
+    "description": "Option in the filter sheet's type toggle that includes both income and expense"
+  },
+  "filterShowTransactions": "{count, plural, one{Show 1 transaction} other{Show {count} transactions}}",
+  "@filterShowTransactions": {
+    "description": "Button label at the bottom of the filter sheet, previewing how many transactions match the selection so far",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterChipLabel": "{type} transactions",
+  "@filterChipLabel": {
+    "description": "Filter chip label on the wallet transactions screen, e.g. 'All transactions' or 'Income transactions' - type is already localized",
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "noTransactionsForFilter": "No transactions match this filter.",
+  "@noTransactionsForFilter": {
+    "description": "Empty state shown on the wallet transactions screen when the active filter excludes every transaction"
+  },
+  "transactionsGroupToday": "Today",
+  "@transactionsGroupToday": {
+    "description": "Date group header for transactions dated today"
+  },
+  "transactionsGroupYesterday": "Yesterday",
+  "@transactionsGroupYesterday": {
+    "description": "Date group header for transactions dated yesterday"
+  },
+  "keptPercentThisMonth": "Kept {percent} of what you received",
+  "@keptPercentThisMonth": {
+    "description": "Caption on the wallets screen: the share of this month's income not spent, e.g. 'Kept 60% of what you received' - percent is pre-formatted",
     "placeholders": {
       "percent": {
         "type": "String"
       }
     }
   },
-  "cashFlow": "Cash Flow",
-  "@cashFlow": {
-    "description": "Dashboard cash flow chart card title"
+  "overspentPercentThisMonth": "Spent {percent} more than you received",
+  "@overspentPercentThisMonth": {
+    "description": "Caption on the wallets screen when this month's expenses exceed its income, e.g. 'Spent 50% more than you received' - percent is pre-formatted and positive",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
   },
-  "overallRevenue": "Overall Revenue",
-  "@overallRevenue": {
-    "description": "Label above the total on the dashboard cash flow chart card"
-  },
-  "periodMonthly": "Monthly",
-  "@periodMonthly": {
-    "description": "Period dropdown value on the dashboard cash flow chart card"
-  },
-  "recentTransactions": "Recent Transactions",
-  "@recentTransactions": {
-    "description": "Dashboard section header for the recent transactions list"
-  },
-  "noRecentTransactions": "No transactions yet",
-  "@noRecentTransactions": {
-    "description": "Empty state title for the dashboard's recent transactions section"
+  "walletsCountLabel": "{count, plural, one{1 wallet} other{{count} wallets}}",
+  "@walletsCountLabel": {
+    "description": "Fallback caption on the wallets screen's fixed total balance bar when there's no income yet this month to compute a savings percentage",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

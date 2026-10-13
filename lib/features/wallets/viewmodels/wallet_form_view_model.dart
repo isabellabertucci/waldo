@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
@@ -37,7 +38,20 @@ class WalletFormViewModel extends _$WalletFormViewModel {
     state = state.copyWith(startingBalance: value);
   }
 
+  /// True while a save is writing, so a double tap can't save twice.
+  bool _saving = false;
+
   Future<bool> save(Wallet? existingWallet) async {
+    if (_saving) return false;
+    _saving = true;
+    try {
+      return await _save(existingWallet);
+    } finally {
+      _saving = false;
+    }
+  }
+
+  Future<bool> _save(Wallet? existingWallet) async {
     final isEditing = existingWallet != null;
     final allowsNegative = state.type == WalletType.credit;
     final balanceInCents = isEditing
@@ -57,7 +71,7 @@ class WalletFormViewModel extends _$WalletFormViewModel {
           type: state.type,
           startingBalance: balanceInCents,
           currentBalance: balanceInCents,
-          createdAt: DateTime.now().toIso8601String(),
+          createdAt: ref.read(clockProvider)().toIso8601String(),
         ),
       );
     }

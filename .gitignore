@@ -49,3 +49,13 @@ app.*.map.json
 
 # Local code-review scratch notes, not meant to be committed
 review.md
+
+# Local design working notes, not meant to be committed
+docs/design-audit.md
+docs/design-system.md
+
+# Platform-specific goldens - CI only compares the goldens/ci/ set
+test/golden/goldens/macos/
+
+# Golden test diffs, written when a golden fails
+test/golden/failures/

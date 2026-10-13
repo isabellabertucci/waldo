@@ -24,10 +24,13 @@ void main() {
     await db.close();
   });
 
-  Future<int> createWallet({int startingBalance = 0}) {
+  Future<int> createWallet({
+    String name = 'Test Wallet',
+    int startingBalance = 0,
+  }) {
     return walletRepo.insert(
       Wallet(
-        name: 'Test Wallet',
+        name: name,
         startingBalance: startingBalance,
         currentBalance: startingBalance,
         createdAt: '2026-08-10T12:00:00.000',
@@ -72,9 +75,37 @@ void main() {
       },
     );
 
+    test('monthTotals sums income and expense inside the month only', () async {
+      final walletId = await createWallet();
+      Future<void> add(int amount, TransactionType type, String date) =>
+          repo.insert(
+            Transaction(
+              walletId: walletId,
+              amount: amount,
+              type: type,
+              date: date,
+              createdAt: '2026-10-01T12:00:00.000',
+            ),
+          );
+      await add(1000, TransactionType.income, '2026-10-01');
+      await add(500, TransactionType.income, '2026-10-31T23:59:00.000');
+      await add(300, TransactionType.expense, '2026-10-15T09:30:00.000');
+      // Just outside October on each side.
+      await add(9999, TransactionType.income, '2026-09-30T23:59:00.000');
+      await add(9999, TransactionType.expense, '2026-11-01');
+
+      final october = await repo.monthTotals(DateTime(2026, 10, 20));
+      expect(october.income, 1500);
+      expect(october.expense, 300);
+
+      final empty = await repo.monthTotals(DateTime(2026, 12));
+      expect(empty.income, 0);
+      expect(empty.expense, 0);
+    });
+
     test('getByWallet only returns transactions for that wallet', () async {
       final walletA = await createWallet();
-      final walletB = await createWallet();
+      final walletB = await createWallet(name: 'Second Wallet');
       await repo.insert(
         Transaction(
           walletId: walletA,
@@ -102,7 +133,10 @@ void main() {
       'update reverses the old effect and applies the new one, even across wallets',
       () async {
         final walletA = await createWallet(startingBalance: 1000);
-        final walletB = await createWallet(startingBalance: 1000);
+        final walletB = await createWallet(
+          name: 'Second Wallet',
+          startingBalance: 1000,
+        );
         final id = await repo.insert(
           Transaction(
             walletId: walletA,
@@ -233,7 +267,7 @@ void main() {
     });
 
     test(
-      'deleting a category sets categoryId to null on its transactions, without deleting them',
+      'deleting a category moves its transactions to Others, without deleting them',
       () async {
         final categoryRepo = CategoryRepositoryImpl(db);
         final categoryId = await categoryRepo.insert(
@@ -259,8 +293,44 @@ void main() {
 
         final transaction = await repo.getById(transactionId);
         expect(transaction, isNotNull);
-        expect(transaction!.categoryId, isNull);
+        expect(transaction!.categoryId, (await categoryRepo.getOthers()).id);
       },
     );
+
+    test('insert persists the note', () async {
+      final walletId = await createWallet();
+      final id = await repo.insert(
+        Transaction(
+          walletId: walletId,
+          amount: 500,
+          type: TransactionType.expense,
+          date: '2026-08-10',
+          note: 'Split with Ana',
+          createdAt: '2026-08-10T12:00:00.000',
+        ),
+      );
+
+      final saved = await repo.getById(id);
+      expect(saved!.note, 'Split with Ana');
+    });
+
+    test('update changes the note', () async {
+      final walletId = await createWallet();
+      final id = await repo.insert(
+        Transaction(
+          walletId: walletId,
+          amount: 500,
+          type: TransactionType.expense,
+          date: '2026-08-10',
+          createdAt: '2026-08-10T12:00:00.000',
+        ),
+      );
+      final existing = await repo.getById(id);
+
+      await repo.update(existing!.copyWith(note: 'Added later'));
+
+      final updated = await repo.getById(id);
+      expect(updated!.note, 'Added later');
+    });
   });
 }

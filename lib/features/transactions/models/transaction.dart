@@ -15,6 +15,7 @@ abstract class Transaction with _$Transaction {
     required TransactionType type,
     required String date,
     String? description,
+    String? note,
     required String createdAt,
   }) = _Transaction;
 
@@ -29,6 +30,7 @@ abstract class Transaction with _$Transaction {
       'type': type.name,
       'date': date,
       'description': description,
+      'note': note,
       'created_at': createdAt,
     };
   }
@@ -42,6 +44,7 @@ abstract class Transaction with _$Transaction {
       type: TransactionType.values.byName(map['type'] as String),
       date: map['date'] as String,
       description: map['description'] as String?,
+      note: map['note'] as String?,
       createdAt: map['created_at'] as String,
     );
   }

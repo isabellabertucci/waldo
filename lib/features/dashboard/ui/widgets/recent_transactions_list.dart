@@ -1,35 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/core/widgets/empty_state.dart';
-import 'package:waldo/core/widgets/transaction_list_tile.dart';
+import 'package:waldo/core/widgets/secondary_button.dart';
+import 'package:waldo/features/transactions/ui/widgets/transaction_row.dart';
+import 'package:waldo/features/categories/models/category.dart';
+import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
-class RecentTransactionsList extends StatelessWidget {
+class RecentTransactionsList extends ConsumerWidget {
   const RecentTransactionsList({
     super.key,
     required this.transactions,
     required this.currency,
-    required this.dateFormat,
+    required this.isBalanceHidden,
   });
 
   final List<Transaction> transactions;
   final Currency currency;
-  final DateFormat dateFormat;
+  final bool isBalanceHidden;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final categoriesAsync = ref.watch(categoryListViewModelProvider);
+    final categoriesById = switch (categoriesAsync) {
+      AsyncValue(:final value?) => {
+        for (final c in value)
+          if (c.id != null) c.id!: c,
+      },
+      _ => const <int, Category>{},
+    };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Spacing.lg),
+          padding: const EdgeInsets.symmetric(horizontal: Spacing.pageMargin),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -38,57 +48,27 @@ class RecentTransactionsList extends StatelessWidget {
                   l10n.recentTransactions,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: context.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: context.headlineMdStrong,
                 ),
               ),
               const SizedBox(width: Spacing.sm),
-              GestureDetector(
-                onTap: () => const AllTransactionsRoute().push(context),
-                child: Text(
-                  l10n.seeAll,
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.appColors.primaryStrong,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+              SecondaryButton(
+                label: l10n.seeAll,
+                onPressed: () => const AllTransactionsRoute().push(context),
               ),
             ],
           ),
         ),
         const SizedBox(height: Spacing.sm),
-        if (transactions.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: Spacing.lg),
-            child: EmptyState(
-              icon: Icons.receipt_long_outlined,
-              title: l10n.noRecentTransactions,
-            ),
-          )
-        else
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
-            itemCount: transactions.length,
-            separatorBuilder: (context, index) =>
-                const SizedBox(height: Spacing.md),
-            itemBuilder: (context, index) {
-              final transaction = transactions[index];
-              return TransactionListTile(
-                transaction: transaction,
-                currency: currency,
-                dateFormat: dateFormat,
-                onTap: () {
-                  TransactionDetailRoute(
-                    transaction.walletId,
-                    transaction.id!,
-                  ).push(context);
-                },
-              );
-            },
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Spacing.pageMargin),
+          child: TransactionCard(
+            transactions: transactions,
+            categoriesById: categoriesById,
+            currency: currency,
+            isAmountHidden: isBalanceHidden,
           ),
+        ),
       ],
     );
   }

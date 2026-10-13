@@ -3,6 +3,8 @@ import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
+import 'models/category.dart';
+
 extension CategoryTypeLabel on CategoryType {
   String label(AppLocalizations l10n) {
     return switch (this) {
@@ -11,6 +13,7 @@ extension CategoryTypeLabel on CategoryType {
       CategoryType.subscriptions => l10n.categoryTypeSubscriptions,
       CategoryType.education => l10n.categoryTypeEducation,
       CategoryType.investments => l10n.categoryTypeInvestments,
+      CategoryType.others => l10n.categoryTypeOthers,
     };
   }
 }
@@ -23,6 +26,26 @@ extension CategoryTypeIcon on CategoryType {
       CategoryType.subscriptions => AppIcons.categorySubscriptions,
       CategoryType.education => AppIcons.categoryEducation,
       CategoryType.investments => AppIcons.categoryInvestments,
+      CategoryType.others => AppIcons.categoryOthers,
     };
   }
+}
+
+extension CategoryDisplayName on Category {
+  /// The name the user sees: built-ins are translated from their type.
+  String displayName(AppLocalizations l10n) =>
+      isDefault ? type.label(l10n) : name;
+
+  /// Its name in every app language, so a custom category can't clash with a
+  /// built-in after the language changes.
+  Iterable<String> get namesInEveryLanguage => isDefault
+      ? AppLocalizations.supportedLocales.map(
+          (locale) => type.label(lookupAppLocalizations(locale)),
+        )
+      : [name];
+}
+
+extension CategoryIcon on Category {
+  /// Built-ins keep their own icon; a user-named category gets a plain tag.
+  IconData get icon => isDefault ? type.icon : AppIcons.categoryGeneric;
 }
