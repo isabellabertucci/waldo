@@ -139,7 +139,8 @@ void main() {
     expect(find.text('Total Balance'), findsOneWidget);
     expect(find.text('\$75.00'), findsOneWidget); // 10000 - 2500 cents
     expect(find.text('Weekly shop'), findsOneWidget);
-    expect(find.text(groceriesCategory.name), findsOneWidget);
+    // On the receipt, and under the transaction's name in the recent list.
+    expect(find.text(groceriesCategory.name), findsNWidgets(2));
   });
 
   testWidgets('Hiding the balance masks every amount on the dashboard', (

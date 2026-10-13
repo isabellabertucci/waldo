@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -10,7 +9,6 @@ import 'package:waldo/features/transactions/ui/widgets/transaction_row.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
-import 'package:waldo/features/transactions/ui/widgets/transaction_edit_sheet.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 class RecentTransactionsList extends ConsumerWidget {
@@ -18,13 +16,11 @@ class RecentTransactionsList extends ConsumerWidget {
     super.key,
     required this.transactions,
     required this.currency,
-    required this.dateFormat,
     required this.isBalanceHidden,
   });
 
   final List<Transaction> transactions;
   final Currency currency;
-  final DateFormat dateFormat;
   final bool isBalanceHidden;
 
   @override
@@ -66,14 +62,11 @@ class RecentTransactionsList extends ConsumerWidget {
         const SizedBox(height: Spacing.sm),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: Spacing.pageMargin),
-          child: TransactionGroupCard(
+          child: TransactionCard(
             transactions: transactions,
-            currency: currency,
-            dateFormat: dateFormat,
             categoriesById: categoriesById,
+            currency: currency,
             isAmountHidden: isBalanceHidden,
-            onTapTransaction: (transaction) =>
-                showTransactionEditSheet(context, transaction: transaction),
           ),
         ),
       ],
