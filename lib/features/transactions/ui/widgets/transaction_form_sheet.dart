@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -98,7 +99,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
   Future<DateTime?> _pickDate(DateTime? current) {
     return showDatePicker(
       context: context,
-      initialDate: current ?? DateTime.now(),
+      initialDate: current ?? ref.read(clockProvider)(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );

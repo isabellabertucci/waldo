@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
@@ -21,7 +22,10 @@ class CategoryListViewModel extends _$CategoryListViewModel {
   Future<void> add(String name) async {
     final repo = await ref.read(categoryRepositoryProvider.future);
     await repo.insert(
-      Category(name: name.trim(), createdAt: DateTime.now().toIso8601String()),
+      Category(
+        name: name.trim(),
+        createdAt: ref.read(clockProvider)().toIso8601String(),
+      ),
     );
     _log.info('Category added');
     ref.invalidateSelf();

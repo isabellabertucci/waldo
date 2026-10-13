@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/utils.dart';
@@ -110,7 +111,7 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
           date: date.toIso8601String(),
           description: description.isEmpty ? null : description,
           note: note.isEmpty ? null : note,
-          createdAt: DateTime.now().toIso8601String(),
+          createdAt: ref.read(clockProvider)().toIso8601String(),
         ),
       );
     }
