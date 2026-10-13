@@ -119,6 +119,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get walletDeleted => 'Wallet deleted';
 
   @override
+  String get walletRestored => 'Wallet restored';
+
+  @override
   String get undo => 'Undo';
 
   @override
@@ -209,6 +212,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transactionDeleted => 'Transaction deleted';
 
   @override
+  String get transactionRestored => 'Transaction restored';
+
+  @override
   String get transactionsError =>
       'There was a problem loading your transactions. Please try again.';
 
@@ -292,6 +298,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryDeleted => 'Category deleted';
+
+  @override
+  String get categoryRestored => 'Category restored';
 
   @override
   String get categoriesError =>
