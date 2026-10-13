@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
@@ -44,26 +45,16 @@ class WalletsScreen extends ConsumerWidget {
 
     if (!viewModel.hideWallet(wallet.id!)) return;
 
-    var undone = false;
-
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(l10n.walletDeleted),
-        duration: const Duration(seconds: 5),
-        persist: false,
-        action: SnackBarAction(
-          label: l10n.undo,
-          onPressed: () {
-            undone = true;
-            viewModel.restoreWallet();
-          },
-        ),
-      ),
+    final undone = await showUndoSnackBar(
+      messenger,
+      title: l10n.walletDeleted,
+      subtitle: wallet.name,
+      restoredLabel: l10n.walletRestored,
     );
-
-    await Future.delayed(const Duration(seconds: 5));
-
-    if (undone) return;
+    if (undone) {
+      viewModel.restoreWallet();
+      return;
+    }
 
     try {
       await viewModel.confirmDelete(wallet.id!);

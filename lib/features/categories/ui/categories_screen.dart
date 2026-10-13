@@ -6,6 +6,7 @@ import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
@@ -152,26 +153,16 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
 
     if (!viewModel.hideCategory(category.id!)) return;
 
-    var undone = false;
-
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(l10n.categoryDeleted),
-        duration: const Duration(seconds: 5),
-        persist: false,
-        action: SnackBarAction(
-          label: l10n.undo,
-          onPressed: () {
-            undone = true;
-            viewModel.restoreCategory();
-          },
-        ),
-      ),
+    final undone = await showUndoSnackBar(
+      messenger,
+      title: l10n.categoryDeleted,
+      subtitle: name,
+      restoredLabel: l10n.categoryRestored,
     );
-
-    await Future.delayed(const Duration(seconds: 5));
-
-    if (undone) return;
+    if (undone) {
+      viewModel.restoreCategory();
+      return;
+    }
 
     try {
       await viewModel.confirmDelete(category.id!);
