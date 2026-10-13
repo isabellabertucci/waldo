@@ -445,10 +445,10 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
         .firstOrNull;
     final categoryIcon = category == null
         ? AppIcons.categoryGeneric
-        : category.type.icon;
+        : category.icon;
     final categoryLabel = category == null
         ? l10n.none
-        : (category.isDefault ? category.type.label(l10n) : category.name);
+        : category.displayName(l10n);
     final name = formState.description.trim().isEmpty
         ? l10n.transactionDefaultDescription
         : formState.description.trim();
@@ -627,10 +627,10 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
         .firstOrNull;
     final categoryIcon = category == null
         ? AppIcons.categoryGeneric
-        : category.type.icon;
+        : category.icon;
     final categoryLabel = category == null
         ? l10n.none
-        : (category.isDefault ? category.type.label(l10n) : category.name);
+        : category.displayName(l10n);
     final dateLabel = formState.date == null
         ? '—'
         : DateFormat('EEE d MMM', locale).format(formState.date!);
@@ -1077,7 +1077,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           ),
           ...categories.map(
             (c) => RadioListTile<int?>(
-              title: Text(c.isDefault ? c.type.label(l10n) : c.name),
+              title: Text(c.displayName(l10n)),
               value: c.id,
               contentPadding: EdgeInsets.zero,
             ),

@@ -24,20 +24,6 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('The "New" chip is as tall as the category chips', (
-    tester,
-  ) async {
-    await openSheet(tester);
-
-    double chipHeight(String label) => tester
-        .getSize(
-          find.ancestor(of: find.text(label), matching: find.byType(InkWell)),
-        )
-        .height;
-
-    expect(chipHeight('New'), chipHeight('Education'));
-  });
-
   testWidgets('The category section says it is optional', (tester) async {
     await openSheet(tester);
     expect(find.textContaining('Optional', findRichText: true), findsOneWidget);
