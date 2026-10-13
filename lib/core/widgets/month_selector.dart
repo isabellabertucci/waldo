@@ -349,7 +349,7 @@ class _ScrollHintChevronState extends State<_ScrollHintChevron>
             shape: BoxShape.circle,
           ),
           child: Icon(
-            Icons.chevron_left_rounded,
+            AppIcons.back,
             size: IconSize.md,
             color: widget.enabled ? colors.onSurface : colors.onSurfaceVariant,
           ),
@@ -386,7 +386,7 @@ class _ChevronButton extends StatelessWidget {
         ),
         child: Icon(
           direction == _ChevronDirection.left
-              ? Icons.chevron_left_rounded
+              ? AppIcons.back
               : AppIcons.chevronRight,
           size: IconSize.md,
           color: enabled ? colors.onSurface : colors.onSurfaceVariant,

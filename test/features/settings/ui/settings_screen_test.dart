@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -180,6 +179,12 @@ void main() {
 
     expect(find.byType(SettingsOptionSheet<String>), findsOneWidget);
     // One icon per format option in the sheet.
-    expect(find.byIcon(Icons.calendar_today_outlined), findsNWidgets(3));
+    expect(
+      find.descendant(
+        of: find.byType(SettingsOptionSheet<String>),
+        matching: find.byIcon(AppIcons.calendar),
+      ),
+      findsNWidgets(3),
+    );
   });
 }
