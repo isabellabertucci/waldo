@@ -263,6 +263,31 @@ void main() {
     expect(find.text(r'-$105.00'), findsOneWidget);
   });
 
+  testWidgets('The amount keypad stops at nine whole digits and two decimals', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '10.00', description: 'Coffee');
+
+    await openEditFromRowMenu(tester);
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+    // "10" + eight taps: only seven fit before the nine-digit cap.
+    for (var i = 0; i < 8; i++) {
+      await tester.tap(find.text('5'));
+      await tester.pump();
+    }
+    await tester.tap(find.text('.'));
+    await tester.pump();
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(find.text('5'));
+      await tester.pump();
+    }
+    await tester.pumpAndSettle();
+
+    expect(find.text(r'-$105,555,555.55'), findsOneWidget);
+  });
+
   testWidgets('Cancel puts the typed name back to what it was', (tester) async {
     await pumpTransactionsScreen(tester);
     await createTransaction(tester, amount: '25.00', description: 'Groceries');
