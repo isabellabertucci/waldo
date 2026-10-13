@@ -514,13 +514,12 @@ wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
   `Spacing.xxs`/`.component` happened for the clearest cases but not
   exhaustively, so turning that
   check on now would fail on real, not-yet-reconciled call sites.
-- **`_DashedCircleBadge` (confirmation_dialog.dart) vs. `PouchBorder`
-  (pouch_shape.dart) vs. `transaction_edit_sheet.dart`'s own dashed
-  painter.** Found via code-review during Phase 2, not in the original
-  audit. All three paint a dashed stroke along a path, but for visually
-  different shapes (a stitched pill border vs. a circular badge ring) -
-  merging them risks a real visual regression without case-by-case
-  verification, so this was logged rather than merged. A shared
+- **`DashedCircleBadge` (dashed_circle_badge.dart) vs. `PouchBorder`
+  (pouch_shape.dart) vs. `DashedBorder` (dashed_border.dart).** The
+  confirm dialog and the transaction view now share one
+  `DashedCircleBadge`, but the three widgets still each carry their own
+  dash-along-path loop, for visually different shapes (a circular badge
+  ring, the pouch outline, a stitched rounded rect). A shared
   "dash-along-path" math helper (not a shared widget) is the likely right
   shape for a future fix.
 - **Figma:** no Figma file yet (Phase 4 of the design-system spec).
