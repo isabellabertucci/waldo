@@ -1,37 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
+import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/icon_size.dart';
+import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
-import 'package:waldo/core/widgets/surface_card.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../models/transaction.dart';
+import 'transaction_edit_sheet.dart';
 
-/// One transaction row: icon, description/date and a signed amount.
-/// Shows the category icon when [category] is given, else an income/expense arrow.
+/// One transaction: category icon, description over category, signed amount
+/// and a "⋯" menu. Tapping opens it read-only; the menu edits or deletes.
 class TransactionRow extends StatelessWidget {
   const TransactionRow({
     super.key,
     required this.transaction,
+    required this.category,
     required this.currency,
-    required this.dateFormat,
-    required this.onTap,
-    this.category,
     this.isAmountHidden = false,
   });
 
   final Transaction transaction;
-  final Currency currency;
-  final DateFormat dateFormat;
-  final VoidCallback onTap;
   final Category? category;
+  final Currency currency;
 
   /// Shows [hiddenAmount] instead of the figure (the eye toggle).
   final bool isAmountHidden;
@@ -41,35 +37,33 @@ class TransactionRow extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
     final isIncome = transaction.type == TransactionType.income;
-    final color = isIncome ? colors.primaryStrong : colors.error;
+    final amountColor = isIncome ? colors.primaryStrong : colors.error;
     final sign = isIncome ? '+' : '-';
     final description = transaction.description?.trim();
-    final category = this.category;
+    final categoryLabel = category?.displayName(l10n);
 
     return InkWell(
-      onTap: onTap,
+      // A plain tap opens a read-only view - only the "⋯" menu's Edit
+      // action opens it editable, so chevrons never appear by accident.
+      onTap: () => showTransactionEditSheet(context, transaction: transaction),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: Spacing.md,
+          horizontal: Spacing.sm,
           vertical: Spacing.sm,
         ),
         child: Row(
           children: [
             Container(
-              width: BadgeSize.lg,
-              height: BadgeSize.lg,
+              width: BadgeSize.md,
+              height: BadgeSize.md,
               decoration: BoxDecoration(
-                color: category != null
-                    ? colors.onSurface.withValues(alpha: 0.06)
-                    : color.withValues(alpha: 0.12),
+                color: colors.onSurface.withValues(alpha: 0.06),
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                category != null
-                    ? category.icon
-                    : (isIncome ? AppIcons.income : AppIcons.expense),
+                category?.icon ?? AppIcons.receipt,
                 size: IconSize.md,
-                color: category != null ? colors.onSurface : color,
+                color: colors.onSurface,
               ),
             ),
             const SizedBox(width: Spacing.sm),
@@ -83,10 +77,10 @@ class TransactionRow extends StatelessWidget {
                         : description,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: context.bodyMdStrong,
+                    style: context.bodyMdBold,
                   ),
                   Text(
-                    dateFormat.format(DateTime.parse(transaction.date)),
+                    categoryLabel ?? l10n.uncategorized,
                     style: context.textTheme.bodySmall?.copyWith(
                       color: colors.onSurfaceVariant,
                     ),
@@ -98,7 +92,56 @@ class TransactionRow extends StatelessWidget {
               isAmountHidden
                   ? hiddenAmount
                   : '$sign${formatCents(transaction.amount, locale: moneyLocale(context), currencyCode: currency.code)}',
-              style: context.labelLgStrong.copyWith(color: color),
+              style: context.bodyMdBold.copyWith(color: amountColor),
+            ),
+            PopupMenuButton<_RowAction>(
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(Rounded.md),
+              ),
+              icon: Icon(
+                AppIcons.more,
+                size: IconSize.lg,
+                color: colors.onSurfaceVariant,
+              ),
+              onSelected: (action) {
+                switch (action) {
+                  case _RowAction.edit:
+                    showTransactionEditSheet(
+                      context,
+                      transaction: transaction,
+                      startInEditMode: true,
+                    );
+                  case _RowAction.delete:
+                    deleteTransactionWithUndo(context, transaction);
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: _RowAction.edit,
+                  child: Row(
+                    children: [
+                      const Icon(AppIcons.edit, size: IconSize.lg),
+                      const SizedBox(width: Spacing.xs),
+                      Text(l10n.edit),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: _RowAction.delete,
+                  child: Row(
+                    children: [
+                      Icon(
+                        AppIcons.delete,
+                        size: IconSize.lg,
+                        color: colors.error,
+                      ),
+                      const SizedBox(width: Spacing.xs),
+                      Text(l10n.delete, style: TextStyle(color: colors.error)),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -107,45 +150,46 @@ class TransactionRow extends StatelessWidget {
   }
 }
 
-/// A [SurfaceCard] of [TransactionRow]s with hairline dividers.
-class TransactionGroupCard extends StatelessWidget {
-  const TransactionGroupCard({
+enum _RowAction { edit, delete }
+
+/// A card of [TransactionRow]s, with hairlines that start under the text.
+class TransactionCard extends StatelessWidget {
+  const TransactionCard({
     super.key,
     required this.transactions,
+    required this.categoriesById,
     required this.currency,
-    required this.dateFormat,
-    required this.onTapTransaction,
-    this.categoriesById,
     this.isAmountHidden = false,
   });
 
   final List<Transaction> transactions;
+  final Map<int, Category> categoriesById;
   final Currency currency;
-  final DateFormat dateFormat;
-  final ValueChanged<Transaction> onTapTransaction;
-  final Map<int, Category>? categoriesById;
   final bool isAmountHidden;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
 
-    return SurfaceCard(
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(Rounded.md),
+      ),
       child: Column(
         children: [
           for (var i = 0; i < transactions.length; i++) ...[
             TransactionRow(
               transaction: transactions[i],
+              category: categoriesById[transactions[i].categoryId],
               currency: currency,
-              dateFormat: dateFormat,
-              category: categoriesById?[transactions[i].categoryId],
               isAmountHidden: isAmountHidden,
-              onTap: () => onTapTransaction(transactions[i]),
             ),
-            if (i != transactions.length - 1)
-              Container(
+            if (i < transactions.length - 1)
+              Divider(
                 height: 1,
-                margin: const EdgeInsets.symmetric(horizontal: Spacing.md),
+                indent: Spacing.sm + BadgeSize.md + Spacing.sm,
+                endIndent: Spacing.sm,
                 color: colors.onSurfaceVariant.withValues(alpha: 0.1),
               ),
           ],
