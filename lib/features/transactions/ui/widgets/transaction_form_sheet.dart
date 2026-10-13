@@ -18,7 +18,6 @@ import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/near_limit_counter.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/categories/categories_x.dart';
-import 'package:waldo/features/categories/ui/widgets/category_form_sheet.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/features/preferences/currency_x.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
@@ -105,12 +104,6 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     );
   }
 
-  /// Whether this sheet is showing the new-category form in place of the
-  /// transaction form - swapped in, never stacked as a second sheet.
-  bool _creatingCategory = false;
-
-  void _openNewCategory() => setState(() => _creatingCategory = true);
-
   Future<void> _save(TransactionFormViewModel viewModel) async {
     if (!_formKey.currentState!.validate()) {
       _log.fine('Transaction form validation failed');
@@ -147,16 +140,6 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
         initialWalletId: widget.initialWalletId,
       ).notifier,
     );
-    if (_creatingCategory) {
-      return CategoryFormSheet(
-        onBack: () => setState(() => _creatingCategory = false),
-        onSaved: (categoryId) {
-          viewModel.updateCategoryId(categoryId);
-          setState(() => _creatingCategory = false);
-        },
-      );
-    }
-
     final walletsAsync = ref.watch(walletListViewModelProvider());
     final categoriesAsync = ref.watch(categoryListViewModelProvider);
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
@@ -358,16 +341,13 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                     children: [
                       for (final category in value) ...[
                         _CategoryChip(
-                          icon: category.type.icon,
-                          label: category.isDefault
-                              ? category.type.label(l10n)
-                              : category.name,
+                          icon: category.icon,
+                          label: category.displayName(l10n),
                           selected: formState.categoryId == category.id,
                           onTap: () => viewModel.updateCategoryId(category.id),
                         ),
                         const SizedBox(width: Spacing.xs),
                       ],
-                      _NewCategoryChip(onTap: _openNewCategory),
                     ],
                   ),
                 ),
@@ -639,60 +619,6 @@ class _CategoryChip extends StatelessWidget {
                   style: selected ? context.bodyMdBold : context.bodyMdStrong,
                 ),
               ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The trailing "+ New" chip that opens the new-category form - a dashed
-/// outline (no fill) so it reads as an action, not another option.
-class _NewCategoryChip extends StatelessWidget {
-  const _NewCategoryChip({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final colors = context.appColors;
-
-    return Material(
-      color: colors.transparent,
-      borderRadius: BorderRadius.circular(Rounded.pill),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Rounded.pill),
-        onTap: onTap,
-        child: DashedBorder(
-          radius: Rounded.pill,
-          color: colors.onSurfaceVariant.withValues(alpha: 0.4),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: Spacing.sm,
-              vertical: Spacing.xs,
-            ),
-            // As tall as a category chip's 28dp icon disc, so the row lines up.
-            child: SizedBox(
-              height: 28,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    AppIcons.add,
-                    size: IconSize.md,
-                    color: colors.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: Spacing.xxs),
-                  Text(
-                    l10n.addNewCategory,
-                    style: context.bodyMdStrong.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ),

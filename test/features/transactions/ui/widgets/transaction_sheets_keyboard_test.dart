@@ -56,27 +56,6 @@ void main() {
         lastButton: find.text('Add expense'),
       );
     });
-
-    testWidgets('new category form inside it', (tester) async {
-      useSmallAndroidPhone(tester);
-      await openFormSheet(tester);
-      final newChip = find.text('New');
-      await tester.scrollUntilVisible(
-        newChip,
-        200,
-        scrollable: find
-            .ancestor(of: newChip, matching: find.byType(Scrollable))
-            .first,
-      );
-      await tester.tap(newChip);
-      await tester.pumpAndSettle();
-      await expectSheetScrollsWithKeyboard(
-        tester,
-        field: find.byKey(const Key('categoryNameField')),
-        sheet: find.byType(TransactionFormSheet),
-        lastButton: find.text('Create category'),
-      );
-    });
   });
 
   group('Edit transaction sheet, keyboard open', () {

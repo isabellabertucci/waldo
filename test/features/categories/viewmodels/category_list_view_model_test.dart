@@ -23,6 +23,10 @@ void main() {
     createdAt: '2026-08-02T00:00:00.000',
   );
 
+  setUpAll(() {
+    registerFallbackValue(custom);
+  });
+
   setUp(() {
     mockRepo = MockCategoryRepository();
     container = ProviderContainer(
@@ -81,4 +85,70 @@ void main() {
 
     expect(restored, [groceries, custom]);
   });
+
+  test(
+    'add inserts a trimmed custom category and refreshes the list',
+    () async {
+      when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries]);
+      when(() => mockRepo.insert(any())).thenAnswer((_) async => 3);
+      await container.read(categoryListViewModelProvider.future);
+
+      await container
+          .read(categoryListViewModelProvider.notifier)
+          .add('  Gym ');
+
+      final inserted =
+          verify(() => mockRepo.insert(captureAny())).captured.single
+              as Category;
+      expect(inserted.name, 'Gym');
+      expect(inserted.isDefault, isFalse);
+      // Fetched once on build, once more after the add.
+      await container.read(categoryListViewModelProvider.future);
+      verify(() => mockRepo.getAll()).called(2);
+    },
+  );
+
+  test('add lets a duplicate-name error reach the screen', () async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries]);
+    when(
+      () => mockRepo.insert(any()),
+    ).thenThrow(DuplicateCategoryNameException());
+    await container.read(categoryListViewModelProvider.future);
+
+    expect(
+      () => container.read(categoryListViewModelProvider.notifier).add('Gym'),
+      throwsA(isA<DuplicateCategoryNameException>()),
+    );
+  });
+
+  test('transactionCount asks the repository', () async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries, custom]);
+    when(
+      () => mockRepo.countTransactions(custom.id!),
+    ).thenAnswer((_) async => 4);
+
+    final count = await container
+        .read(categoryListViewModelProvider.notifier)
+        .transactionCount(custom.id!);
+
+    expect(count, 4);
+  });
+
+  test(
+    'a failed confirmDelete reaches the screen, so it can restore',
+    () async {
+      when(
+        () => mockRepo.getAll(),
+      ).thenAnswer((_) async => [groceries, custom]);
+      when(() => mockRepo.delete(custom.id!)).thenThrow(StateError('db'));
+      await container.read(categoryListViewModelProvider.future);
+
+      expect(
+        () => container
+            .read(categoryListViewModelProvider.notifier)
+            .confirmDelete(custom.id!),
+        throwsA(isA<StateError>()),
+      );
+    },
+  );
 }
