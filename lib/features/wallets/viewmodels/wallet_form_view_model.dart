@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
@@ -57,7 +58,7 @@ class WalletFormViewModel extends _$WalletFormViewModel {
           type: state.type,
           startingBalance: balanceInCents,
           currentBalance: balanceInCents,
-          createdAt: DateTime.now().toIso8601String(),
+          createdAt: ref.read(clockProvider)().toIso8601String(),
         ),
       );
     }

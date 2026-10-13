@@ -118,8 +118,13 @@ class _SettingsBody extends ConsumerWidget {
               value: DateFormat(
                 preferences.dateFormat,
               ).format(ref.watch(clockProvider)()),
-              onTap: () =>
-                  _showDateFormatSheet(context, l10n, viewModel, preferences),
+              onTap: () => _showDateFormatSheet(
+                context,
+                l10n,
+                viewModel,
+                preferences,
+                ref.read(clockProvider)(),
+              ),
             ),
             // Categories also live here, not only behind the transaction form.
             SettingsRow(
@@ -242,8 +247,8 @@ class _SettingsBody extends ConsumerWidget {
     AppLocalizations l10n,
     PreferencesViewModel viewModel,
     Preferences preferences,
+    DateTime now,
   ) {
-    final now = DateTime.now();
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
