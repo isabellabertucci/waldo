@@ -314,6 +314,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryNameTaken => 'A category with this name already exists';
 
   @override
+  String get walletNameTaken => 'A wallet with this name already exists';
+
+  @override
   String get categoryDeleteError =>
       'There was a problem deleting the category. Please try again.';
 

@@ -638,6 +638,12 @@ abstract class AppLocalizations {
   /// **'A category with this name already exists'**
   String get categoryNameTaken;
 
+  /// Validation error when the user types a wallet name another wallet already uses, ignoring case
+  ///
+  /// In en, this message translates to:
+  /// **'A wallet with this name already exists'**
+  String get walletNameTaken;
+
   /// Generic error message shown when deleting a category fails
   ///
   /// In en, this message translates to:
