@@ -527,6 +527,13 @@ wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
   `Spacing.xxs`/`.component` happened for the clearest cases but not
   exhaustively, so turning that
   check on now would fail on real, not-yet-reconciled call sites.
+- **A lighter orange for negative balances on dark metal.** In dark mode a
+  wallet card's negative balance uses `error` lifted 18% in lightness
+  (about `#F8B08F`, `walletCardNegativeColor` in `wallet_card_finish.dart`),
+  not `error` itself: on the metal's lighter shine, plain `error` drops to
+  about 1.7:1 and the lifted one reaches about 2.6:1. It is still the one
+  orange hue, only lighter, and it appears nowhere else - so it stays a
+  documented one-off rather than a token. Light mode uses plain `error`.
 - **`DashedCircleBadge` (dashed_circle_badge.dart) vs. `PouchBorder`
   (pouch_shape.dart) vs. `DashedBorder` (dashed_border.dart).** The
   confirm dialog and the transaction view now share one
