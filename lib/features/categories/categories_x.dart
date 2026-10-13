@@ -35,6 +35,14 @@ extension CategoryDisplayName on Category {
   /// The name the user sees: built-ins are translated from their type.
   String displayName(AppLocalizations l10n) =>
       isDefault ? type.label(l10n) : name;
+
+  /// Its name in every app language, so a custom category can't clash with a
+  /// built-in after the language changes.
+  Iterable<String> get namesInEveryLanguage => isDefault
+      ? AppLocalizations.supportedLocales.map(
+          (locale) => type.label(lookupAppLocalizations(locale)),
+        )
+      : [name];
 }
 
 extension CategoryIcon on Category {
