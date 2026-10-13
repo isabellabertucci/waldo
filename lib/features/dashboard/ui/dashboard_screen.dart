@@ -59,10 +59,6 @@ class _DashboardBody extends ConsumerWidget {
       AsyncValue(:final value?) => value.currency,
       _ => Currency.usd,
     };
-    final dateFormatPattern = switch (preferencesAsync) {
-      AsyncValue(:final value?) => value.dateFormat,
-      _ => 'yyyy-MM-dd',
-    };
     final selectedMonth = ref.watch(selectedDashboardMonthProvider);
     final isBalanceHidden = ref.watch(balanceHiddenProvider);
     final walletsAsync = ref.watch(walletListViewModelProvider());
@@ -147,7 +143,6 @@ class _DashboardBody extends ConsumerWidget {
           RecentTransactionsList(
             transactions: data.recentTransactions,
             currency: currency,
-            dateFormat: DateFormat(dateFormatPattern),
             isBalanceHidden: isBalanceHidden,
           ),
         ],
