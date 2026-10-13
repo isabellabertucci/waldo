@@ -87,14 +87,14 @@ Future<void> deleteTransactionWithUndo(
       restoredLabel: l10n.transactionRestored,
     );
     if (undone) {
-      viewModel.restoreTransaction();
+      viewModel.restoreTransaction(transaction.id!);
       return;
     }
 
     try {
       await viewModel.confirmDelete(transaction.id!);
     } catch (_) {
-      viewModel.restoreTransaction();
+      viewModel.restoreTransaction(transaction.id!);
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.transactionDeleteError)),
       );
