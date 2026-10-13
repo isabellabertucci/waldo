@@ -64,7 +64,7 @@ class TransactionRow extends StatelessWidget {
               ),
               child: Icon(
                 category != null
-                    ? category.type.icon
+                    ? category.icon
                     : (isIncome ? AppIcons.income : AppIcons.expense),
                 size: IconSize.md,
                 color: category != null ? colors.onSurface : color,

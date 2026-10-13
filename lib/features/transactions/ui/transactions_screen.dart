@@ -502,9 +502,7 @@ class _TransactionRow extends StatelessWidget {
     final amountColor = isIncome ? colors.primaryStrong : colors.error;
     final sign = isIncome ? '+' : '-';
     final description = transaction.description?.trim();
-    final categoryLabel = category == null
-        ? null
-        : (category!.isDefault ? category!.type.label(l10n) : category!.name);
+    final categoryLabel = category?.displayName(l10n);
 
     return InkWell(
       // A plain tap opens a read-only view - only the "⋯" menu's Edit
@@ -525,7 +523,7 @@ class _TransactionRow extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                category?.type.icon ?? AppIcons.receipt,
+                category?.icon ?? AppIcons.receipt,
                 size: IconSize.md,
                 color: colors.onSurface,
               ),

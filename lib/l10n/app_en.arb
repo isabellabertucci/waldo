@@ -222,10 +222,6 @@
   "@addIncome": {
     "description": "Button label for creating a new income transaction"
   },
-  "addNewCategory": "New",
-  "@addNewCategory": {
-    "description": "Short label for the chip that opens the new-category form from the transaction form"
-  },
   "transactionNote": "Note",
   "@transactionNote": {
     "description": "Transaction note field label - a free-text note separate from its name"
@@ -315,29 +311,13 @@
   "@addFirstCategory": {
     "description": "Empty state subtitle for categories list"
   },
-  "newCategory": "New Category",
+  "newCategory": "New category",
   "@newCategory": {
     "description": "Title of the create category form"
-  },
-  "categoriesDefaultSection": "Built-in",
-  "@categoriesDefaultSection": {
-    "description": "Section header on the categories screen for the categories that ship with the app and can't be edited"
-  },
-  "categoriesCustomSection": "Custom",
-  "@categoriesCustomSection": {
-    "description": "Section header on the categories screen for the categories the user created"
-  },
-  "createCategory": "Create category",
-  "@createCategory": {
-    "description": "Confirm button on the new-category sheet"
   },
   "categoryNameHint": "e.g. Coffee, Gym",
   "@categoryNameHint": {
     "description": "Placeholder in the category name field"
-  },
-  "editCategory": "Edit Category",
-  "@editCategory": {
-    "description": "Title of the edit category form"
   },
   "manageCategories": "Manage categories",
   "@manageCategories": {
@@ -347,9 +327,37 @@
   "@deleteCategory": {
     "description": "Delete confirmation dialog title"
   },
-  "deleteCategoryConfirm": "This will permanently delete \"{name}\". Any transactions using it will keep their data but lose this category.",
+  "deleteCategoryConfirm": "This will delete \"{name}\".",
   "@deleteCategoryConfirm": {
     "description": "Delete confirmation dialog message",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteCategoryMovesTransactions": "{count, plural, =1{1 transaction uses \"{name}\"} other{{count} transactions use \"{name}\"}}. If you delete it, {count, plural, =1{it moves} other{they move}} to {others}.",
+  "@deleteCategoryMovesTransactions": {
+    "description": "Delete confirmation when transactions use the category; they are reassigned to the Others category",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      },
+      "others": {
+        "type": "String"
+      }
+    }
+  },
+  "addCategory": "Add category",
+  "@addCategory": {
+    "description": "Tooltip for the button that adds the typed category name"
+  },
+  "deleteCategoryNamed": "Delete {name}",
+  "@deleteCategoryNamed": {
+    "description": "Tooltip for the delete (X) button on a category row",
     "placeholders": {
       "name": {
         "type": "String"
