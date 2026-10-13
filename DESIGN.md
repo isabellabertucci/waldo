@@ -418,6 +418,8 @@ wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
   low-emphasis actions beside a section title ("See all", "Manage categories").
 - **Cards:** `surface`-filled, `rounded.lg`, no elevation unless grouping
   list rows (see Elevation: Low).
+- **Sheets:** every bottom sheet keeps a 24px (`md`) side margin, form or
+  list alike, so content never runs to the sheet's edge.
 - **Input fields:** `field-fill` background (never tinted toward the cream
   palette), `field-border` outline, `rounded.md`, `body-md` typography,
   2px `primary` border when focused, `error` border (1.5-2px) in an error

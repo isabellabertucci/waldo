@@ -81,9 +81,9 @@ class _SettingsOptionSheetState<T> extends State<SettingsOptionSheet<T>> {
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
-                    Spacing.lg,
                     Spacing.md,
-                    Spacing.lg,
+                    Spacing.md,
+                    Spacing.md,
                     Spacing.lg,
                   ),
                   child: Column(
