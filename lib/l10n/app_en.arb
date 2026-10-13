@@ -392,6 +392,10 @@
   "@categoryNameTaken": {
     "description": "Validation error when the user types a category name that is already shown in the list"
   },
+  "walletNameTaken": "A wallet with this name already exists",
+  "@walletNameTaken": {
+    "description": "Validation error when the user types a wallet name another wallet already uses, ignoring case"
+  },
   "categoryDeleteError": "There was a problem deleting the category. Please try again.",
   "@categoryDeleteError": {
     "description": "Generic error message shown when deleting a category fails"

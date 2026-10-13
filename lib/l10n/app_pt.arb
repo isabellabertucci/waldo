@@ -91,6 +91,7 @@
   "categoriesError": "Ocorreu um problema ao carregar as tuas categorias. Tenta novamente.",
   "categorySaveError": "Ocorreu um problema ao guardar a categoria. Tenta novamente.",
   "categoryNameTaken": "Já existe uma categoria com esse nome",
+  "walletNameTaken": "Já existe uma carteira com esse nome",
   "categoryDeleteError": "Ocorreu um problema ao apagar a categoria. Tenta novamente.",
   "categoryTypeGroceries": "Supermercado",
   "categoryTypeTransportation": "Transporte",

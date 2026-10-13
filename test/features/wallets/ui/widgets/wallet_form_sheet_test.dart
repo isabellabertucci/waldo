@@ -4,6 +4,8 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:waldo/features/wallets/ui/widgets/wallet_form_sheet.dart';
 
+import 'package:waldo/features/wallets/models/wallet.dart';
+import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
 import '../../../../helpers/sheet_keyboard.dart';
 import '../../../../helpers/test_app.dart';
 
@@ -141,5 +143,70 @@ void main() {
     await tester.enterText(find.byKey(const Key('walletNameField')), 'a' * 60);
     await tester.pump();
     expect(find.text('50/50'), findsOneWidget);
+  });
+
+  /// A button that opens the sheet, over a database with one "Pocket cash".
+  Future<Wallet> pumpWithOneWallet(
+    WidgetTester tester, {
+    bool editIt = false,
+  }) async {
+    // A portrait phone, so the save button is on screen.
+    tester.view.physicalSize = const Size(402, 874);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final db = await createTestDatabase();
+    final repo = WalletRepositoryImpl(db);
+    final id = await repo.insert(
+      const Wallet(name: 'Pocket cash', createdAt: '2026-08-04T12:00:00.000'),
+    );
+    final wallet = (await repo.getById(id))!;
+    currentDb = await pumpWidgetWithProviders(
+      tester,
+      Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () =>
+                showWalletFormSheet(context, wallet: editIt ? wallet : null),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+      db: db,
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    return wallet;
+  }
+
+  testWidgets('A name another wallet uses is flagged, ignoring case', (
+    tester,
+  ) async {
+    await pumpWithOneWallet(tester);
+
+    await tester.enterText(
+      find.byKey(const Key('walletNameField')),
+      'pocket CASH',
+    );
+    await tester.tap(find.text('Create wallet'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('A wallet with this name already exists'), findsOne);
+    expect(
+      await WalletRepositoryImpl(currentDb!).getCount(),
+      1,
+      reason: 'nothing saved',
+    );
+  });
+
+  testWidgets('Editing a wallet keeps its own name without a warning', (
+    tester,
+  ) async {
+    await pumpWithOneWallet(tester, editIt: true);
+
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('A wallet with this name already exists'), findsNothing);
+    expect(find.text('Save changes'), findsNothing, reason: 'sheet closed');
   });
 }
