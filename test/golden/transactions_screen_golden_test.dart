@@ -41,4 +41,20 @@ void main() {
       brightness: Brightness.dark,
     ),
   );
+
+  group('Portuguese', () {
+    usePortuguesePhone();
+
+    goldenTest(
+      'Transactions screen - Portuguese, light',
+      fileName: 'transactions_screen_pt_light',
+      constraints: BoxConstraints.tight(const Size(460, 1400)),
+      builder: () => wrapForGolden(
+        child: TransactionsScreen(walletId: seed.walletId),
+        db: db,
+        brightness: Brightness.light,
+        locale: const Locale('pt'),
+      ),
+    );
+  });
 }
