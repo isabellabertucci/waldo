@@ -24,7 +24,7 @@ class WalletsCardStack extends StatelessWidget {
     required this.wallets,
     required this.currency,
     required this.isBalanceHidden,
-    required this.savedPercent,
+    required this.keptPercent,
     required this.onTapWallet,
     required this.onEditWallet,
     required this.onDeleteWallet,
@@ -33,7 +33,7 @@ class WalletsCardStack extends StatelessWidget {
   final List<Wallet> wallets;
   final Currency currency;
   final bool isBalanceHidden;
-  final double? savedPercent;
+  final double? keptPercent;
   final ValueChanged<Wallet> onTapWallet;
   final ValueChanged<Wallet> onEditWallet;
   final ValueChanged<Wallet> onDeleteWallet;
@@ -54,7 +54,7 @@ class WalletsCardStack extends StatelessWidget {
             locale: moneyLocale(context),
             currencyCode: currency.code,
           );
-    final roundedPercent = savedPercent?.round();
+    final roundedPercent = keptPercent?.round();
     final isOverspent = roundedPercent != null && roundedPercent < 0;
     final captionText = switch (roundedPercent) {
       null => l10n.walletsCountLabel(n),

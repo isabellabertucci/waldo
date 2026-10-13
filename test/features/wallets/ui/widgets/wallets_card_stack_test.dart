@@ -9,7 +9,7 @@ import '../../../../helpers/test_app.dart';
 void main() {
   Future<void> pumpStack(
     WidgetTester tester,
-    double? savedPercent, {
+    double? keptPercent, {
     ValueChanged<Wallet>? onTapWallet,
   }) async {
     final db = await pumpWidgetWithProviders(
@@ -21,7 +21,7 @@ void main() {
           ],
           currency: Currency.usd,
           isBalanceHidden: false,
-          savedPercent: savedPercent,
+          keptPercent: keptPercent,
           onTapWallet: onTapWallet ?? (_) {},
           onEditWallet: (_) {},
           onDeleteWallet: (_) {},
