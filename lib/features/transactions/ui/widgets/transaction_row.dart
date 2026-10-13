@@ -10,8 +10,9 @@ import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/surface_card.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/models/category.dart';
-import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+
+import '../../models/transaction.dart';
 
 /// One transaction row: icon, description/date and a signed amount.
 /// Shows the category icon when [category] is given, else an income/expense arrow.
