@@ -1,4 +1,5 @@
-import 'package:intl/intl.dart' show NumberFormat;
+import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart' show Intl, NumberFormat;
 
 /// Shown in place of every money figure while the balance-hidden toggle
 /// (the eye button) is on.
@@ -24,9 +25,17 @@ String formatCentsForInput(int cents) {
   return formatter.format(cents / 100);
 }
 
+/// The device's region (pt_PT, en_GB) for money, so a Portuguese phone
+/// shows "1,00 €" and an American one "€1.00". Unknown regions fall back.
+String moneyLocale(BuildContext context) => Intl.verifiedLocale(
+  View.of(context).platformDispatcher.locale.toString(),
+  NumberFormat.localeExists,
+  onFailure: (_) => 'en_US',
+)!;
+
 String formatCents(
   int cents, {
-  String locale = 'en_US',
+  required String locale,
   String currencyCode = 'USD',
 }) {
   final formatter = NumberFormat.simpleCurrency(

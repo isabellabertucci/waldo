@@ -95,7 +95,7 @@ class TransactionRow extends StatelessWidget {
             Text(
               isAmountHidden
                   ? hiddenAmount
-                  : '$sign${formatCents(transaction.amount, currencyCode: currency.code)}',
+                  : '$sign${formatCents(transaction.amount, locale: moneyLocale(context), currencyCode: currency.code)}',
               style: context.labelLgStrong.copyWith(color: color),
             ),
           ],
