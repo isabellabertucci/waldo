@@ -120,6 +120,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get walletDeleted => 'Carteira apagada';
 
   @override
+  String get walletRestored => 'Carteira reposta';
+
+  @override
   String get undo => 'Desfazer';
 
   @override
@@ -212,6 +215,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get transactionDeleted => 'Transação apagada';
 
   @override
+  String get transactionRestored => 'Transação reposta';
+
+  @override
   String get transactionsError =>
       'Ocorreu um problema ao carregar as tuas transações. Tenta novamente.';
 
@@ -296,6 +302,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get categoryDeleted => 'Categoria apagada';
+
+  @override
+  String get categoryRestored => 'Categoria reposta';
 
   @override
   String get categoriesError =>

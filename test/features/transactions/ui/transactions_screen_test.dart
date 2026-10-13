@@ -320,7 +320,7 @@ void main() {
 
       await deleteFromRowMenu(tester);
 
-      expect(find.text('Groceries'), findsNothing);
+      expect(textOutsideSnackBar('Groceries'), findsNothing);
       expect(find.text('Transaction deleted'), findsOneWidget);
       expect(find.text('Undo'), findsOneWidget);
 
@@ -333,7 +333,7 @@ void main() {
     await createTransaction(tester, amount: '25.00', description: 'Groceries');
 
     await deleteFromRowMenu(tester);
-    expect(find.text('Groceries'), findsNothing);
+    expect(textOutsideSnackBar('Groceries'), findsNothing);
 
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
@@ -357,7 +357,7 @@ void main() {
       await tester.pump(const Duration(seconds: 6));
       await tester.pumpAndSettle();
 
-      expect(find.text('Groceries'), findsNothing);
+      expect(textOutsideSnackBar('Groceries'), findsNothing);
       expect(find.text('No transactions yet'), findsOneWidget);
     },
   );

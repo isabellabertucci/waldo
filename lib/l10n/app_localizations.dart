@@ -308,6 +308,12 @@ abstract class AppLocalizations {
   /// **'Wallet deleted'**
   String get walletDeleted;
 
+  /// Short confirmation after tapping Undo on a deleted wallet
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet restored'**
+  String get walletRestored;
+
   /// Undo button label in snackbar
   ///
   /// In en, this message translates to:
@@ -482,6 +488,12 @@ abstract class AppLocalizations {
   /// **'Transaction deleted'**
   String get transactionDeleted;
 
+  /// Short confirmation after tapping Undo on a deleted transaction
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction restored'**
+  String get transactionRestored;
+
   /// Generic error message shown when transactions fail to load
   ///
   /// In en, this message translates to:
@@ -601,6 +613,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Category deleted'**
   String get categoryDeleted;
+
+  /// Short confirmation after tapping Undo on a deleted category
+  ///
+  /// In en, this message translates to:
+  /// **'Category restored'**
+  String get categoryRestored;
 
   /// Generic error message shown when categories fail to load
   ///

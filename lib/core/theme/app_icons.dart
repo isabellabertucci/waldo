@@ -47,6 +47,7 @@ abstract final class AppIcons {
   static const search = PhosphorIconsRegular.magnifyingGlass;
   static const backspace = PhosphorIconsRegular.backspace;
   static const check = PhosphorIconsRegular.check;
+  static const undo = PhosphorIconsRegular.arrowUUpLeft;
   static const chevronRight = PhosphorIconsRegular.caretRight;
   static const info = PhosphorIconsRegular.info;
 

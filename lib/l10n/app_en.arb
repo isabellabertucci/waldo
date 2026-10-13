@@ -146,6 +146,10 @@
   "@walletDeleted": {
     "description": "Snackbar message after deleting a wallet"
   },
+  "walletRestored": "Wallet restored",
+  "@walletRestored": {
+    "description": "Short confirmation after tapping Undo on a deleted wallet"
+  },
   "undo": "Undo",
   "@undo": {
     "description": "Undo button label in snackbar"
@@ -267,6 +271,10 @@
   "@transactionDeleted": {
     "description": "Snackbar message after deleting a transaction"
   },
+  "transactionRestored": "Transaction restored",
+  "@transactionRestored": {
+    "description": "Short confirmation after tapping Undo on a deleted transaction"
+  },
   "transactionsError": "There was a problem loading your transactions. Please try again.",
   "@transactionsError": {
     "description": "Generic error message shown when transactions fail to load"
@@ -367,6 +375,10 @@
   "categoryDeleted": "Category deleted",
   "@categoryDeleted": {
     "description": "Snackbar message after deleting a category"
+  },
+  "categoryRestored": "Category restored",
+  "@categoryRestored": {
+    "description": "Short confirmation after tapping Undo on a deleted category"
   },
   "categoriesError": "There was a problem loading your categories. Please try again.",
   "@categoriesError": {
