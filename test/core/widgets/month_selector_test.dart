@@ -10,10 +10,7 @@ void main() {
   testWidgets('Only the selected month is spelled out; months from another '
       'year show the year, so none repeat', (tester) async {
     // October 2026: the row runs from November 2025 to November 2026.
-    final months = [
-      for (var i = 11; i >= 0; i--) DateTime(2026, 10 - i),
-      DateTime(2026, 11),
-    ];
+    final months = selectorMonths(DateTime(2026, 10, 8));
     final db = await pumpWidgetWithProviders(
       tester,
       Scaffold(
@@ -36,12 +33,8 @@ void main() {
 
   testWidgets('In January, last December shows its year and next February '
       'does not', (tester) async {
-    // Built like the dashboard: 12 months back from January 2027, plus one.
-    final now = DateTime(2027, 1, 15);
-    final months = [
-      for (var i = 11; i >= 0; i--) DateTime(now.year, now.month - i),
-      DateTime(now.year, now.month + 1),
-    ];
+    // The dashboard's list: 12 months back from January 2027, plus one.
+    final months = selectorMonths(DateTime(2027, 1, 15));
     expect(months.first, DateTime(2026, 2));
     expect(months.last, DateTime(2027, 2));
 
@@ -69,10 +62,7 @@ void main() {
     tester.view.physicalSize = const Size(402, 874);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final months = [
-      for (var i = 11; i >= 0; i--) DateTime(2026, 10 - i),
-      DateTime(2026, 11),
-    ];
+    final months = selectorMonths(DateTime(2026, 10, 8));
     final db = await pumpWidgetWithProviders(
       tester,
       Scaffold(
@@ -101,10 +91,7 @@ void main() {
     tester.view.physicalSize = const Size(402, 874);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final months = [
-      for (var i = 11; i >= 0; i--) DateTime(2026, 10 - i),
-      DateTime(2026, 11),
-    ];
+    final months = selectorMonths(DateTime(2026, 10, 8));
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.light,
