@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
@@ -17,8 +18,8 @@ class FieldBadge extends StatelessWidget {
     final colors = context.appColors;
 
     return Container(
-      width: 36,
-      height: 36,
+      width: BadgeSize.md,
+      height: BadgeSize.md,
       decoration: BoxDecoration(color: colors.surface, shape: BoxShape.circle),
       child: Icon(icon, size: IconSize.md, color: color),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -186,8 +187,8 @@ class _OptionRow<T> extends StatelessWidget {
                 child: Row(
                   children: [
                     Container(
-                      width: 40,
-                      height: 40,
+                      width: BadgeSize.lg,
+                      height: BadgeSize.lg,
                       decoration: BoxDecoration(
                         color: badgeColor,
                         shape: BoxShape.circle,

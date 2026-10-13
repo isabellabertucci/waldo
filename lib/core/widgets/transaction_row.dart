@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -54,8 +55,8 @@ class TransactionRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: BadgeSize.lg,
+              height: BadgeSize.lg,
               decoration: BoxDecoration(
                 color: category != null
                     ? colors.onSurface.withValues(alpha: 0.06)
