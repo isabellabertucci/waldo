@@ -211,7 +211,7 @@ class _TypeSegment extends StatelessWidget {
           borderRadius: BorderRadius.circular(Rounded.pill),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: Spacing.xs + 2),
+            padding: const EdgeInsets.symmetric(vertical: Spacing.component),
             child: Text(
               label,
               textAlign: TextAlign.center,

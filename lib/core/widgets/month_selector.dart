@@ -8,6 +8,10 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
+/// The selected month is bolder and larger, so it gives back 2px a side to
+/// keep the chip from growing past its neighbours.
+const _selectedChipPadding = Spacing.sm - 2; // one-off
+
 /// A horizontal row of month pills; the selected month is a filled pill.
 class MonthSelector extends StatefulWidget {
   const MonthSelector({
@@ -422,7 +426,7 @@ class _MonthPill extends StatelessWidget {
         child: Container(
           constraints: const BoxConstraints(minHeight: 44),
           padding: EdgeInsets.symmetric(
-            horizontal: selected ? Spacing.sm - 2 : Spacing.sm,
+            horizontal: selected ? _selectedChipPadding : Spacing.sm,
           ),
           alignment: Alignment.center,
           decoration: BoxDecoration(
