@@ -237,55 +237,77 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                         onChanged: viewModel.updateType,
                       ),
                       const SizedBox(height: Spacing.xs),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            '${isIncome ? '+' : '-'}$currencySymbol',
-                            style: context.amountDisplayBold.copyWith(
-                              color: amountColor,
-                            ),
-                          ),
-                          ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 160),
-                            child: TextFormField(
-                              key: const Key('transactionAmountField'),
-                              controller: _amountController,
-                              focusNode: _amountFocus,
-                              onChanged: viewModel.updateAmount,
-                              validator: (value) =>
-                                  _validateAmount(l10n, value),
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                    decimal: true,
+                      // The error goes under the whole row; inside the hugging field it'd be cut off.
+                      FormField<String>(
+                        validator: (_) =>
+                            _validateAmount(l10n, _amountController.text),
+                        builder: (field) => Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // The trailing space makes "+$ 0.00" read as one string.
+                                Text(
+                                  '${isIncome ? '+' : '-'}$currencySymbol ',
+                                  style: context.amountDisplayBold.copyWith(
+                                    color: amountColor,
                                   ),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9.,]'),
+                                ),
+                                // As wide as its text, so the gap stays one space.
+                                Flexible(
+                                  child: IntrinsicWidth(
+                                    child: TextField(
+                                      key: const Key('transactionAmountField'),
+                                      controller: _amountController,
+                                      focusNode: _amountFocus,
+                                      onChanged: (value) {
+                                        viewModel.updateAmount(value);
+                                        field.didChange(value);
+                                      },
+                                      keyboardType:
+                                          const TextInputType.numberWithOptions(
+                                            decimal: true,
+                                          ),
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.allow(
+                                          RegExp(r'[0-9.,]'),
+                                        ),
+                                      ],
+                                      decoration: InputDecoration(
+                                        isCollapsed: true,
+                                        border: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        disabledBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        focusedErrorBorder: InputBorder.none,
+                                        filled: false,
+                                        // The theme's padding would widen the one-space gap.
+                                        contentPadding: EdgeInsets.zero,
+                                        hintText: '0.00',
+                                        hintStyle: context.amountDisplayBold
+                                            .copyWith(
+                                              color: colors.onSurfaceVariant,
+                                            ),
+                                      ),
+                                      style: context.amountDisplayBold.copyWith(
+                                        color: colors.onSurface,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ],
-                              textAlign: TextAlign.center,
-                              decoration: InputDecoration(
-                                isCollapsed: true,
-                                border: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                                focusedBorder: InputBorder.none,
-                                disabledBorder: InputBorder.none,
-                                errorBorder: InputBorder.none,
-                                focusedErrorBorder: InputBorder.none,
-                                filled: false,
-                                hintText: '0.00',
-                                hintStyle: context.amountDisplayBold.copyWith(
-                                  color: colors.onSurfaceVariant,
+                            ),
+                            if (field.hasError)
+                              Text(
+                                field.errorText!,
+                                style: context.textTheme.bodySmall?.copyWith(
+                                  color: colors.error,
                                 ),
                               ),
-                              style: context.amountDisplayBold.copyWith(
-                                color: colors.onSurface,
-                              ),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
