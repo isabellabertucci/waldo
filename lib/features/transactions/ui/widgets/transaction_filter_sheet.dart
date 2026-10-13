@@ -4,6 +4,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/sheet_grabber.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/month_selector.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -82,14 +83,7 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: colors.onSurface.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(Rounded.pill),
-              ),
-            ),
+            const SheetGrabber(),
             const SizedBox(height: Spacing.sm),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Spacing.md),

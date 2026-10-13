@@ -6,10 +6,10 @@ import 'package:logging/logging.dart';
 import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
-import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/amount_input_formatter.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/sheet_grabber.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/form_pill_field.dart';
 import 'package:waldo/core/widgets/option_tile.dart';
@@ -164,16 +164,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Container(
-                  width: 36,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: colors.onSurface.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(Rounded.pill),
-                  ),
-                ),
-              ),
+              const SheetGrabber(),
               const SizedBox(height: Spacing.md),
               Row(
                 children: [
