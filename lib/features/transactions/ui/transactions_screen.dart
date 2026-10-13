@@ -277,6 +277,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                                 ? hiddenAmount
                                 : formatCents(
                                     widget.wallet.currentBalance,
+                                    locale: moneyLocale(context),
                                     currencyCode: currency.code,
                                   ),
                             // one-off: bolds only the balance in the inherited line style.
@@ -553,7 +554,7 @@ class _TransactionRow extends StatelessWidget {
             Text(
               isAmountHidden
                   ? hiddenAmount
-                  : '$sign${formatCents(transaction.amount, currencyCode: currency.code)}',
+                  : '$sign${formatCents(transaction.amount, locale: moneyLocale(context), currencyCode: currency.code)}',
               style: context.bodyMdBold.copyWith(color: amountColor),
             ),
             PopupMenuButton<_RowAction>(

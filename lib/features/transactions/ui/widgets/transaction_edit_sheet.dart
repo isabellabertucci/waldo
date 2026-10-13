@@ -432,7 +432,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final amountCents = parseToCents(formState.amount, allowNegative: false);
     final amountText = amountCents == null
         ? '—'
-        : '${isIncome ? '+' : '-'}${formatCents(amountCents, currencyCode: currency.code)}';
+        : '${isIncome ? '+' : '-'}${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currency.code)}';
     final category = categories
         .where((c) => c.id == formState.categoryId)
         .firstOrNull;
@@ -614,7 +614,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final amountCents = parseToCents(formState.amount, allowNegative: false);
     final amountText = amountCents == null
         ? '—'
-        : '${isIncome ? '+' : '-'}${formatCents(amountCents, currencyCode: currency.code)}';
+        : '${isIncome ? '+' : '-'}${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currency.code)}';
     final category = categories
         .where((c) => c.id == formState.categoryId)
         .firstOrNull;
@@ -955,7 +955,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final sign = isIncome ? '+' : '-';
     final displayValue = cents == null
         ? '$sign${_amountController.text}'
-        : '$sign${formatCents(cents, currencyCode: currencyCode)}';
+        : '$sign${formatCents(cents, locale: moneyLocale(context), currencyCode: currencyCode)}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
