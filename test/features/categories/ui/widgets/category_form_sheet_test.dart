@@ -38,4 +38,21 @@ void main() {
       lastButton: find.text('Create category'),
     );
   });
+
+  testWidgets('The name stops at 30 characters and shows a counter', (
+    tester,
+  ) async {
+    final db = await pumpWidgetWithProviders(
+      tester,
+      const Scaffold(body: CategoryFormSheet()),
+    );
+    addTearDown(db.close);
+
+    await tester.enterText(
+      find.byKey(const Key('categoryNameField')),
+      'a' * 40,
+    );
+    await tester.pump();
+    expect(find.text('30/30'), findsOneWidget);
+  });
 }

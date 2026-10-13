@@ -5,6 +5,7 @@ import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/dashed_border.dart';
+import 'package:waldo/core/widgets/near_limit_counter.dart';
 
 /// A form field in a filled pill: a leading disc, a label over the input, and
 /// an optional trailing tag. An ink stitch and an ink disc mark it as focused.
@@ -22,6 +23,7 @@ class FormPillField extends StatefulWidget {
     this.keyboardType,
     this.inputFormatters,
     this.textCapitalization = TextCapitalization.none,
+    this.maxLength,
     this.fieldKey,
   });
 
@@ -39,6 +41,9 @@ class FormPillField extends StatefulWidget {
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
   final TextCapitalization textCapitalization;
+
+  /// Stops typing at this length; a counter shows near it.
+  final int? maxLength;
 
   /// Put on the inner [TextFormField], so tests can type into it.
   final Key? fieldKey;
@@ -120,6 +125,8 @@ class _FormPillFieldState extends State<FormPillField> {
                         keyboardType: widget.keyboardType,
                         inputFormatters: widget.inputFormatters,
                         textCapitalization: widget.textCapitalization,
+                        maxLength: widget.maxLength,
+                        buildCounter: nearLimitCounter,
                         decoration: InputDecoration(
                           isCollapsed: true,
                           border: InputBorder.none,
