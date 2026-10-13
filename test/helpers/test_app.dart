@@ -71,3 +71,13 @@ Future<Database> pumpWidgetWithProviders(
 
   return testDb;
 }
+
+/// [text] anywhere but a snackbar, so an undo bar naming a deleted item
+/// doesn't count as the item still being on screen.
+Finder textOutsideSnackBar(String text) => find.byElementPredicate(
+  (element) =>
+      element.widget is Text &&
+      (element.widget as Text).data == text &&
+      element.findAncestorWidgetOfExactType<SnackBar>() == null,
+  description: 'text "$text" outside a snackbar',
+);
