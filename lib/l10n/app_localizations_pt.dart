@@ -318,6 +318,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get categoryNameTaken => 'Já existe uma categoria com esse nome';
 
   @override
+  String get walletNameTaken => 'Já existe uma carteira com esse nome';
+
+  @override
   String get categoryDeleteError =>
       'Ocorreu um problema ao apagar a categoria. Tenta novamente.';
 

@@ -17,7 +17,9 @@ import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/preferences/currency_x.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
+import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_form_view_model.dart';
+import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/features/wallets/wallets_x.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
@@ -65,14 +67,23 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     super.dispose();
   }
 
-  String? _validateName(AppLocalizations l10n, String? value) {
+  String? _validateName(
+    AppLocalizations l10n,
+    String? value,
+    List<Wallet> wallets,
+  ) {
     if (value == null || value.trim().isEmpty) {
       return l10n.nameRequired;
     }
     if (value.trim().length > maxWalletNameLength) {
       return l10n.nameTooLong;
     }
-    return null;
+    // When editing, the wallet's own name doesn't count as taken.
+    final lower = value.trim().toLowerCase();
+    final taken = wallets.any(
+      (w) => w.id != widget.wallet?.id && w.name.toLowerCase() == lower,
+    );
+    return taken ? l10n.walletNameTaken : null;
   }
 
   String? _validateBalance(AppLocalizations l10n, String? value) {
@@ -103,6 +114,14 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     try {
       final success = await viewModel.save(widget.wallet);
       if (success && mounted) Navigator.of(context).pop();
+    } on DuplicateWalletNameException {
+      // The list on screen was stale; the database still caught it.
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.walletNameTaken)));
+      }
     } catch (_) {
       if (mounted) {
         final l10n = AppLocalizations.of(context);
@@ -118,6 +137,8 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
     final formState = ref.watch(walletFormViewModelProvider(widget.wallet));
+    // Names already in use, for the duplicate check as the user types.
+    final wallets = ref.watch(walletListViewModelProvider()).value ?? const [];
     final viewModel = ref.read(
       walletFormViewModelProvider(widget.wallet).notifier,
     );
@@ -175,7 +196,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                 label: l10n.name,
                 hint: l10n.walletNameHint,
                 onChanged: viewModel.updateName,
-                validator: (value) => _validateName(l10n, value),
+                validator: (value) => _validateName(l10n, value, wallets),
               ),
               const SizedBox(height: Spacing.md),
               Text(
