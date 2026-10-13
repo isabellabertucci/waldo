@@ -9,6 +9,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
@@ -642,14 +643,13 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           // No grabber - the back chevron already says how to leave.
           Row(
             children: [
-              IconButton(
+              // A 48dp disc, so the back target is big enough to hit.
+              CircleIconButton(
                 tooltip: l10n.back,
                 onPressed: _cancelEdit,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: const Icon(Icons.chevron_left_rounded),
+                child: const Icon(AppIcons.back),
               ),
-              const SizedBox(width: Spacing.xs),
+              const SizedBox(width: Spacing.component),
               Expanded(
                 child: Text(
                   l10n.editTransactionAction,
@@ -898,14 +898,13 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
         children: [
           Row(
             children: [
-              IconButton(
+              // A 48dp disc, so the back target is big enough to hit.
+              CircleIconButton(
                 tooltip: l10n.back,
                 onPressed: () => _handleFieldBack(field),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: const Icon(Icons.chevron_left_rounded),
+                child: const Icon(AppIcons.back),
               ),
-              const SizedBox(width: Spacing.xs),
+              const SizedBox(width: Spacing.component),
               Text(_fieldTitle(field, l10n), style: context.headlineLgStrong),
             ],
           ),
