@@ -88,8 +88,8 @@ class WalletsScreen extends ConsumerWidget {
       _ => Currency.usd,
     };
     final summaryAsync = ref.watch(walletsSummaryViewModelProvider);
-    final savedPercent = switch (summaryAsync) {
-      AsyncValue(:final value?) => value.savedPercent,
+    final keptPercent = switch (summaryAsync) {
+      AsyncValue(:final value?) => value.keptPercent,
       _ => null,
     };
 
@@ -149,7 +149,7 @@ class WalletsScreen extends ConsumerWidget {
                   wallets: value,
                   currency: currency,
                   isBalanceHidden: isBalanceHidden,
-                  savedPercent: savedPercent,
+                  keptPercent: keptPercent,
                   onTapWallet: (wallet) => _openWallet(context, wallet),
                   onEditWallet: (wallet) => _editWallet(context, wallet),
                   onDeleteWallet: (wallet) =>
