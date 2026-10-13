@@ -16,7 +16,9 @@ int? parseToCents(String input, {required bool allowNegative}) {
   if (isNegative && !allowNegative) return null;
   final wholePart = match.group(2)!;
   final fractionPart = (match.group(3) ?? '').padRight(2, '0');
-  final cents = int.parse('$wholePart$fractionPart');
+  // tryParse: a number too big for an int is unreadable, not a crash.
+  final cents = int.tryParse('$wholePart$fractionPart');
+  if (cents == null) return null;
   return isNegative ? -cents : cents;
 }
 
