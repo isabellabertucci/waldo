@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/icon_size.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
+import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/utils/amount_input_formatter.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/secondary_button.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/near_limit_counter.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/ui/widgets/category_form_sheet.dart';
@@ -269,10 +271,8 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                                           const TextInputType.numberWithOptions(
                                             decimal: true,
                                           ),
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.allow(
-                                          RegExp(r'[0-9.,]'),
-                                        ),
+                                      inputFormatters: const [
+                                        AmountInputFormatter(),
                                       ],
                                       decoration: InputDecoration(
                                         isCollapsed: true,
@@ -316,13 +316,30 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
               const SizedBox(height: Spacing.md),
               Row(
                 children: [
+                  // Says up front that skipping a category is fine; one text,
+                  // so it ellipsizes before pushing the button off a narrow row.
                   Expanded(
-                    child: Text(
-                      l10n.category.toUpperCase(),
-                      style: context.bodySmBold.copyWith(
-                        color: colors.onSurfaceVariant,
-                        letterSpacing: 0.4,
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: l10n.category.toUpperCase(),
+                            style: context.bodySmBold.copyWith(
+                              color: colors.onSurfaceVariant,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                          const TextSpan(text: '  '),
+                          TextSpan(
+                            text: l10n.optional,
+                            style: context.textTheme.bodySmall?.copyWith(
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   SecondaryButton(
@@ -473,6 +490,9 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                                   key: const Key('transactionDescriptionField'),
                                   controller: _descriptionController,
                                   onChanged: viewModel.updateDescription,
+                                  // Stops typing at the limit instead of failing on save.
+                                  maxLength: maxTransactionDescriptionLength,
+                                  buildCounter: nearLimitCounter,
                                   textCapitalization:
                                       TextCapitalization.sentences,
                                   decoration: InputDecoration(

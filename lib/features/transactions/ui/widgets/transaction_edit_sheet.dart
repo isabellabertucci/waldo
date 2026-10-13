@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -11,6 +12,7 @@ import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/near_limit_counter.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/models/category.dart';
@@ -270,6 +272,8 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final value = _amountController.text;
     final decimalIndex = value.indexOf('.');
     if (decimalIndex != -1 && value.length - decimalIndex > 2) return;
+    // Same cap as the typed amount fields: no digit past 999 999 999.
+    if (decimalIndex == -1 && value.length >= maxAmountWholeDigits) return;
     setState(() => _amountController.text = '$value$digit');
   }
 
@@ -743,6 +747,8 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                           key: const Key('txNameField'),
                           controller: _nameController,
                           focusNode: _nameFocusNode,
+                          maxLength: maxTransactionDescriptionLength,
+                          buildCounter: nearLimitCounter,
                           textCapitalization: TextCapitalization.sentences,
                           onChanged: (value) =>
                               _viewModel(ref).updateDescription(value),
@@ -811,6 +817,8 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                         TextField(
                           controller: _noteController,
                           focusNode: _noteFocusNode,
+                          maxLength: maxTransactionNoteLength,
+                          buildCounter: nearLimitCounter,
                           textCapitalization: TextCapitalization.sentences,
                           onChanged: (value) =>
                               _viewModel(ref).updateNote(value),
@@ -915,8 +923,16 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               formState,
               currency.code,
             ),
-            _EditField.name => _buildTextEditor(_nameController, _confirmName),
-            _EditField.note => _buildTextEditor(_noteController, _confirmNote),
+            _EditField.name => _buildTextEditor(
+              _nameController,
+              _confirmName,
+              maxLength: maxTransactionDescriptionLength,
+            ),
+            _EditField.note => _buildTextEditor(
+              _noteController,
+              _confirmNote,
+              maxLength: maxTransactionNoteLength,
+            ),
             _EditField.type => _buildTypeEditor(context, formState),
             _EditField.category => _buildCategoryEditor(
               context,
@@ -993,8 +1009,9 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
 
   Widget _buildTextEditor(
     TextEditingController controller,
-    VoidCallback onConfirm,
-  ) {
+    VoidCallback onConfirm, {
+    int? maxLength,
+  }) {
     final l10n = AppLocalizations.of(context);
 
     return Column(
@@ -1004,6 +1021,8 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           controller: controller,
           autofocus: true,
           textCapitalization: TextCapitalization.sentences,
+          maxLength: maxLength,
+          buildCounter: nearLimitCounter,
           onSubmitted: (_) => onConfirm(),
         ),
         const SizedBox(height: Spacing.md),

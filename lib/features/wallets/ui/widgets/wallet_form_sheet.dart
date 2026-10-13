@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:waldo/core/constants/app_constants.dart';
@@ -9,6 +8,7 @@ import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/utils/amount_input_formatter.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/form_pill_field.dart';
@@ -170,6 +170,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                 fieldKey: const Key('walletNameField'),
                 leading: const Icon(AppIcons.name),
                 textCapitalization: TextCapitalization.sentences,
+                maxLength: maxWalletNameLength,
                 controller: _nameController,
                 label: l10n.name,
                 hint: l10n.walletNameHint,
@@ -242,8 +243,9 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,\-]')),
+                // "-" for credit cards; the validator rejects it for other types.
+                inputFormatters: const [
+                  AmountInputFormatter(allowNegative: true),
                 ],
               ),
               const SizedBox(height: Spacing.md),
