@@ -120,4 +120,26 @@ void main() {
       lastButton: find.text('Create wallet'),
     );
   });
+
+  testWidgets('The name stops at 50 characters and shows a counter', (
+    tester,
+  ) async {
+    currentDb = await pumpWidgetWithProviders(
+      tester,
+      Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => showWalletFormSheet(context),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('walletNameField')), 'a' * 60);
+    await tester.pump();
+    expect(find.text('50/50'), findsOneWidget);
+  });
 }

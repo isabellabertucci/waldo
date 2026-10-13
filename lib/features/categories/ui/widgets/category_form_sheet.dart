@@ -68,7 +68,7 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
   ) {
     final name = value?.trim() ?? '';
     if (name.isEmpty) return l10n.nameRequired;
-    if (name.length > maxWalletNameLength) return l10n.nameTooLong;
+    if (name.length > maxCategoryNameLength) return l10n.nameTooLong;
 
     // Compare with what's on screen, so built-ins match in the current language.
     final lower = name.toLowerCase();
@@ -179,6 +179,7 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
                 fieldKey: const Key('categoryNameField'),
                 leading: const Icon(AppIcons.name),
                 textCapitalization: TextCapitalization.sentences,
+                maxLength: maxCategoryNameLength,
                 controller: _nameController,
                 label: l10n.name,
                 hint: l10n.categoryNameHint,
