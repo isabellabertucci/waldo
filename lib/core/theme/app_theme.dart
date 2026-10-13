@@ -56,7 +56,7 @@ class AppTheme {
       listTileTheme: Common.getListTileTheme(colors),
       inputDecorationTheme: Common.getInputDecorationTheme(colors),
       datePickerTheme: Common.getDatePickerTheme(colors),
-      filledButtonTheme: Common.getFilledButtonTheme(colors),
+      filledButtonTheme: Common.getFilledButtonTheme(colors, textTheme),
     );
   }
 

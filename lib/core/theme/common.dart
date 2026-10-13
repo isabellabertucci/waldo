@@ -155,16 +155,22 @@ class Common {
     );
   }
 
-  static FilledButtonThemeData getFilledButtonTheme(AppColors colors) {
+  /// Same pill and `label-lg-strong` as `DashedStitchButton`, the app's
+  /// primary button, for any plain `FilledButton`.
+  static FilledButtonThemeData getFilledButtonTheme(
+    AppColors colors,
+    TextTheme textTheme,
+  ) {
     return FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,
         padding: const EdgeInsets.symmetric(vertical: Spacing.sm),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Rounded.md),
+          borderRadius: BorderRadius.circular(Rounded.pill),
         ),
-        textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+        // label-lg-strong (context.labelLgStrong has no context here).
+        textStyle: textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }

@@ -179,13 +179,13 @@ components:
     backgroundColor: "{colors.primary-light}"
     textColor: "{colors.on-primary-light}"
     typography: "{typography.label-lg-strong}"
-    rounded: "{rounded.md}"
+    rounded: "{rounded.pill}"
     padding: 16px
   button-primary-dark:
     backgroundColor: "{colors.primary-dark}"
     textColor: "{colors.on-primary-dark}"
     typography: "{typography.label-lg-strong}"
-    rounded: "{rounded.md}"
+    rounded: "{rounded.pill}"
     padding: 16px
   card-light:
     backgroundColor: "{colors.surface-light}"
@@ -399,9 +399,9 @@ small and large tiers so the UI reads as either "a small control" or
 | Token | Value | Use |
 |-------|-------|-----|
 | `sm` | 12px | Chips, small badges |
-| `md` | 20px | Buttons, text fields, segmented controls |
+| `md` | 20px | Text fields, segmented controls |
 | `lg` | 28px | Cards, dialogs, sheets |
-| `pill` | 9999px | Nav pill, FAB, toggle tracks, tags |
+| `pill` | 9999px | Buttons, nav pill, FAB, toggle tracks, tags |
 
 The middle ground most systems have (8-16px) is intentionally absent.
 
@@ -421,8 +421,11 @@ wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
 
 ## Components
 
-- **Buttons (primary):** `primary`-filled pill, `on-primary` text, `label-lg-strong`
-  typography, `rounded.md`, 16px padding.
+- **Buttons (primary):** `DashedStitchButton` - a `primary`-filled pill
+  (`rounded.pill`) with an `on-primary` dashed stitch just inside its edge,
+  `on-primary` text in `label-lg-strong`, 24px x 16px padding (16px x 8px
+  and `body-sm-bold` when `compact`). Plain `FilledButton`s get the same
+  pill and type from the theme.
 - **Buttons (secondary):** `SecondaryButton` - no fill, on the page and on
   sheets alike; `on-surface` text in `body-md-strong`, 12px x 4px padding that
   keeps the tap target and the `rounded.pill` press ripple. For
