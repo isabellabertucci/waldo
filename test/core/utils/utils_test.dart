@@ -29,6 +29,11 @@ void main() {
     }
   });
 
+  test('zeroAmountHint uses the phone\'s decimal separator', () {
+    expect(zeroAmountHint('en_US'), '0.00');
+    expect(zeroAmountHint('pt_PT'), '0,00');
+  });
+
   group('formatCentsForInput', () {
     final cases = <(int, String)>[
       (1000, '10.00'),

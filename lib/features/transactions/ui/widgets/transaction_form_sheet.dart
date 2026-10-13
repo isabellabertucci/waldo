@@ -262,7 +262,9 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                                         filled: false,
                                         // The theme's padding would widen the one-space gap.
                                         contentPadding: EdgeInsets.zero,
-                                        hintText: '0.00',
+                                        hintText: zeroAmountHint(
+                                          moneyLocale(context),
+                                        ),
                                         hintStyle: context.amountDisplayBold
                                             .copyWith(
                                               color: colors.onSurfaceVariant,
