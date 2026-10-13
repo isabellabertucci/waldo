@@ -918,9 +918,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final color = isIncome
         ? context.appColors.onSurface
         : context.appColors.error;
-    final typeLabel = isIncome
-        ? l10n.transactionTypeIncome
-        : l10n.transactionTypeExpense;
+    final typeLabel = formState.type.label(l10n);
     final cents = parseToCents(_amountController.text, allowNegative: false);
     final sign = isIncome ? '+' : '-';
     final displayValue = cents == null

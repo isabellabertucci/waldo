@@ -29,6 +29,7 @@ import '../viewmodels/transaction_list_view_model.dart';
 import 'widgets/day_grouped_transaction_list.dart';
 import 'widgets/transaction_form_sheet.dart';
 import 'widgets/transaction_filter_sheet.dart';
+import '../transactions_x.dart';
 
 /// Room under the list so the last row scrolls clear of the floating nav.
 const _navBarClearance = 72.0; // one-off: the nav pill's height plus its gap
@@ -191,11 +192,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
       walletIndex < 0 ? 0 : walletIndex,
     );
 
-    final typeLabel = switch (_filter.type) {
-      null => l10n.filterTypeAll,
-      TransactionType.income => l10n.transactionTypeIncome,
-      TransactionType.expense => l10n.transactionTypeExpense,
-    };
+    final typeLabel = _filter.type?.label(l10n) ?? l10n.filterTypeAll;
 
     return Column(
       children: [

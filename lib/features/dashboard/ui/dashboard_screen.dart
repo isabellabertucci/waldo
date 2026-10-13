@@ -21,10 +21,6 @@ import 'widgets/dashboard_receipt.dart';
 import 'package:waldo/core/widgets/month_selector.dart';
 import 'widgets/recent_transactions_list.dart';
 
-/// How many months back the month picker lets you jump to, matching the
-/// cash flow chart's own trailing window so both stay in sync.
-const _monthPickerRange = 12;
-
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -68,14 +64,8 @@ class _DashboardBody extends ConsumerWidget {
     };
     final locale = Localizations.localeOf(context).toString();
     final now = ref.watch(clockProvider)();
-    final months = [
-      ...List.generate(
-        _monthPickerRange,
-        (i) => DateTime(now.year, now.month - i),
-      ).reversed,
-      // Next month too, shown disabled, so the row doesn't end at the selected pill.
-      DateTime(now.year, now.month + 1),
-    ];
+    // 12 months, matching the cash flow chart's trailing window.
+    final months = selectorMonths(now);
     final hasCashFlowData = data.monthlyCashFlow.any(
       (m) => m.income != 0 || m.expense != 0,
     );
