@@ -653,7 +653,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                   borderRadius: BorderRadius.circular(Rounded.md),
                   onTap: () => _openField(_EditField.amount),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    padding: const EdgeInsets.symmetric(vertical: Spacing.xxs),
                     child: Text(
                       amountText,
                       textAlign: TextAlign.center,
@@ -836,7 +836,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                   onPressed: _saveChanges,
                   compact: true,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
+                    horizontal: Spacing.xxs,
                     vertical: Spacing.sm,
                   ),
                 ),

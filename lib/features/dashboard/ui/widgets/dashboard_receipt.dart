@@ -16,6 +16,14 @@ import '../../models/dashboard_data.dart';
 /// The receipt is narrower than the wallet card above it.
 const _receiptWidth = 300.0;
 
+// The receipt keeps its own tighter, printed-paper rhythm instead of the
+// page scale: these are tuned to look like a till slip.
+const _receiptPadding = EdgeInsets.fromLTRB(22, 20, 22, 18); // one-off
+const _noWalletReceiptPadding = EdgeInsets.fromLTRB(22, 20, 22, 24); // one-off
+const _lineGap = Spacing.xs + 1; // one-off: between printed lines
+const _totalGap = Spacing.sm + 2; // one-off: above the thick rule
+const _barcodeGap = Spacing.md - 4; // one-off: above the barcode
+
 /// Category rows shown before the rest collapse into one "Other" line.
 const _maxCategoryRows = 5;
 
@@ -87,7 +95,7 @@ class DashboardReceipt extends StatelessWidget {
               child: InkWell(
                 onTap: onTap,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
+                  padding: _receiptPadding,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -146,7 +154,7 @@ class DashboardReceipt extends StatelessWidget {
                         ),
                         if (i < visibleCategories.length - 1 ||
                             otherCategories.isNotEmpty)
-                          const SizedBox(height: Spacing.xs + 1),
+                          const SizedBox(height: _lineGap),
                       ],
                       if (otherCategories.isNotEmpty)
                         ReceiptRow(
@@ -165,7 +173,7 @@ class DashboardReceipt extends StatelessWidget {
                         ),
                       if (uncategorizedSpending > 0) ...[
                         if (visibleCategories.isNotEmpty)
-                          const SizedBox(height: Spacing.xs + 1),
+                          const SizedBox(height: _lineGap),
                         ReceiptRow(
                           textStyles: textStyles,
                           label: l10n.uncategorized,
@@ -179,7 +187,7 @@ class DashboardReceipt extends StatelessWidget {
                           color: colors.onSurface.withValues(alpha: 0.8),
                         ),
                       ],
-                      const SizedBox(height: Spacing.sm + 2),
+                      const SizedBox(height: _totalGap),
                       DashedDivider(color: colors.onSurface, thick: true),
                       const SizedBox(height: Spacing.sm),
                       ReceiptRow(
@@ -196,7 +204,7 @@ class DashboardReceipt extends StatelessWidget {
                         bold: true,
                         large: true,
                       ),
-                      const SizedBox(height: Spacing.md - 4),
+                      const SizedBox(height: _barcodeGap),
                       Barcode(color: colors.onSurface),
                     ],
                   ),
@@ -234,7 +242,7 @@ class _NoWalletReceipt extends StatelessWidget {
             Material(
               color: colors.surface,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(22, 20, 22, 24),
+                padding: _noWalletReceiptPadding,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [

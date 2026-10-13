@@ -8,6 +8,10 @@ import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
+/// The selected pill's label is shorter than the icon-only buttons are tall,
+/// so it takes one more pixel each side to keep every button the same height.
+const _selectedVerticalPadding = 13.0; // one-off
+
 class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.navigationShell});
 
@@ -136,7 +140,7 @@ class AppNavButton extends StatelessWidget {
                   padding: selected
                       ? const EdgeInsets.symmetric(
                           horizontal: Spacing.sm,
-                          vertical: 13,
+                          vertical: _selectedVerticalPadding,
                         )
                       : const EdgeInsets.all(Spacing.component),
                   child: Row(
