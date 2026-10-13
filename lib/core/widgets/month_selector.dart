@@ -1,12 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:intl/intl.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+
+/// The smallest comfortable tap target (Material and Apple guidelines).
+const _minTapTarget = 48.0;
+const _chevronHitSize = _minTapTarget;
+const _chevronDiscSize = 22.0; // one-off: a small hint, not a main control
+const _chevronOverhang = (_chevronHitSize - _chevronDiscSize) / 2;
 
 /// The selected month is bolder and larger, so it gives back 2px a side to
 /// keep the chip from growing past its neighbours.
@@ -182,12 +189,12 @@ class _MonthSelectorState extends State<MonthSelector> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const SizedBox(width: Spacing.lg),
+        // The 48dp hit box overhangs the disc, so the disc stays where it was.
+        const SizedBox(width: Spacing.lg - _chevronOverhang),
         _ScrollHintChevron(
           enabled: _canScrollBack,
           onTap: () => _step(forward: false),
         ),
-        const SizedBox(width: Spacing.xs),
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -247,13 +254,12 @@ class _MonthSelectorState extends State<MonthSelector> {
             },
           ),
         ),
-        const SizedBox(width: Spacing.xs),
         _ChevronButton(
           direction: _ChevronDirection.right,
           enabled: _canScrollForward,
           onTap: () => _step(forward: true),
         ),
-        const SizedBox(width: Spacing.lg),
+        const SizedBox(width: Spacing.lg - _chevronOverhang),
       ],
     );
   }
@@ -337,27 +343,15 @@ class _ScrollHintChevronState extends State<_ScrollHintChevron>
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return GestureDetector(
-      onTap: widget.enabled ? widget.onTap : null,
+    return _ChevronTarget(
+      tooltip: AppLocalizations.of(context).earlierMonths,
+      enabled: widget.enabled,
+      onTap: widget.onTap,
       child: AnimatedBuilder(
         animation: _offset,
         builder: (context, child) =>
             Transform.translate(offset: Offset(_offset.value, 0), child: child),
-        child: Container(
-          width: 22,
-          height: 22,
-          decoration: BoxDecoration(
-            color: colors.onSurface.withValues(alpha: 0.06),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            AppIcons.back,
-            size: IconSize.md,
-            color: widget.enabled ? colors.onSurface : colors.onSurfaceVariant,
-          ),
-        ),
+        child: _ChevronDisc(icon: AppIcons.back, enabled: widget.enabled),
       ),
     );
   }
@@ -377,24 +371,77 @@ class _ChevronButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final isLeft = direction == _ChevronDirection.left;
+
+    return _ChevronTarget(
+      tooltip: isLeft ? l10n.earlierMonths : l10n.laterMonths,
+      enabled: enabled,
+      onTap: onTap,
+      child: _ChevronDisc(
+        icon: isLeft ? AppIcons.back : AppIcons.chevronRight,
+        enabled: enabled,
+      ),
+    );
+  }
+}
+
+/// A named 48dp button around a small chevron disc, so it's easy to hit and
+/// a screen reader can say what it does.
+class _ChevronTarget extends StatelessWidget {
+  const _ChevronTarget({
+    required this.tooltip,
+    required this.enabled,
+    required this.onTap,
+    required this.child,
+  });
+
+  final String tooltip;
+  final bool enabled;
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      child: Tooltip(
+        message: tooltip,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: enabled ? onTap : null,
+          child: SizedBox.square(
+            dimension: _chevronHitSize,
+            child: Center(child: child),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChevronDisc extends StatelessWidget {
+  const _ChevronDisc({required this.icon, required this.enabled});
+
+  final IconData icon;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.appColors;
 
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      child: Container(
-        width: 22,
-        height: 22,
-        decoration: BoxDecoration(
-          color: colors.onSurface.withValues(alpha: 0.06),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          direction == _ChevronDirection.left
-              ? AppIcons.back
-              : AppIcons.chevronRight,
-          size: IconSize.md,
-          color: enabled ? colors.onSurface : colors.onSurfaceVariant,
-        ),
+    return Container(
+      width: _chevronDiscSize,
+      height: _chevronDiscSize,
+      decoration: BoxDecoration(
+        color: colors.onSurface.withValues(alpha: 0.06),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        icon,
+        size: IconSize.md,
+        color: enabled ? colors.onSurface : colors.onSurfaceVariant,
       ),
     );
   }
@@ -424,7 +471,7 @@ class _MonthPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(Rounded.pill),
         onTap: onTap,
         child: Container(
-          constraints: const BoxConstraints(minHeight: 44),
+          constraints: const BoxConstraints(minHeight: _minTapTarget),
           padding: EdgeInsets.symmetric(
             horizontal: selected ? _selectedChipPadding : Spacing.sm,
           ),
