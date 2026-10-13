@@ -3,9 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/core/widgets/transaction_row.dart';
 
 import '../../models/transaction.dart';
+import 'transaction_row.dart';
 
 /// Transactions grouped by month, each month in its own card.
 class DateGroupedTransactionList extends StatelessWidget {

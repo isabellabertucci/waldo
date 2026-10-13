@@ -6,7 +6,7 @@ import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/secondary_button.dart';
-import 'package:waldo/core/widgets/transaction_row.dart';
+import 'package:waldo/features/transactions/ui/widgets/transaction_row.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
