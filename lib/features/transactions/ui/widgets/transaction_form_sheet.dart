@@ -372,7 +372,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                           EditFieldRow(
                             key: const Key('transactionDateField'),
                             grouped: true,
-                            icon: Icons.calendar_today_outlined,
+                            icon: AppIcons.calendar,
                             label: l10n.date,
                             value: formState.date == null
                                 ? '—'
@@ -413,7 +413,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                             children: [
                               EditFieldRow(
                                 grouped: true,
-                                icon: Icons.account_balance_wallet_outlined,
+                                icon: AppIcons.wallets,
                                 label: l10n.wallet,
                                 value: walletName ?? l10n.none,
                                 hasError: field.hasError,
@@ -451,7 +451,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                       child: Row(
                         children: [
                           FieldBadge(
-                            icon: Icons.notes_outlined,
+                            icon: AppIcons.note,
                             color: colors.onSurfaceVariant,
                           ),
                           const SizedBox(width: Spacing.sm),

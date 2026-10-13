@@ -141,7 +141,7 @@ class WalletsScreen extends ConsumerWidget {
             Expanded(
               child: switch (walletsAsync) {
                 AsyncValue(:final value?) when value.isEmpty => EmptyState(
-                  icon: Icons.account_balance_wallet_outlined,
+                  icon: AppIcons.wallets,
                   title: l10n.noWalletsYet,
                   subtitle: l10n.addFirstWallet,
                 ),

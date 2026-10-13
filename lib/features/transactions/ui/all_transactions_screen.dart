@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'widgets/date_grouped_transaction_list.dart';
 import 'package:waldo/core/widgets/empty_state.dart';
@@ -55,7 +56,7 @@ class _AllTransactionsBody extends ConsumerWidget {
 
     if (transactions.isEmpty) {
       return EmptyState(
-        icon: Icons.receipt_long_outlined,
+        icon: AppIcons.receipt,
         title: l10n.noTransactionsYet,
         subtitle: l10n.addFirstTransaction,
       );
