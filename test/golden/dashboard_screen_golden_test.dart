@@ -64,4 +64,20 @@ void main() {
       isBalanceHidden: true,
     ),
   );
+
+  group('Portuguese', () {
+    usePortuguesePhone();
+
+    goldenTest(
+      'Dashboard screen - Portuguese, light',
+      fileName: 'dashboard_screen_pt_light',
+      constraints: BoxConstraints.tight(const Size(460, 2400)),
+      builder: () => wrapForGolden(
+        child: const DashboardScreen(),
+        db: db,
+        brightness: Brightness.light,
+        locale: const Locale('pt'),
+      ),
+    );
+  });
 }
