@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
@@ -30,7 +31,11 @@ void main() {
   setUp(() {
     mockRepo = MockCategoryRepository();
     container = ProviderContainer(
-      overrides: [categoryRepositoryProvider.overrideWith((ref) => mockRepo)],
+      overrides: [
+        categoryRepositoryProvider.overrideWith((ref) => mockRepo),
+        // A fixed clock, so createdAt is checkable.
+        clockProvider.overrideWithValue(() => DateTime(2026, 10, 13, 9, 30)),
+      ],
     );
   });
 
@@ -102,6 +107,11 @@ void main() {
               as Category;
       expect(inserted.name, 'Gym');
       expect(inserted.isDefault, isFalse);
+      expect(
+        inserted.createdAt,
+        '2026-10-13T09:30:00.000',
+        reason: 'stamped by the clock',
+      );
       // Fetched once on build, once more after the add.
       await container.read(categoryListViewModelProvider.future);
       verify(() => mockRepo.getAll()).called(2);
