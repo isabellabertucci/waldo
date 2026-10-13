@@ -265,7 +265,7 @@ class _CashFlowChart extends StatelessWidget {
               final amountCents = (spot.y * 100).round();
               return LineTooltipItem(
                 '${monthFormat.format(month)} · '
-                '${formatCents(amountCents, currencyCode: currencyCode)}',
+                '${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currencyCode)}',
                 // Tooltip text drawn by fl_chart on the canvas, not a UI text style.
                 TextStyle(
                   color: colors.onPrimary,
