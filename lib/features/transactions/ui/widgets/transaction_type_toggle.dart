@@ -4,6 +4,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import '../../transactions_x.dart';
 
 /// The Expense/Income toggle: Expense fills orange, Income fills `primary`.
 class TransactionTypeToggle extends StatelessWidget {
@@ -32,7 +33,7 @@ class TransactionTypeToggle extends StatelessWidget {
         children: [
           Expanded(
             child: _TypeToggleSegment(
-              label: l10n.transactionTypeExpense,
+              label: TransactionType.expense.label(l10n),
               selected: selected == TransactionType.expense,
               color: colors.error,
               onColor: colors.onPrimary,
@@ -41,7 +42,7 @@ class TransactionTypeToggle extends StatelessWidget {
           ),
           Expanded(
             child: _TypeToggleSegment(
-              label: l10n.transactionTypeIncome,
+              label: TransactionType.income.label(l10n),
               selected: selected == TransactionType.income,
               color: colors.primary,
               onColor: colors.onPrimary,
