@@ -362,6 +362,13 @@ as too loose. `page-margin` (24px) is the fixed side margin on every screen.
 Every screen uses the same 24px outer gutter; nothing goes full-bleed except
 photographic wallet-card textures and chart canvases.
 
+Round icon discs (badges) beside a label come in three sizes, `BadgeSize`
+in `core/theme/badge_size.dart`: `sm` 28 (category chips in the
+transaction form), `md` 36 (form fields, option tiles, category and list
+rows) and `lg` 40 (settings rows, option-sheet rows, transaction rows).
+A divider that starts under a row's title indents by row padding +
+badge + gap, so it moves with the badge.
+
 ## Elevation & Depth
 
 Waldo is almost entirely flat - most surfaces sit directly on the page with

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -30,6 +31,9 @@ import '../viewmodels/transaction_list_view_model.dart';
 import 'widgets/transaction_edit_sheet.dart';
 import 'widgets/transaction_form_sheet.dart';
 import 'widgets/transaction_filter_sheet.dart';
+
+/// The wallet's finish beside its name: a small card, not a round badge.
+const _thumbnailSize = Size(52, 40); // one-off
 
 class TransactionsScreen extends ConsumerWidget {
   const TransactionsScreen({super.key, required this.walletId});
@@ -244,8 +248,8 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(Rounded.sm),
                 child: SizedBox(
-                  width: 52,
-                  height: 40,
+                  width: _thumbnailSize.width,
+                  height: _thumbnailSize.height,
                   // The wallet's own finish, with a Hero from its card (see `_showHero`).
                   child: _showHero
                       ? Hero(
@@ -466,7 +470,7 @@ class _GroupedList extends StatelessWidget {
                       if (i < dayTransactions.length - 1)
                         Divider(
                           height: 1,
-                          indent: Spacing.sm + 36 + Spacing.sm,
+                          indent: Spacing.sm + BadgeSize.md + Spacing.sm,
                           endIndent: Spacing.sm,
                           color: colors.onSurfaceVariant.withValues(alpha: 0.1),
                         ),
@@ -517,8 +521,8 @@ class _TransactionRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width: BadgeSize.md,
+              height: BadgeSize.md,
               decoration: BoxDecoration(
                 color: colors.onSurface.withValues(alpha: 0.06),
                 shape: BoxShape.circle,
