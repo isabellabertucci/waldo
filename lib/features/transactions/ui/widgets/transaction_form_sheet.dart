@@ -327,7 +327,6 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                   ),
                   SecondaryButton(
                     label: l10n.manageCategories,
-                    onSheet: true,
                     onPressed: () => const CategoriesRoute().push(context),
                   ),
                 ],
