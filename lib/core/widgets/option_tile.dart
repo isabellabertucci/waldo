@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
@@ -42,8 +43,8 @@ class OptionTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 36,
-                  height: 36,
+                  width: BadgeSize.md,
+                  height: BadgeSize.md,
                   decoration: BoxDecoration(
                     color: selected
                         ? colors.primary
