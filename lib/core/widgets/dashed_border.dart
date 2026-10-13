@@ -1,3 +1,4 @@
+import 'package:waldo/core/utils/dash_path.dart';
 import 'package:flutter/material.dart';
 
 /// Waldo's stitch: a dashed outline around [child], following [radius].
@@ -55,14 +56,14 @@ class _DashedRRectPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
 
-    for (final metric in (Path()..addRRect(rrect)).computeMetrics()) {
-      var distance = 0.0;
-      while (distance < metric.length) {
-        final next = (distance + _dashLength).clamp(0.0, metric.length);
-        canvas.drawPath(metric.extractPath(distance, next), paint);
-        distance = next + _gapLength;
-      }
-    }
+    canvas.drawPath(
+      dashPath(
+        Path()..addRRect(rrect),
+        dashLength: _dashLength,
+        gapLength: _gapLength,
+      ),
+      paint,
+    );
   }
 
   @override
