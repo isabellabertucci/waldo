@@ -408,7 +408,9 @@ The middle ground most systems have (8-16px) is intentionally absent.
 ## Borders
 
 **Stitch, never solid.** Waldo draws borders as a dashed stitch, the leather
-wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
+wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`). Every
+stitched shape - border, badge ring, pouch, button - cuts its dashes with
+`dashPath` (`core/utils/dash_path.dart`), so none carries its own loop.
 
 - **Selected and focused** states use an ink stitch (`primary`).
 - **Outlines and placeholders** use a faint stitch (`on-surface-variant` at low
@@ -537,12 +539,4 @@ wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
   about 1.7:1 and the lifted one reaches about 2.6:1. It is still the one
   orange hue, only lighter, and it appears nowhere else - so it stays a
   documented one-off rather than a token. Light mode uses plain `error`.
-- **`DashedCircleBadge` (dashed_circle_badge.dart) vs. `PouchBorder`
-  (pouch_shape.dart) vs. `DashedBorder` (dashed_border.dart).** The
-  confirm dialog and the transaction view now share one
-  `DashedCircleBadge`, but the three widgets still each carry their own
-  dash-along-path loop, for visually different shapes (a circular badge
-  ring, the pouch outline, a stitched rounded rect). A shared
-  "dash-along-path" math helper (not a shared widget) is the likely right
-  shape for a future fix.
 - **Figma:** no Figma file yet (Phase 4 of the design-system spec).

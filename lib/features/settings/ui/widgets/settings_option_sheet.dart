@@ -1,3 +1,4 @@
+import 'package:waldo/core/utils/dash_path.dart';
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
@@ -312,6 +313,9 @@ class _DashedBorderPainter extends CustomPainter {
     this.opaque = false,
   });
 
+  static const _dashLength = 6.0;
+  static const _gapLength = 5.0;
+
   final Color color;
   final double radius;
   final bool opaque;
@@ -327,17 +331,14 @@ class _DashedBorderPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
-    for (final metric in (Path()..addRRect(rrect)).computeMetrics()) {
-      var distance = 0.0;
-      while (distance < metric.length) {
-        final next = distance + 6.0;
-        canvas.drawPath(
-          metric.extractPath(distance, next.clamp(0, metric.length)),
-          paint,
-        );
-        distance = next + 5.0;
-      }
-    }
+    canvas.drawPath(
+      dashPath(
+        Path()..addRRect(rrect),
+        dashLength: _dashLength,
+        gapLength: _gapLength,
+      ),
+      paint,
+    );
   }
 
   @override
