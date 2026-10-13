@@ -26,6 +26,21 @@ void main() {
       );
     });
 
+    test('a leap-day transaction belongs to February, not March', () {
+      final leapDay = transactionOn(
+        '2028-02-29T23:30:00.000',
+        TransactionType.expense,
+      );
+      expect(
+        TransactionFilter(month: DateTime(2028, 2)).matches(leapDay),
+        isTrue,
+      );
+      expect(
+        TransactionFilter(month: DateTime(2028, 3)).matches(leapDay),
+        isFalse,
+      );
+    });
+
     test('rejects a transaction in a different month', () {
       expect(
         october.matches(
