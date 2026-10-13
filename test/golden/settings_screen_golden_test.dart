@@ -38,4 +38,20 @@ void main() {
       brightness: Brightness.dark,
     ),
   );
+
+  group('Portuguese', () {
+    usePortuguesePhone();
+
+    goldenTest(
+      'Settings screen - Portuguese, light',
+      fileName: 'settings_screen_pt_light',
+      constraints: BoxConstraints.tight(const Size(460, 900)),
+      builder: () => wrapForGolden(
+        child: const SettingsScreen(),
+        db: db,
+        brightness: Brightness.light,
+        locale: const Locale('pt'),
+      ),
+    );
+  });
 }
