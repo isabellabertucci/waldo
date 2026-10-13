@@ -154,7 +154,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 250));
 
-    expect(find.text('Education'), findsNothing);
+    expect(textOutsideSnackBar('Education'), findsNothing);
     expect(find.text('Category deleted'), findsOneWidget);
     await tester.pump(const Duration(seconds: 6));
   });
