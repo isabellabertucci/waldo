@@ -207,7 +207,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
               CircleIconButton(
                 tooltip: l10n.back,
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Icon(Icons.chevron_left_rounded),
+                child: const Icon(AppIcons.back),
               ),
               Row(
                 children: [
@@ -323,7 +323,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.filter_list_rounded,
+                        AppIcons.filter,
                         size: IconSize.lg,
                         color: colors.onSurfaceVariant,
                       ),
@@ -341,7 +341,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                         ),
                       ),
                       Icon(
-                        Icons.keyboard_arrow_down_rounded,
+                        AppIcons.chevronDown,
                         color: colors.onSurfaceVariant,
                       ),
                     ],
@@ -356,13 +356,13 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
               ? const Center(child: CircularProgressIndicator())
               : widget.transactions!.isEmpty
               ? EmptyState(
-                  icon: Icons.receipt_long_outlined,
+                  icon: AppIcons.receipt,
                   title: l10n.noTransactionsYet,
                   subtitle: l10n.addFirstTransaction,
                 )
               : filtered.isEmpty
               ? EmptyState(
-                  icon: Icons.receipt_long_outlined,
+                  icon: AppIcons.receipt,
                   title: l10n.noTransactionsForFilter,
                 )
               : _GroupedList(
