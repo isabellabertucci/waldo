@@ -5,8 +5,10 @@ import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/features/preferences/currency_x.dart';
 import 'package:waldo/features/preferences/models/preferences.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
@@ -74,6 +76,10 @@ class _SettingsBody extends ConsumerWidget {
     final viewModel = ref.read(preferencesViewModelProvider.notifier);
     final walletsAsync = ref.watch(walletListViewModelProvider());
     final isBalanceHidden = ref.watch(balanceHiddenProvider);
+    final categoryCount = switch (ref.watch(categoryListViewModelProvider)) {
+      AsyncValue(:final value?) => '${value.length}',
+      _ => '',
+    };
     final totalBalance = switch (walletsAsync) {
       AsyncValue(:final value?) => value.fold<int>(
         0,
@@ -114,6 +120,13 @@ class _SettingsBody extends ConsumerWidget {
               ).format(ref.watch(clockProvider)()),
               onTap: () =>
                   _showDateFormatSheet(context, l10n, viewModel, preferences),
+            ),
+            // Categories also live here, not only behind the transaction form.
+            SettingsRow(
+              icon: AppIcons.categoryGeneric,
+              title: l10n.categories,
+              value: categoryCount,
+              onTap: () => const CategoriesRoute().push(context),
             ),
           ],
         ),
