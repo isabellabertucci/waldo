@@ -3,20 +3,16 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
-/// Low-emphasis pill: filled on the page, bare text on a sheet.
+/// Low-emphasis text button with no fill; the press ripple marks it as tappable.
 class SecondaryButton extends StatelessWidget {
   const SecondaryButton({
     super.key,
     required this.label,
     required this.onPressed,
-    this.onSheet = false,
   });
 
   final String label;
   final VoidCallback onPressed;
-
-  /// True on a sheet, where a fill would read as another field.
-  final bool onSheet;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +21,7 @@ class SecondaryButton extends StatelessWidget {
     return FilledButton(
       onPressed: onPressed,
       style: FilledButton.styleFrom(
-        backgroundColor: onSheet ? colors.transparent : colors.surface,
+        backgroundColor: colors.transparent,
         foregroundColor: colors.onSurface,
         textStyle: context.bodyMdStrong,
         padding: const EdgeInsets.symmetric(
