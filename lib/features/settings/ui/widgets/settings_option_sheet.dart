@@ -74,57 +74,62 @@ class _SettingsOptionSheetState<T> extends State<SettingsOptionSheet<T>> {
               children: [
                 const SizedBox(height: Spacing.sm),
                 const SheetGrabber(),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    Spacing.md,
-                    Spacing.md,
-                    Spacing.md,
-                    Spacing.lg,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
+                // Scrolls when large text makes it taller than the screen.
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        Spacing.md,
+                        Spacing.md,
+                        Spacing.md,
+                        Spacing.lg,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Expanded(
-                            child: Text(
-                              widget.title,
-                              style: context.headlineSmBold.copyWith(
-                                color: colors.onSurface,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  widget.title,
+                                  style: context.headlineSmBold.copyWith(
+                                    color: colors.onSurface,
+                                  ),
+                                ),
+                              ),
+                              const SheetCloseButton(),
+                            ],
+                          ),
+                          const SizedBox(height: Spacing.md),
+                          for (var i = 0; i < widget.options.length; i++) ...[
+                            if (i > 0) const SizedBox(height: Spacing.sm),
+                            _OptionRow<T>(
+                              option: widget.options[i],
+                              selected: widget.options[i].value == _selected,
+                              onTap: () => setState(
+                                () => _selected = widget.options[i].value,
                               ),
                             ),
+                          ],
+                          if (widget.notice != null) ...[
+                            const SizedBox(height: Spacing.md),
+                            _NoticeBox(text: widget.notice!),
+                          ],
+                          const SizedBox(height: Spacing.lg),
+                          SizedBox(
+                            width: double.infinity,
+                            child: DashedStitchButton(
+                              label: l10n.done,
+                              onPressed: () {
+                                widget.onConfirm(_selected);
+                                Navigator.of(context).pop();
+                              },
+                            ),
                           ),
-                          const SheetCloseButton(),
                         ],
                       ),
-                      const SizedBox(height: Spacing.md),
-                      for (var i = 0; i < widget.options.length; i++) ...[
-                        if (i > 0) const SizedBox(height: Spacing.sm),
-                        _OptionRow<T>(
-                          option: widget.options[i],
-                          selected: widget.options[i].value == _selected,
-                          onTap: () => setState(
-                            () => _selected = widget.options[i].value,
-                          ),
-                        ),
-                      ],
-                      if (widget.notice != null) ...[
-                        const SizedBox(height: Spacing.md),
-                        _NoticeBox(text: widget.notice!),
-                      ],
-                      const SizedBox(height: Spacing.lg),
-                      SizedBox(
-                        width: double.infinity,
-                        child: DashedStitchButton(
-                          label: l10n.done,
-                          onPressed: () {
-                            widget.onConfirm(_selected);
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],

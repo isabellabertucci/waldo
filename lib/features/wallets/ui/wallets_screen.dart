@@ -107,10 +107,14 @@ class WalletsScreen extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    l10n.wallets,
-                    style: context.headlineSmBold.copyWith(
-                      color: colors.onSurface,
+                  Flexible(
+                    child: Text(
+                      l10n.wallets,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.headlineSmBold.copyWith(
+                        color: colors.onSurface,
+                      ),
                     ),
                   ),
                   Row(

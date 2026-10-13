@@ -61,6 +61,10 @@ class _RowDivider extends StatelessWidget {
   }
 }
 
+/// From this text size up, the value moves under the title so the title
+/// keeps the row's width.
+const _stackValueTextScale = 1.5; // one-off
+
 class SettingsRow extends StatelessWidget {
   const SettingsRow({
     required this.icon,
@@ -82,6 +86,14 @@ class SettingsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final stacked =
+        MediaQuery.textScalerOf(context).scale(1) >= _stackValueTextScale;
+    final valueText = Text(
+      value,
+      style: context.textTheme.bodyMedium?.copyWith(
+        color: colors.onSurfaceVariant,
+      ),
+    );
 
     return ListTile(
       onTap: onTap,
@@ -101,24 +113,25 @@ class SettingsRow extends StatelessWidget {
         child: Icon(icon, size: IconSize.lg, color: colors.onSurfaceVariant),
       ),
       title: Text(title, style: context.bodyMdBold),
-      subtitle: subtitle == null
+      subtitle: subtitle == null && !stacked
           ? null
-          : Text(
-              subtitle!,
-              style: context.textTheme.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
-              ),
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (subtitle != null)
+                  Text(
+                    subtitle!,
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                if (stacked) valueText,
+              ],
             ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            value,
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(width: Spacing.xs),
+          if (!stacked) ...[valueText, const SizedBox(width: Spacing.xs)],
           Icon(
             AppIcons.chevronRight,
             size: IconSize.xl,
