@@ -896,6 +896,18 @@ abstract class AppLocalizations {
   /// **'Month'**
   String get filterSectionMonth;
 
+  /// Name of the month selector's left chevron, which scrolls to earlier months
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier months'**
+  String get earlierMonths;
+
+  /// Name of the month selector's right chevron, which scrolls to later months
+  ///
+  /// In en, this message translates to:
+  /// **'Later months'**
+  String get laterMonths;
+
   /// Section label (shown uppercased) above the income/expense toggle in the filter sheet
   ///
   /// In en, this message translates to:

@@ -99,4 +99,43 @@ void main() {
     final rowCenter = tester.getCenter(find.byType(SingleChildScrollView)).dx;
     expect(center, moreOrLessEquals(rowCenter, epsilon: 1));
   });
+
+  testWidgets('Both chevrons are named 48dp buttons, and so are the months', (
+    tester,
+  ) async {
+    final months = [for (var i = 11; i >= 0; i--) DateTime(2026, 10 - i)];
+    final db = await pumpWidgetWithProviders(
+      tester,
+      Scaffold(
+        body: MonthSelector(
+          months: months,
+          selectedMonth: DateTime(2026, 10),
+          currentMonth: DateTime(2026, 10),
+          locale: 'en',
+          onSelect: (_) {},
+        ),
+      ),
+    );
+    addTearDown(db.close);
+
+    for (final name in ['Earlier months', 'Later months']) {
+      final chevron = find.byTooltip(name);
+      expect(chevron, findsOneWidget);
+      expect(tester.getSize(chevron).shortestSide, greaterThanOrEqualTo(48));
+    }
+    expect(
+      tester.getSize(find.text('October')).height,
+      lessThan(48),
+      reason: 'the label alone is small...',
+    );
+    final pill = find.ancestor(
+      of: find.text('October'),
+      matching: find.byType(InkWell),
+    );
+    expect(
+      tester.getSize(pill.first).height,
+      greaterThanOrEqualTo(48),
+      reason: '...but the pill around it is a full tap target',
+    );
+  });
 }
