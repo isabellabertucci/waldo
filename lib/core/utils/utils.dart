@@ -35,6 +35,13 @@ String moneyLocale(BuildContext context) => Intl.verifiedLocale(
   onFailure: (_) => 'en_US',
 )!;
 
+/// An empty amount field's "0.00" hint, with [locale]'s decimal separator
+/// ("0,00" in pt_PT). Both are accepted when typing.
+String zeroAmountHint(String locale) => NumberFormat.decimalPatternDigits(
+  locale: locale,
+  decimalDigits: 2,
+).format(0);
+
 String formatCents(
   int cents, {
   required String locale,
