@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/router/app_router.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
@@ -164,15 +165,16 @@ void _showQuickAddSheet(BuildContext context) {
     isScrollControlled: true,
     builder: (sheetContext) => SafeArea(
       child: Padding(
+        // Same side margin as every other sheet.
         padding: const EdgeInsets.symmetric(
-          horizontal: Spacing.sm,
-          vertical: Spacing.xs,
+          horizontal: Spacing.md,
+          vertical: Spacing.sm,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.receipt_long_outlined),
+              leading: const Icon(AppIcons.receipt),
               title: Text(l10n.newTransaction),
               onTap: () {
                 Navigator.of(sheetContext).pop();
@@ -180,7 +182,7 @@ void _showQuickAddSheet(BuildContext context) {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.account_balance_wallet_outlined),
+              leading: const Icon(AppIcons.wallets),
               title: Text(l10n.newWallet),
               onTap: () {
                 Navigator.of(sheetContext).pop();

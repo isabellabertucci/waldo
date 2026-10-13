@@ -533,14 +533,18 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
       useRootNavigator: true,
       builder: (sheetContext) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: Spacing.sm),
+          // Same side margin as every other sheet.
+          padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.md,
+            vertical: Spacing.sm,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               for (final wallet in wallets)
                 ListTile(
                   leading: Icon(
-                    Icons.account_balance_wallet_outlined,
+                    AppIcons.wallets,
                     color: colors.onSurfaceVariant,
                   ),
                   title: Text(wallet.name, style: context.bodyMdBold),
@@ -647,24 +651,28 @@ class _NewCategoryChip extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: Spacing.sm,
-              vertical: Spacing.sm,
+              vertical: Spacing.xs,
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  AppIcons.add,
-                  size: IconSize.md,
-                  color: colors.onSurfaceVariant,
-                ),
-                const SizedBox(width: Spacing.xxs),
-                Text(
-                  l10n.addNewCategory,
-                  style: context.bodyMdStrong.copyWith(
+            // As tall as a category chip's 28dp icon disc, so the row lines up.
+            child: SizedBox(
+              height: 28,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    AppIcons.add,
+                    size: IconSize.md,
                     color: colors.onSurfaceVariant,
                   ),
-                ),
-              ],
+                  const SizedBox(width: Spacing.xxs),
+                  Text(
+                    l10n.addNewCategory,
+                    style: context.bodyMdStrong.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
