@@ -32,6 +32,9 @@ import 'widgets/transaction_edit_sheet.dart';
 import 'widgets/transaction_form_sheet.dart';
 import 'widgets/transaction_filter_sheet.dart';
 
+/// Room under the list so the last row scrolls clear of the floating nav.
+const _navBarClearance = 72.0; // one-off: the nav pill's height plus its gap
+
 /// The wallet's finish beside its name: a small card, not a round badge.
 const _thumbnailSize = Size(52, 40); // one-off
 
@@ -430,7 +433,7 @@ class _GroupedList extends StatelessWidget {
         Spacing.pageMargin,
         Spacing.md,
         Spacing.pageMargin,
-        Spacing.lg + 72,
+        Spacing.lg + _navBarClearance,
       ),
       itemCount: days.length,
       itemBuilder: (context, index) {
@@ -438,12 +441,12 @@ class _GroupedList extends StatelessWidget {
         final dayTransactions = groups[day]!;
 
         return Padding(
-          padding: const EdgeInsets.only(bottom: Spacing.lg - 10),
+          padding: const EdgeInsets.only(bottom: Spacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
+                padding: const EdgeInsets.symmetric(horizontal: Spacing.xxs),
                 child: Text(
                   _dayLabel(l10n, day),
                   style: context.labelSmBold.copyWith(
