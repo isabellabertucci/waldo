@@ -52,7 +52,11 @@ class BalanceOverviewCard extends StatelessWidget {
 
     final balanceText = isBalanceHidden
         ? hiddenAmount
-        : formatCents(totalBalance, currencyCode: currencyCode);
+        : formatCents(
+            totalBalance,
+            locale: moneyLocale(context),
+            currencyCode: currencyCode,
+          );
 
     return Stack(
       children: [
