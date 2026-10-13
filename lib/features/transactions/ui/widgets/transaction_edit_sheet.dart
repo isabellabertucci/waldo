@@ -183,7 +183,10 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   bool _isFieldDirty(_EditField field) {
     final formState = _formState;
     return switch (field) {
-      _EditField.amount => _amountController.text != formState.amount,
+      // By value: the keypad shows "10.5" for a stored "10.50".
+      _EditField.amount =>
+        parseToCents(_amountController.text, allowNegative: false) !=
+            parseToCents(formState.amount, allowNegative: false),
       _EditField.category => false,
     };
   }

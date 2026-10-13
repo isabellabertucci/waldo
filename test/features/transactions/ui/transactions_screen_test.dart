@@ -306,6 +306,29 @@ void main() {
     expect(find.text(r'-$105,555,555.55'), findsOneWidget);
   });
 
+  testWidgets('Backing out of the amount keypad without typing asks nothing', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '10.50', description: 'Coffee');
+
+    await openEditFromRowMenu(tester);
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Back').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Discard changes?'), findsNothing);
+
+    // A real change still asks.
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('5'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Back').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Discard changes?'), findsOneWidget);
+  });
+
   testWidgets('Cancel puts the typed name back to what it was', (tester) async {
     await pumpTransactionsScreen(tester);
     await createTransaction(tester, amount: '25.00', description: 'Groceries');
