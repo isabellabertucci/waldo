@@ -8,7 +8,6 @@ enum CategoryType {
   subscriptions,
   education,
   investments,
-  others,
 }
 
 enum SortOrder { asc, desc }

@@ -1,10 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/rounded.dart';
-import 'package:waldo/core/theme/spacing.dart';
 
 class Common {
   Common._();
+
+  static NavigationBarThemeData getNavigationBarTheme(AppColors color) {
+    return NavigationBarThemeData(
+      backgroundColor: color.surface,
+      indicatorColor: color.primaryContainer,
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return IconThemeData(
+          color: selected ? color.primaryStrong : color.onSurfaceVariant,
+        );
+      }),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return TextStyle(
+          color: selected ? color.primaryStrong : color.onSurfaceVariant,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+        );
+      }),
+    );
+  }
 
   static AppBarTheme getAppBarTheme(AppColors colors) {
     return AppBarTheme(backgroundColor: colors.transparent, centerTitle: false);
@@ -38,27 +57,20 @@ class Common {
     return DialogThemeData(
       backgroundColor: colors.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Rounded.lg),
+        borderRadius: BorderRadius.circular(Rounded.xl),
       ),
     );
   }
 
   static SnackBarThemeData getSnackBarTheme(AppColors colors) {
-    // The leather pair, so the snackbar is a dark pill with readable text in
-    // both themes (`onSurface` turns light in dark mode).
     return SnackBarThemeData(
-      // Slightly lighter than `leather`, so it shows against the dark-mode page.
-      backgroundColor: Color.lerp(
-        colors.leather,
-        colors.onSurfaceVariant,
-        0.25,
-      ),
-      contentTextStyle: TextStyle(color: colors.onLeather),
+      backgroundColor: colors.onSurface,
+      contentTextStyle: const TextStyle(color: Colors.white),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Rounded.pill),
       ),
       behavior: SnackBarBehavior.floating,
-      actionTextColor: colors.error,
+      actionTextColor: colors.primary,
     );
   }
 
@@ -72,78 +84,61 @@ class Common {
       textColor: colors.onSurface,
       iconColor: colors.onSurfaceVariant,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Rounded.lg),
+        borderRadius: BorderRadius.circular(Rounded.xl),
       ),
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: Spacing.sm,
-        vertical: Spacing.xs,
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
     );
   }
 
   static InputDecorationThemeData getInputDecorationTheme(AppColors colors) {
     return InputDecorationThemeData(
       filled: true,
-      fillColor: colors.fieldFill,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: Spacing.sm,
-        vertical: 10,
-      ),
+      fillColor: colors.surfaceContainer,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       floatingLabelBehavior: FloatingLabelBehavior.always,
       labelStyle: TextStyle(color: colors.onSurfaceVariant),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Rounded.md),
-        borderSide: BorderSide(color: colors.fieldBorder),
+        borderRadius: BorderRadius.circular(Rounded.lg),
+        borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Rounded.md),
+        borderRadius: BorderRadius.circular(Rounded.lg),
         borderSide: BorderSide(color: colors.primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Rounded.md),
+        borderRadius: BorderRadius.circular(Rounded.lg),
         borderSide: BorderSide(color: colors.error, width: 1.5),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Rounded.md),
+        borderRadius: BorderRadius.circular(Rounded.lg),
         borderSide: BorderSide(color: colors.error, width: 2),
       ),
     );
   }
 
   static DatePickerThemeData getDatePickerTheme(AppColors colors) {
-    // The selected day (today included) is an ink disc with on-primary text,
-    // like every other selected pill in the app.
-    Color? selectedFill(Set<WidgetState> states) =>
-        states.contains(WidgetState.selected) ? colors.primary : null;
+    Color onColor(Color background) {
+      return background.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+    }
 
     return DatePickerThemeData(
       backgroundColor: colors.surface,
       surfaceTintColor: colors.transparent,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Rounded.lg),
+        borderRadius: BorderRadius.circular(Rounded.xl),
       ),
 
-      dayBackgroundColor: WidgetStateProperty.resolveWith(selectedFill),
       dayForegroundColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) return colors.onPrimary;
+        if (states.contains(WidgetState.selected)) {
+          return onColor(colors.primaryStrong);
+        }
         if (states.contains(WidgetState.disabled)) {
           return colors.onSurfaceVariant.withValues(alpha: 0.4);
         }
         return colors.onSurface;
       }),
-      todayBackgroundColor: WidgetStateProperty.resolveWith(selectedFill),
-      todayForegroundColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected)
-            ? colors.onPrimary
-            : colors.primaryStrong,
-      ),
-      yearBackgroundColor: WidgetStateProperty.resolveWith(selectedFill),
-      yearForegroundColor: WidgetStateProperty.resolveWith(
-        (states) => states.contains(WidgetState.selected)
-            ? colors.onPrimary
-            : colors.onSurface,
-      ),
+      todayForegroundColor: WidgetStateProperty.all(colors.primaryStrong),
 
       dividerColor: colors.onSurfaceVariant.withValues(alpha: 0.12),
       cancelButtonStyle: TextButton.styleFrom(
@@ -160,9 +155,9 @@ class Common {
       style: FilledButton.styleFrom(
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,
-        padding: const EdgeInsets.symmetric(vertical: Spacing.sm),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Rounded.md),
+          borderRadius: BorderRadius.circular(Rounded.lg),
         ),
         textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
       ),

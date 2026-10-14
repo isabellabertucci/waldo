@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/constants/enums.dart';
-import 'package:waldo/core/theme/app_colors.dart';
-import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 extension WalletTypeLabel on WalletType {
@@ -24,26 +22,40 @@ class BadgeStyle {
 }
 
 extension WalletTypeStyle on WalletType {
-  /// Types are told apart by icon; only Credit gets the accent, as it can be negative.
-  BadgeStyle style(AppColors colors) {
-    final color = this == WalletType.credit
-        ? colors.error
-        : colors.onSurfaceVariant;
-    return BadgeStyle(
-      background: color.withValues(alpha: 0.12),
-      foreground: color,
-    );
+  BadgeStyle get style {
+    return switch (this) {
+      WalletType.checking => const BadgeStyle(
+        background: Color(0xFFE3F6D8),
+        foreground: Color(0xFF1F7A3D),
+      ),
+      WalletType.savings => const BadgeStyle(
+        background: Color(0xFFD3EEFF),
+        foreground: Color(0xFF0E6BA8),
+      ),
+      WalletType.cash => const BadgeStyle(
+        background: Color(0xFFD9F5E3),
+        foreground: Color(0xFF177B3D),
+      ),
+      WalletType.credit => const BadgeStyle(
+        background: Color(0xFFFCDCDC),
+        foreground: Color(0xFFB3261E),
+      ),
+      WalletType.investment => const BadgeStyle(
+        background: Color(0xFFFFE9C7),
+        foreground: Color(0xFF9A6300),
+      ),
+    };
   }
 }
 
 extension WalletTypeIcon on WalletType {
   IconData get icon {
     return switch (this) {
-      WalletType.checking => AppIcons.walletChecking,
-      WalletType.savings => AppIcons.walletSavings,
-      WalletType.cash => AppIcons.walletCash,
-      WalletType.credit => AppIcons.walletCredit,
-      WalletType.investment => AppIcons.walletInvestment,
+      WalletType.checking => Icons.account_balance_outlined,
+      WalletType.savings => Icons.savings_outlined,
+      WalletType.cash => Icons.payments_outlined,
+      WalletType.credit => Icons.credit_card_outlined,
+      WalletType.investment => Icons.trending_up_outlined,
     };
   }
 }

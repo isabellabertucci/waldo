@@ -12,6 +12,5 @@ abstract class TransactionFormState with _$TransactionFormState {
     int? walletId,
     int? categoryId,
     @Default('') String description,
-    @Default('') String note,
   }) = _TransactionFormState;
 }

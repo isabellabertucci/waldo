@@ -1,28 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:waldo/core/theme/app_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
+import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/core/widgets/undo_snack_bar.dart';
-import 'package:waldo/core/widgets/circle_icon_button.dart';
-import 'package:waldo/core/widgets/dashed_stitch_button.dart';
-import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
+import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 
 import '../../../core/widgets/confirmation_dialog.dart';
 import '../../../core/widgets/empty_state.dart';
-import 'package:waldo/core/widgets/eye_icon.dart';
 import '../models/wallet.dart';
 import '../viewmodels/wallet_list_view_model.dart';
-import '../viewmodels/wallets_summary_view_model.dart';
+import '../wallets_x.dart';
 import 'widgets/wallet_form_sheet.dart';
-import 'widgets/wallets_card_stack.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/router/app_router.dart';
 
+enum _WalletAction { edit, delete }
+
 class WalletsScreen extends ConsumerWidget {
   const WalletsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final walletsAsync = ref.watch(walletListViewModelProvider());
+
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.wallets)),
+      body: switch (walletsAsync) {
+        AsyncError() => Center(child: Text(l10n.walletsError)),
+        AsyncData(:final value) => _WalletsBody(wallets: value),
+        _ => const Center(child: CircularProgressIndicator()),
+      },
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            builder: (_) => const WalletFormSheet(),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class _WalletsBody extends ConsumerWidget {
+  const _WalletsBody({required this.wallets});
+
+  final List<Wallet> wallets;
 
   Future<void> _confirmDelete(
     BuildContext context,
@@ -45,16 +73,26 @@ class WalletsScreen extends ConsumerWidget {
 
     if (!viewModel.hideWallet(wallet.id!)) return;
 
-    final undone = await showUndoSnackBar(
-      messenger,
-      title: l10n.walletDeleted,
-      subtitle: wallet.name,
-      restoredLabel: l10n.walletRestored,
+    var undone = false;
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(l10n.walletDeleted),
+        duration: const Duration(seconds: 5),
+        persist: false,
+        action: SnackBarAction(
+          label: l10n.undo,
+          onPressed: () {
+            undone = true;
+            viewModel.restoreWallet();
+          },
+        ),
+      ),
     );
-    if (undone) {
-      viewModel.restoreWallet();
-      return;
-    }
+
+    await Future.delayed(const Duration(seconds: 5));
+
+    if (undone) return;
 
     try {
       await viewModel.confirmDelete(wallet.id!);
@@ -64,105 +102,132 @@ class WalletsScreen extends ConsumerWidget {
     }
   }
 
-  void _editWallet(BuildContext context, Wallet wallet) {
-    showWalletFormSheet(context, wallet: wallet);
-  }
-
-  void _openWallet(BuildContext context, Wallet wallet) {
-    TransactionsRoute(wallet.id!).push(context);
-  }
-
-  void _addWallet(BuildContext context) {
-    showWalletFormSheet(context);
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final walletsAsync = ref.watch(walletListViewModelProvider());
-    final isBalanceHidden = ref.watch(balanceHiddenProvider);
-    final colors = context.appColors;
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
     final currency = switch (preferencesAsync) {
-      AsyncValue(:final value?) => value.currency,
+      AsyncData(:final value) => value.currency,
       _ => Currency.usd,
     };
-    final summaryAsync = ref.watch(walletsSummaryViewModelProvider);
-    final keptPercent = switch (summaryAsync) {
-      AsyncValue(:final value?) => value.keptPercent,
-      _ => null,
-    };
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Spacing.pageMargin,
-                Spacing.xs,
-                Spacing.pageMargin,
-                0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    l10n.wallets,
-                    style: context.headlineSmBold.copyWith(
-                      color: colors.onSurface,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      DashedStitchButton(
-                        icon: const Icon(AppIcons.add),
-                        tooltip: l10n.newWallet,
-                        onPressed: () => _addWallet(context),
-                      ),
-                      const SizedBox(width: Spacing.xs),
-                      CircleIconButton(
-                        tooltip: isBalanceHidden
-                            ? l10n.showBalance
-                            : l10n.hideBalance,
-                        onPressed: () =>
-                            ref.read(balanceHiddenProvider.notifier).toggle(),
-                        child: EyeIcon(
-                          color: colors.onSurface,
-                          hidden: isBalanceHidden,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+    if (wallets.isEmpty) {
+      return EmptyState(
+        icon: Icons.account_balance_wallet_outlined,
+        title: l10n.noWalletsYet,
+        subtitle: l10n.addFirstWallet,
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(Spacing.lg),
+      child: ListView.separated(
+        separatorBuilder: (context, index) =>
             const SizedBox(height: Spacing.md),
-            Expanded(
-              child: switch (walletsAsync) {
-                AsyncValue(:final value?) when value.isEmpty => EmptyState(
-                  icon: AppIcons.wallets,
-                  title: l10n.noWalletsYet,
-                  subtitle: l10n.addFirstWallet,
-                ),
-                AsyncValue(:final value?) => WalletsCardStack(
-                  wallets: value,
-                  currency: currency,
-                  isBalanceHidden: isBalanceHidden,
-                  keptPercent: keptPercent,
-                  onTapWallet: (wallet) => _openWallet(context, wallet),
-                  onEditWallet: (wallet) => _editWallet(context, wallet),
-                  onDeleteWallet: (wallet) =>
-                      _confirmDelete(context, ref, wallet),
-                ),
-                AsyncValue(hasError: true) => Center(
-                  child: Text(l10n.walletsError),
-                ),
-                _ => const Center(child: CircularProgressIndicator()),
-              },
+        itemCount: wallets.length,
+        itemBuilder: (context, index) {
+          final wallet = wallets[index];
+          final colors = context.appColors;
+          final badgeStyle = wallet.type.style;
+
+          return ListTile(
+            onTap: () {
+              TransactionsRoute(wallet.id!).push(context);
+            },
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: badgeStyle.background,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                wallet.type.icon,
+                color: badgeStyle.foreground,
+                size: 20,
+              ),
             ),
-          ],
-        ),
+            title: Text(
+              wallet.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(
+              wallet.type.label(l10n),
+              style: context.textTheme.bodySmall?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  formatCents(
+                    wallet.currentBalance,
+                    currencyCode: currency.code,
+                  ),
+                  style: context.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                PopupMenuButton<_WalletAction>(
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: colors.onSurfaceVariant,
+                    size: 20,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(Rounded.md),
+                  ),
+                  onSelected: (action) => switch (action) {
+                    _WalletAction.edit => showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (_) => WalletFormSheet(wallet: wallet),
+                    ),
+                    _WalletAction.delete => _confirmDelete(
+                      context,
+                      ref,
+                      wallet,
+                    ),
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: _WalletAction.edit,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.edit_outlined, size: 18),
+                          const SizedBox(width: Spacing.sm),
+                          Text(l10n.edit),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: _WalletAction.delete,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.delete_outline,
+                            size: 18,
+                            color: colors.error,
+                          ),
+                          const SizedBox(width: Spacing.sm),
+                          Text(
+                            l10n.delete,
+                            style: TextStyle(color: colors.error),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

@@ -7,7 +7,6 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:waldo/core/database/db_providers.dart';
 import 'package:waldo/core/database/migrations.dart' as migrations;
 import 'package:waldo/core/router/app_router.dart';
-import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 GoRouter createTestRouter({String initialLocation = '/dashboard'}) {
@@ -36,7 +35,6 @@ Future<Database> pumpTestApp(
       overrides: [appDatabaseProvider.overrideWith((ref) async => testDb)],
       child: MaterialApp.router(
         routerConfig: router ?? createTestRouter(),
-        theme: AppTheme.light,
         locale: const Locale('en'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -59,7 +57,6 @@ Future<Database> pumpWidgetWithProviders(
     ProviderScope(
       overrides: [appDatabaseProvider.overrideWith((ref) async => testDb)],
       child: MaterialApp(
-        theme: AppTheme.light,
         locale: const Locale('en'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -71,13 +68,3 @@ Future<Database> pumpWidgetWithProviders(
 
   return testDb;
 }
-
-/// [text] anywhere but a snackbar, so an undo bar naming a deleted item
-/// doesn't count as the item still being on screen.
-Finder textOutsideSnackBar(String text) => find.byElementPredicate(
-  (element) =>
-      element.widget is Text &&
-      (element.widget as Text).data == text &&
-      element.findAncestorWidgetOfExactType<SnackBar>() == null,
-  description: 'text "$text" outside a snackbar',
-);

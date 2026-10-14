@@ -34,18 +34,10 @@ Future<void> up(Database db) async {
           '${CategoryType.transportation.name}',
           '${CategoryType.subscriptions.name}',
           '${CategoryType.education.name}',
-          '${CategoryType.investments.name}',
-          '${CategoryType.others.name}'
+          '${CategoryType.investments.name}'
         )),
       ${CategoriesTable.createdAt} TEXT NOT NULL
     )
-  ''');
-
-  // Unique only among user-created categories; built-ins are named by type.
-  await db.execute('''
-    CREATE UNIQUE INDEX idx_categories_custom_name
-      ON ${CategoriesTable.table} (${CategoriesTable.name} COLLATE NOCASE)
-      WHERE ${CategoriesTable.isDefault} = 0
   ''');
 
   final now = DateTime.now().toIso8601String();
@@ -55,7 +47,6 @@ Future<void> up(Database db) async {
     'Subscriptions': CategoryType.subscriptions,
     'Education': CategoryType.education,
     'Investments': CategoryType.investments,
-    'Others': CategoryType.others,
   };
 
   final batch = db.batch();
@@ -83,7 +74,6 @@ Future<void> up(Database db) async {
         )),
       ${TransactionsTable.date} TEXT NOT NULL,
       ${TransactionsTable.description} TEXT,
-      ${TransactionsTable.note} TEXT,
       ${TransactionsTable.createdAt} TEXT NOT NULL,
       FOREIGN KEY (${TransactionsTable.walletId}) REFERENCES ${WalletsTable.table} (${WalletsTable.id}) ON DELETE CASCADE,      FOREIGN KEY (${TransactionsTable.categoryId}) REFERENCES ${CategoriesTable.table} (${CategoriesTable.id}) ON DELETE SET NULL
     )

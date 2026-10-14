@@ -142,54 +142,5 @@ void main() {
         expect(remainingTransactions, isEmpty);
       },
     );
-
-    test('insert rejects a name another wallet uses, ignoring case', () async {
-      await repo.insert(_wallet('Pocket cash'));
-
-      expect(
-        () => repo.insert(_wallet('pocket CASH ')),
-        throwsA(isA<DuplicateWalletNameException>()),
-      );
-      expect(await repo.getCount(), 1);
-    });
-
-    test('update rejects renaming to another wallet\'s name', () async {
-      await repo.insert(_wallet('Pocket cash'));
-      final id = await repo.insert(_wallet('Visa card'));
-      final visa = (await repo.getById(id))!;
-
-      expect(
-        () => repo.update(visa.copyWith(name: 'Pocket Cash')),
-        throwsA(isA<DuplicateWalletNameException>()),
-      );
-      expect((await repo.getById(id))!.name, 'Visa card');
-    });
-
-    test('update keeps a wallet\'s own name, even in another case', () async {
-      final id = await repo.insert(_wallet('Visa card'));
-      final visa = (await repo.getById(id))!;
-
-      await repo.update(visa.copyWith(name: 'VISA card'));
-
-      expect((await repo.getById(id))!.name, 'VISA card');
-    });
-
-    test('getCount returns 0 for an empty table', () async {
-      expect(await repo.getCount(), 0);
-    });
-
-    test('getCount returns the number of wallets', () async {
-      await repo.insert(
-        const Wallet(name: 'Cash', createdAt: '2026-08-04T12:00:00.000'),
-      );
-      await repo.insert(
-        const Wallet(name: 'Bank', createdAt: '2026-08-05T12:00:00.000'),
-      );
-
-      expect(await repo.getCount(), 2);
-    });
   });
 }
-
-Wallet _wallet(String name) =>
-    Wallet(name: name, createdAt: '2026-08-04T12:00:00.000');

@@ -24,20 +24,12 @@ abstract final class AppIcons {
   static const categorySubscriptions = PhosphorIconsRegular.repeat;
   static const categoryEducation = PhosphorIconsRegular.graduationCap;
   static const categoryInvestments = PhosphorIconsRegular.trendUp;
-  static const categoryOthers = PhosphorIconsRegular.dotsThreeCircle;
-  static const categoryGeneric = PhosphorIconsRegular.tag;
 
   // Transactions
   static const income = PhosphorIconsRegular.arrowDown;
   static const expense = PhosphorIconsRegular.arrowUp;
   static const calendar = PhosphorIconsRegular.calendar;
   static const receipt = PhosphorIconsRegular.receipt;
-  static const note = PhosphorIconsRegular.textAlignLeft;
-  static const filter = PhosphorIconsRegular.funnelSimple;
-
-  // Form fields
-  static const name = PhosphorIconsRegular.textT;
-  static const radioUnselected = PhosphorIconsRegular.circle;
 
   // Actions
   static const add = PhosphorIconsRegular.plus;
@@ -47,17 +39,4 @@ abstract final class AppIcons {
   static const close = PhosphorIconsRegular.x;
   static const back = PhosphorIconsRegular.caretLeft;
   static const search = PhosphorIconsRegular.magnifyingGlass;
-  static const backspace = PhosphorIconsRegular.backspace;
-  static const check = PhosphorIconsRegular.check;
-  static const undo = PhosphorIconsRegular.arrowUUpLeft;
-  static const chevronRight = PhosphorIconsRegular.caretRight;
-  static const chevronDown = PhosphorIconsRegular.caretDown;
-  static const info = PhosphorIconsRegular.info;
-
-  // Settings
-  static const currency = PhosphorIconsRegular.currencyDollar;
-  static const theme = PhosphorIconsRegular.moon;
-  static const themeSystem = PhosphorIconsRegular.circleHalf;
-  static const themeLight = PhosphorIconsRegular.sun;
-  static const themeDark = PhosphorIconsRegular.moon;
 }

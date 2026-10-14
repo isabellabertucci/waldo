@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:waldo/core/router/app_shell.dart';
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
 import 'package:waldo/features/transactions/ui/transactions_screen.dart';
 import 'package:waldo/features/wallets/ui/wallets_screen.dart';
@@ -24,18 +23,17 @@ void main() {
     currentDb = null;
   });
 
-  Finder findNavButton(int index) => find.byKey(ValueKey('nav-$index'));
-  bool isSelected(WidgetTester tester, int index) =>
-      tester.widget<AppNavButton>(findNavButton(index)).selected;
+  Finder findNavigationBar() => find.byType(NavigationBar);
+  Finder findNavDestination(int index) =>
+      find.byType(NavigationDestination).at(index);
 
   group('AppShell', () {
     testWidgets('Renders with the initial branch selected', (
       WidgetTester tester,
     ) async {
       currentDb = await pumpTestApp(tester, router: router);
-      expect(isSelected(tester, 0), isTrue);
-      expect(isSelected(tester, 1), isFalse);
-      expect(isSelected(tester, 2), isFalse);
+      final navBar = tester.widget<NavigationBar>(findNavigationBar());
+      expect(navBar.selectedIndex, 0);
       expect(find.byType(DashboardScreen), findsOneWidget);
       expect(find.byType(WalletsScreen), findsNothing);
       expect(find.byType(SettingsScreen), findsNothing);
@@ -45,24 +43,33 @@ void main() {
       'Tapping each bottom nav item navigates to the correct branch',
       (WidgetTester tester) async {
         currentDb = await pumpTestApp(tester, router: router);
-        expect(isSelected(tester, 0), isTrue);
+        expect(
+          tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
+          0,
+        );
         expect(find.byType(DashboardScreen), findsOneWidget);
-
-        await tester.tap(findNavButton(1));
+        await tester.tap(findNavDestination(1));
         await tester.pumpAndSettle();
-        expect(isSelected(tester, 1), isTrue);
+        expect(
+          tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
+          1,
+        );
         expect(find.byType(WalletsScreen), findsOneWidget);
         expect(find.byType(DashboardScreen), findsNothing);
-
-        await tester.tap(findNavButton(2));
+        await tester.tap(findNavDestination(2));
         await tester.pumpAndSettle();
-        expect(isSelected(tester, 2), isTrue);
+        expect(
+          tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
+          2,
+        );
         expect(find.byType(SettingsScreen), findsOneWidget);
         expect(find.byType(WalletsScreen), findsNothing);
-
-        await tester.tap(findNavButton(0));
+        await tester.tap(findNavDestination(0));
         await tester.pumpAndSettle();
-        expect(isSelected(tester, 0), isTrue);
+        expect(
+          tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
+          0,
+        );
         expect(find.byType(DashboardScreen), findsOneWidget);
         expect(find.byType(SettingsScreen), findsNothing);
       },
@@ -80,23 +87,26 @@ void main() {
           ),
         );
         expect(find.byType(DashboardScreen), findsOneWidget);
-        await tester.tap(findNavButton(1));
+        await tester.tap(findNavDestination(1));
         await tester.pumpAndSettle();
         expect(find.byType(WalletsScreen), findsOneWidget);
         router.go('/wallets/$walletId/transactions');
         await tester.pumpAndSettle();
         expect(find.byType(TransactionsScreen), findsOneWidget);
 
-        await tester.tap(findNavButton(2));
+        await tester.tap(findNavDestination(2));
         await tester.pumpAndSettle();
         expect(find.byType(SettingsScreen), findsOneWidget);
         expect(find.byType(TransactionsScreen), findsNothing);
 
         // Nested route state must survive a branch switch.
-        await tester.tap(findNavButton(1));
+        await tester.tap(findNavDestination(1));
         await tester.pumpAndSettle();
         expect(find.byType(TransactionsScreen), findsOneWidget);
-        expect(isSelected(tester, 1), isTrue);
+        expect(
+          tester.widget<NavigationBar>(findNavigationBar()).selectedIndex,
+          1,
+        );
       },
     );
   });

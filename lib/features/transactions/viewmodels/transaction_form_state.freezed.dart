@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TransactionFormState {
 
- String get amount; TransactionType get type; DateTime? get date; int? get walletId; int? get categoryId; String get description; String get note;
+ String get amount; TransactionType get type; DateTime? get date; int? get walletId; int? get categoryId; String get description;
 /// Create a copy of TransactionFormState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $TransactionFormStateCopyWith<TransactionFormState> get copyWith => _$Transactio
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransactionFormState&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.type, type) || other.type == type)&&(identical(other.date, date) || other.date == date)&&(identical(other.walletId, walletId) || other.walletId == walletId)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.description, description) || other.description == description)&&(identical(other.note, note) || other.note == note));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TransactionFormState&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.type, type) || other.type == type)&&(identical(other.date, date) || other.date == date)&&(identical(other.walletId, walletId) || other.walletId == walletId)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.description, description) || other.description == description));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,amount,type,date,walletId,categoryId,description,note);
+int get hashCode => Object.hash(runtimeType,amount,type,date,walletId,categoryId,description);
 
 @override
 String toString() {
-  return 'TransactionFormState(amount: $amount, type: $type, date: $date, walletId: $walletId, categoryId: $categoryId, description: $description, note: $note)';
+  return 'TransactionFormState(amount: $amount, type: $type, date: $date, walletId: $walletId, categoryId: $categoryId, description: $description)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $TransactionFormStateCopyWith<$Res>  {
   factory $TransactionFormStateCopyWith(TransactionFormState value, $Res Function(TransactionFormState) _then) = _$TransactionFormStateCopyWithImpl;
 @useResult
 $Res call({
- String amount, TransactionType type, DateTime? date, int? walletId, int? categoryId, String description, String note
+ String amount, TransactionType type, DateTime? date, int? walletId, int? categoryId, String description
 });
 
 
@@ -62,7 +62,7 @@ class _$TransactionFormStateCopyWithImpl<$Res>
 
 /// Create a copy of TransactionFormState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? amount = null,Object? type = null,Object? date = freezed,Object? walletId = freezed,Object? categoryId = freezed,Object? description = null,Object? note = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? amount = null,Object? type = null,Object? date = freezed,Object? walletId = freezed,Object? categoryId = freezed,Object? description = null,}) {
   return _then(_self.copyWith(
 amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
@@ -70,7 +70,6 @@ as TransactionType,date: freezed == date ? _self.date : date // ignore: cast_nul
 as DateTime?,walletId: freezed == walletId ? _self.walletId : walletId // ignore: cast_nullable_to_non_nullable
 as int?,categoryId: freezed == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
 as int?,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
-as String,note: null == note ? _self.note : note // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -156,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String amount,  TransactionType type,  DateTime? date,  int? walletId,  int? categoryId,  String description,  String note)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String amount,  TransactionType type,  DateTime? date,  int? walletId,  int? categoryId,  String description)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TransactionFormState() when $default != null:
-return $default(_that.amount,_that.type,_that.date,_that.walletId,_that.categoryId,_that.description,_that.note);case _:
+return $default(_that.amount,_that.type,_that.date,_that.walletId,_that.categoryId,_that.description);case _:
   return orElse();
 
 }
@@ -177,10 +176,10 @@ return $default(_that.amount,_that.type,_that.date,_that.walletId,_that.category
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String amount,  TransactionType type,  DateTime? date,  int? walletId,  int? categoryId,  String description,  String note)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String amount,  TransactionType type,  DateTime? date,  int? walletId,  int? categoryId,  String description)  $default,) {final _that = this;
 switch (_that) {
 case _TransactionFormState():
-return $default(_that.amount,_that.type,_that.date,_that.walletId,_that.categoryId,_that.description,_that.note);case _:
+return $default(_that.amount,_that.type,_that.date,_that.walletId,_that.categoryId,_that.description);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +196,10 @@ return $default(_that.amount,_that.type,_that.date,_that.walletId,_that.category
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String amount,  TransactionType type,  DateTime? date,  int? walletId,  int? categoryId,  String description,  String note)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String amount,  TransactionType type,  DateTime? date,  int? walletId,  int? categoryId,  String description)?  $default,) {final _that = this;
 switch (_that) {
 case _TransactionFormState() when $default != null:
-return $default(_that.amount,_that.type,_that.date,_that.walletId,_that.categoryId,_that.description,_that.note);case _:
+return $default(_that.amount,_that.type,_that.date,_that.walletId,_that.categoryId,_that.description);case _:
   return null;
 
 }
@@ -212,7 +211,7 @@ return $default(_that.amount,_that.type,_that.date,_that.walletId,_that.category
 
 
 class _TransactionFormState implements TransactionFormState {
-  const _TransactionFormState({this.amount = '', this.type = TransactionType.expense, this.date, this.walletId, this.categoryId, this.description = '', this.note = ''});
+  const _TransactionFormState({this.amount = '', this.type = TransactionType.expense, this.date, this.walletId, this.categoryId, this.description = ''});
   
 
 @override@JsonKey() final  String amount;
@@ -221,7 +220,6 @@ class _TransactionFormState implements TransactionFormState {
 @override final  int? walletId;
 @override final  int? categoryId;
 @override@JsonKey() final  String description;
-@override@JsonKey() final  String note;
 
 /// Create a copy of TransactionFormState
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +231,16 @@ _$TransactionFormStateCopyWith<_TransactionFormState> get copyWith => __$Transac
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransactionFormState&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.type, type) || other.type == type)&&(identical(other.date, date) || other.date == date)&&(identical(other.walletId, walletId) || other.walletId == walletId)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.description, description) || other.description == description)&&(identical(other.note, note) || other.note == note));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TransactionFormState&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.type, type) || other.type == type)&&(identical(other.date, date) || other.date == date)&&(identical(other.walletId, walletId) || other.walletId == walletId)&&(identical(other.categoryId, categoryId) || other.categoryId == categoryId)&&(identical(other.description, description) || other.description == description));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,amount,type,date,walletId,categoryId,description,note);
+int get hashCode => Object.hash(runtimeType,amount,type,date,walletId,categoryId,description);
 
 @override
 String toString() {
-  return 'TransactionFormState(amount: $amount, type: $type, date: $date, walletId: $walletId, categoryId: $categoryId, description: $description, note: $note)';
+  return 'TransactionFormState(amount: $amount, type: $type, date: $date, walletId: $walletId, categoryId: $categoryId, description: $description)';
 }
 
 
@@ -253,7 +251,7 @@ abstract mixin class _$TransactionFormStateCopyWith<$Res> implements $Transactio
   factory _$TransactionFormStateCopyWith(_TransactionFormState value, $Res Function(_TransactionFormState) _then) = __$TransactionFormStateCopyWithImpl;
 @override @useResult
 $Res call({
- String amount, TransactionType type, DateTime? date, int? walletId, int? categoryId, String description, String note
+ String amount, TransactionType type, DateTime? date, int? walletId, int? categoryId, String description
 });
 
 
@@ -270,7 +268,7 @@ class __$TransactionFormStateCopyWithImpl<$Res>
 
 /// Create a copy of TransactionFormState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? amount = null,Object? type = null,Object? date = freezed,Object? walletId = freezed,Object? categoryId = freezed,Object? description = null,Object? note = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? amount = null,Object? type = null,Object? date = freezed,Object? walletId = freezed,Object? categoryId = freezed,Object? description = null,}) {
   return _then(_TransactionFormState(
 amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
@@ -278,7 +276,6 @@ as TransactionType,date: freezed == date ? _self.date : date // ignore: cast_nul
 as DateTime?,walletId: freezed == walletId ? _self.walletId : walletId // ignore: cast_nullable_to_non_nullable
 as int?,categoryId: freezed == categoryId ? _self.categoryId : categoryId // ignore: cast_nullable_to_non_nullable
 as int?,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
-as String,note: null == note ? _self.note : note // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

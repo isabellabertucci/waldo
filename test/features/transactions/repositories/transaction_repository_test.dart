@@ -24,13 +24,10 @@ void main() {
     await db.close();
   });
 
-  Future<int> createWallet({
-    String name = 'Test Wallet',
-    int startingBalance = 0,
-  }) {
+  Future<int> createWallet({int startingBalance = 0}) {
     return walletRepo.insert(
       Wallet(
-        name: name,
+        name: 'Test Wallet',
         startingBalance: startingBalance,
         currentBalance: startingBalance,
         createdAt: '2026-08-10T12:00:00.000',
@@ -77,7 +74,7 @@ void main() {
 
     test('getByWallet only returns transactions for that wallet', () async {
       final walletA = await createWallet();
-      final walletB = await createWallet(name: 'Second Wallet');
+      final walletB = await createWallet();
       await repo.insert(
         Transaction(
           walletId: walletA,
@@ -105,10 +102,7 @@ void main() {
       'update reverses the old effect and applies the new one, even across wallets',
       () async {
         final walletA = await createWallet(startingBalance: 1000);
-        final walletB = await createWallet(
-          name: 'Second Wallet',
-          startingBalance: 1000,
-        );
+        final walletB = await createWallet(startingBalance: 1000);
         final id = await repo.insert(
           Transaction(
             walletId: walletA,
@@ -239,7 +233,7 @@ void main() {
     });
 
     test(
-      'deleting a category moves its transactions to Others, without deleting them',
+      'deleting a category sets categoryId to null on its transactions, without deleting them',
       () async {
         final categoryRepo = CategoryRepositoryImpl(db);
         final categoryId = await categoryRepo.insert(
@@ -265,44 +259,8 @@ void main() {
 
         final transaction = await repo.getById(transactionId);
         expect(transaction, isNotNull);
-        expect(transaction!.categoryId, (await categoryRepo.getOthers()).id);
+        expect(transaction!.categoryId, isNull);
       },
     );
-
-    test('insert persists the note', () async {
-      final walletId = await createWallet();
-      final id = await repo.insert(
-        Transaction(
-          walletId: walletId,
-          amount: 500,
-          type: TransactionType.expense,
-          date: '2026-08-10',
-          note: 'Split with Ana',
-          createdAt: '2026-08-10T12:00:00.000',
-        ),
-      );
-
-      final saved = await repo.getById(id);
-      expect(saved!.note, 'Split with Ana');
-    });
-
-    test('update changes the note', () async {
-      final walletId = await createWallet();
-      final id = await repo.insert(
-        Transaction(
-          walletId: walletId,
-          amount: 500,
-          type: TransactionType.expense,
-          date: '2026-08-10',
-          createdAt: '2026-08-10T12:00:00.000',
-        ),
-      );
-      final existing = await repo.getById(id);
-
-      await repo.update(existing!.copyWith(note: 'Added later'));
-
-      final updated = await repo.getById(id);
-      expect(updated!.note, 'Added later');
-    });
   });
 }

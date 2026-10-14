@@ -11,9 +11,7 @@ abstract class Category with _$Category {
     int? id,
     required String name,
     @Default(false) bool isDefault,
-    // Custom categories are named by the user; their type only matters for
-    // built-ins, so it defaults to the catch-all.
-    @Default(CategoryType.others) CategoryType type,
+    @Default(CategoryType.groceries) CategoryType type,
     required String createdAt,
   }) = _Category;
 

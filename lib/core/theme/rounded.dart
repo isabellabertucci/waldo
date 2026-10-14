@@ -1,9 +1,12 @@
-/// Corner radii: small (chips), medium (buttons), large (cards, dialogs), pill.
+import 'package:waldo/core/theme/spacing.dart';
+
 class Rounded {
   Rounded._();
 
-  static const double sm = 12;
-  static const double md = 20;
-  static const double lg = 28;
-  static const double pill = 9999;
+  static final sm = Spacing.sm;
+  static final md = Spacing.md;
+  static final lg = Spacing.lg;
+  static final xl = Spacing.xl;
+
+  static final pill = 9999.0;
 }

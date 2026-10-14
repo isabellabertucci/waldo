@@ -53,7 +53,7 @@ final class TransactionListViewModelProvider
 }
 
 String _$transactionListViewModelHash() =>
-    r'5773403b46919ee832b1dead60a4e01ec7973eef';
+    r'2f13e140e41e77dff5eb5233cfa726490e4bbbf1';
 
 final class TransactionListViewModelFamily extends $Family
     with
@@ -114,4 +114,79 @@ abstract class _$TransactionListViewModel
             >;
     element.handleValue(ref, created);
   }
+}
+
+@ProviderFor(transactionById)
+const transactionByIdProvider = TransactionByIdFamily._();
+
+final class TransactionByIdProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Transaction?>,
+          Transaction?,
+          FutureOr<Transaction?>
+        >
+    with $FutureModifier<Transaction?>, $FutureProvider<Transaction?> {
+  const TransactionByIdProvider._({
+    required TransactionByIdFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'transactionByIdProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$transactionByIdHash();
+
+  @override
+  String toString() {
+    return r'transactionByIdProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<Transaction?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Transaction?> create(Ref ref) {
+    final argument = this.argument as int;
+    return transactionById(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TransactionByIdProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$transactionByIdHash() => r'b4fe7118bb7b16481961fe4f004c0f50fce1079f';
+
+final class TransactionByIdFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<Transaction?>, int> {
+  const TransactionByIdFamily._()
+    : super(
+        retry: null,
+        name: r'transactionByIdProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  TransactionByIdProvider call(int id) =>
+      TransactionByIdProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'transactionByIdProvider';
 }

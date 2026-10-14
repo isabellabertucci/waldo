@@ -31,7 +31,6 @@ class TransactionsTable {
   static const type = 'type';
   static const date = 'date';
   static const description = 'description';
-  static const note = 'note';
   static const createdAt = 'created_at';
 }
 

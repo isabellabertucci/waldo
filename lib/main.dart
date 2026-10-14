@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
@@ -15,9 +14,6 @@ import 'l10n/app_localizations.dart';
 final _log = Logger('waldo');
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  // Draw behind the Android system bars, so they show the app's background.
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   initLogging();
   _log.info('App starting');
   installGlobalErrorLoggers();
@@ -36,21 +32,6 @@ ThemeMode _toThemeMode(bool? isDarkMode) {
     true => ThemeMode.dark,
     false => ThemeMode.light,
   };
-}
-
-SystemUiOverlayStyle _systemBarsStyle(BuildContext context) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  final icons = isDark ? Brightness.light : Brightness.dark;
-  final transparent = context.appColors.transparent;
-  return SystemUiOverlayStyle(
-    statusBarColor: transparent,
-    systemNavigationBarColor: transparent,
-    // Otherwise Android adds its own grey scrim behind the 3 buttons.
-    systemNavigationBarContrastEnforced: false,
-    statusBarIconBrightness: icons,
-    systemNavigationBarIconBrightness: icons,
-    statusBarBrightness: isDark ? Brightness.dark : Brightness.light, // iOS
-  );
 }
 
 class MyApp extends ConsumerWidget {
@@ -77,10 +58,6 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
-      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
-        value: _systemBarsStyle(context),
-        child: child!,
-      ),
     );
   }
 }

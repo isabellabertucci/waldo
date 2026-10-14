@@ -1,13 +1,8 @@
-import 'package:waldo/core/theme/app_icons.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-import 'package:waldo/core/constants/enums.dart';
-import 'package:waldo/core/utils/utils.dart';
-import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/settings/ui/settings_screen.dart';
-import 'package:waldo/features/settings/ui/widgets/settings_option_sheet.dart';
 
 import '../../../helpers/test_app.dart';
 
@@ -27,11 +22,13 @@ void main() {
     );
   }
 
-  testWidgets('Renders money and appearance rows', (tester) async {
+  testWidgets('Renders dark mode, currency, and date format rows', (
+    tester,
+  ) async {
     await pumpSettingsScreen(tester);
 
-    expect(find.text('USD'), findsOneWidget);
     expect(find.text('System'), findsOneWidget);
+    expect(find.text('USD'), findsOneWidget);
   });
 
   testWidgets('Tapping the theme row opens a sheet with theme options', (
@@ -42,57 +39,22 @@ void main() {
     await tester.tap(find.text('System').first);
     await tester.pumpAndSettle();
 
-    expect(find.byType(SettingsOptionSheet<bool?>), findsOneWidget);
     expect(find.text('Light'), findsOneWidget);
     expect(find.text('Dark'), findsOneWidget);
   });
 
-  testWidgets(
-    'Picking an option only highlights it - Done is what commits it',
-    (tester) async {
-      await pumpSettingsScreen(tester);
-
-      await tester.tap(find.text('System').first);
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Dark'));
-      await tester.pumpAndSettle();
-
-      // Still open, and the row behind the sheet hasn't changed yet - its
-      // "System" value plus the sheet's own "System" option label.
-      expect(find.byType(SettingsOptionSheet<bool?>), findsOneWidget);
-      expect(find.text('System'), findsNWidgets(2));
-    },
-  );
-
-  testWidgets('Confirming with Done closes the sheet and updates the row', (
+  testWidgets('Selecting dark theme closes the sheet and updates the row', (
     tester,
   ) async {
     await pumpSettingsScreen(tester);
 
     await tester.tap(find.text('System').first);
     await tester.pumpAndSettle();
+
     await tester.tap(find.text('Dark'));
-    await tester.tap(find.text('Done'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(SettingsOptionSheet<bool?>), findsNothing);
     expect(find.text('Dark'), findsOneWidget);
-  });
-
-  testWidgets('Closing with the X button discards the pick', (tester) async {
-    await pumpSettingsScreen(tester);
-
-    await tester.tap(find.text('System').first);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Dark'));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byIcon(AppIcons.close));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(SettingsOptionSheet<bool?>), findsNothing);
-    expect(find.text('System'), findsOneWidget);
   });
 
   testWidgets('Selecting dark theme persists across reloads', (tester) async {
@@ -101,7 +63,6 @@ void main() {
     await tester.tap(find.text('System').first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Dark'));
-    await tester.tap(find.text('Done'));
     await tester.pumpAndSettle();
 
     await pumpSettingsScreen(tester, db: currentDb);
@@ -117,42 +78,9 @@ void main() {
     await tester.tap(find.text('USD').first);
     await tester.pumpAndSettle();
 
-    expect(find.byType(SettingsOptionSheet<Currency>), findsOneWidget);
-    expect(find.text('US dollar'), findsOneWidget);
-    expect(find.text('Euro'), findsOneWidget);
-    expect(find.text('British pound'), findsOneWidget);
-    expect(
-      find.text(
-        'This changes the symbol only. Your amounts stay the same and are not converted.',
-      ),
-      findsOneWidget,
-    );
-  });
-
-  testWidgets('With the balance hidden, the currency sheet hides the total', (
-    tester,
-  ) async {
-    await pumpSettingsScreen(tester);
-    ProviderScope.containerOf(
-      tester.element(find.byType(SettingsScreen)),
-    ).read(balanceHiddenProvider.notifier).toggle();
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('USD').first);
-    await tester.pumpAndSettle();
-
-    expect(find.text('USD · $hiddenAmount'), findsOneWidget);
-    expect(find.textContaining('0.00'), findsNothing);
-  });
-
-  testWidgets('The option sheet close button is named for screen readers', (
-    tester,
-  ) async {
-    await pumpSettingsScreen(tester);
-    await tester.tap(find.text('System').first);
-    await tester.pumpAndSettle();
-
-    expect(find.byTooltip('Close'), findsOneWidget);
+    expect(find.text('USD (\$)'), findsOneWidget);
+    expect(find.text('EUR (€)'), findsOneWidget);
+    expect(find.text('GBP (£)'), findsOneWidget);
   });
 
   testWidgets('Selecting a currency persists across reloads', (tester) async {
@@ -160,8 +88,7 @@ void main() {
 
     await tester.tap(find.text('USD').first);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Euro'));
-    await tester.tap(find.text('Done'));
+    await tester.tap(find.text('EUR (€)'));
     await tester.pumpAndSettle();
 
     await pumpSettingsScreen(tester, db: currentDb);
@@ -174,17 +101,9 @@ void main() {
   ) async {
     await pumpSettingsScreen(tester);
 
-    await tester.tap(find.text('Date format'));
+    await tester.tap(find.byIcon(Icons.calendar_today_outlined));
     await tester.pumpAndSettle();
 
-    expect(find.byType(SettingsOptionSheet<String>), findsOneWidget);
-    // One icon per format option in the sheet.
-    expect(
-      find.descendant(
-        of: find.byType(SettingsOptionSheet<String>),
-        matching: find.byIcon(AppIcons.calendar),
-      ),
-      findsNWidgets(3),
-    );
+    expect(find.byType(RadioListTile<String>), findsNWidgets(3));
   });
 }
