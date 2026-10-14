@@ -30,6 +30,7 @@ class TransactionRow extends StatelessWidget {
     required this.dateFormat,
     required this.onTap,
     this.category,
+    this.isAmountHidden = false,
   });
 
   final Transaction transaction;
@@ -37,6 +38,9 @@ class TransactionRow extends StatelessWidget {
   final DateFormat dateFormat;
   final VoidCallback onTap;
   final Category? category;
+
+  /// Shows [hiddenAmount] instead of the figure (the eye toggle).
+  final bool isAmountHidden;
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +101,9 @@ class TransactionRow extends StatelessWidget {
               ),
             ),
             Text(
-              '$sign${formatCents(transaction.amount, currencyCode: currency.code)}',
+              isAmountHidden
+                  ? hiddenAmount
+                  : '$sign${formatCents(transaction.amount, currencyCode: currency.code)}',
               style: context.labelLgStrong.copyWith(color: color),
             ),
           ],
@@ -118,6 +124,7 @@ class TransactionGroupCard extends StatelessWidget {
     required this.dateFormat,
     required this.onTapTransaction,
     this.categoriesById,
+    this.isAmountHidden = false,
   });
 
   final List<Transaction> transactions;
@@ -125,6 +132,7 @@ class TransactionGroupCard extends StatelessWidget {
   final DateFormat dateFormat;
   final ValueChanged<Transaction> onTapTransaction;
   final Map<int, Category>? categoriesById;
+  final bool isAmountHidden;
 
   @override
   Widget build(BuildContext context) {
@@ -139,6 +147,7 @@ class TransactionGroupCard extends StatelessWidget {
               currency: currency,
               dateFormat: dateFormat,
               category: categoriesById?[transactions[i].categoryId],
+              isAmountHidden: isAmountHidden,
               onTap: () => onTapTransaction(transactions[i]),
             ),
             if (i != transactions.length - 1)

@@ -450,8 +450,8 @@ The middle ground most systems have (8-16px) is intentionally absent.
   above. If a future screen needs one of these roles, add it deliberately
   rather than letting it fall back to a Material default.
 - **`on-error`:** resolved without a new token during Phase 2 - every
-  filled-`error` surface (the destructive confirm button, selected option
-  badges) uses `colors.onPrimary`, which already contrasts correctly against
+  filled-`error` surface (the destructive confirm button) uses
+  `colors.onPrimary`, which already contrasts correctly against
   `error` in both themes (verified case by case, see
   `lib/core/widgets/confirmation_dialog.dart`). `ColorScheme.onError` is
   mapped the same way in `app_theme.dart`.

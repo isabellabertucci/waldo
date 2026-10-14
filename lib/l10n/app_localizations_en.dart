@@ -95,6 +95,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get close => 'Close';
 
   @override
+  String get back => 'Back';
+
+  @override
+  String get deleteDigit => 'Delete digit';
+
+  @override
+  String get hideBalance => 'Hide balance';
+
+  @override
+  String get showBalance => 'Show balance';
+
+  @override
   String get edit => 'Edit';
 
   @override
@@ -349,6 +361,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get uncategorized => 'Uncategorized';
+
+  @override
   String get savedLabel => 'Saved';
 
   @override
@@ -434,6 +449,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String savedPercentThisMonth(String percent) {
     return 'Saved $percent this month';
+  }
+
+  @override
+  String overspentPercentThisMonth(String percent) {
+    return 'Spent $percent more than you received';
   }
 
   @override

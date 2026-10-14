@@ -1,20 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/icon_size.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:waldo/core/constants/enums.dart';
-import 'package:waldo/core/router/app_router.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
+import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/circle_icon_button.dart';
+import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/wallet_card_finish.dart';
+import 'package:waldo/features/categories/categories_x.dart';
+import 'package:waldo/features/categories/models/category.dart';
+import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
+import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
+import 'package:waldo/features/wallets/models/wallet.dart';
+import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
+import 'package:waldo/features/wallets/wallets_x.dart';
+import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../../core/widgets/empty_state.dart';
+import 'package:waldo/core/widgets/eye_icon.dart';
 import '../models/transaction.dart';
+import '../models/transaction_filter.dart';
 import '../viewmodels/transaction_list_view_model.dart';
+import 'widgets/transaction_edit_sheet.dart';
 import 'widgets/transaction_form_sheet.dart';
-import 'package:waldo/core/widgets/transaction_list_tile.dart';
-import 'package:waldo/features/wallets/viewmodels/wallet_providers.dart';
-import 'package:waldo/l10n/app_localizations.dart';
+import 'widgets/transaction_filter_sheet.dart';
 
 class TransactionsScreen extends ConsumerWidget {
   const TransactionsScreen({super.key, required this.walletId});
@@ -24,208 +39,593 @@ class TransactionsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final walletAsync = ref.watch(walletByIdProvider(walletId));
+    // Reuses the Wallets screen's own (already-loaded) list instead of a
+    // fresh per-id fetch - that fetch's own loading frame was the header
+    // (and its Hero thumbnail) not existing yet on the very first frame
+    // after the push, which made Flutter skip the push's Hero flight
+    // entirely and only ever fly it on the pop back to a fully-settled
+    // Wallets screen.
+    final walletsAsync = ref.watch(walletListViewModelProvider());
     final transactionsAsync = ref.watch(
       transactionListViewModelProvider(walletId: walletId),
     );
-    final walletName = switch (walletAsync) {
-      AsyncData(:final value) => value?.name ?? l10n.transactions,
-      _ => l10n.transactions,
+    final wallet = switch (walletsAsync) {
+      AsyncValue(:final value?) =>
+        value.where((w) => w.id == walletId).firstOrNull,
+      _ => null,
     };
 
-    return Scaffold(
-      appBar: AppBar(title: Text(walletName)),
-      body: switch (transactionsAsync) {
-        AsyncError() => Center(child: Text(l10n.transactionsError)),
-        AsyncData(:final value) => _TransactionsBody(
-          transactions: value,
-          walletId: walletId,
-        ),
-        _ => const Center(child: CircularProgressIndicator()),
-      },
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            builder: (_) => TransactionFormSheet(initialWalletId: walletId),
-          );
+    final Widget body;
+    if (walletsAsync.hasError || transactionsAsync.hasError) {
+      body = Center(child: Text(l10n.walletsError));
+    } else if (wallet != null) {
+      body = _TransactionsBody(
+        wallet: wallet,
+        walletId: walletId,
+        transactions: switch (transactionsAsync) {
+          AsyncValue(:final value?) => value,
+          _ => null,
         },
-        child: const Icon(Icons.add),
-      ),
-    );
+      );
+    } else if (walletsAsync.hasValue) {
+      body = Center(child: Text(l10n.walletsError));
+    } else {
+      body = const Center(child: CircularProgressIndicator());
+    }
+
+    return Scaffold(body: SafeArea(child: body));
   }
 }
 
-class _TransactionsBody extends ConsumerWidget {
-  const _TransactionsBody({required this.transactions, required this.walletId});
+class _TransactionsBody extends ConsumerStatefulWidget {
+  const _TransactionsBody({
+    required this.wallet,
+    required this.walletId,
+    required this.transactions,
+  });
 
-  final List<Transaction> transactions;
+  final Wallet wallet;
   final int walletId;
+  // Null while the transactions list is still loading - the header above
+  // (name, balance, Hero thumbnail) doesn't wait on it, only this list does.
+  final List<Transaction>? transactions;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_TransactionsBody> createState() => _TransactionsBodyState();
+}
+
+class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
+  late TransactionFilter _filter;
+
+  // The Hero only needs to exist for the push's own flight - once that
+  // finishes, it's dropped, so a later pop back to the Wallets screen finds
+  // no matching Hero here and just does a plain page transition instead of
+  // flying the thumbnail back into the card.
+  bool _showHero = true;
+  Animation<double>? _routeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    final now = ref.read(clockProvider)();
+    _filter = TransactionFilter(month: DateTime(now.year, now.month));
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final animation = ModalRoute.of(context)?.animation;
+    if (animation != _routeAnimation) {
+      _routeAnimation?.removeStatusListener(_handleRouteAnimationStatus);
+      _routeAnimation = animation;
+      _routeAnimation?.addStatusListener(_handleRouteAnimationStatus);
+    }
+  }
+
+  void _handleRouteAnimationStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed && mounted) {
+      setState(() => _showHero = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _routeAnimation?.removeStatusListener(_handleRouteAnimationStatus);
+    super.dispose();
+  }
+
+  List<Transaction> _applyFilter(TransactionFilter filter) {
+    final transactions = widget.transactions;
+    if (transactions == null) return const [];
+    return transactions.where(filter.matches).toList();
+  }
+
+  Future<void> _openFilterSheet(String locale) async {
+    final result = await showModalBottomSheet<TransactionFilter>(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      builder: (_) => TransactionFilterSheet(
+        initial: _filter,
+        locale: locale,
+        now: ref.read(clockProvider)(),
+        countForFilter: (f) => _applyFilter(f).length,
+      ),
+    );
+    if (result != null && mounted) setState(() => _filter = result);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = context.appColors;
+    final locale = Localizations.localeOf(context).toString();
+    final now = ref.watch(clockProvider)();
+    final filterMonthLabel = _filter.month.year == now.year
+        ? DateFormat.MMMM(locale).format(_filter.month)
+        : DateFormat.yMMMM(locale).format(_filter.month);
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
     final currency = switch (preferencesAsync) {
-      AsyncData(:final value) => value.currency,
+      AsyncValue(:final value?) => value.currency,
       _ => Currency.usd,
     };
-    final dateFormatPattern = switch (preferencesAsync) {
-      AsyncData(:final value) => value.dateFormat,
-      _ => 'yyyy-MM-dd',
+    final categoriesAsync = ref.watch(categoryListViewModelProvider);
+    final categoriesById = switch (categoriesAsync) {
+      AsyncValue(:final value?) => {
+        for (final c in value)
+          if (c.id != null) c.id!: c,
+      },
+      _ => const <int, Category>{},
     };
+    final isBalanceHidden = ref.watch(balanceHiddenProvider);
+    final filtered = _applyFilter(_filter);
+    // Same order the Wallets stack lists them in, so the same wallet always
+    // gets the same finish here as it does on its own card there.
+    final walletsAsync = ref.watch(walletListViewModelProvider());
+    final walletIndex = switch (walletsAsync) {
+      AsyncValue(:final value?) => value.indexWhere(
+        (w) => w.id == widget.walletId,
+      ),
+      _ => -1,
+    };
+    final finish = WalletCardFinish.fromIndex(
+      walletIndex < 0 ? 0 : walletIndex,
+    );
 
-    if (transactions.isEmpty) {
-      return EmptyState(
-        icon: Icons.receipt_long_outlined,
-        title: l10n.noTransactionsYet,
-        subtitle: l10n.addFirstTransaction,
-      );
-    }
-
-    final income = transactions
-        .where((t) => t.type == TransactionType.income)
-        .fold<int>(0, (sum, t) => sum + t.amount);
-    final expense = transactions
-        .where((t) => t.type == TransactionType.expense)
-        .fold<int>(0, (sum, t) => sum + t.amount);
-
-    final dateFormat = DateFormat(dateFormatPattern);
+    final typeLabel = switch (_filter.type) {
+      null => l10n.filterTypeAll,
+      TransactionType.income => l10n.transactionTypeIncome,
+      TransactionType.expense => l10n.transactionTypeExpense,
+    };
 
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(
-            Spacing.md,
-            Spacing.md,
-            Spacing.md,
+            Spacing.pageMargin,
+            Spacing.xs,
+            Spacing.pageMargin,
             0,
           ),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              l10n.transactions,
-              style: context.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CircleIconButton(
+                tooltip: l10n.back,
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Icon(Icons.chevron_left_rounded),
+              ),
+              Row(
+                children: [
+                  DashedStitchButton(
+                    icon: const Icon(AppIcons.add),
+                    tooltip: l10n.newTransaction,
+                    onPressed: () => showTransactionFormSheet(
+                      context,
+                      initialWalletId: widget.walletId,
+                    ),
+                  ),
+                  const SizedBox(width: Spacing.xs),
+                  CircleIconButton(
+                    tooltip: isBalanceHidden
+                        ? l10n.showBalance
+                        : l10n.hideBalance,
+                    onPressed: () =>
+                        ref.read(balanceHiddenProvider.notifier).toggle(),
+                    child: EyeIcon(
+                      color: colors.onSurface,
+                      hidden: isBalanceHidden,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: Spacing.md),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Spacing.pageMargin),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(Rounded.sm),
+                child: SizedBox(
+                  width: 52,
+                  height: 40,
+                  // Same finish as the wallet's own card on the Wallets
+                  // screen, and a Hero flight back to it on the way in -
+                  // dropped once that flight finishes (see `_showHero`), so
+                  // popping back doesn't fly it a second time in reverse.
+                  child: _showHero
+                      ? Hero(
+                          tag: 'walletCardBg_${widget.walletId}',
+                          child: WalletCardBackground(finish: finish),
+                        )
+                      : WalletCardBackground(finish: finish),
+                ),
+              ),
+              const SizedBox(width: Spacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // The name leads as a real headline now; type and
+                    // balance share one caption line below it, with the
+                    // balance in bold so it still reads as the key number.
+                    Text(
+                      widget.wallet.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.headlineLgStrong,
+                    ),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '${widget.wallet.type.label(l10n)} · ',
+                          ),
+                          TextSpan(
+                            text: isBalanceHidden
+                                ? hiddenAmount
+                                : formatCents(
+                                    widget.wallet.currentBalance,
+                                    currencyCode: currency.code,
+                                  ),
+                            // one-off: inherits the surrounding line's style
+                            // and only bolds the balance figure - not a base
+                            // type-scale role, so no named getter fits.
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              color:
+                                  !isBalanceHidden &&
+                                      widget.wallet.currentBalance < 0
+                                  ? colors.error
+                                  : colors.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: Spacing.md),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Spacing.pageMargin),
+          child: Material(
+            color: colors.surface,
+            borderRadius: BorderRadius.circular(Rounded.pill),
+            child: Semantics(
+              button: true,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(Rounded.pill),
+                onTap: () => _openFilterSheet(locale),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.sm,
+                    vertical: Spacing.sm,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.filter_list_rounded,
+                        size: IconSize.lg,
+                        color: colors.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: Spacing.xs),
+                      Text(filterMonthLabel, style: context.bodyMdBold),
+                      const SizedBox(width: Spacing.xxs),
+                      Expanded(
+                        child: Text(
+                          '· ${l10n.filterChipLabel(typeLabel)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.textTheme.bodyMedium?.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
         ),
-        _SummaryHeader(income: income, expense: expense, currency: currency),
         Expanded(
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(
-              horizontal: Spacing.md,
-              vertical: Spacing.md,
-            ),
-            separatorBuilder: (context, index) =>
-                const SizedBox(height: Spacing.md),
-            itemCount: transactions.length,
-            itemBuilder: (context, index) {
-              final transaction = transactions[index];
-              return TransactionListTile(
-                transaction: transaction,
-                currency: currency,
-                dateFormat: dateFormat,
-                onTap: () {
-                  TransactionDetailRoute(
-                    walletId,
-                    transaction.id!,
-                  ).push(context);
-                },
-              );
-            },
-          ),
+          child: widget.transactions == null
+              ? const Center(child: CircularProgressIndicator())
+              : widget.transactions!.isEmpty
+              ? EmptyState(
+                  icon: Icons.receipt_long_outlined,
+                  title: l10n.noTransactionsYet,
+                  subtitle: l10n.addFirstTransaction,
+                )
+              : filtered.isEmpty
+              ? EmptyState(
+                  icon: Icons.receipt_long_outlined,
+                  title: l10n.noTransactionsForFilter,
+                )
+              : _GroupedList(
+                  transactions: filtered,
+                  categoriesById: categoriesById,
+                  currency: currency,
+                  locale: locale,
+                  now: now,
+                  isAmountHidden: isBalanceHidden,
+                ),
         ),
       ],
     );
   }
 }
 
-class _SummaryHeader extends StatelessWidget {
-  const _SummaryHeader({
-    required this.income,
-    required this.expense,
+class _GroupedList extends StatelessWidget {
+  const _GroupedList({
+    required this.transactions,
+    required this.categoriesById,
     required this.currency,
+    required this.locale,
+    required this.now,
+    required this.isAmountHidden,
   });
 
-  final int income;
-  final int expense;
+  final List<Transaction> transactions;
+  final Map<int, Category> categoriesById;
   final Currency currency;
+  final String locale;
+  final DateTime now;
+  final bool isAmountHidden;
+
+  Map<DateTime, List<Transaction>> _groupByDay() {
+    final groups = <DateTime, List<Transaction>>{};
+    for (final t in transactions) {
+      final date = DateTime.parse(t.date);
+      final day = DateTime(date.year, date.month, date.day);
+      groups.putIfAbsent(day, () => []).add(t);
+    }
+    return groups;
+  }
+
+  String _dayLabel(AppLocalizations l10n, DateTime day) {
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    if (day == today) return l10n.transactionsGroupToday.toUpperCase();
+    if (day == yesterday) return l10n.transactionsGroupYesterday.toUpperCase();
+    return DateFormat('EEE d MMM', locale).format(day).toUpperCase();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
+    final groups = _groupByDay();
+    final days = groups.keys.toList();
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(Spacing.lg, Spacing.lg, Spacing.lg, 0),
-      child: Row(
-        children: [
-          Expanded(
-            child: _SummaryStat(
-              label: l10n.transactionTypeIncome,
-              value: '+${formatCents(income, currencyCode: currency.code)}',
-              color: colors.primaryStrong,
-            ),
-          ),
-          const SizedBox(width: Spacing.md),
-          Expanded(
-            child: _SummaryStat(
-              label: l10n.transactionTypeExpense,
-              value: '-${formatCents(expense, currencyCode: currency.code)}',
-              color: colors.error,
-            ),
-          ),
-        ],
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(
+        Spacing.pageMargin,
+        Spacing.md,
+        Spacing.pageMargin,
+        Spacing.lg + 72,
       ),
+      itemCount: days.length,
+      itemBuilder: (context, index) {
+        final day = days[index];
+        final dayTransactions = groups[day]!;
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: Spacing.lg - 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: Text(
+                  _dayLabel(l10n, day),
+                  style: context.labelSmBold.copyWith(
+                    color: colors.onSurfaceVariant,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+              ),
+              const SizedBox(height: Spacing.xs),
+              Container(
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(Rounded.md),
+                ),
+                child: Column(
+                  children: [
+                    for (var i = 0; i < dayTransactions.length; i++) ...[
+                      _TransactionRow(
+                        transaction: dayTransactions[i],
+                        category: categoriesById[dayTransactions[i].categoryId],
+                        currency: currency,
+                        isAmountHidden: isAmountHidden,
+                      ),
+                      if (i < dayTransactions.length - 1)
+                        Divider(
+                          height: 1,
+                          indent: Spacing.sm + 36 + Spacing.sm,
+                          endIndent: Spacing.sm,
+                          color: colors.onSurfaceVariant.withValues(alpha: 0.1),
+                        ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
 
-class _SummaryStat extends StatelessWidget {
-  const _SummaryStat({
-    required this.label,
-    required this.value,
-    required this.color,
+class _TransactionRow extends StatelessWidget {
+  const _TransactionRow({
+    required this.transaction,
+    required this.category,
+    required this.currency,
+    required this.isAmountHidden,
   });
 
-  final String label;
-  final String value;
-  final Color color;
+  final Transaction transaction;
+  final Category? category;
+  final Currency currency;
+  final bool isAmountHidden;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Spacing.md,
-        vertical: Spacing.lg,
-      ),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: context.textTheme.bodySmall?.copyWith(
-              color: colors.onSurfaceVariant,
+    final isIncome = transaction.type == TransactionType.income;
+    final amountColor = isIncome ? colors.primaryStrong : colors.error;
+    final sign = isIncome ? '+' : '-';
+    final description = transaction.description?.trim();
+    final categoryLabel = category == null
+        ? null
+        : (category!.isDefault ? category!.type.label(l10n) : category!.name);
+
+    return InkWell(
+      // A plain tap opens a read-only view - only the "⋯" menu's Edit
+      // action opens it editable, so chevrons never appear by accident.
+      onTap: () => showTransactionEditSheet(context, transaction: transaction),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: Spacing.sm,
+          vertical: Spacing.sm,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: colors.onSurface.withValues(alpha: 0.06),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                category?.type.icon ?? AppIcons.receipt,
+                size: IconSize.md,
+                color: colors.onSurface,
+              ),
             ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            style: context.textTheme.titleMedium?.copyWith(
-              color: color,
-              fontWeight: FontWeight.bold,
+            const SizedBox(width: Spacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    description == null || description.isEmpty
+                        ? l10n.transactionDefaultDescription
+                        : description,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.bodyMdBold,
+                  ),
+                  Text(
+                    categoryLabel ?? l10n.uncategorized,
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            Text(
+              isAmountHidden
+                  ? hiddenAmount
+                  : '$sign${formatCents(transaction.amount, currencyCode: currency.code)}',
+              style: context.bodyMdBold.copyWith(color: amountColor),
+            ),
+            PopupMenuButton<_RowAction>(
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(Rounded.md),
+              ),
+              icon: Icon(
+                AppIcons.more,
+                size: IconSize.lg,
+                color: colors.onSurfaceVariant,
+              ),
+              onSelected: (action) {
+                switch (action) {
+                  case _RowAction.edit:
+                    showTransactionEditSheet(
+                      context,
+                      transaction: transaction,
+                      startInEditMode: true,
+                    );
+                  case _RowAction.delete:
+                    deleteTransactionWithUndo(context, transaction);
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: _RowAction.edit,
+                  child: Row(
+                    children: [
+                      const Icon(AppIcons.edit, size: IconSize.lg),
+                      const SizedBox(width: Spacing.xs),
+                      Text(l10n.edit),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: _RowAction.delete,
+                  child: Row(
+                    children: [
+                      Icon(
+                        AppIcons.delete,
+                        size: IconSize.lg,
+                        color: colors.error,
+                      ),
+                      const SizedBox(width: Spacing.xs),
+                      Text(l10n.delete, style: TextStyle(color: colors.error)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+
+enum _RowAction { edit, delete }

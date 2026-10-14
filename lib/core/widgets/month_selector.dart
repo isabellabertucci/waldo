@@ -159,7 +159,12 @@ class _MonthSelectorState extends State<MonthSelector> {
                       for (final month in widget.months) ...[
                         _MonthPill(
                           key: _itemKeys[month],
-                          label: DateFormat.MMMM(widget.locale).format(month),
+                          // A month from another year carries its year, so
+                          // e.g. last November and next November never read
+                          // as the same pill.
+                          label: month.year == widget.currentMonth.year
+                              ? DateFormat.MMMM(widget.locale).format(month)
+                              : DateFormat.yMMM(widget.locale).format(month),
                           selected: month == widget.selectedMonth,
                           // Defensive, not just decorative - nothing past
                           // the real current month is a month that could

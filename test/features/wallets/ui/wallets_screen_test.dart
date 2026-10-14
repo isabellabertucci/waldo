@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/features/wallets/ui/wallets_screen.dart';
 
 import '../../../helpers/test_app.dart';
@@ -15,6 +17,12 @@ void main() {
   });
 
   Future<void> pumpWalletsScreen(WidgetTester tester, {Database? db}) async {
+    // The fixed total bar + card stack is taller than the default 800x600
+    // test surface.
+    tester.view.physicalSize = const Size(400, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
     currentDb = await pumpWidgetWithProviders(
       tester,
       const WalletsScreen(),
@@ -23,18 +31,20 @@ void main() {
   }
 
   Future<void> createWallet(WidgetTester tester, String name) async {
-    await tester.tap(find.byIcon(Icons.add));
+    // The add button is the header's dashed-stitch pill now, not a
+    // FloatingActionButton.
+    await tester.tap(find.byType(DashedStitchButton));
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.widgetWithText(TextFormField, 'Name'), name);
-    await tester.tap(find.text('Save'));
+    await tester.enterText(find.byKey(const Key('walletNameField')), name);
+    await tester.tap(find.text('Create wallet'));
     await tester.pumpAndSettle();
   }
 
-  /// Opens the wallet's overflow menu and taps "Delete", which triggers
-  /// the confirmation dialog to open.
+  /// Opens the wallet card's overflow menu ("⋯") and taps "Delete", which
+  /// triggers the confirmation dialog to open.
   Future<void> openDeleteMenu(WidgetTester tester) async {
-    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.tap(find.byIcon(AppIcons.more));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
@@ -54,13 +64,44 @@ void main() {
     expect(find.text('No wallets yet'), findsNothing);
   });
 
+  testWidgets('Starting balance accepts a comma as the decimal separator', (
+    tester,
+  ) async {
+    await pumpWalletsScreen(tester);
+    await tester.tap(find.byType(DashedStitchButton));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('walletNameField')), 'Cash');
+    // The decimal key on a Portuguese numeric keyboard types ','.
+    await tester.enterText(
+      find.byKey(const Key('walletBalanceField')),
+      '10,50',
+    );
+    await tester.tap(find.text('Create wallet'));
+    await tester.pumpAndSettle();
+
+    expect(find.text(r'$10.50'), findsWidgets);
+  });
+
+  testWidgets('The add and eye buttons have accessible names', (tester) async {
+    await pumpWalletsScreen(tester);
+    await tester.tap(find.byType(DashedStitchButton));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('walletNameField')), 'Cash');
+    await tester.tap(find.text('Create wallet'));
+    await tester.pumpAndSettle();
+
+    expect(find.byTooltip('New Wallet'), findsOneWidget);
+    expect(find.byTooltip('Hide balance'), findsOneWidget);
+  });
+
   testWidgets('Shows validation error when name is empty', (tester) async {
     await pumpWalletsScreen(tester);
 
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.byIcon(AppIcons.add));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Save'));
+    await tester.tap(find.text('Create wallet'));
     await tester.pumpAndSettle();
 
     expect(find.text('Name is required'), findsOneWidget);
@@ -143,4 +184,24 @@ void main() {
       expect(find.text('No wallets yet'), findsOneWidget);
     },
   );
+
+  testWidgets('Every wallet gets its own card, even past the third one', (
+    tester,
+  ) async {
+    await pumpWalletsScreen(tester);
+    await createWallet(tester, 'First');
+    await createWallet(tester, 'Second');
+    await createWallet(tester, 'Third');
+    await createWallet(tester, 'Fourth');
+    await createWallet(tester, 'Fifth');
+
+    // All 5 wallet names exist in the widget tree (the stack lays every
+    // card out, even the ones scrolled out of the visible viewport) -
+    // this is the "more than 3 cards disappear" regression check.
+    expect(find.text('First'), findsOneWidget);
+    expect(find.text('Second'), findsOneWidget);
+    expect(find.text('Third'), findsOneWidget);
+    expect(find.text('Fourth'), findsOneWidget);
+    expect(find.text('Fifth'), findsOneWidget);
+  });
 }
