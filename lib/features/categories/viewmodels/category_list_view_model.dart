@@ -25,7 +25,6 @@ class CategoryListViewModel extends _$CategoryListViewModel {
     final repo = await ref.read(categoryRepositoryProvider.future);
     await repo.delete(id);
     ref.invalidate(transactionListViewModelProvider);
-    ref.invalidate(transactionByIdProvider);
     ref.invalidate(dashboardViewModelProvider);
   }
 

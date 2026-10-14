@@ -114,6 +114,22 @@
   "@close": {
     "description": "Accessibility label and tooltip for the button that closes a sheet"
   },
+  "back": "Back",
+  "@back": {
+    "description": "Accessibility label and tooltip for a back/chevron-left button"
+  },
+  "deleteDigit": "Delete digit",
+  "@deleteDigit": {
+    "description": "Accessibility label and tooltip for the backspace key on the amount keypad"
+  },
+  "hideBalance": "Hide balance",
+  "@hideBalance": {
+    "description": "Accessibility label and tooltip for the eye button when amounts are visible - tapping it masks them"
+  },
+  "showBalance": "Show balance",
+  "@showBalance": {
+    "description": "Accessibility label and tooltip for the eye button when amounts are masked - tapping it reveals them"
+  },
   "edit": "Edit",
   "@edit": {
     "description": "Edit action label"
@@ -448,6 +464,10 @@
       }
     }
   },
+  "uncategorized": "Uncategorized",
+  "@uncategorized": {
+    "description": "Receipt line for this month's expenses that have no category (never set, or their category was deleted)"
+  },
   "savedLabel": "Saved",
   "@savedLabel": {
     "description": "Label for the net amount saved this month, shown (uppercased) as the total row in the dashboard's receipt summary"
@@ -550,6 +570,15 @@
   "savedPercentThisMonth": "Saved {percent} this month",
   "@savedPercentThisMonth": {
     "description": "Caption on the wallets screen's fixed total balance bar showing this month's savings rate, e.g. 'Saved 60% this month' - percent is pre-formatted",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "overspentPercentThisMonth": "Spent {percent} more than you received",
+  "@overspentPercentThisMonth": {
+    "description": "Caption on the wallets screen when this month's expenses exceed its income, e.g. 'Spent 50% more than you received' - percent is pre-formatted and positive",
     "placeholders": {
       "percent": {
         "type": "String"

@@ -7,6 +7,7 @@ import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/empty_state.dart';
 import 'package:waldo/core/widgets/transaction_list_tile.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
+import 'package:waldo/features/transactions/ui/widgets/transaction_edit_sheet.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 class RecentTransactionsList extends StatelessWidget {
@@ -80,12 +81,8 @@ class RecentTransactionsList extends StatelessWidget {
                 transaction: transaction,
                 currency: currency,
                 dateFormat: dateFormat,
-                onTap: () {
-                  TransactionDetailRoute(
-                    transaction.walletId,
-                    transaction.id!,
-                  ).push(context);
-                },
+                onTap: () =>
+                    showTransactionEditSheet(context, transaction: transaction),
               );
             },
           ),

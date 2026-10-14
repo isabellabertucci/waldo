@@ -260,6 +260,30 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get close;
 
+  /// Accessibility label and tooltip for a back/chevron-left button
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// Accessibility label and tooltip for the backspace key on the amount keypad
+  ///
+  /// In en, this message translates to:
+  /// **'Delete digit'**
+  String get deleteDigit;
+
+  /// Accessibility label and tooltip for the eye button when amounts are visible - tapping it masks them
+  ///
+  /// In en, this message translates to:
+  /// **'Hide balance'**
+  String get hideBalance;
+
+  /// Accessibility label and tooltip for the eye button when amounts are masked - tapping it reveals them
+  ///
+  /// In en, this message translates to:
+  /// **'Show balance'**
+  String get showBalance;
+
   /// Edit action label
   ///
   /// In en, this message translates to:
@@ -734,6 +758,12 @@ abstract class AppLocalizations {
   /// **'WALDO · {month} {year}'**
   String dashboardReceiptHeader(String month, String year);
 
+  /// Receipt line for this month's expenses that have no category (never set, or their category was deleted)
+  ///
+  /// In en, this message translates to:
+  /// **'Uncategorized'**
+  String get uncategorized;
+
   /// Label for the net amount saved this month, shown (uppercased) as the total row in the dashboard's receipt summary
   ///
   /// In en, this message translates to:
@@ -865,6 +895,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved {percent} this month'**
   String savedPercentThisMonth(String percent);
+
+  /// Caption on the wallets screen when this month's expenses exceed its income, e.g. 'Spent 50% more than you received' - percent is pre-formatted and positive
+  ///
+  /// In en, this message translates to:
+  /// **'Spent {percent} more than you received'**
+  String overspentPercentThisMonth(String percent);
 
   /// Fallback caption on the wallets screen's fixed total balance bar when there's no income yet this month to compute a savings percentage
   ///
