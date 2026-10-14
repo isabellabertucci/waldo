@@ -14,6 +14,7 @@ abstract class IWalletRepository {
   Future<List<Wallet>> getAll({SortOrder sortOrder = SortOrder.desc});
   Future<Wallet?> getById(int id);
   Future<int> getTotalBalance();
+  Future<int> getCount();
   Future<int> insert(Wallet wallet);
   Future<void> update(Wallet wallet);
   Future<void> delete(int id);
@@ -71,6 +72,21 @@ class WalletRepositoryImpl implements IWalletRepository {
       return total ?? 0;
     } on DatabaseException catch (e) {
       _log.severe('getTotalBalance failed', e);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<int> getCount() async {
+    try {
+      final result = await _db.rawQuery(
+        'SELECT COUNT(*) AS count FROM ${WalletsTable.table}',
+      );
+      final count = result.first['count'] as int? ?? 0;
+      _log.fine('getCount succeeded: count=$count');
+      return count;
+    } on DatabaseException catch (e) {
+      _log.severe('getCount failed', e);
       rethrow;
     }
   }

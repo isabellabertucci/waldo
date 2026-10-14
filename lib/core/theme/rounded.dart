@@ -11,7 +11,4 @@ class Rounded {
   static const double md = 20;
   static const double lg = 28;
   static const double pill = 9999;
-
-  // Temporary: the dashboard still uses it until its redesign.
-  static const double xl = 24;
 }

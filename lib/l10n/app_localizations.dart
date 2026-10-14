@@ -931,54 +931,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dark Mode'**
   String get darkMode;
-
-  /// Title of the edit transaction form
-  ///
-  /// In en, this message translates to:
-  /// **'Edit Transaction'**
-  String get editTransaction;
-
-  /// Dashboard balance overview card title
-  ///
-  /// In en, this message translates to:
-  /// **'My Finances'**
-  String get myFinances;
-
-  /// Empty state title for the dashboard's category spending section
-  ///
-  /// In en, this message translates to:
-  /// **'No spending yet this month'**
-  String get noSpendingThisMonth;
-
-  /// Label above the total on the dashboard cash flow chart card
-  ///
-  /// In en, this message translates to:
-  /// **'Overall Revenue'**
-  String get overallRevenue;
-
-  /// Dashboard balance overview card subtitle, e.g. 'July Overview'
-  ///
-  /// In en, this message translates to:
-  /// **'{month} Overview'**
-  String overviewSubtitle(String month);
-
-  /// Month-over-month change label under a category spending amount, e.g. '+12% from last month'
-  ///
-  /// In en, this message translates to:
-  /// **'{percent} from last month'**
-  String percentFromLastMonth(String percent);
-
-  /// Period dropdown value on the dashboard cash flow chart card
-  ///
-  /// In en, this message translates to:
-  /// **'Monthly'**
-  String get periodMonthly;
-
-  /// Dashboard section header for the category spending list
-  ///
-  /// In en, this message translates to:
-  /// **'Spendings by Category'**
-  String get spendingsByCategory;
 }
 
 class _AppLocalizationsDelegate

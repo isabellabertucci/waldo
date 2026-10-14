@@ -139,13 +139,5 @@
   "currencyOptionEur": "EUR (€)",
   "currencyOptionGbp": "GBP (£)",
   "currencyOptionUsd": "USD ($)",
-  "darkMode": "Modo Escuro",
-  "editTransaction": "Editar transação",
-  "myFinances": "Minhas Finanças",
-  "noSpendingThisMonth": "Ainda não há gastos este mês",
-  "overallRevenue": "Receita Total",
-  "overviewSubtitle": "Resumo de {month}",
-  "percentFromLastMonth": "{percent} em relação ao mês passado",
-  "periodMonthly": "Mensal",
-  "spendingsByCategory": "Gastos por Categoria"
+  "darkMode": "Modo Escuro"
 }

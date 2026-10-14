@@ -2,16 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/utils/clock.dart';
+import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
+import 'package:waldo/features/transactions/ui/widgets/transaction_form_sheet.dart';
+import 'package:waldo/features/wallets/ui/widgets/wallet_form_sheet.dart';
+import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 import '../models/dashboard_data.dart';
 import '../viewmodels/dashboard_view_model.dart';
 import 'widgets/balance_overview_card.dart';
 import 'widgets/cash_flow_card.dart';
-import 'widgets/category_spending_list.dart';
+import 'widgets/dashboard_receipt.dart';
+import 'package:waldo/core/widgets/month_selector.dart';
 import 'widgets/recent_transactions_list.dart';
+
+/// How many months back the month picker lets you jump to, matching the
+/// cash flow chart's own trailing window so both stay in sync.
+const _monthPickerRange = 12;
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -24,8 +35,10 @@ class DashboardScreen extends ConsumerWidget {
     return Scaffold(
       body: SafeArea(
         child: switch (dashboardAsync) {
-          AsyncError() => Center(child: Text(l10n.dashboardError)),
-          AsyncData(:final value) => _DashboardBody(data: value),
+          AsyncValue(:final value?) => _DashboardBody(data: value),
+          AsyncValue(hasError: true) => Center(
+            child: Text(l10n.dashboardError),
+          ),
           _ => const Center(child: CircularProgressIndicator()),
         },
       ),
@@ -42,46 +55,152 @@ class _DashboardBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
     final currency = switch (preferencesAsync) {
-      AsyncData(:final value) => value.currency,
+      AsyncValue(:final value?) => value.currency,
       _ => Currency.usd,
     };
     final dateFormatPattern = switch (preferencesAsync) {
-      AsyncData(:final value) => value.dateFormat,
+      AsyncValue(:final value?) => value.dateFormat,
       _ => 'yyyy-MM-dd',
     };
+    final selectedMonth = ref.watch(selectedDashboardMonthProvider);
+    final isBalanceHidden = ref.watch(balanceHiddenProvider);
+    final walletsAsync = ref.watch(walletListViewModelProvider());
+    final peekWalletName = switch (walletsAsync) {
+      AsyncValue(:final value?) when value.isNotEmpty => value.first.name,
+      _ => null,
+    };
+    final locale = Localizations.localeOf(context).toString();
+    final now = ref.watch(clockProvider)();
+    final months = [
+      ...List.generate(
+        _monthPickerRange,
+        (i) => DateTime(now.year, now.month - i),
+      ).reversed,
+      // One month past "today", shown (but disabled) so the row doesn't
+      // dead-end right at the selected pill - same reasoning as keeping a
+      // calendar's "next month" arrow visible even with nothing on it yet.
+      DateTime(now.year, now.month + 1),
+    ];
+    final hasCashFlowData = data.monthlyCashFlow.any(
+      (m) => m.income != 0 || m.expense != 0,
+    );
 
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: Spacing.lg),
       children: [
+        // Nothing to filter by month yet with zero wallets - the selector
+        // only makes sense once there's at least one wallet's worth of
+        // transactions it could actually narrow down.
+        if (data.walletCount > 0) ...[
+          MonthSelector(
+            months: months,
+            selectedMonth: selectedMonth,
+            currentMonth: DateTime(now.year, now.month),
+            locale: locale,
+            onSelect: (month) =>
+                ref.read(selectedDashboardMonthProvider.notifier).select(month),
+          ),
+          const SizedBox(height: Spacing.lg),
+        ],
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Spacing.lg),
+          padding: const EdgeInsets.symmetric(horizontal: Spacing.pageMargin),
           child: BalanceOverviewCard(
             totalBalance: data.totalBalance,
-            monthlyIncome: data.monthlyIncome,
-            monthlyExpense: data.monthlyExpense,
             currency: currency,
+            isBalanceHidden: isBalanceHidden,
+            cardMonthLabel: DateFormat(
+              'MMM yyyy',
+              locale,
+            ).format(selectedMonth),
+            peekWalletName: peekWalletName,
+            walletCount: data.walletCount,
+            onCreateWallet: () => showModalBottomSheet(
+              context: context,
+              useRootNavigator: true,
+              isScrollControlled: true,
+              builder: (_) => const WalletFormSheet(),
+            ),
+            onAddPressed: () => _showQuickAddSheet(context),
+            onToggleBalanceHidden: () =>
+                ref.read(balanceHiddenProvider.notifier).toggle(),
           ),
         ),
-        const SizedBox(height: Spacing.xl),
-        CategorySpendingList(
+        DashboardReceipt(
+          monthLabel: DateFormat.MMMM(locale).format(selectedMonth),
+          year: selectedMonth.year,
+          monthlyIncome: data.monthlyIncome,
+          monthlyExpense: data.monthlyExpense,
           spendingByCategory: data.spendingByCategory,
+          uncategorizedSpending: data.uncategorizedSpending,
+          isBalanceHidden: isBalanceHidden,
           currency: currency,
+          hasWallets: data.walletCount > 0,
+          onTap: () => const AllTransactionsRoute().push(context),
+          onAddTransaction: () => showTransactionFormSheet(context),
         ),
-        const SizedBox(height: Spacing.xl),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Spacing.lg),
-          child: CashFlowCard(
-            monthlyCashFlow: data.monthlyCashFlow,
-            currency: currency,
+        if (hasCashFlowData) ...[
+          const SizedBox(height: Spacing.xl),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Spacing.pageMargin),
+            child: CashFlowCard(
+              monthlyCashFlow: data.monthlyCashFlow,
+              currency: currency,
+              isBalanceHidden: isBalanceHidden,
+            ),
           ),
-        ),
+        ],
         const SizedBox(height: Spacing.xl),
         RecentTransactionsList(
           transactions: data.recentTransactions,
           currency: currency,
           dateFormat: DateFormat(dateFormatPattern),
+          isBalanceHidden: isBalanceHidden,
         ),
       ],
     );
   }
+}
+
+void _showQuickAddSheet(BuildContext context) {
+  final l10n = AppLocalizations.of(context);
+
+  showModalBottomSheet(
+    context: context,
+    useRootNavigator: true,
+    isScrollControlled: true,
+    builder: (sheetContext) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: Spacing.sm,
+          vertical: Spacing.xs,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.receipt_long_outlined),
+              title: Text(l10n.newTransaction),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                showTransactionFormSheet(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.account_balance_wallet_outlined),
+              title: Text(l10n.newWallet),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                showModalBottomSheet(
+                  context: context,
+                  useRootNavigator: true,
+                  isScrollControlled: true,
+                  builder: (_) => const WalletFormSheet(),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
