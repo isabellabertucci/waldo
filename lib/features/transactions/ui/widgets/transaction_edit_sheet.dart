@@ -21,6 +21,7 @@ import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
+import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_form_state.dart';
@@ -182,7 +183,10 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   bool _isFieldDirty(_EditField field) {
     final formState = _formState;
     return switch (field) {
-      _EditField.amount => _amountController.text != formState.amount,
+      // By value: the keypad shows "10.5" for a stored "10.50".
+      _EditField.amount =>
+        parseToCents(_amountController.text, allowNegative: false) !=
+            parseToCents(formState.amount, allowNegative: false),
       _EditField.category => false,
     };
   }
@@ -403,7 +407,10 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final isIncome = formState.type == TransactionType.income;
     final amountColor = isIncome ? colors.primaryStrong : colors.error;
     final amountCents = parseToCents(formState.amount, allowNegative: false);
-    final amountText = amountCents == null
+    // Masked like the lists; the keypad editor still shows what you type.
+    final amountText = ref.watch(balanceHiddenProvider)
+        ? hiddenAmount
+        : amountCents == null
         ? '—'
         : '${isIncome ? '+' : '-'}${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currency.code)}';
     final category = categories
@@ -585,7 +592,10 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final isIncome = formState.type == TransactionType.income;
     final amountColor = isIncome ? colors.primaryStrong : colors.error;
     final amountCents = parseToCents(formState.amount, allowNegative: false);
-    final amountText = amountCents == null
+    // Masked like the lists; the keypad editor still shows what you type.
+    final amountText = ref.watch(balanceHiddenProvider)
+        ? hiddenAmount
+        : amountCents == null
         ? '—'
         : '${isIncome ? '+' : '-'}${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currency.code)}';
     final category = categories
@@ -908,9 +918,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final color = isIncome
         ? context.appColors.onSurface
         : context.appColors.error;
-    final typeLabel = isIncome
-        ? l10n.transactionTypeIncome
-        : l10n.transactionTypeExpense;
+    final typeLabel = formState.type.label(l10n);
     final cents = parseToCents(_amountController.text, allowNegative: false);
     final sign = isIncome ? '+' : '-';
     final displayValue = cents == null

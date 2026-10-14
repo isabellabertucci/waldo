@@ -1,3 +1,4 @@
+import 'package:waldo/core/utils/dash_path.dart';
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
@@ -74,57 +75,62 @@ class _SettingsOptionSheetState<T> extends State<SettingsOptionSheet<T>> {
               children: [
                 const SizedBox(height: Spacing.sm),
                 const SheetGrabber(),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    Spacing.md,
-                    Spacing.md,
-                    Spacing.md,
-                    Spacing.lg,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
+                // Scrolls when large text makes it taller than the screen.
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        Spacing.md,
+                        Spacing.md,
+                        Spacing.md,
+                        Spacing.lg,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Expanded(
-                            child: Text(
-                              widget.title,
-                              style: context.headlineSmBold.copyWith(
-                                color: colors.onSurface,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  widget.title,
+                                  style: context.headlineSmBold.copyWith(
+                                    color: colors.onSurface,
+                                  ),
+                                ),
+                              ),
+                              const SheetCloseButton(),
+                            ],
+                          ),
+                          const SizedBox(height: Spacing.md),
+                          for (var i = 0; i < widget.options.length; i++) ...[
+                            if (i > 0) const SizedBox(height: Spacing.sm),
+                            _OptionRow<T>(
+                              option: widget.options[i],
+                              selected: widget.options[i].value == _selected,
+                              onTap: () => setState(
+                                () => _selected = widget.options[i].value,
                               ),
                             ),
+                          ],
+                          if (widget.notice != null) ...[
+                            const SizedBox(height: Spacing.md),
+                            _NoticeBox(text: widget.notice!),
+                          ],
+                          const SizedBox(height: Spacing.lg),
+                          SizedBox(
+                            width: double.infinity,
+                            child: DashedStitchButton(
+                              label: l10n.done,
+                              onPressed: () {
+                                widget.onConfirm(_selected);
+                                Navigator.of(context).pop();
+                              },
+                            ),
                           ),
-                          const SheetCloseButton(),
                         ],
                       ),
-                      const SizedBox(height: Spacing.md),
-                      for (var i = 0; i < widget.options.length; i++) ...[
-                        if (i > 0) const SizedBox(height: Spacing.sm),
-                        _OptionRow<T>(
-                          option: widget.options[i],
-                          selected: widget.options[i].value == _selected,
-                          onTap: () => setState(
-                            () => _selected = widget.options[i].value,
-                          ),
-                        ),
-                      ],
-                      if (widget.notice != null) ...[
-                        const SizedBox(height: Spacing.md),
-                        _NoticeBox(text: widget.notice!),
-                      ],
-                      const SizedBox(height: Spacing.lg),
-                      SizedBox(
-                        width: double.infinity,
-                        child: DashedStitchButton(
-                          label: l10n.done,
-                          onPressed: () {
-                            widget.onConfirm(_selected);
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
@@ -307,6 +313,9 @@ class _DashedBorderPainter extends CustomPainter {
     this.opaque = false,
   });
 
+  static const _dashLength = 6.0;
+  static const _gapLength = 5.0;
+
   final Color color;
   final double radius;
   final bool opaque;
@@ -322,17 +331,14 @@ class _DashedBorderPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
-    for (final metric in (Path()..addRRect(rrect)).computeMetrics()) {
-      var distance = 0.0;
-      while (distance < metric.length) {
-        final next = distance + 6.0;
-        canvas.drawPath(
-          metric.extractPath(distance, next.clamp(0, metric.length)),
-          paint,
-        );
-        distance = next + 5.0;
-      }
-    }
+    canvas.drawPath(
+      dashPath(
+        Path()..addRRect(rrect),
+        dashLength: _dashLength,
+        gapLength: _gapLength,
+      ),
+      paint,
+    );
   }
 
   @override

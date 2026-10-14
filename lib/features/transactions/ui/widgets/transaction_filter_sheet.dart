@@ -10,9 +10,7 @@ import 'package:waldo/core/widgets/month_selector.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../models/transaction_filter.dart';
-
-/// How many months back the filter's month row goes.
-const _monthRange = 12;
+import '../../transactions_x.dart';
 
 /// Bottom sheet to filter a wallet's transactions by month and type.
 class TransactionFilterSheet extends StatefulWidget {
@@ -42,15 +40,7 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
     super.initState();
     _filter = widget.initial;
     final now = widget.now;
-    _months = [
-      ...List.generate(
-        _monthRange,
-        (i) => DateTime(now.year, now.month - i),
-      ).reversed,
-      // One month past "today", shown (but disabled) so the row doesn't
-      // dead-end right at the selected pill.
-      DateTime(now.year, now.month + 1),
-    ];
+    _months = selectorMonths(now);
   }
 
   void _reset() {
@@ -132,12 +122,12 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
                       onTap: () => _selectType(null),
                     ),
                     _TypeSegment(
-                      label: l10n.transactionTypeIncome,
+                      label: TransactionType.income.label(l10n),
                       selected: _filter.type == TransactionType.income,
                       onTap: () => _selectType(TransactionType.income),
                     ),
                     _TypeSegment(
-                      label: l10n.transactionTypeExpense,
+                      label: TransactionType.expense.label(l10n),
                       selected: _filter.type == TransactionType.expense,
                       onTap: () => _selectType(TransactionType.expense),
                     ),

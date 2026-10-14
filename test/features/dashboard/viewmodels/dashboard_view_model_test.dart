@@ -77,6 +77,45 @@ void main() {
     },
   );
 
+  test('on the 1st, recent transactions still shows last month\'s; a past '
+      'month shows only its own', () async {
+    final fixed = ProviderContainer(
+      overrides: [
+        appDatabaseProvider.overrideWith((ref) async => db),
+        clockProvider.overrideWithValue(() => DateTime(2026, 11, 1, 9)),
+      ],
+    );
+    addTearDown(fixed.dispose);
+    final walletId = await WalletRepositoryImpl(
+      db,
+    ).insert(const Wallet(name: 'Cash', createdAt: '2026-08-01T12:00:00.000'));
+    final transactions = TransactionRepositoryImpl(db);
+    for (final date in ['2026-09-20', '2026-10-30']) {
+      await transactions.insert(
+        Transaction(
+          walletId: walletId,
+          amount: 1000,
+          type: TransactionType.expense,
+          date: date,
+          createdAt: '${date}T12:00:00.000',
+        ),
+      );
+    }
+
+    // November (today) has nothing yet, but the list isn't empty.
+    final november = await fixed.read(dashboardViewModelProvider.future);
+    expect(november.recentTransactions.map((t) => t.date), [
+      '2026-10-30',
+      '2026-09-20',
+    ]);
+
+    fixed
+        .read(selectedDashboardMonthProvider.notifier)
+        .select(DateTime(2026, 9));
+    final september = await fixed.read(dashboardViewModelProvider.future);
+    expect(september.recentTransactions.map((t) => t.date), ['2026-09-20']);
+  });
+
   test(
     'category lines plus uncategorized always add up to monthlyExpense',
     () async {

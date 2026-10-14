@@ -1,3 +1,4 @@
+import 'package:waldo/core/utils/dash_path.dart';
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -135,17 +136,10 @@ class _DashedPillPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
-    for (final metric in path.computeMetrics()) {
-      var distance = 0.0;
-      while (distance < metric.length) {
-        final next = distance + _dashLength;
-        canvas.drawPath(
-          metric.extractPath(distance, next.clamp(0, metric.length)),
-          paint,
-        );
-        distance = next + _gapLength;
-      }
-    }
+    canvas.drawPath(
+      dashPath(path, dashLength: _dashLength, gapLength: _gapLength),
+      paint,
+    );
   }
 
   @override

@@ -14,6 +14,8 @@ void main() {
       ('-5', false, null),
       ('-5', true, -500),
       ('10.999', false, null),
+      ('123456789.99', false, 12345678999),
+      ('9999999999999999999999', false, null),
     ];
 
     for (final (input, allowNegative, expected) in cases) {
@@ -25,6 +27,11 @@ void main() {
         },
       );
     }
+  });
+
+  test('zeroAmountHint uses the phone\'s decimal separator', () {
+    expect(zeroAmountHint('en_US'), '0.00');
+    expect(zeroAmountHint('pt_PT'), '0,00');
   });
 
   group('formatCentsForInput', () {

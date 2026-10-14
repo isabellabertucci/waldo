@@ -121,6 +121,24 @@ void main() {
     expect(find.text(hiddenAmount), findsWidgets);
   });
 
+  testWidgets('Hiding the balance also masks the amount in the open '
+      'transaction, read-only and editing', (tester) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '25.00', description: 'Coffee');
+    ProviderScope.containerOf(
+      tester.element(find.byType(TransactionsScreen)),
+    ).read(balanceHiddenProvider.notifier).toggle();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Coffee'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('25.00'), findsNothing);
+
+    await tester.tap(find.text('Edit transaction'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('25.00'), findsNothing);
+  });
+
   testWidgets('The header buttons have accessible names', (tester) async {
     await pumpTransactionsScreen(tester);
 
@@ -261,6 +279,54 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(r'-$105.00'), findsOneWidget);
+  });
+
+  testWidgets('The amount keypad stops at nine whole digits and two decimals', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '10.00', description: 'Coffee');
+
+    await openEditFromRowMenu(tester);
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+    // "10" + eight taps: only seven fit before the nine-digit cap.
+    for (var i = 0; i < 8; i++) {
+      await tester.tap(find.text('5'));
+      await tester.pump();
+    }
+    await tester.tap(find.text('.'));
+    await tester.pump();
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(find.text('5'));
+      await tester.pump();
+    }
+    await tester.pumpAndSettle();
+
+    expect(find.text(r'-$105,555,555.55'), findsOneWidget);
+  });
+
+  testWidgets('Backing out of the amount keypad without typing asks nothing', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '10.50', description: 'Coffee');
+
+    await openEditFromRowMenu(tester);
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Back').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Discard changes?'), findsNothing);
+
+    // A real change still asks.
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('5'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Back').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Discard changes?'), findsOneWidget);
   });
 
   testWidgets('Cancel puts the typed name back to what it was', (tester) async {

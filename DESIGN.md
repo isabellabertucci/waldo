@@ -8,10 +8,10 @@ description: >
   exclusively for errors and negative/expense amounts, so it reads as a true
   signal rather than decoration. Shapes lean soft and pill-like (stadium
   buttons, large-radius cards), type is the platform's system font (SF Pro
-  on iOS, Roboto on Android) with tight negative tracking on display text, and the one piece of "material" flourish - a leather wallet
-  card with a metallic finish - is deliberately fixed (dark ink + cream)
-  across both themes, because a physical wallet doesn't change color when
-  the room lights dim.
+  on iOS, Roboto on Android) with tight negative tracking on display text, and the one piece of "material" flourish - the dark leather
+  balance pouch - is deliberately fixed (dark leather + cream text) across
+  both themes, because a physical wallet doesn't change color when the room
+  lights dim.
 colors:
   primary: "{colors.primary-light}"
   transparent: "transparent"
@@ -179,13 +179,13 @@ components:
     backgroundColor: "{colors.primary-light}"
     textColor: "{colors.on-primary-light}"
     typography: "{typography.label-lg-strong}"
-    rounded: "{rounded.md}"
+    rounded: "{rounded.pill}"
     padding: 16px
   button-primary-dark:
     backgroundColor: "{colors.primary-dark}"
     textColor: "{colors.on-primary-dark}"
     typography: "{typography.label-lg-strong}"
-    rounded: "{rounded.md}"
+    rounded: "{rounded.pill}"
     padding: 16px
   card-light:
     backgroundColor: "{colors.surface-light}"
@@ -211,7 +211,7 @@ components:
   input-field-border-dark:
     backgroundColor: "{colors.field-border-dark}"
     height: 1px
-  wallet-card:
+  balance-pouch:
     backgroundColor: "{colors.leather}"
     textColor: "{colors.on-leather}"
     rounded: "{rounded.lg}"
@@ -253,12 +253,14 @@ is why the single accent color (a burnt orange) is reserved strictly for
 errors and negative amounts: when orange appears, it always means "pay
 attention," never "this is a nice highlight."
 
-The one departure from the flat ink/cream system is the wallet card: each
-wallet renders on a photographic metal finish (platinum/gold/bronze) with a
-true dark-metal gradient in dark mode, rather than the same light photo
-dimmed down. This is treated as a physical material, not a themed surface -
-its ink stays dark and its text stays cream in both themes, the way a real
-leather wallet doesn't change color because the room got darker.
+The departures from the flat ink/cream system are physical materials. The
+dashboard's balance pouch and the undo bar are dark leather with cream text
+in both themes, the way a real leather wallet doesn't change color because
+the room got darker. Each wallet card renders on a metal finish
+(platinum/gold/bronze): a photo in light mode, a true dark-metal gradient in
+dark mode rather than the same photo dimmed down. Because the metal itself
+changes, its ink follows it - `leather` ink on the light photo, `on-leather`
+ink on the dark metal.
 
 ## Colors
 
@@ -295,8 +297,10 @@ leather wallet doesn't change color because the room got darker.
   toward the warm cream palette - text inputs need to read as "a field,"
   visually distinct from the cream cards and page background around them.
 - **Leather / On Leather (`#141413` / `#F3F0EE`, same in both themes):** The
-  wallet card's own material ink and cream-text pair. Fixed across light and
-  dark because it models a physical object, not a themed surface.
+  leather material and its cream text: the balance pouch and the undo bar.
+  Fixed across light and dark because they model a physical object, not a
+  themed surface. Wallet cards borrow the same two colors as ink
+  (`walletCardInkColor`), picking whichever reads on the current finish.
 
 ## Typography
 
@@ -395,16 +399,18 @@ small and large tiers so the UI reads as either "a small control" or
 | Token | Value | Use |
 |-------|-------|-----|
 | `sm` | 12px | Chips, small badges |
-| `md` | 20px | Buttons, text fields, segmented controls |
+| `md` | 20px | Text fields, segmented controls |
 | `lg` | 28px | Cards, dialogs, sheets |
-| `pill` | 9999px | Nav pill, FAB, toggle tracks, tags |
+| `pill` | 9999px | Buttons, nav pill, FAB, toggle tracks, tags |
 
 The middle ground most systems have (8-16px) is intentionally absent.
 
 ## Borders
 
 **Stitch, never solid.** Waldo draws borders as a dashed stitch, the leather
-wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
+wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`). Every
+stitched shape - border, badge ring, pouch, button - cuts its dashes with
+`dashPath` (`core/utils/dash_path.dart`), so none carries its own loop.
 
 - **Selected and focused** states use an ink stitch (`primary`).
 - **Outlines and placeholders** use a faint stitch (`on-surface-variant` at low
@@ -417,8 +423,11 @@ wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
 
 ## Components
 
-- **Buttons (primary):** `primary`-filled pill, `on-primary` text, `label-lg-strong`
-  typography, `rounded.md`, 16px padding.
+- **Buttons (primary):** `DashedStitchButton` - a `primary`-filled pill
+  (`rounded.pill`) with an `on-primary` dashed stitch just inside its edge,
+  `on-primary` text in `label-lg-strong`, 24px x 16px padding (16px x 8px
+  and `body-sm-bold` when `compact`). Plain `FilledButton`s get the same
+  pill and type from the theme.
 - **Buttons (secondary):** `SecondaryButton` - no fill, on the page and on
   sheets alike; `on-surface` text in `body-md-strong`, 12px x 4px padding that
   keeps the tap target and the `rounded.pill` press ripple. For
@@ -435,9 +444,11 @@ wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
   the row's semantic color (income/expense/wallet type), `label-lg-strong`
   title, `body-sm` muted caption, trailing amount in `label-lg-strong` colored
   by `primary-strong` (income) or `error` (expense).
-- **Wallet cards:** a fixed `leather`/`on-leather` ink pair over a photographic
-  metal texture (light mode) or a true dark-metal gradient (dark mode) -
-  never a flat themed color.
+- **Wallet cards:** a photographic metal texture (light mode) or a true
+  dark-metal gradient (dark mode) - never a flat themed color - with
+  `leather` ink on the photo and `on-leather` ink on the dark metal.
+- **Balance pouch and undo bar:** `leather` fill, `on-leather` text, the same
+  in both themes.
 - **List rows (secondary caption):** `surface` background, `on-surface-variant`
   caption/subtitle text, `body-sm` typography.
 - **Amounts:** `primary-strong` text for income, `error` text for expense,
@@ -457,7 +468,7 @@ wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
   element (an amount, a link, a marker) - not as a button fill.
 - Escalate text weight only along the named `-strong` ladder, never with an
   inline one-off `fontWeight`.
-- Keep the wallet card's `leather`/`on-leather` pair fixed across themes.
+- Keep the leather pouch and undo bar `leather`/`on-leather` in both themes.
 
 ### Don't
 - Don't add a second accent hue - orange stays the only color in the system.
@@ -521,12 +532,11 @@ wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
   `Spacing.xxs`/`.component` happened for the clearest cases but not
   exhaustively, so turning that
   check on now would fail on real, not-yet-reconciled call sites.
-- **`DashedCircleBadge` (dashed_circle_badge.dart) vs. `PouchBorder`
-  (pouch_shape.dart) vs. `DashedBorder` (dashed_border.dart).** The
-  confirm dialog and the transaction view now share one
-  `DashedCircleBadge`, but the three widgets still each carry their own
-  dash-along-path loop, for visually different shapes (a circular badge
-  ring, the pouch outline, a stitched rounded rect). A shared
-  "dash-along-path" math helper (not a shared widget) is the likely right
-  shape for a future fix.
+- **A lighter orange for negative balances on dark metal.** In dark mode a
+  wallet card's negative balance uses `error` lifted 18% in lightness
+  (about `#F8B08F`, `walletCardNegativeColor` in `wallet_card_finish.dart`),
+  not `error` itself: on the metal's lighter shine, plain `error` drops to
+  about 1.7:1 and the lifted one reaches about 2.6:1. It is still the one
+  orange hue, only lighter, and it appears nowhere else - so it stays a
+  documented one-off rather than a token. Light mode uses plain `error`.
 - **Figma:** no Figma file yet (Phase 4 of the design-system spec).

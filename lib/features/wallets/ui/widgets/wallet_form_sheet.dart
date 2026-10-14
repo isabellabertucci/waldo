@@ -249,7 +249,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                 label: _isEditing
                     ? l10n.balanceLocked
                     : l10n.startingBalancePrompt,
-                hint: '0.00',
+                hint: zeroAmountHint(moneyLocale(context)),
                 onChanged: viewModel.updateBalance,
                 validator: (value) => _validateBalance(l10n, value),
                 keyboardType: const TextInputType.numberWithOptions(

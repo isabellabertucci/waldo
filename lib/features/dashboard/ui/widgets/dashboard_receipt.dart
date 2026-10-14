@@ -12,6 +12,7 @@ import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../models/dashboard_data.dart';
+import 'package:waldo/features/transactions/transactions_x.dart';
 
 /// The receipt is narrower than the wallet card above it.
 const _receiptWidth = 300.0;
@@ -117,7 +118,7 @@ class DashboardReceipt extends StatelessWidget {
                       const SizedBox(height: Spacing.sm),
                       ReceiptRow(
                         textStyles: textStyles,
-                        label: l10n.transactionTypeIncome.toUpperCase(),
+                        label: TransactionType.income.label(l10n).toUpperCase(),
                         value: amount(
                           '+${formatCents(monthlyIncome, locale: moneyLocale(context), currencyCode: currencyCode)}',
                         ),
@@ -127,7 +128,9 @@ class DashboardReceipt extends StatelessWidget {
                       const SizedBox(height: Spacing.xs),
                       ReceiptRow(
                         textStyles: textStyles,
-                        label: l10n.transactionTypeExpense.toUpperCase(),
+                        label: TransactionType.expense
+                            .label(l10n)
+                            .toUpperCase(),
                         value: amount(
                           '-${formatCents(monthlyExpense, locale: moneyLocale(context), currencyCode: currencyCode)}',
                         ),

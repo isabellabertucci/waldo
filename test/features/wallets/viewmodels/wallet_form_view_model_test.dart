@@ -96,6 +96,24 @@ void main() {
     },
   );
 
+  test('a second save while the first is still writing does nothing', () async {
+    when(() => mockRepo.insert(any())).thenAnswer(
+      (_) => Future.delayed(const Duration(milliseconds: 10), () => 1),
+    );
+    final provider = walletFormViewModelProvider(null);
+    container.listen(provider, (_, _) {});
+    final notifier = container.read(provider.notifier);
+    notifier.updateName('Cash');
+
+    final results = await Future.wait([
+      notifier.save(null),
+      notifier.save(null),
+    ]);
+
+    expect(results, [true, false]);
+    verify(() => mockRepo.insert(any())).called(1);
+  });
+
   test('save while editing calls update, not insert', () async {
     const existing = Wallet(
       id: 5,

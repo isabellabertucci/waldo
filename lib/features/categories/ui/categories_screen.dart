@@ -102,10 +102,10 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
     if (name.isEmpty) return l10n.nameRequired;
     if (name.length > maxCategoryNameLength) return l10n.nameTooLong;
 
-    // Compare with what's on screen, so built-ins match in the current language.
+    // Built-ins match in every language, not just the one on screen.
     final lower = name.toLowerCase();
     final taken = widget.categories.any(
-      (c) => c.displayName(l10n).toLowerCase() == lower,
+      (c) => c.namesInEveryLanguage.any((n) => n.toLowerCase() == lower),
     );
     return taken ? l10n.categoryNameTaken : null;
   }

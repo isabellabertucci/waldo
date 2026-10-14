@@ -19,6 +19,14 @@ const _chevronOverhang = (_chevronHitSize - _chevronDiscSize) / 2;
 /// keep the chip from growing past its neighbours.
 const _selectedChipPadding = Spacing.sm - 2; // one-off
 
+/// The months a [MonthSelector] offers: the [count] months up to [now]'s,
+/// oldest first, plus next month (shown disabled) so the row doesn't end at
+/// the selected pill.
+List<DateTime> selectorMonths(DateTime now, {int count = 12}) => [
+  for (var i = count - 1; i >= 0; i--) DateTime(now.year, now.month - i),
+  DateTime(now.year, now.month + 1),
+];
+
 /// A horizontal row of month pills; the selected month is a filled pill.
 class MonthSelector extends StatefulWidget {
   const MonthSelector({

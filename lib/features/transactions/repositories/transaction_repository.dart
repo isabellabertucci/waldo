@@ -17,6 +17,9 @@ abstract class ITransactionRepository {
     SortOrder sortOrder = SortOrder.desc,
   });
   Future<Transaction?> getById(int id);
+
+  /// Income and expense totals, in cents, for [month]'s calendar month.
+  Future<({int income, int expense})> monthTotals(DateTime month);
   Future<int> insert(Transaction transaction);
   Future<void> update(Transaction transaction);
   Future<void> delete(int id);
@@ -102,6 +105,37 @@ class TransactionRepositoryImpl implements ITransactionRepository {
       return Transaction.fromMap(maps.first);
     } on DatabaseException catch (e) {
       _log.severe('getById failed', e);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<({int income, int expense})> monthTotals(DateTime month) async {
+    try {
+      // ISO dates sort as text, so the month is a plain string range.
+      final start = DateTime(month.year, month.month).toIso8601String();
+      final end = DateTime(month.year, month.month + 1).toIso8601String();
+      final rows = await _db.rawQuery(
+        'SELECT ${TransactionsTable.type}, '
+        'SUM(${TransactionsTable.amount}) AS total '
+        'FROM ${TransactionsTable.table} '
+        'WHERE ${TransactionsTable.date} >= ? AND ${TransactionsTable.date} < ? '
+        'GROUP BY ${TransactionsTable.type}',
+        [start.substring(0, 10), end.substring(0, 10)],
+      );
+      int totalOf(TransactionType type) =>
+          rows
+                  .where((r) => r[TransactionsTable.type] == type.name)
+                  .firstOrNull?['total']
+              as int? ??
+          0;
+      _log.fine('monthTotals succeeded: month=${start.substring(0, 7)}');
+      return (
+        income: totalOf(TransactionType.income),
+        expense: totalOf(TransactionType.expense),
+      );
+    } on DatabaseException catch (e) {
+      _log.severe('monthTotals failed', e);
       rethrow;
     }
   }

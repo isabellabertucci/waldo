@@ -138,7 +138,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get walletTypeCash => 'Dinheiro';
 
   @override
-  String get walletTypeCredit => 'Cartão de Crédito';
+  String get walletTypeCredit => 'Cartão de crédito';
 
   @override
   String get walletTypeInvestment => 'Investimento';
@@ -397,7 +397,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get currencyNameGbp => 'Libra esterlina';
 
   @override
-  String get totalBalance => 'Saldo Total';
+  String get totalBalance => 'Saldo total';
 
   @override
   String get add => 'Adicionar';
@@ -439,10 +439,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get addFirstTransactionButton => 'Adicionar primeira transação';
 
   @override
-  String get cashFlow => 'Fluxo de Caixa';
+  String get cashFlow => 'Fluxo de caixa';
 
   @override
-  String get recentTransactions => 'Transações Recentes';
+  String get recentTransactions => 'Transações recentes';
 
   @override
   String get firstRunPeekCta => 'Desliza a tua primeira carteira';

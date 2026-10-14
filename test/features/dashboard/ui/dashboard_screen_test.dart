@@ -6,6 +6,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/database/db_providers.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/month_selector.dart';
@@ -141,6 +142,44 @@ void main() {
     expect(find.text('Weekly shop'), findsOneWidget);
     // On the receipt, and under the transaction's name in the recent list.
     expect(find.text(groceriesCategory.name), findsNWidgets(2));
+  });
+
+  testWidgets('Deleting a recent transaction hides it from the dashboard', (
+    tester,
+  ) async {
+    final db = await createTestDatabase();
+    final walletId = await WalletRepositoryImpl(db).insert(
+      const Wallet(name: 'Test Wallet', createdAt: '2026-08-10T12:00:00.000'),
+    );
+    final today = DateTime.now().toIso8601String();
+    await TransactionRepositoryImpl(db).insert(
+      Transaction(
+        walletId: walletId,
+        amount: 2500,
+        type: TransactionType.expense,
+        date: today,
+        description: 'Weekly shop',
+        createdAt: today,
+      ),
+    );
+
+    await pumpDashboardScreen(tester, db: db);
+    expect(find.text('Weekly shop'), findsOneWidget);
+
+    await tester.tap(find.byIcon(AppIcons.more));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+    // The confirmation dialog's own Delete button.
+    await tester.tap(find.text('Delete'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+
+    expect(textOutsideSnackBar('Weekly shop'), findsNothing);
+
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pumpAndSettle();
+    expect(textOutsideSnackBar('Weekly shop'), findsNothing);
   });
 
   testWidgets('Hiding the balance masks every amount on the dashboard', (

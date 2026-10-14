@@ -118,6 +118,21 @@ void main() {
     },
   );
 
+  test('two adds fired together insert the category once', () async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries]);
+    when(() => mockRepo.insert(any())).thenAnswer(
+      (_) => Future.delayed(const Duration(milliseconds: 10), () => 3),
+    );
+    container.listen(categoryListViewModelProvider, (_, _) {});
+    await container.read(categoryListViewModelProvider.future);
+    final notifier = container.read(categoryListViewModelProvider.notifier);
+
+    // The + button and the keyboard's done key at the same moment.
+    await Future.wait([notifier.add('Gym'), notifier.add('Gym')]);
+
+    verify(() => mockRepo.insert(any())).called(1);
+  });
+
   test('add lets a duplicate-name error reach the screen', () async {
     when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries]);
     when(
