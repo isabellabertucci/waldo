@@ -1,9 +1,4 @@
-/// Deliberately sparse: either small (chips), the signature button radius,
-/// a large radius for cards/dialogs, or a full pill. The source design
-/// system uses 40px for its "large" tier, but that's tuned for full-bleed
-/// hero banners; on our much smaller mobile cards it reads as a full
-/// stadium shape, so this is scaled down to stay clearly "large" without
-/// looking like a pill.
+/// Corner radii: small (chips), medium (buttons), large (cards, dialogs), pill.
 class Rounded {
   Rounded._();
 

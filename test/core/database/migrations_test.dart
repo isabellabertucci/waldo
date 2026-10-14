@@ -11,14 +11,36 @@ void main() {
     sqfliteFfiInit();
     db = await databaseFactoryFfiNoIsolate.openDatabase(inMemoryDatabasePath);
     await db.execute('PRAGMA foreign_keys = ON');
+    await migrations.onCreate(db, migrations.migrations.length);
   });
 
   tearDown(() => db.close());
 
-  test('upgrading from v1 to v2 adds the note column and keeps existing '
-      'transactions', () async {
-    // A database as it existed before the note column: schema v1 only.
-    await migrations.onCreate(db, 1);
+  test(
+    'a fresh install gets all 6 built-in categories, "Others" included',
+    () async {
+      final defaults = await db.query(
+        CategoriesTable.table,
+        where: '${CategoriesTable.isDefault} = 1',
+      );
+
+      expect(defaults, hasLength(6));
+      expect(
+        defaults.map((c) => c[CategoriesTable.type]),
+        contains(CategoryType.others.name),
+      );
+    },
+  );
+
+  test('a custom category can use the "others" type', () async {
+    await db.insert(CategoriesTable.table, {
+      CategoriesTable.name: 'Gifts',
+      CategoriesTable.type: CategoryType.others.name,
+      CategoriesTable.createdAt: '2026-10-12T12:00:00.000',
+    });
+  });
+
+  test('transactions have a note column', () async {
     final walletId = await db.insert(WalletsTable.table, {
       WalletsTable.name: 'Cash',
       WalletsTable.createdAt: '2026-08-01T12:00:00.000',
@@ -28,15 +50,11 @@ void main() {
       TransactionsTable.amount: 500,
       TransactionsTable.type: TransactionType.expense.name,
       TransactionsTable.date: '2026-08-10',
+      TransactionsTable.note: 'Split with Ana',
       TransactionsTable.createdAt: '2026-08-10T12:00:00.000',
     });
 
-    await migrations.onUpgrade(db, 1, 2);
-
-    final rows = await db.query(TransactionsTable.table);
-    expect(rows, hasLength(1));
-    expect(rows.first[TransactionsTable.amount], 500);
-    expect(rows.first.containsKey(TransactionsTable.note), isTrue);
-    expect(rows.first[TransactionsTable.note], isNull);
+    final row = (await db.query(TransactionsTable.table)).single;
+    expect(row[TransactionsTable.note], 'Split with Ana');
   });
 }

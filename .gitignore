@@ -56,3 +56,6 @@ docs/design-system.md
 
 # Platform-specific goldens - CI only compares the goldens/ci/ set
 test/golden/goldens/macos/
+
+# Golden test diffs, written when a golden fails
+test/golden/failures/

@@ -5,6 +5,7 @@ import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
+import 'package:waldo/features/transactions/viewmodels/pending_transaction_deletes.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
 
 import '../models/dashboard_data.dart';
@@ -40,7 +41,11 @@ class DashboardViewModel extends _$DashboardViewModel {
 
     final totalBalance = await walletRepo.getTotalBalance();
     final walletCount = await walletRepo.getCount();
-    final transactions = await transactionRepo.getAll();
+    final pending = ref.watch(pendingTransactionDeletesProvider);
+    // Deletes still inside their Undo window are already gone from the month.
+    final transactions = (await transactionRepo.getAll())
+        .where((t) => !pending.contains(t.id))
+        .toList();
     final categories = await categoryRepo.getAll();
 
     final currentMonthTransactions = _transactionsInMonth(
@@ -75,10 +80,7 @@ class DashboardViewModel extends _$DashboardViewModel {
       spendingByCategory: spendingByCategory,
       uncategorizedSpending: monthlyExpense - categorizedTotal,
       monthlyCashFlow: _buildMonthlyCashFlow(transactions, anchor),
-      // getAll() already sorts desc by date, and _transactionsInMonth
-      // preserves that order, so the first N are the most recent
-      // transactions within the selected month - keeping this in sync with
-      // the rest of the dashboard, which is all scoped to that month too.
+      // Already sorted newest first, so these are the month's most recent.
       recentTransactions: currentMonthTransactions
           .take(_recentTransactionsLimit)
           .toList(),

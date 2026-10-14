@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -175,11 +174,17 @@ void main() {
   ) async {
     await pumpSettingsScreen(tester);
 
-    await tester.tap(find.byIcon(Icons.calendar_today_outlined));
+    await tester.tap(find.text('Date format'));
     await tester.pumpAndSettle();
 
     expect(find.byType(SettingsOptionSheet<String>), findsOneWidget);
-    // The row's own icon plus one per option in the sheet.
-    expect(find.byIcon(Icons.calendar_today_outlined), findsNWidgets(4));
+    // One icon per format option in the sheet.
+    expect(
+      find.descendant(
+        of: find.byType(SettingsOptionSheet<String>),
+        matching: find.byIcon(AppIcons.calendar),
+      ),
+      findsNWidgets(3),
+    );
   });
 }

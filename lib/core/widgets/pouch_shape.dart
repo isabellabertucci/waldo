@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/rounded.dart';
 
-/// A subtle diagonal lift from [base] to a slightly lighter tone, so the
-/// pouch's solid fill reads as gently 3D instead of perfectly flat - never
-/// a loud color wash, just enough to suggest light falling across it.
+/// A subtle diagonal lightening, so the pouch fill looks slightly 3D.
 LinearGradient pouchGradient(Color base) {
   return LinearGradient(
     begin: Alignment.topLeft,
@@ -14,12 +12,8 @@ LinearGradient pouchGradient(Color base) {
   );
 }
 
-/// The "pouch" shape: a rounded rect whose top edge has raised shoulders
-/// and a shallow dip in the middle, where a card would emerge. Corner
-/// positions are expressed as fractions between the two rounded corners so
-/// the curve scales with the shape's actual width. This is Waldo's
-/// signature wallet silhouette, reused anywhere the app needs to evoke "a
-/// wallet" - the balance card, the first-run hero illustration, etc.
+/// The wallet "pouch": a rounded rect whose top edge dips in the middle.
+/// Positions are fractions of the width, so it scales.
 Path pouchPath(
   Rect rect, {
   required double cornerRadius,
@@ -55,11 +49,7 @@ Path pouchPath(
     ..close();
 }
 
-/// Fills as a [pouchPath] and stitches a dashed line just inside its own
-/// edge - the pouch is the real content container, so the stitch traces the
-/// shape the user actually sees, not a hidden layer behind it. Defaults
-/// match the dashboard's balance card; pass smaller values for a scaled-down
-/// illustration (e.g. the first-run hero).
+/// Fills a [pouchPath] and stitches a dashed line just inside its edge.
 class PouchBorder extends ShapeBorder {
   const PouchBorder({
     required this.stitchColor,

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/badge_size.dart';
+import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
 /// One tile in a pick-one grid (wallet type, category type): an icon disc
-/// over a label, with an ink border and filled ink disc when selected.
+/// over a label, with an ink stitch and filled ink disc when selected.
 class OptionTile extends StatelessWidget {
   const OptionTile({
     super.key,
@@ -34,19 +36,15 @@ class OptionTile extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(Rounded.md),
           onTap: onTap,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(Rounded.md),
-              border: selected
-                  ? Border.all(color: colors.primary, width: 1.5)
-                  : null,
-            ),
+          child: DashedBorder(
+            radius: Rounded.md,
+            color: selected ? colors.primary : colors.transparent,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 36,
-                  height: 36,
+                  width: BadgeSize.md,
+                  height: BadgeSize.md,
                   decoration: BoxDecoration(
                     color: selected
                         ? colors.primary
