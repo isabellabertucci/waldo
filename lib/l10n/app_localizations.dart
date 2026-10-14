@@ -554,6 +554,30 @@ abstract class AppLocalizations {
   /// **'New Category'**
   String get newCategory;
 
+  /// Section header on the categories screen for the categories that ship with the app and can't be edited
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in'**
+  String get categoriesDefaultSection;
+
+  /// Section header on the categories screen for the categories the user created
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get categoriesCustomSection;
+
+  /// Confirm button on the new-category sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Create category'**
+  String get createCategory;
+
+  /// Placeholder in the category name field
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Coffee, Gym'**
+  String get categoryNameHint;
+
   /// Title of the edit category form
   ///
   /// In en, this message translates to:
@@ -907,30 +931,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{1 wallet} other{{count} wallets}}'**
   String walletsCountLabel(int count);
-
-  /// Euro option label in the currency picker
-  ///
-  /// In en, this message translates to:
-  /// **'EUR (€)'**
-  String get currencyOptionEur;
-
-  /// British Pound option label in the currency picker
-  ///
-  /// In en, this message translates to:
-  /// **'GBP (£)'**
-  String get currencyOptionGbp;
-
-  /// US Dollar option label in the currency picker
-  ///
-  /// In en, this message translates to:
-  /// **'USD (\$)'**
-  String get currencyOptionUsd;
-
-  /// Dark mode section title in settings
-  ///
-  /// In en, this message translates to:
-  /// **'Dark Mode'**
-  String get darkMode;
 }
 
 class _AppLocalizationsDelegate
