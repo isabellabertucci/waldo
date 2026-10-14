@@ -1,29 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/rounded.dart';
+import 'package:waldo/core/theme/spacing.dart';
 
 class Common {
   Common._();
-
-  static NavigationBarThemeData getNavigationBarTheme(AppColors color) {
-    return NavigationBarThemeData(
-      backgroundColor: color.surface,
-      indicatorColor: color.primaryContainer,
-      iconTheme: WidgetStateProperty.resolveWith((states) {
-        final selected = states.contains(WidgetState.selected);
-        return IconThemeData(
-          color: selected ? color.primaryStrong : color.onSurfaceVariant,
-        );
-      }),
-      labelTextStyle: WidgetStateProperty.resolveWith((states) {
-        final selected = states.contains(WidgetState.selected);
-        return TextStyle(
-          color: selected ? color.primaryStrong : color.onSurfaceVariant,
-          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-        );
-      }),
-    );
-  }
 
   static AppBarTheme getAppBarTheme(AppColors colors) {
     return AppBarTheme(backgroundColor: colors.transparent, centerTitle: false);
@@ -57,20 +38,34 @@ class Common {
     return DialogThemeData(
       backgroundColor: colors.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Rounded.xl),
+        borderRadius: BorderRadius.circular(Rounded.lg),
       ),
     );
   }
 
   static SnackBarThemeData getSnackBarTheme(AppColors colors) {
+    // `onSurface` + a hardcoded white content color used to pair up by
+    // coincidence in light mode (onSurface is dark there), but `onSurface`
+    // flips to a light cream in dark mode - which left white-on-white text
+    // and an invisible "Undo" action. A snackbar reads as a solid dark
+    // pill either way, so it uses the theme-constant leather pair instead
+    // of a token that was only ever dark by accident.
     return SnackBarThemeData(
-      backgroundColor: colors.onSurface,
-      contentTextStyle: const TextStyle(color: Colors.white),
+      // A touch lighter than pure `leather`, not the flat color itself -
+      // in dark mode the page behind it is the same near-black as
+      // `leather`, so the pill had no visible edge to lift off the page
+      // with (same issue as the dashboard's peek card).
+      backgroundColor: Color.lerp(
+        colors.leather,
+        colors.onSurfaceVariant,
+        0.25,
+      ),
+      contentTextStyle: TextStyle(color: colors.onLeather),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Rounded.pill),
       ),
       behavior: SnackBarBehavior.floating,
-      actionTextColor: colors.primary,
+      actionTextColor: colors.error,
     );
   }
 
@@ -84,33 +79,39 @@ class Common {
       textColor: colors.onSurface,
       iconColor: colors.onSurfaceVariant,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Rounded.xl),
+        borderRadius: BorderRadius.circular(Rounded.lg),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: Spacing.sm,
+        vertical: Spacing.xs,
+      ),
     );
   }
 
   static InputDecorationThemeData getInputDecorationTheme(AppColors colors) {
     return InputDecorationThemeData(
       filled: true,
-      fillColor: colors.surfaceContainer,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      fillColor: colors.fieldFill,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: Spacing.sm,
+        vertical: 10,
+      ),
       floatingLabelBehavior: FloatingLabelBehavior.always,
       labelStyle: TextStyle(color: colors.onSurfaceVariant),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Rounded.lg),
-        borderSide: BorderSide.none,
+        borderRadius: BorderRadius.circular(Rounded.md),
+        borderSide: BorderSide(color: colors.fieldBorder),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Rounded.lg),
+        borderRadius: BorderRadius.circular(Rounded.md),
         borderSide: BorderSide(color: colors.primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Rounded.lg),
+        borderRadius: BorderRadius.circular(Rounded.md),
         borderSide: BorderSide(color: colors.error, width: 1.5),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Rounded.lg),
+        borderRadius: BorderRadius.circular(Rounded.md),
         borderSide: BorderSide(color: colors.error, width: 2),
       ),
     );
@@ -126,7 +127,7 @@ class Common {
       surfaceTintColor: colors.transparent,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Rounded.xl),
+        borderRadius: BorderRadius.circular(Rounded.lg),
       ),
 
       dayForegroundColor: WidgetStateProperty.resolveWith((states) {
@@ -155,9 +156,9 @@ class Common {
       style: FilledButton.styleFrom(
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: const EdgeInsets.symmetric(vertical: Spacing.sm),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Rounded.lg),
+          borderRadius: BorderRadius.circular(Rounded.md),
         ),
         textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
       ),

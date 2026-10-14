@@ -170,17 +170,41 @@ abstract class AppLocalizations {
   /// **'Starting balance'**
   String get startingBalance;
 
+  /// Helper text under the starting balance field when creating a new wallet
+  ///
+  /// In en, this message translates to:
+  /// **'You can change this later'**
+  String get startingBalanceHint;
+
   /// Helper text for locked balance field
   ///
   /// In en, this message translates to:
   /// **'Cannot be changed after creation'**
   String get balanceLocked;
 
+  /// Placeholder text for the wallet name field
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Home, Travel'**
+  String get walletNameHint;
+
+  /// Button label for creating a new wallet
+  ///
+  /// In en, this message translates to:
+  /// **'Create wallet'**
+  String get createWallet;
+
   /// Save button label
   ///
   /// In en, this message translates to:
   /// **'Save'**
   String get save;
+
+  /// Confirm button label on a single-field edit sheet (e.g. editing just the amount or just the name of a transaction)
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
 
   /// Validation error for empty name
   ///
@@ -229,6 +253,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get cancel;
+
+  /// Accessibility label and tooltip for the button that closes a sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// Accessibility label and tooltip for a back/chevron-left button
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// Accessibility label and tooltip for the backspace key on the amount keypad
+  ///
+  /// In en, this message translates to:
+  /// **'Delete digit'**
+  String get deleteDigit;
+
+  /// Accessibility label and tooltip for the eye button when amounts are visible - tapping it masks them
+  ///
+  /// In en, this message translates to:
+  /// **'Hide balance'**
+  String get hideBalance;
+
+  /// Accessibility label and tooltip for the eye button when amounts are masked - tapping it reveals them
+  ///
+  /// In en, this message translates to:
+  /// **'Show balance'**
+  String get showBalance;
 
   /// Edit action label
   ///
@@ -308,12 +362,6 @@ abstract class AppLocalizations {
   /// **'New Transaction'**
   String get newTransaction;
 
-  /// Title of the edit transaction form
-  ///
-  /// In en, this message translates to:
-  /// **'Edit Transaction'**
-  String get editTransaction;
-
   /// Fallback label when a transaction has no description
   ///
   /// In en, this message translates to:
@@ -350,6 +398,60 @@ abstract class AppLocalizations {
   /// **'Description'**
   String get transactionDescription;
 
+  /// Placeholder text for the new transaction's description field
+  ///
+  /// In en, this message translates to:
+  /// **'What was it for?'**
+  String get descriptionHint;
+
+  /// Button label for creating a new expense transaction
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get addExpense;
+
+  /// Button label for creating a new income transaction
+  ///
+  /// In en, this message translates to:
+  /// **'Add income'**
+  String get addIncome;
+
+  /// Short label for the chip that opens the new-category form from the transaction form
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get addNewCategory;
+
+  /// Transaction note field label - a free-text note separate from its name
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get transactionNote;
+
+  /// Caption above the amount keypad, e.g. 'Expense · editing amount'
+  ///
+  /// In en, this message translates to:
+  /// **'{type} · editing amount'**
+  String editingAmountLabel(String type);
+
+  /// Title of the dialog shown when leaving a field editor with unsaved edits
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes?'**
+  String get discardChangesTitle;
+
+  /// Message of the dialog shown when leaving a field editor with unsaved edits
+  ///
+  /// In en, this message translates to:
+  /// **'You have unsaved changes to this field.'**
+  String get discardChangesMessage;
+
+  /// Discard button label, paired with Save on the unsaved-changes dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discard;
+
   /// Delete confirmation dialog title
   ///
   /// In en, this message translates to:
@@ -361,6 +463,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This will permanently delete this transaction.'**
   String get deleteTransactionConfirm;
+
+  /// Button on a transaction's read-only view that switches it into edit mode
+  ///
+  /// In en, this message translates to:
+  /// **'Edit transaction'**
+  String get editTransactionAction;
+
+  /// Button that commits every field's changes on a transaction's edit screen at once
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
 
   /// Snackbar message after deleting a transaction
   ///
@@ -439,6 +553,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New Category'**
   String get newCategory;
+
+  /// Section header on the categories screen for the categories that ship with the app and can't be edited
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in'**
+  String get categoriesDefaultSection;
+
+  /// Section header on the categories screen for the categories the user created
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get categoriesCustomSection;
+
+  /// Confirm button on the new-category sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Create category'**
+  String get createCategory;
+
+  /// Placeholder in the category name field
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Coffee, Gym'**
+  String get categoryNameHint;
 
   /// Title of the edit category form
   ///
@@ -524,11 +662,11 @@ abstract class AppLocalizations {
   /// **'None'**
   String get none;
 
-  /// Dark mode section title in settings
+  /// Theme row/section title and sheet title in settings
   ///
   /// In en, this message translates to:
-  /// **'Dark Mode'**
-  String get darkMode;
+  /// **'Theme'**
+  String get theme;
 
   /// Option to follow the device's theme setting
   ///
@@ -548,17 +686,47 @@ abstract class AppLocalizations {
   /// **'Dark'**
   String get themeDark;
 
-  /// Currency section title in settings
+  /// Currency row title and sheet title in settings
   ///
   /// In en, this message translates to:
   /// **'Currency'**
   String get currency;
 
-  /// Date format section title in settings
+  /// Date format row title and sheet title in settings
   ///
   /// In en, this message translates to:
-  /// **'Date Format'**
+  /// **'Date format'**
   String get dateFormat;
+
+  /// Section header grouping the currency and date format rows in settings
+  ///
+  /// In en, this message translates to:
+  /// **'Money'**
+  String get moneySection;
+
+  /// Section header grouping the theme row in settings
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearanceSection;
+
+  /// Subtitle under the Currency row in settings
+  ///
+  /// In en, this message translates to:
+  /// **'How amounts are shown'**
+  String get currencyRowSubtitle;
+
+  /// Subtitle under the Date format row in settings
+  ///
+  /// In en, this message translates to:
+  /// **'Used in lists and details'**
+  String get dateFormatRowSubtitle;
+
+  /// Notice shown at the bottom of the currency picker sheet
+  ///
+  /// In en, this message translates to:
+  /// **'This changes the symbol only. Your amounts stay the same and are not converted.'**
+  String get currencyChangeNotice;
 
   /// Generic error message shown when preferences fail to load
   ///
@@ -572,35 +740,23 @@ abstract class AppLocalizations {
   /// **'There was a problem saving your preference. Please try again.'**
   String get preferencesSaveError;
 
-  /// US Dollar option label in the currency picker
+  /// US Dollar full name in the currency picker
   ///
   /// In en, this message translates to:
-  /// **'USD (\$)'**
-  String get currencyOptionUsd;
+  /// **'US dollar'**
+  String get currencyNameUsd;
 
-  /// Euro option label in the currency picker
+  /// Euro full name in the currency picker
   ///
   /// In en, this message translates to:
-  /// **'EUR (€)'**
-  String get currencyOptionEur;
+  /// **'Euro'**
+  String get currencyNameEur;
 
-  /// British Pound option label in the currency picker
+  /// British Pound full name in the currency picker
   ///
   /// In en, this message translates to:
-  /// **'GBP (£)'**
-  String get currencyOptionGbp;
-
-  /// Dashboard balance overview card title
-  ///
-  /// In en, this message translates to:
-  /// **'My Finances'**
-  String get myFinances;
-
-  /// Dashboard balance overview card subtitle, e.g. 'July Overview'
-  ///
-  /// In en, this message translates to:
-  /// **'{month} Overview'**
-  String overviewSubtitle(String month);
+  /// **'British pound'**
+  String get currencyNameGbp;
 
   /// Label above the total balance amount on the dashboard
   ///
@@ -608,17 +764,41 @@ abstract class AppLocalizations {
   /// **'Total Balance'**
   String get totalBalance;
 
+  /// Short label for the quick-add button on the balance card
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
   /// Generic error message shown when dashboard data fails to load
   ///
   /// In en, this message translates to:
   /// **'There was a problem loading your dashboard. Please try again.'**
   String get dashboardError;
 
-  /// Dashboard section header for the category spending list
+  /// Header line on the dashboard's receipt-style monthly summary, e.g. 'WALDO · OCTOBER 2026'
   ///
   /// In en, this message translates to:
-  /// **'Spendings by Category'**
-  String get spendingsByCategory;
+  /// **'WALDO · {month} {year}'**
+  String dashboardReceiptHeader(String month, String year);
+
+  /// Receipt line for this month's expenses that have no category (never set, or their category was deleted)
+  ///
+  /// In en, this message translates to:
+  /// **'Uncategorized'**
+  String get uncategorized;
+
+  /// Label for the net amount saved this month, shown (uppercased) as the total row in the dashboard's receipt summary
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get savedLabel;
+
+  /// Rollup row label on the dashboard's receipt summary for categories past the first few, e.g. 'Other (3)' summing their combined amount
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Other (1)} other{Other ({count})}}'**
+  String dashboardReceiptOtherCategories(int count);
 
   /// Link that navigates to a full list from a dashboard section preview
   ///
@@ -626,35 +806,23 @@ abstract class AppLocalizations {
   /// **'See all'**
   String get seeAll;
 
-  /// Empty state title for the dashboard's category spending section
+  /// Empty state hint for the dashboard's category spending section
   ///
   /// In en, this message translates to:
-  /// **'No spending yet this month'**
-  String get noSpendingThisMonth;
+  /// **'Add your first transaction to see it broken down by category here.'**
+  String get categorySpendingEmptyHint;
 
-  /// Month-over-month change label under a category spending amount, e.g. '+12% from last month'
+  /// Button label in the dashboard's category spending empty state
   ///
   /// In en, this message translates to:
-  /// **'{percent} from last month'**
-  String percentFromLastMonth(String percent);
+  /// **'Add first transaction'**
+  String get addFirstTransactionButton;
 
   /// Dashboard cash flow chart card title
   ///
   /// In en, this message translates to:
   /// **'Cash Flow'**
   String get cashFlow;
-
-  /// Label above the total on the dashboard cash flow chart card
-  ///
-  /// In en, this message translates to:
-  /// **'Overall Revenue'**
-  String get overallRevenue;
-
-  /// Period dropdown value on the dashboard cash flow chart card
-  ///
-  /// In en, this message translates to:
-  /// **'Monthly'**
-  String get periodMonthly;
 
   /// Dashboard section header for the recent transactions list
   ///
@@ -667,6 +835,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No transactions yet'**
   String get noRecentTransactions;
+
+  /// Label on the dashed placeholder card peeking behind the balance card when there are no wallets yet
+  ///
+  /// In en, this message translates to:
+  /// **'Slide in your first wallet'**
+  String get firstRunPeekCta;
+
+  /// Message shown in place of the receipt body when there are no wallets yet
+  ///
+  /// In en, this message translates to:
+  /// **'Your month\'s receipt prints here after the first transaction.'**
+  String get dashboardReceiptNoWallet;
+
+  /// Wallet count shown on the balance card's empty state, always exactly zero
+  ///
+  /// In en, this message translates to:
+  /// **'0 wallets'**
+  String get zeroWalletsLabel;
+
+  /// Title of the wallet transactions filter bottom sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filterTitle;
+
+  /// Link that clears the filter bottom sheet back to its defaults
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get filterReset;
+
+  /// Section label (shown uppercased) above the month grid in the filter sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get filterSectionMonth;
+
+  /// Section label (shown uppercased) above the income/expense toggle in the filter sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get filterSectionType;
+
+  /// Option in the filter sheet's type toggle that includes both income and expense
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterTypeAll;
+
+  /// Button label at the bottom of the filter sheet, previewing how many transactions match the selection so far
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Show 1 transaction} other{Show {count} transactions}}'**
+  String filterShowTransactions(int count);
+
+  /// Filter chip label on the wallet transactions screen, e.g. 'All transactions' or 'Income transactions' - type is already localized
+  ///
+  /// In en, this message translates to:
+  /// **'{type} transactions'**
+  String filterChipLabel(String type);
+
+  /// Empty state shown on the wallet transactions screen when the active filter excludes every transaction
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions match this filter.'**
+  String get noTransactionsForFilter;
+
+  /// Date group header for transactions dated today
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get transactionsGroupToday;
+
+  /// Date group header for transactions dated yesterday
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get transactionsGroupYesterday;
+
+  /// Caption on the wallets screen's fixed total balance bar showing this month's savings rate, e.g. 'Saved 60% this month' - percent is pre-formatted
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {percent} this month'**
+  String savedPercentThisMonth(String percent);
+
+  /// Caption on the wallets screen when this month's expenses exceed its income, e.g. 'Spent 50% more than you received' - percent is pre-formatted and positive
+  ///
+  /// In en, this message translates to:
+  /// **'Spent {percent} more than you received'**
+  String overspentPercentThisMonth(String percent);
+
+  /// Fallback caption on the wallets screen's fixed total balance bar when there's no income yet this month to compute a savings percentage
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 wallet} other{{count} wallets}}'**
+  String walletsCountLabel(int count);
 }
 
 class _AppLocalizationsDelegate

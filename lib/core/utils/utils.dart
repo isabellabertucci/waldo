@@ -1,5 +1,9 @@
 import 'package:intl/intl.dart' show NumberFormat;
 
+/// Shown in place of every money figure while the balance-hidden toggle
+/// (the eye button) is on.
+const hiddenAmount = '••••••';
+
 /// Parses a plain amount such as "10", "10.5", "10,5", or "10.50"
 /// into cents without using floating-point arithmetic. Accepts both
 /// '.' and ',' as the decimal separator, since the app supports
