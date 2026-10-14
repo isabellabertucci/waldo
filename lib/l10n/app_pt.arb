@@ -77,6 +77,10 @@
   "noCategoriesYet": "Ainda não há categorias",
   "addFirstCategory": "Toca em + para adicionares a tua primeira categoria",
   "newCategory": "Nova categoria",
+  "categoriesDefaultSection": "Padrão",
+  "categoriesCustomSection": "Personalizadas",
+  "createCategory": "Criar categoria",
+  "categoryNameHint": "ex: Café, Ginásio",
   "editCategory": "Editar categoria",
   "manageCategories": "Gerir categorias",
   "deleteCategory": "Apagar categoria?",
@@ -135,9 +139,5 @@
   "transactionsGroupYesterday": "Ontem",
   "savedPercentThisMonth": "Poupaste {percent} este mês",
   "overspentPercentThisMonth": "Gastaste mais {percent} do que recebeste",
-  "walletsCountLabel": "{count, plural, one{1 carteira} other{{count} carteiras}}",
-  "currencyOptionEur": "EUR (€)",
-  "currencyOptionGbp": "GBP (£)",
-  "currencyOptionUsd": "USD ($)",
-  "darkMode": "Modo Escuro"
+  "walletsCountLabel": "{count, plural, one{1 carteira} other{{count} carteiras}}"
 }

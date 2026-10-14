@@ -315,6 +315,22 @@
   "@newCategory": {
     "description": "Title of the create category form"
   },
+  "categoriesDefaultSection": "Built-in",
+  "@categoriesDefaultSection": {
+    "description": "Section header on the categories screen for the categories that ship with the app and can't be edited"
+  },
+  "categoriesCustomSection": "Custom",
+  "@categoriesCustomSection": {
+    "description": "Section header on the categories screen for the categories the user created"
+  },
+  "createCategory": "Create category",
+  "@createCategory": {
+    "description": "Confirm button on the new-category sheet"
+  },
+  "categoryNameHint": "e.g. Coffee, Gym",
+  "@categoryNameHint": {
+    "description": "Placeholder in the category name field"
+  },
   "editCategory": "Edit Category",
   "@editCategory": {
     "description": "Title of the edit category form"
@@ -593,21 +609,5 @@
         "type": "int"
       }
     }
-  },
-  "currencyOptionEur": "EUR (€)",
-  "@currencyOptionEur": {
-    "description": "Euro option label in the currency picker"
-  },
-  "currencyOptionGbp": "GBP (£)",
-  "@currencyOptionGbp": {
-    "description": "British Pound option label in the currency picker"
-  },
-  "currencyOptionUsd": "USD ($)",
-  "@currencyOptionUsd": {
-    "description": "US Dollar option label in the currency picker"
-  },
-  "darkMode": "Dark Mode",
-  "@darkMode": {
-    "description": "Dark mode section title in settings"
   }
 }

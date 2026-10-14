@@ -252,6 +252,18 @@ class AppLocalizationsPt extends AppLocalizations {
   String get newCategory => 'Nova categoria';
 
   @override
+  String get categoriesDefaultSection => 'Padrão';
+
+  @override
+  String get categoriesCustomSection => 'Personalizadas';
+
+  @override
+  String get createCategory => 'Criar categoria';
+
+  @override
+  String get categoryNameHint => 'ex: Café, Ginásio';
+
+  @override
   String get editCategory => 'Editar categoria';
 
   @override
@@ -471,16 +483,4 @@ class AppLocalizationsPt extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get currencyOptionEur => 'EUR (€)';
-
-  @override
-  String get currencyOptionGbp => 'GBP (£)';
-
-  @override
-  String get currencyOptionUsd => 'USD (\$)';
-
-  @override
-  String get darkMode => 'Modo Escuro';
 }

@@ -11,6 +11,8 @@ import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/form_name_field.dart';
+import 'package:waldo/core/widgets/option_tile.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/preferences/currency_x.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
@@ -34,7 +36,6 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _balanceController;
-  final _nameFocusNode = FocusNode();
 
   bool get _isEditing => widget.wallet != null;
 
@@ -50,7 +51,6 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
   void dispose() {
     _nameController.dispose();
     _balanceController.dispose();
-    _nameFocusNode.dispose();
     super.dispose();
   }
 
@@ -152,71 +152,13 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
               ],
             ),
             const SizedBox(height: Spacing.md),
-            ListenableBuilder(
-              listenable: _nameFocusNode,
-              builder: (context, child) => Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.md,
-                  vertical: Spacing.sm,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.surfaceContainer,
-                  borderRadius: BorderRadius.circular(Rounded.lg),
-                  border: _nameFocusNode.hasFocus
-                      ? Border.all(color: colors.primary, width: 2)
-                      : null,
-                ),
-                child: child,
-              ),
-              child: Row(
-                children: [
-                  _FieldBadge(icon: AppIcons.name, color: colors.primary),
-                  const SizedBox(width: Spacing.sm),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          l10n.name,
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                        TextFormField(
-                          key: const Key('walletNameField'),
-                          controller: _nameController,
-                          focusNode: _nameFocusNode,
-                          onChanged: viewModel.updateName,
-                          validator: (value) => _validateName(l10n, value),
-                          textCapitalization: TextCapitalization.sentences,
-                          decoration: InputDecoration(
-                            isCollapsed: true,
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            disabledBorder: InputBorder.none,
-                            errorBorder: InputBorder.none,
-                            focusedErrorBorder: InputBorder.none,
-                            filled: false,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: Spacing.xs,
-                            ),
-                            hintText: l10n.walletNameHint,
-                            hintStyle: context.bodyMdBold.copyWith(
-                              color: colors.onSurfaceVariant.withValues(
-                                alpha: 0.6,
-                              ),
-                            ),
-                          ),
-                          style: context.bodyMdBold,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            FormNameField(
+              fieldKey: const Key('walletNameField'),
+              controller: _nameController,
+              label: l10n.name,
+              hint: l10n.walletNameHint,
+              onChanged: viewModel.updateName,
+              validator: (value) => _validateName(l10n, value),
             ),
             const SizedBox(height: Spacing.md),
             Text(
@@ -236,8 +178,8 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
               childAspectRatio: 1.05,
               children: [
                 for (final type in WalletType.values)
-                  _TypeOption(
-                    type: type,
+                  OptionTile(
+                    icon: type.icon,
                     label: type.label(l10n),
                     selected: type == formState.type,
                     onTap: () => viewModel.updateType(type),
@@ -328,93 +270,6 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FieldBadge extends StatelessWidget {
-  const _FieldBadge({required this.icon, required this.color});
-
-  final IconData icon;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    // Always called with `colors.primary` - `onPrimary` is its ink/cream pair.
-    final onColor = context.appColors.onPrimary;
-
-    return Container(
-      width: 36,
-      height: 36,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      child: Icon(icon, size: IconSize.md, color: onColor),
-    );
-  }
-}
-
-/// One tile in the wallet-type grid - a dashed accent border plus a filled
-/// icon disc when selected, a plain card otherwise. Mirrors the Name
-/// field's own dashed-border language so the whole form reads as one
-/// consistent "fill me in" surface.
-class _TypeOption extends StatelessWidget {
-  const _TypeOption({
-    required this.type,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final WalletType type;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return Material(
-      color: colors.surfaceContainer,
-      borderRadius: BorderRadius.circular(Rounded.md),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Rounded.md),
-        onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Rounded.md),
-            border: selected
-                ? Border.all(color: colors.primary, width: 1.5)
-                : null,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: selected
-                      ? colors.primary
-                      : colors.onSurfaceVariant.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  type.icon,
-                  size: IconSize.md,
-                  color: selected ? colors.onPrimary : colors.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: Spacing.xs),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.bodySmBold.copyWith(color: colors.onSurface),
-              ),
-            ],
-          ),
         ),
       ),
     );
