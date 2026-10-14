@@ -39,3 +39,6 @@ jobs:
 
       - name: Lint DESIGN.md
         run: make design-lint
+
+      - name: Design guardrail
+        run: make design-guardrail

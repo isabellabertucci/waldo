@@ -9,9 +9,6 @@ abstract class CategorySpending with _$CategorySpending {
   const factory CategorySpending({
     required Category category,
     required int amount,
-    // null when there was no spending in this category last month, so a
-    // percentage change can't be computed (would be a divide-by-zero).
-    required double? percentChangeFromLastMonth,
   }) = _CategorySpending;
 }
 
@@ -28,9 +25,13 @@ abstract class MonthlyCashFlow with _$MonthlyCashFlow {
 abstract class DashboardData with _$DashboardData {
   const factory DashboardData({
     required int totalBalance,
+    required int walletCount,
     required int monthlyIncome,
     required int monthlyExpense,
     required List<CategorySpending> spendingByCategory,
+    // Expenses this month with no category (never set, or the category was
+    // deleted) - so the receipt's category lines always add up to EXPENSE.
+    required int uncategorizedSpending,
     required List<MonthlyCashFlow> monthlyCashFlow,
     required List<Transaction> recentTransactions,
   }) = _DashboardData;

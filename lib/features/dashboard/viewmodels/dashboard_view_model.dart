@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
@@ -13,6 +14,19 @@ part 'dashboard_view_model.g.dart';
 const _trailingMonths = 12;
 const _recentTransactionsLimit = 5;
 
+/// The month the dashboard is currently showing stats for. Defaults to the
+/// current month; changeable via the month picker in the dashboard's app bar.
+@riverpod
+class SelectedDashboardMonth extends _$SelectedDashboardMonth {
+  @override
+  DateTime build() {
+    final now = ref.watch(clockProvider)();
+    return DateTime(now.year, now.month);
+  }
+
+  void select(DateTime month) => state = DateTime(month.year, month.month);
+}
+
 @riverpod
 class DashboardViewModel extends _$DashboardViewModel {
   @override
@@ -22,22 +36,17 @@ class DashboardViewModel extends _$DashboardViewModel {
       transactionRepositoryProvider.future,
     );
     final categoryRepo = await ref.watch(categoryRepositoryProvider.future);
+    final anchor = ref.watch(selectedDashboardMonthProvider);
 
     final totalBalance = await walletRepo.getTotalBalance();
+    final walletCount = await walletRepo.getCount();
     final transactions = await transactionRepo.getAll();
     final categories = await categoryRepo.getAll();
 
-    final now = DateTime.now();
     final currentMonthTransactions = _transactionsInMonth(
       transactions,
-      now.year,
-      now.month,
-    );
-    final lastMonth = DateTime(now.year, now.month - 1);
-    final lastMonthTransactions = _transactionsInMonth(
-      transactions,
-      lastMonth.year,
-      lastMonth.month,
+      anchor.year,
+      anchor.month,
     );
 
     final monthlyIncome = _sumByType(
@@ -49,19 +58,30 @@ class DashboardViewModel extends _$DashboardViewModel {
       TransactionType.expense,
     );
 
+    final spendingByCategory = _buildSpendingByCategory(
+      currentMonthTransactions,
+      categories,
+    );
+    final categorizedTotal = spendingByCategory.fold<int>(
+      0,
+      (sum, s) => sum + s.amount,
+    );
+
     return DashboardData(
       totalBalance: totalBalance,
+      walletCount: walletCount,
       monthlyIncome: monthlyIncome,
       monthlyExpense: monthlyExpense,
-      spendingByCategory: _buildSpendingByCategory(
-        currentMonthTransactions,
-        lastMonthTransactions,
-        categories,
-      ),
-      monthlyCashFlow: _buildMonthlyCashFlow(transactions, now),
-      // getAll() already sorts desc by date, so the first N are the most
-      // recent transactions across every wallet.
-      recentTransactions: transactions.take(_recentTransactionsLimit).toList(),
+      spendingByCategory: spendingByCategory,
+      uncategorizedSpending: monthlyExpense - categorizedTotal,
+      monthlyCashFlow: _buildMonthlyCashFlow(transactions, anchor),
+      // getAll() already sorts desc by date, and _transactionsInMonth
+      // preserves that order, so the first N are the most recent
+      // transactions within the selected month - keeping this in sync with
+      // the rest of the dashboard, which is all scoped to that month too.
+      recentTransactions: currentMonthTransactions
+          .take(_recentTransactionsLimit)
+          .toList(),
     );
   }
 
@@ -94,11 +114,9 @@ class DashboardViewModel extends _$DashboardViewModel {
 
   List<CategorySpending> _buildSpendingByCategory(
     List<Transaction> currentMonthTransactions,
-    List<Transaction> lastMonthTransactions,
     List<Category> categories,
   ) {
     final currentTotals = _expenseTotalsByCategory(currentMonthTransactions);
-    final lastTotals = _expenseTotalsByCategory(lastMonthTransactions);
     final categoriesById = {for (final c in categories) c.id: c};
 
     final spending = <CategorySpending>[];
@@ -106,18 +124,7 @@ class DashboardViewModel extends _$DashboardViewModel {
       final category = categoriesById[entry.key];
       if (category == null) continue;
 
-      final lastMonthAmount = lastTotals[entry.key] ?? 0;
-      final percentChange = lastMonthAmount == 0
-          ? null
-          : ((entry.value - lastMonthAmount) / lastMonthAmount) * 100;
-
-      spending.add(
-        CategorySpending(
-          category: category,
-          amount: entry.value,
-          percentChangeFromLastMonth: percentChange,
-        ),
-      );
+      spending.add(CategorySpending(category: category, amount: entry.value));
     }
 
     spending.sort((a, b) => b.amount.compareTo(a.amount));

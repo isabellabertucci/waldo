@@ -478,32 +478,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get darkMode => 'Dark Mode';
-
-  @override
-  String get editTransaction => 'Edit Transaction';
-
-  @override
-  String get myFinances => 'My Finances';
-
-  @override
-  String get noSpendingThisMonth => 'No spending yet this month';
-
-  @override
-  String get overallRevenue => 'Overall Revenue';
-
-  @override
-  String overviewSubtitle(String month) {
-    return '$month Overview';
-  }
-
-  @override
-  String percentFromLastMonth(String percent) {
-    return '$percent from last month';
-  }
-
-  @override
-  String get periodMonthly => 'Monthly';
-
-  @override
-  String get spendingsByCategory => 'Spendings by Category';
 }

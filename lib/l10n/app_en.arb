@@ -609,47 +609,5 @@
   "darkMode": "Dark Mode",
   "@darkMode": {
     "description": "Dark mode section title in settings"
-  },
-  "editTransaction": "Edit Transaction",
-  "@editTransaction": {
-    "description": "Title of the edit transaction form"
-  },
-  "myFinances": "My Finances",
-  "@myFinances": {
-    "description": "Dashboard balance overview card title"
-  },
-  "noSpendingThisMonth": "No spending yet this month",
-  "@noSpendingThisMonth": {
-    "description": "Empty state title for the dashboard's category spending section"
-  },
-  "overallRevenue": "Overall Revenue",
-  "@overallRevenue": {
-    "description": "Label above the total on the dashboard cash flow chart card"
-  },
-  "overviewSubtitle": "{month} Overview",
-  "@overviewSubtitle": {
-    "description": "Dashboard balance overview card subtitle, e.g. 'July Overview'",
-    "placeholders": {
-      "month": {
-        "type": "String"
-      }
-    }
-  },
-  "percentFromLastMonth": "{percent} from last month",
-  "@percentFromLastMonth": {
-    "description": "Month-over-month change label under a category spending amount, e.g. '+12% from last month'",
-    "placeholders": {
-      "percent": {
-        "type": "String"
-      }
-    }
-  },
-  "periodMonthly": "Monthly",
-  "@periodMonthly": {
-    "description": "Period dropdown value on the dashboard cash flow chart card"
-  },
-  "spendingsByCategory": "Spendings by Category",
-  "@spendingsByCategory": {
-    "description": "Dashboard section header for the category spending list"
   }
 }
