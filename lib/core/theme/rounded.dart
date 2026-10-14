@@ -1,12 +1,17 @@
-import 'package:waldo/core/theme/spacing.dart';
-
+/// Deliberately sparse: either small (chips), the signature button radius,
+/// a large radius for cards/dialogs, or a full pill. The source design
+/// system uses 40px for its "large" tier, but that's tuned for full-bleed
+/// hero banners; on our much smaller mobile cards it reads as a full
+/// stadium shape, so this is scaled down to stay clearly "large" without
+/// looking like a pill.
 class Rounded {
   Rounded._();
 
-  static final sm = Spacing.sm;
-  static final md = Spacing.md;
-  static final lg = Spacing.lg;
-  static final xl = Spacing.xl;
+  static const double sm = 12;
+  static const double md = 20;
+  static const double lg = 28;
+  static const double pill = 9999;
 
-  static final pill = 9999.0;
+  // Temporary: the dashboard still uses it until its redesign.
+  static const double xl = 24;
 }
