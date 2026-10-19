@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:waldo/core/router/app_shell.dart';
+import 'package:waldo/core/router/app_nav_bar.dart';
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
 import 'package:waldo/features/transactions/ui/transactions_screen.dart';
 import 'package:waldo/features/wallets/ui/wallets_screen.dart';
