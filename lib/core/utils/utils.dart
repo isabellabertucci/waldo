@@ -42,6 +42,10 @@ String zeroAmountHint(String locale) => NumberFormat.decimalPatternDigits(
   decimalDigits: 2,
 ).format(0);
 
+/// [locale]'s decimal separator: "," in pt_PT, "." in en_US.
+String decimalSeparator(String locale) =>
+    NumberFormat.decimalPattern(locale).symbols.DECIMAL_SEP;
+
 String formatCents(
   int cents, {
   required String locale,
