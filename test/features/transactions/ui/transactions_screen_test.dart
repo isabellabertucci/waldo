@@ -96,6 +96,22 @@ void main() {
     expect(find.text(r'-$12.50'), findsOneWidget);
   });
 
+  testWidgets('A failed save shows its error on the sheet, not behind it', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    // No "Others" to file an uncategorized transaction under: save throws.
+    await currentDb!.delete('categories', where: "type = 'others'");
+
+    await createTransaction(tester, amount: '5.00');
+
+    const error =
+        'There was a problem saving the transaction. Please try again.';
+    expect(find.text(error).hitTestable(), findsOneWidget);
+    // The sheet stays open, so nothing typed is lost.
+    expect(find.text('Add expense'), findsOneWidget);
+  });
+
   testWidgets('A row shows its category, not a time of day', (tester) async {
     await pumpTransactionsScreen(tester);
     await createTransaction(tester, amount: '5.00', description: 'Coffee');

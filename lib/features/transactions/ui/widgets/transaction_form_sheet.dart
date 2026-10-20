@@ -107,11 +107,15 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     );
   }
 
+  /// Shown above the button: a SnackBar would land behind the sheet.
+  String? _saveError;
+
   Future<void> _save(TransactionFormViewModel viewModel) async {
     if (!_formKey.currentState!.validate()) {
       _log.fine('Transaction form validation failed');
       return;
     }
+    setState(() => _saveError = null);
     try {
       final success = await viewModel.save();
       if (success && mounted) {
@@ -120,9 +124,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     } catch (_) {
       if (mounted) {
         final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.transactionSaveError)));
+        setState(() => _saveError = l10n.transactionSaveError);
       }
     }
   }
@@ -502,6 +504,14 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                 ),
               ),
               const SizedBox(height: Spacing.md),
+              if (_saveError case final error?) ...[
+                Text(
+                  error,
+                  textAlign: TextAlign.center,
+                  style: context.bodyMdStrong.copyWith(color: colors.error),
+                ),
+                const SizedBox(height: Spacing.sm),
+              ],
               SizedBox(
                 width: double.infinity,
                 child: DashedStitchButton(
