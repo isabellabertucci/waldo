@@ -347,6 +347,48 @@ void main() {
     expect(find.textContaining('10,55'), findsOneWidget);
   });
 
+  testWidgets('Saving an emptied amount says so on the edit sheet', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '10.00', description: 'Coffee');
+
+    await openEditFromRowMenu(tester);
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+    for (var i = 0; i < 2; i++) {
+      await tester.tap(find.byTooltip('Delete digit'));
+      await tester.pump();
+    }
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Amount is required').hitTestable(), findsOneWidget);
+  });
+
+  testWidgets('A failed edit shows its error on the sheet, not behind it', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '10.00', description: 'Coffee');
+
+    await openEditFromRowMenu(tester);
+    // Gone from the database, so the update throws.
+    await currentDb!.delete('transactions');
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find
+          .text("Couldn't save the transaction. Nothing was changed.")
+          .hitTestable(),
+      findsOneWidget,
+    );
+    expect(find.text('Save changes'), findsOneWidget);
+  });
+
   testWidgets('Backing out of the amount keypad without typing asks nothing', (
     tester,
   ) async {

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/database/save_failure.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
@@ -296,29 +297,36 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     _viewModel(ref).updateDate(merged);
   }
 
+  /// Shown above the buttons: a SnackBar would land behind the sheet.
+  String? _saveError;
+
   Future<void> _saveChanges() async {
-    final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context);
     final formState = _formState;
 
     final amountInCents = parseToCents(formState.amount, allowNegative: false);
     if (amountInCents == null || amountInCents <= 0) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.amountRequired)));
+      setState(() => _saveError = l10n.amountRequired);
       return;
     }
     if (formState.date == null) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.dateRequired)));
+      setState(() => _saveError = l10n.dateRequired);
       return;
     }
 
+    setState(() => _saveError = null);
     try {
       final success = await _viewModel(ref).save();
       if (!success || !mounted) return;
       setState(() => _editable = false);
-    } catch (_) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.transactionSaveError)),
-      );
+    } catch (e) {
+      if (!mounted) return;
+      final message = switch (saveFailureOf(e)) {
+        SaveFailure.storageFull => l10n.saveErrorStorageFull,
+        SaveFailure.temporary => l10n.saveErrorTemporary,
+        SaveFailure.unknown => l10n.transactionSaveError,
+      };
+      setState(() => _saveError = message);
     }
   }
 
@@ -329,7 +337,10 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     _amountController.text = _beforeEdit.amount;
     _nameController.text = _beforeEdit.description;
     _noteController.text = _beforeEdit.note;
-    setState(() => _editable = false);
+    setState(() {
+      _editable = false;
+      _saveError = null;
+    });
   }
 
   void _enterEditMode() {
@@ -825,6 +836,17 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             ),
           ),
           const SizedBox(height: Spacing.md),
+          if (_saveError case final error?) ...[
+            SizedBox(
+              width: double.infinity,
+              child: Text(
+                error,
+                textAlign: TextAlign.center,
+                style: context.bodyMdStrong.copyWith(color: colors.error),
+              ),
+            ),
+            const SizedBox(height: Spacing.sm),
+          ],
           Row(
             children: [
               // Cancel and Save get (nearly) equal widths.
