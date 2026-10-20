@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/common.dart';
@@ -33,10 +34,16 @@ class AppTheme {
       surfaceTint: colors.transparent,
     );
 
+    // Colored by our scheme, with font sizes merged in up front so the
+    // tracking below scales with each style's real size.
+    final typography = Typography.material2021(
+      platform: defaultTargetPlatform,
+      colorScheme: colorScheme,
+    );
     final textTheme = _applyTypeScale(
-      brightness == Brightness.dark
-          ? ThemeData.dark().textTheme
-          : ThemeData.light().textTheme,
+      typography.englishLike.merge(
+        brightness == Brightness.dark ? typography.white : typography.black,
+      ),
     );
 
     return ThemeData(
