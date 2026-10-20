@@ -223,7 +223,15 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get transactionSaveError =>
-      'Ocorreu um problema ao guardar a transação. Tenta novamente.';
+      'Não foi possível guardar a transação. Nada foi alterado.';
+
+  @override
+  String get saveErrorStorageFull =>
+      'Não há espaço no telemóvel. Liberta algum espaço e tenta novamente.';
+
+  @override
+  String get saveErrorTemporary =>
+      'Não foi possível guardar agora. Tenta novamente.';
 
   @override
   String get transactionDeleteError =>

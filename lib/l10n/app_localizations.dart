@@ -500,11 +500,23 @@ abstract class AppLocalizations {
   /// **'There was a problem loading your transactions. Please try again.'**
   String get transactionsError;
 
-  /// Generic error message shown when saving a transaction fails
+  /// Shown when saving a transaction fails for a reason the user can't fix; the write was rolled back
   ///
   /// In en, this message translates to:
-  /// **'There was a problem saving the transaction. Please try again.'**
+  /// **'Couldn\'t save the transaction. Nothing was changed.'**
   String get transactionSaveError;
+
+  /// Shown when a save fails because the device storage is full
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone is out of space. Free some up and try again.'**
+  String get saveErrorStorageFull;
+
+  /// Shown when a save fails because the database was briefly busy or closed
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save right now. Please try again.'**
+  String get saveErrorTemporary;
 
   /// Generic error message shown when deleting a transaction fails
   ///

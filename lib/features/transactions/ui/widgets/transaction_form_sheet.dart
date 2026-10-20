@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
 import 'package:waldo/core/constants/app_constants.dart';
+import 'package:waldo/core/database/save_failure.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/theme/app_icons.dart';
@@ -121,10 +122,15 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
       if (success && mounted) {
         Navigator.of(context).pop();
       }
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         final l10n = AppLocalizations.of(context);
-        setState(() => _saveError = l10n.transactionSaveError);
+        final message = switch (saveFailureOf(e)) {
+          SaveFailure.storageFull => l10n.saveErrorStorageFull,
+          SaveFailure.temporary => l10n.saveErrorTemporary,
+          SaveFailure.unknown => l10n.transactionSaveError,
+        };
+        setState(() => _saveError = message);
       }
     }
   }

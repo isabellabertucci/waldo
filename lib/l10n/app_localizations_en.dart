@@ -220,7 +220,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transactionSaveError =>
-      'There was a problem saving the transaction. Please try again.';
+      'Couldn\'t save the transaction. Nothing was changed.';
+
+  @override
+  String get saveErrorStorageFull =>
+      'Your phone is out of space. Free some up and try again.';
+
+  @override
+  String get saveErrorTemporary =>
+      'Couldn\'t save right now. Please try again.';
 
   @override
   String get transactionDeleteError =>
