@@ -279,9 +279,17 @@
   "@transactionsError": {
     "description": "Generic error message shown when transactions fail to load"
   },
-  "transactionSaveError": "There was a problem saving the transaction. Please try again.",
+  "transactionSaveError": "Couldn't save the transaction. Nothing was changed.",
   "@transactionSaveError": {
-    "description": "Generic error message shown when saving a transaction fails"
+    "description": "Shown when saving a transaction fails for a reason the user can't fix; the write was rolled back"
+  },
+  "saveErrorStorageFull": "Your phone is out of space. Free some up and try again.",
+  "@saveErrorStorageFull": {
+    "description": "Shown when a save fails because the device storage is full"
+  },
+  "saveErrorTemporary": "Couldn't save right now. Please try again.",
+  "@saveErrorTemporary": {
+    "description": "Shown when a save fails because the database was briefly busy or closed"
   },
   "transactionDeleteError": "There was a problem deleting the transaction. Please try again.",
   "@transactionDeleteError": {

@@ -105,8 +105,7 @@ void main() {
 
     await createTransaction(tester, amount: '5.00');
 
-    const error =
-        'There was a problem saving the transaction. Please try again.';
+    const error = "Couldn't save the transaction. Nothing was changed.";
     expect(find.text(error).hitTestable(), findsOneWidget);
     // The sheet stays open, so nothing typed is lost.
     expect(find.text('Add expense'), findsOneWidget);
