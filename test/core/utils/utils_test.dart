@@ -34,6 +34,11 @@ void main() {
     expect(zeroAmountHint('pt_PT'), '0,00');
   });
 
+  test('decimalSeparator follows the locale', () {
+    expect(decimalSeparator('en_US'), '.');
+    expect(decimalSeparator('pt_PT'), ',');
+  });
+
   group('formatCentsForInput', () {
     final cases = <(int, String)>[
       (1000, '10.00'),

@@ -306,6 +306,32 @@ void main() {
     expect(find.text(r'-$105,555,555.55'), findsOneWidget);
   });
 
+  testWidgets('The amount keypad uses a Portuguese phone\'s decimal comma', (
+    tester,
+  ) async {
+    tester.platformDispatcher.localeTestValue = const Locale('pt', 'PT');
+    addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '10.00', description: 'Coffee');
+
+    await openEditFromRowMenu(tester);
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+
+    expect(find.text(','), findsOneWidget);
+    expect(find.text('.'), findsNothing);
+
+    // A second comma is ignored, and only two decimals fit.
+    await tester.tap(find.text(','));
+    await tester.tap(find.text(','));
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(find.text('5'));
+    }
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('10,55'), findsOneWidget);
+  });
+
   testWidgets('Backing out of the amount keypad without typing asks nothing', (
     tester,
   ) async {

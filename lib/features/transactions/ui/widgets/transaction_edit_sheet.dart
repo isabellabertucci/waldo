@@ -171,7 +171,9 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final formState = _formState;
     switch (field) {
       case _EditField.amount:
-        _amountController.text = _trimTrailingZeros(formState.amount);
+        _amountController.text = _trimTrailingZeros(
+          formState.amount,
+        ).replaceFirst(_decimalSeparators, _decimalSeparator);
       case _EditField.category:
         break;
     }
@@ -241,9 +243,12 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     _closeField();
   }
 
+  /// The phone's decimal separator, so the keypad matches the system keyboard.
+  String get _decimalSeparator => decimalSeparator(moneyLocale(context));
+
   void _appendAmountDigit(String digit) {
     final value = _amountController.text;
-    final decimalIndex = value.indexOf('.');
+    final decimalIndex = value.indexOf(_decimalSeparators);
     if (decimalIndex != -1 && value.length - decimalIndex > 2) return;
     // Same cap as the typed amount fields: no digit past 999 999 999.
     if (decimalIndex == -1 && value.length >= maxAmountWholeDigits) return;
@@ -252,8 +257,13 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
 
   void _appendAmountDecimalPoint() {
     final value = _amountController.text;
-    if (value.contains('.')) return;
-    setState(() => _amountController.text = value.isEmpty ? '0.' : '$value.');
+    if (value.contains(_decimalSeparators)) return;
+    final separator = _decimalSeparator;
+    setState(
+      () => _amountController.text = value.isEmpty
+          ? '0$separator'
+          : '$value$separator',
+    );
   }
 
   void _amountBackspace() {
@@ -958,6 +968,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
         ),
         const SizedBox(height: Spacing.md),
         _AmountNumpad(
+          decimalSeparator: _decimalSeparator,
           onDigit: _appendAmountDigit,
           onDecimalPoint: _appendAmountDecimalPoint,
           onBackspace: _amountBackspace,
@@ -1061,11 +1072,13 @@ class _ViewInfoRow extends StatelessWidget {
 
 class _AmountNumpad extends StatelessWidget {
   const _AmountNumpad({
+    required this.decimalSeparator,
     required this.onDigit,
     required this.onDecimalPoint,
     required this.onBackspace,
   });
 
+  final String decimalSeparator;
   final ValueChanged<String> onDigit;
   final VoidCallback onDecimalPoint;
   final VoidCallback onBackspace;
@@ -1095,7 +1108,7 @@ class _AmountNumpad extends StatelessWidget {
           spacing: Spacing.sm,
           children: [
             Expanded(
-              child: _NumpadKey(label: '.', onTap: onDecimalPoint),
+              child: _NumpadKey(label: decimalSeparator, onTap: onDecimalPoint),
             ),
             Expanded(
               child: _NumpadKey(label: '0', onTap: () => onDigit('0')),
@@ -1147,11 +1160,14 @@ class _NumpadKey extends StatelessWidget {
   }
 }
 
-/// "10.00" -> "10", "10.50" -> "10.5", so the keypad can keep typing.
+/// Either decimal separator: a stored amount uses ".", a typed one may use ",".
+final _decimalSeparators = RegExp('[.,]');
+
+/// "10.00" -> "10", "10,50" -> "10,5", so the keypad can keep typing.
 String _trimTrailingZeros(String amount) {
-  if (!amount.contains('.')) return amount;
+  if (!amount.contains(_decimalSeparators)) return amount;
   final trimmed = amount.replaceFirst(RegExp(r'0+$'), '');
-  return trimmed.endsWith('.')
+  return trimmed.endsWith('.') || trimmed.endsWith(',')
       ? trimmed.substring(0, trimmed.length - 1)
       : trimmed;
 }
