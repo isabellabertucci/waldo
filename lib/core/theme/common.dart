@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_colors.dart';
+import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
@@ -169,8 +170,7 @@ class Common {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Rounded.pill),
         ),
-        // label-lg-strong (context.labelLgStrong has no context here).
-        textStyle: textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w700),
+        textStyle: textTheme.labelLgStrong,
       ),
     );
   }
