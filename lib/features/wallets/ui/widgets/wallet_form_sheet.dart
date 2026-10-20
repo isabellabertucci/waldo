@@ -112,7 +112,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
       walletFormViewModelProvider(widget.wallet).notifier,
     );
     try {
-      final success = await viewModel.save(widget.wallet);
+      final success = await viewModel.save();
       if (success && mounted) Navigator.of(context).pop();
     } on DuplicateWalletNameException {
       // The list on screen was stale; the database still caught it.

@@ -42,7 +42,7 @@ void main() {
     );
     formNotifier.updateName('Checking');
     formNotifier.updateBalance('100.00');
-    await formNotifier.save(null);
+    await formNotifier.save();
 
     final after = await container.read(dashboardViewModelProvider.future);
     expect(after.totalBalance, 10000);
@@ -56,7 +56,7 @@ void main() {
       );
       formNotifier.updateName('Checking');
       formNotifier.updateBalance('50.00');
-      await formNotifier.save(null);
+      await formNotifier.save();
 
       final withWallet = await container.read(
         dashboardViewModelProvider.future,

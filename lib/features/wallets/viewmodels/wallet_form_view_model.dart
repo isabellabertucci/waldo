@@ -41,17 +41,19 @@ class WalletFormViewModel extends _$WalletFormViewModel {
   /// True while a save is writing, so a double tap can't save twice.
   bool _saving = false;
 
-  Future<bool> save(Wallet? existingWallet) async {
+  Future<bool> save() async {
     if (_saving) return false;
     _saving = true;
     try {
-      return await _save(existingWallet);
+      return await _save();
     } finally {
       _saving = false;
     }
   }
 
-  Future<bool> _save(Wallet? existingWallet) async {
+  Future<bool> _save() async {
+    // The wallet this form was built for, so save can't target another.
+    final existingWallet = this.existingWallet;
     final isEditing = existingWallet != null;
     final allowsNegative = state.type == WalletType.credit;
     final balanceInCents = isEditing
