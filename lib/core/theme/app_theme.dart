@@ -109,59 +109,71 @@ class AppTheme {
   }
 }
 
+/// The DESIGN.md emphasis tokens. Defined on [TextTheme] so component themes,
+/// which have no `context`, share them; widgets use the [ThemeContext] getters.
+extension AppTextStyles on TextTheme {
+  /// `body-md`, semibold (w600).
+  TextStyle get bodyMdStrong =>
+      bodyMedium!.copyWith(fontWeight: FontWeight.w600);
+
+  /// `body-md`, bold (w700) - the most common emphasis step.
+  TextStyle get bodyMdBold => bodyMedium!.copyWith(fontWeight: FontWeight.w700);
+
+  /// `body-sm`, bold - a caption that still needs to read as a value, not
+  /// just muted metadata (e.g. a stat card's small bold figure).
+  TextStyle get bodySmBold => bodySmall!.copyWith(fontWeight: FontWeight.w700);
+
+  /// `label-lg` pushed to bold - transaction amounts, confirm buttons, and
+  /// other labels that need to visually win their row.
+  TextStyle get labelLgStrong =>
+      labelLarge!.copyWith(fontWeight: FontWeight.w700);
+
+  /// `label-sm`, bold - a small label that still needs emphasis (distinct
+  /// from [labelXs], which is specifically the uppercase eyebrow style).
+  TextStyle get labelSmBold =>
+      labelSmall!.copyWith(fontWeight: FontWeight.w700);
+
+  /// `headline-md` pushed one step, semibold - section headers within a
+  /// screen (e.g. "Recent transactions", "Cash Flow").
+  TextStyle get headlineMdStrong =>
+      titleMedium!.copyWith(fontWeight: FontWeight.w600);
+
+  /// `headline-lg` pushed to extra-bold - the most common "screen/sheet
+  /// title" weight: dialog titles, form sheet headers, card titles.
+  TextStyle get headlineLgStrong =>
+      titleLarge!.copyWith(fontWeight: FontWeight.w800);
+
+  /// `headlineSmall`, extra-bold - an alternate large title.
+  TextStyle get headlineSmBold =>
+      headlineSmall!.copyWith(fontWeight: FontWeight.w800);
+
+  /// `headlineMedium`, extra-bold - the amount being edited.
+  TextStyle get amountDisplayBold =>
+      headlineMedium!.copyWith(fontWeight: FontWeight.w800);
+
+  /// `headlineMedium`, black (w900) - the dashboard's total balance.
+  TextStyle get headlineDisplayStrong =>
+      headlineMedium!.copyWith(fontWeight: FontWeight.w900);
+
+  /// A small uppercase eyebrow label. Callers upper-case the text themselves.
+  TextStyle get labelXs =>
+      labelSmall!.copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.4);
+}
+
 extension ThemeContext on BuildContext {
   AppColors get appColors => Theme.of(this).extension<AppColors>()!;
 
   TextTheme get textTheme => Theme.of(this).textTheme;
 
-  /// `body-md`, semibold (w600).
-  TextStyle get bodyMdStrong =>
-      textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w600);
-
-  /// `body-md`, bold (w700) - the most common emphasis step.
-  TextStyle get bodyMdBold =>
-      textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.w700);
-
-  /// `body-sm`, bold - a caption that still needs to read as a value, not
-  /// just muted metadata (e.g. a stat card's small bold figure).
-  TextStyle get bodySmBold =>
-      textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w700);
-
-  /// `label-lg` pushed to bold - transaction amounts, confirm buttons, and
-  /// other labels that need to visually win their row.
-  TextStyle get labelLgStrong =>
-      textTheme.labelLarge!.copyWith(fontWeight: FontWeight.w700);
-
-  /// `label-sm`, bold - a small label that still needs emphasis (distinct
-  /// from [labelXs], which is specifically the uppercase eyebrow style).
-  TextStyle get labelSmBold =>
-      textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w700);
-
-  /// `headline-md` pushed one step, semibold - section headers within a
-  /// screen (e.g. "Recent transactions", "Cash Flow").
-  TextStyle get headlineMdStrong =>
-      textTheme.titleMedium!.copyWith(fontWeight: FontWeight.w600);
-
-  /// `headline-lg` pushed to extra-bold - the most common "screen/sheet
-  /// title" weight: dialog titles, form sheet headers, card titles.
-  TextStyle get headlineLgStrong =>
-      textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w800);
-
-  /// `headlineSmall`, extra-bold - an alternate large title.
-  TextStyle get headlineSmBold =>
-      textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w800);
-
-  /// `headlineMedium`, extra-bold - the amount being edited.
-  TextStyle get amountDisplayBold =>
-      textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w800);
-
-  /// `headlineMedium`, black (w900) - the dashboard's total balance.
-  TextStyle get headlineDisplayStrong =>
-      textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w900);
-
-  /// A small uppercase eyebrow label. Callers upper-case the text themselves.
-  TextStyle get labelXs => textTheme.labelSmall!.copyWith(
-    fontWeight: FontWeight.w600,
-    letterSpacing: 0.4,
-  );
+  TextStyle get bodyMdStrong => textTheme.bodyMdStrong;
+  TextStyle get bodyMdBold => textTheme.bodyMdBold;
+  TextStyle get bodySmBold => textTheme.bodySmBold;
+  TextStyle get labelLgStrong => textTheme.labelLgStrong;
+  TextStyle get labelSmBold => textTheme.labelSmBold;
+  TextStyle get headlineMdStrong => textTheme.headlineMdStrong;
+  TextStyle get headlineLgStrong => textTheme.headlineLgStrong;
+  TextStyle get headlineSmBold => textTheme.headlineSmBold;
+  TextStyle get amountDisplayBold => textTheme.amountDisplayBold;
+  TextStyle get headlineDisplayStrong => textTheme.headlineDisplayStrong;
+  TextStyle get labelXs => textTheme.labelXs;
 }
