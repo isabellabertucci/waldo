@@ -114,6 +114,23 @@ void main() {
     verify(() => mockRepo.insert(any())).called(1);
   });
 
+  test('a save that throws does not block the next one', () async {
+    var calls = 0;
+    when(() => mockRepo.insert(any())).thenAnswer((_) async {
+      calls++;
+      if (calls == 1) throw StateError('db');
+      return 1;
+    });
+    final provider = walletFormViewModelProvider(null);
+    container.listen(provider, (_, _) {});
+    final notifier = container.read(provider.notifier);
+    notifier.updateName('Cash');
+
+    await expectLater(notifier.save(null), throwsA(isA<StateError>()));
+    expect(await notifier.save(null), isTrue);
+    verify(() => mockRepo.insert(any())).called(2);
+  });
+
   test('save while editing calls update, not insert', () async {
     const existing = Wallet(
       id: 5,
