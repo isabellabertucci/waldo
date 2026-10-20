@@ -113,7 +113,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
       return;
     }
     try {
-      final success = await viewModel.save(null);
+      final success = await viewModel.save();
       if (success && mounted) {
         Navigator.of(context).pop();
       }

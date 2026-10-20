@@ -100,7 +100,7 @@ void main() {
     notifier.updateAmount('10.00');
     notifier.updateDate(DateTime(2026, 8, 10));
 
-    final success = await notifier.save(null);
+    final success = await notifier.save();
 
     expect(success, isFalse);
     verifyNever(() => mockRepo.insert(any()));
@@ -112,7 +112,7 @@ void main() {
     );
     notifier.updateAmount('10.00');
 
-    final success = await notifier.save(null);
+    final success = await notifier.save();
 
     expect(success, isFalse);
     verifyNever(() => mockRepo.insert(any()));
@@ -125,7 +125,7 @@ void main() {
     notifier.updateAmount('0');
     notifier.updateDate(DateTime(2026, 8, 10));
 
-    final success = await notifier.save(null);
+    final success = await notifier.save();
 
     expect(success, isFalse);
     verifyNever(() => mockRepo.insert(any()));
@@ -141,7 +141,7 @@ void main() {
     notifier.updateDate(DateTime(2026, 8, 10));
     notifier.updateType(TransactionType.income);
 
-    final success = await notifier.save(null);
+    final success = await notifier.save();
 
     expect(success, isTrue);
     verify(() => mockRepo.insert(any())).called(1);
@@ -155,7 +155,7 @@ void main() {
     notifier.updateAmount('5.00');
     notifier.updateDate(DateTime(2026, 8, 10));
 
-    await notifier.save(null);
+    await notifier.save();
 
     final saved =
         verify(() => mockRepo.insert(captureAny())).captured.single
@@ -177,7 +177,7 @@ void main() {
     notifier.updateDate(DateTime(2026, 8, 10));
     notifier.updateCategoryId(2);
 
-    await notifier.save(null);
+    await notifier.save();
 
     final saved =
         verify(() => mockRepo.insert(captureAny())).captured.single
@@ -198,10 +198,7 @@ void main() {
     notifier.updateAmount('5.00');
     notifier.updateDate(DateTime(2026, 8, 10));
 
-    final results = await Future.wait([
-      notifier.save(null),
-      notifier.save(null),
-    ]);
+    final results = await Future.wait([notifier.save(), notifier.save()]);
 
     expect(results, [true, false]);
     verify(() => mockRepo.insert(any())).called(1);
@@ -220,8 +217,8 @@ void main() {
     notifier.updateAmount('5.00');
     notifier.updateDate(DateTime(2026, 8, 10));
 
-    await expectLater(notifier.save(null), throwsA(isA<StateError>()));
-    expect(await notifier.save(null), isTrue);
+    await expectLater(notifier.save(), throwsA(isA<StateError>()));
+    expect(await notifier.save(), isTrue);
     verify(() => mockRepo.insert(any())).called(2);
   });
 
@@ -241,7 +238,7 @@ void main() {
     );
     notifier.updateAmount('7.00');
 
-    final success = await notifier.save(existing);
+    final success = await notifier.save();
 
     expect(success, isTrue);
     verify(() => mockRepo.update(any())).called(1);

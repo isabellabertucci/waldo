@@ -65,7 +65,7 @@ void main() {
     notifier.updateName('Cash');
     notifier.updateBalance('10.50');
 
-    final success = await notifier.save(null);
+    final success = await notifier.save();
 
     expect(success, isTrue);
     final inserted =
@@ -89,7 +89,7 @@ void main() {
       notifier.updateType(WalletType.credit);
       notifier.updateBalance('-50.00');
 
-      final success = await notifier.save(null);
+      final success = await notifier.save();
 
       expect(success, isTrue);
       verify(() => mockRepo.insert(any())).called(1);
@@ -105,10 +105,7 @@ void main() {
     final notifier = container.read(provider.notifier);
     notifier.updateName('Cash');
 
-    final results = await Future.wait([
-      notifier.save(null),
-      notifier.save(null),
-    ]);
+    final results = await Future.wait([notifier.save(), notifier.save()]);
 
     expect(results, [true, false]);
     verify(() => mockRepo.insert(any())).called(1);
@@ -126,8 +123,8 @@ void main() {
     final notifier = container.read(provider.notifier);
     notifier.updateName('Cash');
 
-    await expectLater(notifier.save(null), throwsA(isA<StateError>()));
-    expect(await notifier.save(null), isTrue);
+    await expectLater(notifier.save(), throwsA(isA<StateError>()));
+    expect(await notifier.save(), isTrue);
     verify(() => mockRepo.insert(any())).called(2);
   });
 
@@ -144,7 +141,7 @@ void main() {
     );
     notifier.updateName('New name');
 
-    final success = await notifier.save(existing);
+    final success = await notifier.save();
 
     expect(success, isTrue);
     verify(() => mockRepo.update(any())).called(1);

@@ -302,7 +302,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     }
 
     try {
-      final success = await _viewModel(ref).save(widget.transaction);
+      final success = await _viewModel(ref).save();
       if (!success || !mounted) return;
       setState(() => _editable = false);
     } catch (_) {
