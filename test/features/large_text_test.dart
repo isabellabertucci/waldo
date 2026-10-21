@@ -1,11 +1,15 @@
 import 'package:alchemist/alchemist.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/features/dashboard/models/dashboard_data.dart';
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
+import 'package:waldo/features/dashboard/ui/widgets/cash_flow_card.dart';
 import 'package:waldo/features/settings/ui/settings_screen.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/ui/all_transactions_screen.dart';
@@ -111,6 +115,64 @@ void main() {
           };
           expect(amounts, isNotEmpty);
           expect(rights.length == 1 || lefts.length == 1, isTrue);
+        });
+      }
+
+      for (final locale in const [Locale('en'), Locale('pt')]) {
+        testWidgets('The cash flow card stays readable in $locale at $label', (
+          tester,
+        ) async {
+          await setUpPhone(tester, size, scale);
+          currentDb = await pumpWidgetWithProviders(
+            tester,
+            Scaffold(
+              body: Padding(
+                padding: const EdgeInsets.all(24),
+                child: CashFlowCard(
+                  monthlyCashFlow: [
+                    for (var i = 11; i >= 0; i--)
+                      MonthlyCashFlow(
+                        month: DateTime(2026, 10 - i),
+                        income: 0,
+                        expense: 1000 * i,
+                      ),
+                  ],
+                  currency: Currency.eur,
+                  isBalanceHidden: false,
+                ),
+              ),
+            ),
+            locale: locale,
+          );
+
+          // The title keeps whole words, not one letter a line.
+          final title = tester.getSize(
+            find.text(
+              locale.languageCode == 'pt' ? 'Fluxo de caixa' : 'Cash flow',
+            ),
+          );
+          expect(title.width, greaterThan(title.height));
+
+          // Month labels never overlap, and the last month always shows.
+          final chart = find.byType(LineChart);
+          final labels = [
+            for (final e
+                in find
+                    .descendant(of: chart, matching: find.byType(Text))
+                    .evaluate())
+              tester.getRect(find.byWidget(e.widget)),
+          ]..sort((a, b) => a.left.compareTo(b.left));
+          expect(labels.length, greaterThan(1));
+          for (var i = 1; i < labels.length; i++) {
+            expect(labels[i].left, greaterThanOrEqualTo(labels[i - 1].right));
+          }
+          expect(
+            find.descendant(
+              of: chart,
+              matching: find.text(locale.languageCode == 'pt' ? 'out.' : 'Oct'),
+            ),
+            findsOneWidget,
+          );
         });
       }
 
