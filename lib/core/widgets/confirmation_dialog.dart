@@ -54,7 +54,9 @@ class ConfirmationDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Rounded.lg),
       ),
-      child: Padding(
+      // Scrolls when large text on a small phone outgrows the screen, so the
+      // buttons stay reachable.
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(Spacing.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
