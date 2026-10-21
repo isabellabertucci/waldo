@@ -60,13 +60,22 @@ class OptionTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: Spacing.xs),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Spacing.xxs),
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.bodySmBold.copyWith(color: colors.onSurface),
+                // A long label ("Cartão de crédito") wraps to a second line;
+                // Flexible keeps it from overflowing the tile under large text.
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Spacing.xxs,
+                    ),
+                    child: Text(
+                      label,
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.bodySmBold.copyWith(
+                        color: colors.onSurface,
+                      ),
+                    ),
                   ),
                 ),
               ],
