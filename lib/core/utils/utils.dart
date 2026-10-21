@@ -42,6 +42,10 @@ String zeroAmountHint(String locale) => NumberFormat.decimalPatternDigits(
   decimalDigits: 2,
 ).format(0);
 
+/// The form a name is compared in: "  CAFÉ " and "Café" are the same name.
+/// Dart lower-cases accented letters; SQLite's NOCASE only does A-Z.
+String nameKey(String name) => name.trim().toLowerCase();
+
 /// [locale]'s decimal separator: "," in pt_PT, "." in en_US.
 String decimalSeparator(String locale) =>
     NumberFormat.decimalPattern(locale).symbols.DECIMAL_SEP;

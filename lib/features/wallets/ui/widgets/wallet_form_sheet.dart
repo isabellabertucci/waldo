@@ -80,9 +80,9 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
       return l10n.nameTooLong;
     }
     // When editing, the wallet's own name doesn't count as taken.
-    final lower = value.trim().toLowerCase();
+    final key = nameKey(value);
     final taken = wallets.any(
-      (w) => w.id != widget.wallet?.id && w.name.toLowerCase() == lower,
+      (w) => w.id != widget.wallet?.id && nameKey(w.name) == key,
     );
     return taken ? l10n.walletNameTaken : null;
   }

@@ -8,6 +8,7 @@ import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/page_width.dart';
 import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
@@ -111,9 +112,9 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
     if (name.length > maxCategoryNameLength) return l10n.nameTooLong;
 
     // Built-ins match in every language, not just the one on screen.
-    final lower = name.toLowerCase();
+    final key = nameKey(name);
     final taken = widget.categories.any(
-      (c) => c.namesInEveryLanguage.any((n) => n.toLowerCase() == lower),
+      (c) => c.namesInEveryLanguage.any((n) => nameKey(n) == key),
     );
     return taken ? l10n.categoryNameTaken : null;
   }
