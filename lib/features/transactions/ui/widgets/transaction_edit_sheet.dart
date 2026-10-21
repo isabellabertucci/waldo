@@ -456,7 +456,8 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
         ? '—'
         : formState.note.trim();
 
-    return Padding(
+    // Scrolls, like the edit list, so large text never pushes it off-screen.
+    return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(
         Spacing.md,
         Spacing.sm,
@@ -511,8 +512,11 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               color: colors.surfaceContainer,
               borderRadius: BorderRadius.circular(Rounded.lg),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // Side by side when they fit; with large text the amount wraps
+            // under its label rather than being cut.
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Text(
                   l10n.amount,
