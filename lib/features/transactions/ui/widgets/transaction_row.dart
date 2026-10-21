@@ -41,6 +41,12 @@ class TransactionRow extends StatelessWidget {
     final sign = isIncome ? '+' : '-';
     final description = transaction.description?.trim();
     final categoryLabel = category?.displayName(l10n);
+    final amountText = isAmountHidden
+        ? hiddenAmount
+        : '$sign${formatCents(transaction.amount, locale: moneyLocale(context), currencyCode: currency.code)}';
+    final amountStyle = context.bodyMdBold.copyWith(color: amountColor);
+    final referenceAmount =
+        '-${formatCents(_referenceAmountCents, locale: moneyLocale(context), currencyCode: currency.code)}';
 
     return InkWell(
       // A plain tap opens a read-only view - only the "⋯" menu's Edit
@@ -67,32 +73,56 @@ class TransactionRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: Spacing.sm),
+            // The amount stays on the right while the description keeps at
+            // least as much room as a typical amount; with large text it moves
+            // under it. Measuring a fixed amount, not this row's, keeps every
+            // row in a list on the same layout.
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    description == null || description.isEmpty
-                        ? l10n.transactionDefaultDescription
-                        : description,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final amount = Text(
+                    amountText,
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.bodyMdBold,
-                  ),
-                  Text(
-                    categoryLabel ?? l10n.uncategorized,
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+                    style: amountStyle,
+                  );
+                  final painter = TextPainter(
+                    text: TextSpan(text: referenceAmount, style: amountStyle),
+                    textScaler: MediaQuery.textScalerOf(context),
+                    textDirection: Directionality.of(context),
+                    maxLines: 1,
+                  )..layout();
+                  final stacked = painter.width * 2 > constraints.maxWidth;
+                  painter.dispose();
+
+                  final texts = Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        description == null || description.isEmpty
+                            ? l10n.transactionDefaultDescription
+                            : description,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.bodyMdBold,
+                      ),
+                      Text(
+                        categoryLabel ?? l10n.uncategorized,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                      if (stacked) amount,
+                    ],
+                  );
+                  if (stacked) return texts;
+                  return Row(
+                    children: [
+                      Expanded(child: texts),
+                      amount,
+                    ],
+                  );
+                },
               ),
-            ),
-            Text(
-              isAmountHidden
-                  ? hiddenAmount
-                  : '$sign${formatCents(transaction.amount, locale: moneyLocale(context), currencyCode: currency.code)}',
-              style: context.bodyMdBold.copyWith(color: amountColor),
             ),
             PopupMenuButton<_RowAction>(
               padding: EdgeInsets.zero,
@@ -151,6 +181,9 @@ class TransactionRow extends StatelessWidget {
 }
 
 enum _RowAction { edit, delete }
+
+/// 999,99: a typical large amount, for deciding where amounts go.
+const _referenceAmountCents = 99999;
 
 /// A card of [TransactionRow]s, with hairlines that start under the text.
 class TransactionCard extends StatelessWidget {
