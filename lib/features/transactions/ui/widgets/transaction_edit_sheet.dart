@@ -98,11 +98,14 @@ Future<void> deleteTransactionWithUndo(
 
     try {
       await viewModel.confirmDelete(transaction.id!);
-    } catch (_) {
+    } catch (e) {
       viewModel.restoreTransaction(transaction.id!);
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.transactionDeleteError)),
+      final message = failureMessage(
+        l10n,
+        e,
+        unknown: l10n.transactionDeleteError,
       );
+      messenger.showSnackBar(SnackBar(content: Text(message)));
     }
   } finally {
     subscription.close();
@@ -321,11 +324,11 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
       setState(() => _editable = false);
     } catch (e) {
       if (!mounted) return;
-      final message = switch (saveFailureOf(e)) {
-        SaveFailure.storageFull => l10n.saveErrorStorageFull,
-        SaveFailure.temporary => l10n.saveErrorTemporary,
-        SaveFailure.unknown => l10n.transactionSaveError,
-      };
+      final message = failureMessage(
+        l10n,
+        e,
+        unknown: l10n.transactionSaveError,
+      );
       setState(() => _saveError = message);
     }
   }

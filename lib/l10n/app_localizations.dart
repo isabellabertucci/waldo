@@ -245,7 +245,7 @@ abstract class AppLocalizations {
   /// Generic error message shown when deleting a wallet fails
   ///
   /// In en, this message translates to:
-  /// **'There was a problem deleting the wallet. Please try again.'**
+  /// **'Couldn\'t delete the wallet. Nothing was changed.'**
   String get deleteError;
 
   /// Delete confirmation dialog title
@@ -527,7 +527,7 @@ abstract class AppLocalizations {
   /// Generic error message shown when deleting a transaction fails
   ///
   /// In en, this message translates to:
-  /// **'There was a problem deleting the transaction. Please try again.'**
+  /// **'Couldn\'t delete the transaction. Nothing was changed.'**
   String get transactionDeleteError;
 
   /// Validation error for empty amount
@@ -665,7 +665,7 @@ abstract class AppLocalizations {
   /// Generic error message shown when deleting a category fails
   ///
   /// In en, this message translates to:
-  /// **'There was a problem deleting the category. Please try again.'**
+  /// **'Couldn\'t delete the category. Nothing was changed.'**
   String get categoryDeleteError;
 
   /// Groceries category type

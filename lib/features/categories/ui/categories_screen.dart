@@ -133,11 +133,7 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
     } on DuplicateCategoryNameException {
       messenger.showSnackBar(SnackBar(content: Text(l10n.categoryNameTaken)));
     } catch (e) {
-      final message = switch (saveFailureOf(e)) {
-        SaveFailure.storageFull => l10n.saveErrorStorageFull,
-        SaveFailure.temporary => l10n.saveErrorTemporary,
-        SaveFailure.unknown => l10n.categorySaveError,
-      };
+      final message = failureMessage(l10n, e, unknown: l10n.categorySaveError);
       messenger.showSnackBar(SnackBar(content: Text(message)));
     }
   }
@@ -181,9 +177,14 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
 
     try {
       await viewModel.confirmDelete(category.id!);
-    } catch (_) {
+    } catch (e) {
       viewModel.restoreCategory();
-      messenger.showSnackBar(SnackBar(content: Text(l10n.categoryDeleteError)));
+      final message = failureMessage(
+        l10n,
+        e,
+        unknown: l10n.categoryDeleteError,
+      );
+      messenger.showSnackBar(SnackBar(content: Text(message)));
     }
   }
 

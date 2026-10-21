@@ -97,7 +97,7 @@
   "@saveError": {
     "description": "Shown when saving a wallet fails for a reason the user can't fix; nothing was written"
   },
-  "deleteError": "There was a problem deleting the wallet. Please try again.",
+  "deleteError": "Couldn't delete the wallet. Nothing was changed.",
   "@deleteError": {
     "description": "Generic error message shown when deleting a wallet fails"
   },
@@ -295,7 +295,7 @@
   "@saveErrorTemporary": {
     "description": "Shown when a save fails because the database was briefly busy or closed"
   },
-  "transactionDeleteError": "There was a problem deleting the transaction. Please try again.",
+  "transactionDeleteError": "Couldn't delete the transaction. Nothing was changed.",
   "@transactionDeleteError": {
     "description": "Generic error message shown when deleting a transaction fails"
   },
@@ -408,7 +408,7 @@
   "@walletNameTaken": {
     "description": "Validation error when the user types a wallet name another wallet already uses, ignoring case"
   },
-  "categoryDeleteError": "There was a problem deleting the category. Please try again.",
+  "categoryDeleteError": "Couldn't delete the category. Nothing was changed.",
   "@categoryDeleteError": {
     "description": "Generic error message shown when deleting a category fails"
   },
