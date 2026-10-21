@@ -15,4 +15,8 @@ class Spacing {
   /// The side margin every page uses for its outer content - the single
   /// source of truth so it never drifts out of sync between screens.
   static const double pageMargin = 24;
+
+  /// The widest a page gets on a tablet; matches the 640 Material gives
+  /// bottom sheets, so a sheet lines up with the page under it.
+  static const double maxPageWidth = 640;
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/widgets/page_width.dart';
 import 'package:waldo/core/widgets/empty_state.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
@@ -24,13 +25,17 @@ class AllTransactionsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.transactions)),
-      body: switch (transactionsAsync) {
-        AsyncValue(:final value?) => _AllTransactionsBody(transactions: value),
-        AsyncValue(hasError: true) => Center(
-          child: Text(l10n.transactionsError),
-        ),
-        _ => const Center(child: CircularProgressIndicator()),
-      },
+      body: PageWidth(
+        child: switch (transactionsAsync) {
+          AsyncValue(:final value?) => _AllTransactionsBody(
+            transactions: value,
+          ),
+          AsyncValue(hasError: true) => Center(
+            child: Text(l10n.transactionsError),
+          ),
+          _ => const Center(child: CircularProgressIndicator()),
+        },
+      ),
     );
   }
 }

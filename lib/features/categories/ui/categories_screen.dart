@@ -8,6 +8,7 @@ import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/page_width.dart';
 import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
@@ -33,43 +34,49 @@ class CategoriesScreen extends ConsumerWidget {
     final categoriesAsync = ref.watch(categoryListViewModelProvider);
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Spacing.pageMargin,
-                Spacing.xs,
-                Spacing.pageMargin,
-                0,
-              ),
-              child: CircleIconButton(
-                tooltip: l10n.back,
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Icon(AppIcons.back),
-              ),
-            ),
-            const SizedBox(height: Spacing.md),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: Spacing.pageMargin,
-              ),
-              child: Text(
-                l10n.categories,
-                style: context.headlineSmBold.copyWith(color: colors.onSurface),
-              ),
-            ),
-            Expanded(
-              child: switch (categoriesAsync) {
-                AsyncValue(:final value?) => _CategoriesBody(categories: value),
-                AsyncValue(hasError: true) => Center(
-                  child: Text(l10n.categoriesError),
+      body: PageWidth(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  Spacing.pageMargin,
+                  Spacing.xs,
+                  Spacing.pageMargin,
+                  0,
                 ),
-                _ => const Center(child: CircularProgressIndicator()),
-              },
-            ),
-          ],
+                child: CircleIconButton(
+                  tooltip: l10n.back,
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Icon(AppIcons.back),
+                ),
+              ),
+              const SizedBox(height: Spacing.md),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Spacing.pageMargin,
+                ),
+                child: Text(
+                  l10n.categories,
+                  style: context.headlineSmBold.copyWith(
+                    color: colors.onSurface,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: switch (categoriesAsync) {
+                  AsyncValue(:final value?) => _CategoriesBody(
+                    categories: value,
+                  ),
+                  AsyncValue(hasError: true) => Center(
+                    child: Text(l10n.categoriesError),
+                  ),
+                  _ => const Center(child: CircularProgressIndicator()),
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
