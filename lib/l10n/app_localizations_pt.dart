@@ -46,7 +46,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get startingBalance => 'Saldo inicial';
 
   @override
-  String get startingBalancePrompt => 'Quanto tem hoje?';
+  String get startingBalancePrompt => 'Quanto tem a carteira hoje?';
 
   @override
   String get optional => 'Opcional';

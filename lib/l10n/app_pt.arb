@@ -13,7 +13,7 @@
   "name": "Nome",
   "type": "Tipo",
   "startingBalance": "Saldo inicial",
-  "startingBalancePrompt": "Quanto tem hoje?",
+  "startingBalancePrompt": "Quanto tem a carteira hoje?",
   "optional": "Opcional",
   "requiredField": "obrigatório",
   "balanceLocked": "Não pode ser alterado após a criação",
