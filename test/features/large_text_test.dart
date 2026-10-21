@@ -5,6 +5,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
 import 'package:waldo/features/settings/ui/settings_screen.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_edit_sheet.dart';
@@ -59,6 +60,25 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.byKey(const Key('walletNameField')), findsOneWidget);
+      });
+
+      testWidgets('The dashboard receipt fits in Portuguese at $label', (
+        tester,
+      ) async {
+        await setUpPhone(tester, size, scale);
+        // Portuguese money ("12,50 €") and labels run longer than English.
+        tester.platformDispatcher.localeTestValue = const Locale('pt', 'PT');
+        addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+        final db = await createTestDatabase();
+        await seedGoldenData(db);
+        currentDb = await pumpWidgetWithProviders(
+          tester,
+          const DashboardScreen(),
+          db: db,
+          locale: const Locale('pt'),
+        );
+
+        expect(find.text('BALANÇO'), findsOneWidget);
       });
 
       testWidgets('The transaction detail sheet fits at $label', (
