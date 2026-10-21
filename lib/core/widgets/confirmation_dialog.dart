@@ -12,23 +12,17 @@ class ConfirmationDialog extends StatelessWidget {
     required this.title,
     required this.content,
     required this.confirmLabel,
-    this.isDestructive = true,
-    this.icon = AppIcons.delete,
   });
 
   final String title;
   final String content;
   final String confirmLabel;
-  final bool isDestructive;
-  final IconData icon;
 
   static Future<bool> show(
     BuildContext context, {
     required String title,
     required String content,
     required String confirmLabel,
-    bool isDestructive = true,
-    IconData icon = AppIcons.delete,
   }) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -36,8 +30,6 @@ class ConfirmationDialog extends StatelessWidget {
         title: title,
         content: content,
         confirmLabel: confirmLabel,
-        isDestructive: isDestructive,
-        icon: icon,
       ),
     );
     return confirmed ?? false;
@@ -47,7 +39,8 @@ class ConfirmationDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
-    final accent = isDestructive ? colors.error : colors.primary;
+    // Every confirmation here is a delete, so it's always the error orange.
+    final accent = colors.error;
 
     return Dialog(
       backgroundColor: colors.surface,
@@ -61,7 +54,7 @@ class ConfirmationDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            DashedCircleBadge(icon: icon, color: accent),
+            DashedCircleBadge(icon: AppIcons.delete, color: accent),
             const SizedBox(height: Spacing.sm),
             Text(
               title,
@@ -101,7 +94,7 @@ class ConfirmationDialog extends StatelessWidget {
                   child: TextButton(
                     style: TextButton.styleFrom(
                       backgroundColor: accent,
-                      // `onPrimary` contrasts with both `primary` and `error`.
+                      // No `onError` token yet; buttons use `onPrimary` on a filled background.
                       foregroundColor: colors.onPrimary,
                       padding: const EdgeInsets.symmetric(
                         vertical: Spacing.component,
