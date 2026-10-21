@@ -57,6 +57,10 @@
   "@optional": {
     "description": "Tag beside a form section title that doesn't need filling in"
   },
+  "requiredField": "required",
+  "@requiredField": {
+    "description": "Read by screen readers after a field label marked with *"
+  },
   "balanceLocked": "Cannot be changed after creation",
   "@balanceLocked": {
     "description": "Helper text for locked balance field"

@@ -182,6 +182,12 @@ abstract class AppLocalizations {
   /// **'Optional'**
   String get optional;
 
+  /// Read by screen readers after a field label marked with *
+  ///
+  /// In en, this message translates to:
+  /// **'required'**
+  String get requiredField;
+
   /// Helper text for locked balance field
   ///
   /// In en, this message translates to:

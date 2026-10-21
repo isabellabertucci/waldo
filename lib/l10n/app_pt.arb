@@ -15,6 +15,7 @@
   "startingBalance": "Saldo inicial",
   "startingBalancePrompt": "Quanto tem hoje?",
   "optional": "Opcional",
+  "requiredField": "obrigatório",
   "balanceLocked": "Não pode ser alterado após a criação",
   "walletNameHint": "ex: Casa, Viagem",
   "createWallet": "Criar carteira",

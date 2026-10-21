@@ -51,6 +51,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get optional => 'Optional';
 
   @override
+  String get requiredField => 'required';
+
+  @override
   String get balanceLocked => 'Cannot be changed after creation';
 
   @override

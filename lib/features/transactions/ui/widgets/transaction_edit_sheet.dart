@@ -775,6 +775,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           EditFieldRow(
             icon: AppIcons.calendar,
             label: l10n.date,
+            required: true,
             value: dateLabel,
             onTap: () => _editDate(formState),
           ),

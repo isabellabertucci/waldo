@@ -45,6 +45,17 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets('The name is marked required, and read out as required', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await openNewWalletSheet(tester);
+
+    expect(find.text('Name *', findRichText: true), findsOneWidget);
+    expect(find.bySemanticsLabel('Name, required'), findsOneWidget);
+    semantics.dispose();
+  });
+
   testWidgets('A name taken after the sheet opened shows on the sheet', (
     tester,
   ) async {
