@@ -145,7 +145,19 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
     final name = category.displayName(l10n);
 
     // Say how many transactions move to "Others" before anything happens.
-    final count = await viewModel.transactionCount(category.id!);
+    final int count;
+    try {
+      count = await viewModel.transactionCount(category.id!);
+    } catch (e) {
+      // Nothing is deleted, but the tap still gets an answer.
+      final message = failureMessage(
+        l10n,
+        e,
+        unknown: l10n.categoryDeleteError,
+      );
+      messenger.showSnackBar(SnackBar(content: Text(message)));
+      return;
+    }
     if (!mounted) return;
 
     final confirmed = await ConfirmationDialog.show(
