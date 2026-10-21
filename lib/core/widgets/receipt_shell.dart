@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/app_theme.dart';
 
 /// A horizontal dashed rule, matching the wallet card's stitch.
 class DashedDivider extends StatelessWidget {
@@ -124,16 +125,48 @@ class ReceiptRow extends StatelessWidget {
     // Nudged down by the text's descent, so the dots sit on the baseline.
     final descent = (style?.fontSize ?? 12.5) * 0.22;
 
+    // The dots run under the label, which covers them in the paper's colour:
+    // a long label is cut with "…" and the value always shows whole.
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: style),
         Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(left: 6, right: 6, top: descent),
-            child: DottedLeader(color: color.withValues(alpha: 0.35)),
+          child: Stack(
+            alignment: Alignment.centerLeft,
+            children: [
+              Positioned.fill(
+                // Clipped, so the first dot's edge can't peek out before the label.
+                child: ClipRect(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: descent),
+                    // Full width: Center alone would let the dots shrink to nothing.
+                    child: Center(
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: DottedLeader(
+                          color: color.withValues(alpha: 0.35),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              ColoredBox(
+                color: context.appColors.surface,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: style,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
+        const SizedBox(width: 6),
         Text(value, maxLines: 1, style: style),
       ],
     );

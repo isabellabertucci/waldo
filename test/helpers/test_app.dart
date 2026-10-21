@@ -52,6 +52,7 @@ Future<Database> pumpWidgetWithProviders(
   WidgetTester tester,
   Widget widget, {
   Database? db,
+  Locale locale = const Locale('en'),
 }) async {
   final testDb = db ?? await createTestDatabase();
 
@@ -60,7 +61,7 @@ Future<Database> pumpWidgetWithProviders(
       overrides: [appDatabaseProvider.overrideWith((ref) async => testDb)],
       child: MaterialApp(
         theme: AppTheme.light,
-        locale: const Locale('en'),
+        locale: locale,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: widget,
