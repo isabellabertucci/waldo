@@ -647,7 +647,7 @@ abstract class AppLocalizations {
   /// Generic error message shown when saving a category fails
   ///
   /// In en, this message translates to:
-  /// **'There was a problem saving the category. Please try again.'**
+  /// **'Couldn\'t save the category. Nothing was changed.'**
   String get categorySaveError;
 
   /// Validation error when the user types a category name that is already shown in the list
@@ -785,7 +785,7 @@ abstract class AppLocalizations {
   /// Error message shown when a preference fails to save
   ///
   /// In en, this message translates to:
-  /// **'There was a problem saving your preference. Please try again.'**
+  /// **'Couldn\'t save your preference. Nothing was changed.'**
   String get preferencesSaveError;
 
   /// US Dollar full name in the currency picker

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waldo/core/database/save_failure.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
@@ -123,8 +124,13 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
       _nameController.clear();
     } on DuplicateCategoryNameException {
       messenger.showSnackBar(SnackBar(content: Text(l10n.categoryNameTaken)));
-    } catch (_) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.categorySaveError)));
+    } catch (e) {
+      final message = switch (saveFailureOf(e)) {
+        SaveFailure.storageFull => l10n.saveErrorStorageFull,
+        SaveFailure.temporary => l10n.saveErrorTemporary,
+        SaveFailure.unknown => l10n.categorySaveError,
+      };
+      messenger.showSnackBar(SnackBar(content: Text(message)));
     }
   }
 

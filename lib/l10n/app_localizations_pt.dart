@@ -323,7 +323,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get categorySaveError =>
-      'Ocorreu um problema ao guardar a categoria. Tenta novamente.';
+      'Não foi possível guardar a categoria. Nada foi alterado.';
 
   @override
   String get categoryNameTaken => 'Já existe uma categoria com esse nome';
@@ -396,7 +396,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get preferencesSaveError =>
-      'Ocorreu um problema ao guardar a tua preferência. Tenta novamente.';
+      'Não foi possível guardar a tua preferência. Nada foi alterado.';
 
   @override
   String get currencyNameUsd => 'Dólar americano';

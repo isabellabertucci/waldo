@@ -77,6 +77,20 @@ void main() {
     expect(find.byTooltip('Back'), findsOneWidget);
   });
 
+  testWidgets('A failed add says nothing was changed', (tester) async {
+    await pumpCategoriesScreen(tester);
+    // No table to write to, so the insert throws.
+    await currentDb!.execute('DROP TABLE ${CategoriesTable.table}');
+
+    await typeName(tester, 'Gym');
+    await tapAdd(tester);
+
+    expect(
+      find.text("Couldn't save the category. Nothing was changed."),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('Adding a category lists it and empties the field', (
     tester,
   ) async {
