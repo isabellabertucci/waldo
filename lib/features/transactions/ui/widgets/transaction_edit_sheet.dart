@@ -80,7 +80,18 @@ Future<void> deleteTransactionWithUndo(
   );
   final subscription = container.listen(provider, (_, _) {});
   try {
-    await container.read(provider.future);
+    // The list must load to hide the row; if it can't, say so, not nothing.
+    try {
+      await container.read(provider.future);
+    } catch (e) {
+      final message = failureMessage(
+        l10n,
+        e,
+        unknown: l10n.transactionDeleteError,
+      );
+      messenger.showSnackBar(SnackBar(content: Text(message)));
+      return;
+    }
     final viewModel = container.read(provider.notifier);
     if (!viewModel.hideTransaction(transaction.id!)) return;
     onConfirmed?.call();

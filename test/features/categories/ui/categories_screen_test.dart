@@ -211,6 +211,22 @@ void main() {
     expect(rows, isEmpty);
   });
 
+  testWidgets('When the count before deleting fails, the tap still gets an '
+      'answer', (tester) async {
+    await pumpCategoriesScreen(tester);
+    // The X first counts the category's transactions; with no table, it fails.
+    await currentDb!.execute('DROP TABLE ${TransactionsTable.table}');
+
+    await tester.tap(find.byTooltip('Delete Education'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text("Couldn't delete the category. Nothing was changed."),
+      findsOneWidget,
+    );
+    expect(find.text('Delete category?'), findsNothing);
+  });
+
   testWidgets('A failed delete brings the category back and says nothing '
       'was changed', (tester) async {
     await pumpCategoriesScreen(tester);
