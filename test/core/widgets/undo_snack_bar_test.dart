@@ -91,6 +91,26 @@ void main() {
     expect(find.text('Wallet deleted'), findsNothing);
   });
 
+  testWidgets('With a screen reader on, the bar waits for Undo instead of '
+      'timing out', (tester) async {
+    // VoiceOver or TalkBack: reaching the Undo button takes longer than 5 s.
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(accessibleNavigation: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    await pumpHost(tester);
+    final results = show('Index funds');
+    await tester.pump();
+
+    await tester.pump(const Duration(seconds: 30));
+    expect(results, isEmpty);
+    expect(find.text('Wallet deleted'), findsOneWidget);
+    expect(find.text('5'), findsNothing, reason: 'no clock while it waits');
+
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(results, [true]);
+  });
+
   testWidgets('A second delete finalizes the first at once and restarts '
       'the countdown', (tester) async {
     await pumpHost(tester);

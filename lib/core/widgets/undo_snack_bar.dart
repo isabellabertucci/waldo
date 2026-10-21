@@ -152,22 +152,35 @@ class _UndoBarState extends State<_UndoBar>
     duration: undoWindow,
   );
 
+  /// True with VoiceOver or TalkBack on: reaching Undo takes longer than the
+  /// window, so the bar waits, as Flutter's own SnackBar with an action does.
+  bool _waitsForUndo = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _countdown
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) widget.onTimeout();
-      })
-      ..forward();
+    _countdown.addStatusListener((status) {
+      if (status == AnimationStatus.completed) widget.onTimeout();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _waitsForUndo = MediaQuery.accessibleNavigationOf(context);
+    if (_waitsForUndo) {
+      _countdown.stop();
+    } else if (!_countdown.isCompleted) {
+      _countdown.forward();
+    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // The clock stops while the app is in the background.
     if (state == AppLifecycleState.resumed) {
-      if (!_countdown.isCompleted) _countdown.forward();
+      if (!_waitsForUndo && !_countdown.isCompleted) _countdown.forward();
     } else {
       _countdown.stop();
     }
@@ -191,7 +204,11 @@ class _UndoBarState extends State<_UndoBar>
       child: _BarShell(
         child: Row(
           children: [
-            _CountdownRing(progress: _countdown),
+            // No clock while it waits; a ring stuck at 5 would read as one.
+            if (_waitsForUndo)
+              const _IconDisc(icon: AppIcons.delete)
+            else
+              _CountdownRing(progress: _countdown),
             const SizedBox(width: Spacing.component),
             Expanded(
               child: Column(
@@ -368,6 +385,28 @@ class _UndoButton extends StatelessWidget {
   }
 }
 
+/// A cream disc the size of the countdown ring, with an ink icon.
+class _IconDisc extends StatelessWidget {
+  const _IconDisc({required this.icon});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return Container(
+      width: _ringSize,
+      height: _ringSize,
+      decoration: BoxDecoration(
+        color: colors.onLeather,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, size: IconSize.md, color: colors.leather),
+    );
+  }
+}
+
 /// The short "restored" confirmation after Undo.
 class _RestoredBar extends StatelessWidget {
   const _RestoredBar({required this.label});
@@ -384,19 +423,7 @@ class _RestoredBar extends StatelessWidget {
       child: _BarShell(
         child: Row(
           children: [
-            Container(
-              width: _ringSize,
-              height: _ringSize,
-              decoration: BoxDecoration(
-                color: colors.onLeather,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                AppIcons.check,
-                size: IconSize.md,
-                color: colors.leather,
-              ),
-            ),
+            const _IconDisc(icon: AppIcons.check),
             const SizedBox(width: Spacing.component),
             Expanded(
               child: Text(
