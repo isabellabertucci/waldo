@@ -153,6 +153,20 @@ void main() {
       expect(await repo.getCount(), 1);
     });
 
+    test(
+      'insert treats accented letters in another case as the same name',
+      () async {
+        // SQLite's NOCASE only folds A-Z, so this needs the name_key.
+        await repo.insert(_wallet('Poupança'));
+
+        expect(
+          () => repo.insert(_wallet('POUPANÇA')),
+          throwsA(isA<DuplicateWalletNameException>()),
+        );
+        expect(await repo.getCount(), 1);
+      },
+    );
+
     test('update rejects renaming to another wallet\'s name', () async {
       await repo.insert(_wallet('Pocket cash'));
       final id = await repo.insert(_wallet('Visa card'));

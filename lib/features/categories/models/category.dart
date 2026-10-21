@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/utils/utils.dart';
 
 part 'category.freezed.dart';
 
@@ -19,11 +21,12 @@ abstract class Category with _$Category {
 
   Map<String, Object?> toMap() {
     return {
-      'id': id,
-      'name': name,
-      'is_default': isDefault ? 1 : 0,
-      'type': type.name,
-      'created_at': createdAt,
+      CategoriesTable.id: id,
+      CategoriesTable.name: name,
+      CategoriesTable.nameKey: nameKey(name),
+      CategoriesTable.isDefault: isDefault ? 1 : 0,
+      CategoriesTable.type: type.name,
+      CategoriesTable.createdAt: createdAt,
     };
   }
 

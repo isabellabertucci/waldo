@@ -110,4 +110,10 @@ void main() {
 
     expect(locale, 'en_US');
   });
+
+  test('nameKey ignores spaces at the ends and case, accents included', () {
+    expect(nameKey('  CAFÉ '), nameKey('Café'));
+    expect(nameKey('POUPANÇA'), 'poupança');
+    expect(nameKey('Cafe'), isNot(nameKey('Café')));
+  });
 }

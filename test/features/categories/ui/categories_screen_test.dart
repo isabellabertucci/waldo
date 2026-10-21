@@ -220,6 +220,7 @@ void main() {
     );
     final walletId = await db.insert(WalletsTable.table, {
       WalletsTable.name: 'Cash',
+      WalletsTable.nameKey: 'cash',
       WalletsTable.createdAt: '2026-08-10T12:00:00.000',
     });
     for (var i = 0; i < 2; i++) {

@@ -2,6 +2,7 @@
 
 import 'package:sqflite/sqflite.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/utils/utils.dart';
 import '../../constants/db_constants.dart';
 
 Future<void> up(Database db) async {
@@ -9,6 +10,7 @@ Future<void> up(Database db) async {
     CREATE TABLE ${WalletsTable.table} (
       ${WalletsTable.id} INTEGER PRIMARY KEY AUTOINCREMENT,
       ${WalletsTable.name} TEXT NOT NULL,
+      ${WalletsTable.nameKey} TEXT NOT NULL,
       ${WalletsTable.type} TEXT NOT NULL DEFAULT '${WalletType.cash.name}'
         CHECK (${WalletsTable.type} IN (
           '${WalletType.checking.name}',
@@ -24,9 +26,15 @@ Future<void> up(Database db) async {
   ''');
 
   await db.execute('''
+    CREATE UNIQUE INDEX idx_wallets_name_key
+      ON ${WalletsTable.table} (${WalletsTable.nameKey})
+  ''');
+
+  await db.execute('''
     CREATE TABLE ${CategoriesTable.table} (
       ${CategoriesTable.id} INTEGER PRIMARY KEY AUTOINCREMENT,
       ${CategoriesTable.name} TEXT NOT NULL,
+      ${CategoriesTable.nameKey} TEXT NOT NULL,
       ${CategoriesTable.isDefault} INTEGER NOT NULL DEFAULT 0,
       ${CategoriesTable.type} TEXT NOT NULL DEFAULT '${CategoryType.groceries.name}'
         CHECK (${CategoriesTable.type} IN (
@@ -43,8 +51,8 @@ Future<void> up(Database db) async {
 
   // Unique only among user-created categories; built-ins are named by type.
   await db.execute('''
-    CREATE UNIQUE INDEX idx_categories_custom_name
-      ON ${CategoriesTable.table} (${CategoriesTable.name} COLLATE NOCASE)
+    CREATE UNIQUE INDEX idx_categories_custom_name_key
+      ON ${CategoriesTable.table} (${CategoriesTable.nameKey})
       WHERE ${CategoriesTable.isDefault} = 0
   ''');
 
@@ -62,6 +70,7 @@ Future<void> up(Database db) async {
   for (final entry in defaultCategories.entries) {
     batch.insert(CategoriesTable.table, {
       CategoriesTable.name: entry.key,
+      CategoriesTable.nameKey: nameKey(entry.key),
       CategoriesTable.isDefault: 1,
       CategoriesTable.type: entry.value.name,
       CategoriesTable.createdAt: now,
