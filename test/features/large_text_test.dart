@@ -8,6 +8,7 @@ import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
 import 'package:waldo/features/settings/ui/settings_screen.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
+import 'package:waldo/features/transactions/ui/all_transactions_screen.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_edit_sheet.dart';
 import 'package:waldo/features/wallets/ui/wallets_screen.dart';
 
@@ -80,6 +81,38 @@ void main() {
 
         expect(find.text('BALANÇO'), findsOneWidget);
       });
+
+      for (final locale in const [Locale('en'), Locale('pt')]) {
+        testWidgets('The transaction list fits in $locale at $label', (
+          tester,
+        ) async {
+          await setUpPhone(tester, size, scale);
+          tester.platformDispatcher.localeTestValue = locale;
+          addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+          final db = await createTestDatabase();
+          await seedGoldenData(db);
+          currentDb = await pumpWidgetWithProviders(
+            tester,
+            const AllTransactionsScreen(),
+            db: db,
+            locale: locale,
+          );
+
+          // Every row makes the same choice: amounts all share their right
+          // edge (beside the text) or all their left edge (under it).
+          final amounts = find.textContaining(RegExp(r'^[-+]')).evaluate();
+          final rights = {
+            for (final a in amounts)
+              tester.getTopRight(find.byWidget(a.widget)).dx.round(),
+          };
+          final lefts = {
+            for (final a in amounts)
+              tester.getTopLeft(find.byWidget(a.widget)).dx.round(),
+          };
+          expect(amounts, isNotEmpty);
+          expect(rights.length == 1 || lefts.length == 1, isTrue);
+        });
+      }
 
       testWidgets('The transaction detail sheet fits at $label', (
         tester,
