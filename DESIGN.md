@@ -440,6 +440,14 @@ stitched shape - border, badge ring, pouch, button - cuts its dashes with
   palette), `field-border` outline, `rounded.md`, `body-md` typography,
   2px `primary` border when focused, `error` border (1.5-2px) in an error
   state.
+- **Required fields:** the label ends in " *" (`FieldLabel(required: true)`),
+  in `on-surface` rather than `error` - nothing is wrong yet. Screen readers
+  hear "required". Optional sections say "Optional" instead; the hero amount
+  and single-field forms carry no mark.
+- **Sheet errors:** a failed save shows its message inside the sheet, centered
+  just above the button, in `body-md-strong` `error` - never a SnackBar, which
+  would land behind the sheet. It names the cause (storage full, try again)
+  when it is known.
 - **List rows (transactions/wallets):** leading icon in a circular tint of
   the row's semantic color (income/expense/wallet type), `label-lg-strong`
   title, `body-sm` muted caption, trailing amount in `label-lg-strong` colored
