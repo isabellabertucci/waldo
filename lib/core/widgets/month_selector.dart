@@ -73,6 +73,23 @@ class _MonthSelectorState extends State<MonthSelector> {
     });
   }
 
+  TextScaler? _textScaler;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // A new text size in the phone's settings resizes every pill, so the
+    // selected month drifts off-centre; put it back.
+    final textScaler = MediaQuery.textScalerOf(context);
+    if (_textScaler != null && textScaler != _textScaler) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToSelected(animate: false);
+        _updateScrollAffordances();
+      });
+    }
+    _textScaler = textScaler;
+  }
+
   @override
   void didUpdateWidget(covariant MonthSelector oldWidget) {
     super.didUpdateWidget(oldWidget);
