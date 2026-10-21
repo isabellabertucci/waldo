@@ -31,6 +31,38 @@ void main() {
     expect(find.text('Nov 2025'), findsOneWidget); // last November
   });
 
+  testWidgets('Screen readers hear which month is selected, and that next '
+      'month is off', (tester) async {
+    final semantics = tester.ensureSemantics();
+    final db = await pumpWidgetWithProviders(
+      tester,
+      Scaffold(
+        body: MonthSelector(
+          months: selectorMonths(DateTime(2026, 10, 8)),
+          selectedMonth: DateTime(2026, 10),
+          currentMonth: DateTime(2026, 10),
+          locale: 'en',
+          onSelect: (_) {},
+        ),
+      ),
+    );
+    addTearDown(db.close);
+
+    expect(
+      tester.getSemantics(find.text('October')),
+      isSemantics(isButton: true, isSelected: true, isEnabled: true),
+    );
+    expect(
+      tester.getSemantics(find.text('Sep')),
+      isSemantics(isButton: true, isSelected: false, isEnabled: true),
+    );
+    expect(
+      tester.getSemantics(find.text('Nov')),
+      isSemantics(isButton: true, isEnabled: false),
+    );
+    semantics.dispose();
+  });
+
   testWidgets('In January, last December shows its year and next February '
       'does not', (tester) async {
     // The dashboard's list: 12 months back from January 2027, plus one.

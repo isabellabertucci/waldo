@@ -472,34 +472,40 @@ class _MonthPill extends StatelessWidget {
     final colors = context.appColors;
     final disabled = onTap == null;
 
-    return Material(
-      color: colors.transparent,
-      borderRadius: BorderRadius.circular(Rounded.pill),
-      child: InkWell(
+    // Says which month is picked, like the wallet type tiles do.
+    return Semantics(
+      button: true,
+      selected: selected,
+      enabled: !disabled,
+      child: Material(
+        color: colors.transparent,
         borderRadius: BorderRadius.circular(Rounded.pill),
-        onTap: onTap,
-        child: Container(
-          constraints: const BoxConstraints(minHeight: _minTapTarget),
-          padding: EdgeInsets.symmetric(
-            horizontal: selected ? _selectedChipPadding : Spacing.sm,
-          ),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: selected ? colors.primary : colors.transparent,
-            borderRadius: BorderRadius.circular(Rounded.pill),
-          ),
-          child: Text(
-            label,
-            // The selected chip's own size/weight bump - a dedicated
-            // selected-state treatment, not a named type-scale step.
-            style: context.textTheme.bodyMedium?.copyWith(
-              fontSize: selected ? 14 : 13,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-              color: selected
-                  ? colors.onPrimary
-                  : colors.onSurfaceVariant.withValues(
-                      alpha: disabled ? 0.4 : 1,
-                    ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(Rounded.pill),
+          onTap: onTap,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: _minTapTarget),
+            padding: EdgeInsets.symmetric(
+              horizontal: selected ? _selectedChipPadding : Spacing.sm,
+            ),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: selected ? colors.primary : colors.transparent,
+              borderRadius: BorderRadius.circular(Rounded.pill),
+            ),
+            child: Text(
+              label,
+              // The selected chip's own size/weight bump - a dedicated
+              // selected-state treatment, not a named type-scale step.
+              style: context.textTheme.bodyMedium?.copyWith(
+                fontSize: selected ? 14 : 13,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected
+                    ? colors.onPrimary
+                    : colors.onSurfaceVariant.withValues(
+                        alpha: disabled ? 0.4 : 1,
+                      ),
+              ),
             ),
           ),
         ),
