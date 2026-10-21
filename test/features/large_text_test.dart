@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 
 import 'package:waldo/core/constants/db_constants.dart';
+import 'package:waldo/core/widgets/confirmation_dialog.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/constants/enums.dart';
@@ -325,6 +326,40 @@ void main() {
         });
       }
     }
+  }
+
+  for (final scale in _textScales) {
+    testWidgets('On a small phone at text x$scale the delete dialog keeps its '
+        'buttons reachable', (tester) async {
+      // iPhone SE (1st gen): the shortest screen in use.
+      await setUpPhone(tester, const Size(320, 568), scale);
+      currentDb = await pumpWidgetWithProviders(
+        tester,
+        Scaffold(
+          body: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => ConfirmationDialog.show(
+                context,
+                title: 'Delete category?',
+                // The longest message the dialog shows.
+                content:
+                    '12 transactions use "Subscriptions". If you delete it, '
+                    'they move to Others.',
+                confirmLabel: 'Delete',
+              ),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Delete'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Delete').hitTestable(), findsOneWidget);
+    });
   }
 
   testWidgets('With large text a settings value moves under its title', (
