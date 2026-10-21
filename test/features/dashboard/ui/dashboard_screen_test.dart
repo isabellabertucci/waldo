@@ -74,7 +74,7 @@ void main() {
     await tester.tap(find.text('Slide in your first wallet'));
     await tester.pumpAndSettle();
 
-    expect(find.text('New Wallet'), findsOneWidget);
+    expect(find.text('New wallet'), findsOneWidget);
   });
 
   testWidgets(
@@ -97,7 +97,7 @@ void main() {
       expect(find.text(currentMonth), findsOneWidget);
       expect(find.text('Add first transaction'), findsOneWidget);
       // No ghost rows: the section stays hidden until the first transaction.
-      expect(find.text('Recent Transactions'), findsNothing);
+      expect(find.text('Recent transactions'), findsNothing);
       expect(find.text('See all'), findsNothing);
     },
   );
@@ -137,7 +137,7 @@ void main() {
 
     await pumpDashboardScreen(tester, db: db);
 
-    expect(find.text('Total Balance'), findsOneWidget);
+    expect(find.text('Total balance'), findsOneWidget);
     expect(find.text('\$75.00'), findsOneWidget); // 10000 - 2500 cents
     expect(find.text('Weekly shop'), findsOneWidget);
     // On the receipt, and under the transaction's name in the recent list.

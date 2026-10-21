@@ -30,10 +30,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addFirstWallet => 'Tap + to add your first wallet';
 
   @override
-  String get newWallet => 'New Wallet';
+  String get newWallet => 'New wallet';
 
   @override
-  String get editWallet => 'Edit Wallet';
+  String get editWallet => 'Edit wallet';
 
   @override
   String get name => 'Name';
@@ -139,7 +139,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get walletTypeCash => 'Cash';
 
   @override
-  String get walletTypeCredit => 'Credit Card';
+  String get walletTypeCredit => 'Credit card';
 
   @override
   String get walletTypeInvestment => 'Investment';
@@ -151,7 +151,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addFirstTransaction => 'Tap + to add your first transaction';
 
   @override
-  String get newTransaction => 'New Transaction';
+  String get newTransaction => 'New transaction';
 
   @override
   String get transactionDefaultDescription => 'Transaction';
@@ -403,7 +403,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currencyNameGbp => 'British pound';
 
   @override
-  String get totalBalance => 'Total Balance';
+  String get totalBalance => 'Total balance';
 
   @override
   String get add => 'Add';
@@ -445,10 +445,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addFirstTransactionButton => 'Add first transaction';
 
   @override
-  String get cashFlow => 'Cash Flow';
+  String get cashFlow => 'Cash flow';
 
   @override
-  String get recentTransactions => 'Recent Transactions';
+  String get recentTransactions => 'Recent transactions';
 
   @override
   String get firstRunPeekCta => 'Slide in your first wallet';

@@ -143,13 +143,13 @@ abstract class AppLocalizations {
   /// Title of the create wallet form
   ///
   /// In en, this message translates to:
-  /// **'New Wallet'**
+  /// **'New wallet'**
   String get newWallet;
 
   /// Title of the edit wallet form
   ///
   /// In en, this message translates to:
-  /// **'Edit Wallet'**
+  /// **'Edit wallet'**
   String get editWallet;
 
   /// Name field label
@@ -353,7 +353,7 @@ abstract class AppLocalizations {
   /// Credit card wallet type
   ///
   /// In en, this message translates to:
-  /// **'Credit Card'**
+  /// **'Credit card'**
   String get walletTypeCredit;
 
   /// Investment wallet type
@@ -377,7 +377,7 @@ abstract class AppLocalizations {
   /// Title of the create transaction form
   ///
   /// In en, this message translates to:
-  /// **'New Transaction'**
+  /// **'New transaction'**
   String get newTransaction;
 
   /// Fallback label when a transaction has no description
@@ -809,7 +809,7 @@ abstract class AppLocalizations {
   /// Label above the total balance amount on the dashboard
   ///
   /// In en, this message translates to:
-  /// **'Total Balance'**
+  /// **'Total balance'**
   String get totalBalance;
 
   /// Short label for the quick-add button on the balance card
@@ -869,13 +869,13 @@ abstract class AppLocalizations {
   /// Dashboard cash flow chart card title
   ///
   /// In en, this message translates to:
-  /// **'Cash Flow'**
+  /// **'Cash flow'**
   String get cashFlow;
 
   /// Dashboard section header for the recent transactions list
   ///
   /// In en, this message translates to:
-  /// **'Recent Transactions'**
+  /// **'Recent transactions'**
   String get recentTransactions;
 
   /// Label on the dashed placeholder card peeking behind the balance card when there are no wallets yet

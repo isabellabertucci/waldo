@@ -29,11 +29,11 @@
   "@addFirstWallet": {
     "description": "Empty state subtitle for wallets list"
   },
-  "newWallet": "New Wallet",
+  "newWallet": "New wallet",
   "@newWallet": {
     "description": "Title of the create wallet form"
   },
-  "editWallet": "Edit Wallet",
+  "editWallet": "Edit wallet",
   "@editWallet": {
     "description": "Title of the edit wallet form"
   },
@@ -174,7 +174,7 @@
   "@walletTypeCash": {
     "description": "Cash wallet type"
   },
-  "walletTypeCredit": "Credit Card",
+  "walletTypeCredit": "Credit card",
   "@walletTypeCredit": {
     "description": "Credit card wallet type"
   },
@@ -190,7 +190,7 @@
   "@addFirstTransaction": {
     "description": "Empty state subtitle for transactions list"
   },
-  "newTransaction": "New Transaction",
+  "newTransaction": "New transaction",
   "@newTransaction": {
     "description": "Title of the create transaction form"
   },
@@ -504,7 +504,7 @@
   "@currencyNameGbp": {
     "description": "British Pound full name in the currency picker"
   },
-  "totalBalance": "Total Balance",
+  "totalBalance": "Total balance",
   "@totalBalance": {
     "description": "Label above the total balance amount on the dashboard"
   },
@@ -557,11 +557,11 @@
   "@addFirstTransactionButton": {
     "description": "Button label in the dashboard's category spending empty state"
   },
-  "cashFlow": "Cash Flow",
+  "cashFlow": "Cash flow",
   "@cashFlow": {
     "description": "Dashboard cash flow chart card title"
   },
-  "recentTransactions": "Recent Transactions",
+  "recentTransactions": "Recent transactions",
   "@recentTransactions": {
     "description": "Dashboard section header for the recent transactions list"
   },
