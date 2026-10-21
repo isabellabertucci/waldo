@@ -378,6 +378,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                             grouped: true,
                             icon: AppIcons.calendar,
                             label: l10n.date,
+                            required: true,
                             value: formState.date == null
                                 ? '—'
                                 : dateFormat.format(formState.date!),
@@ -419,6 +420,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                                 grouped: true,
                                 icon: AppIcons.wallets,
                                 label: l10n.wallet,
+                                required: true,
                                 value: walletName ?? l10n.none,
                                 hasError: field.hasError,
                                 onTap: () => _showWalletPicker(

@@ -5,6 +5,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/field_label.dart';
 
 /// The small icon circle leading a field row in the transaction sheets.
 class FieldBadge extends StatelessWidget {
@@ -37,6 +38,7 @@ class EditFieldRow extends StatelessWidget {
     required this.onTap,
     this.hasError = false,
     this.grouped = false,
+    this.required = false,
   });
 
   final IconData icon;
@@ -45,6 +47,9 @@ class EditFieldRow extends StatelessWidget {
   final VoidCallback onTap;
   final bool hasError;
   final bool grouped;
+
+  /// Marks the label with " *".
+  final bool required;
 
   @override
   Widget build(BuildContext context) {
@@ -77,12 +82,7 @@ class EditFieldRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      label,
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
+                    FieldLabel(label, required: required),
                     Text(
                       value,
                       maxLines: 1,

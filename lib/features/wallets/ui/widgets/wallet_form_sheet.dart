@@ -187,6 +187,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                 maxLength: maxWalletNameLength,
                 controller: _nameController,
                 label: l10n.name,
+                required: true,
                 hint: l10n.walletNameHint,
                 onChanged: viewModel.updateName,
                 validator: (value) => _validateName(l10n, value, wallets),

@@ -6,6 +6,7 @@ import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/dashed_border.dart';
+import 'package:waldo/core/widgets/field_label.dart';
 import 'package:waldo/core/widgets/near_limit_counter.dart';
 
 /// A form field in a filled pill: a leading disc, a label over the input, and
@@ -28,6 +29,7 @@ class FormPillField extends StatefulWidget {
     this.onSubmitted,
     this.onPage = false,
     this.fieldKey,
+    this.required = false,
   });
 
   /// An [Icon] or a short [Text] (e.g. a currency symbol) shown in the disc.
@@ -57,6 +59,9 @@ class FormPillField extends StatefulWidget {
 
   /// Put on the inner [TextFormField], so tests can type into it.
   final Key? fieldKey;
+
+  /// Marks the label with " *".
+  final bool required;
 
   @override
   State<FormPillField> createState() => _FormPillFieldState();
@@ -123,12 +128,7 @@ class _FormPillFieldState extends State<FormPillField> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        widget.label,
-                        style: context.textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
+                      FieldLabel(widget.label, required: widget.required),
                       TextFormField(
                         key: widget.fieldKey,
                         controller: widget.controller,
