@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:waldo/core/widgets/page_width.dart';
 
 import 'app_nav_bar.dart';
 
@@ -14,7 +15,7 @@ class AppShell extends StatelessWidget {
 
     return Scaffold(
       // No fade on `body`: sheets and buttons rendered inside it would fade too.
-      body: navigationShell,
+      body: PageWidth(child: navigationShell),
       bottomNavigationBar: AppNavBar(
         currentIndex: currentIndex,
         // Tapping the current tab again pops that branch back to its root.
