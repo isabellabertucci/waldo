@@ -14,20 +14,25 @@ class SheetCloseButton extends StatelessWidget {
     final colors = context.appColors;
     final l10n = AppLocalizations.of(context);
 
-    return Tooltip(
-      message: l10n.close,
-      child: Material(
-        color: colors.surfaceContainer,
-        shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: () => Navigator.of(context).pop(),
-          child: Padding(
-            padding: const EdgeInsets.all(Spacing.component),
-            child: Icon(
-              AppIcons.close,
-              size: IconSize.lg,
-              color: colors.onSurface,
+    // Outside the tooltip, as Flutter's IconButton does, so the name, the
+    // button role and the tap end up in one node for screen readers.
+    return Semantics(
+      button: true,
+      child: Tooltip(
+        message: l10n.close,
+        child: Material(
+          color: colors.surfaceContainer,
+          shape: const CircleBorder(),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: () => Navigator.of(context).pop(),
+            child: Padding(
+              padding: const EdgeInsets.all(Spacing.component),
+              child: Icon(
+                AppIcons.close,
+                size: IconSize.lg,
+                color: colors.onSurface,
+              ),
             ),
           ),
         ),
