@@ -63,6 +63,36 @@ void main() {
     semantics.dispose();
   });
 
+  testWidgets('When the text size changes the selected month stays centred', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(402, 874);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final db = await pumpWidgetWithProviders(
+      tester,
+      Scaffold(
+        body: MonthSelector(
+          months: selectorMonths(DateTime(2026, 10, 8)),
+          selectedMonth: DateTime(2026, 10),
+          currentMonth: DateTime(2026, 10),
+          locale: 'en',
+          onSelect: (_) {},
+        ),
+      ),
+    );
+    addTearDown(db.close);
+    final rowCentre = tester.getCenter(find.byType(Scrollable)).dx;
+    expect(tester.getCenter(find.text('October')).dx, closeTo(rowCentre, 1));
+
+    // Changed in the phone's settings while the app is open.
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    await tester.pumpAndSettle();
+
+    expect(tester.getCenter(find.text('October')).dx, closeTo(rowCentre, 1));
+  });
+
   testWidgets('In January, last December shows its year and next February '
       'does not', (tester) async {
     // The dashboard's list: 12 months back from January 2027, plus one.
