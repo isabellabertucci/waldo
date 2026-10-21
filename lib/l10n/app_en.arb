@@ -89,9 +89,9 @@
   "@walletsError": {
     "description": "Generic error message shown when wallets fail to load"
   },
-  "saveError": "There was a problem saving the wallet. Please try again.",
+  "saveError": "Couldn't save the wallet. Nothing was changed.",
   "@saveError": {
-    "description": "Generic error message shown when saving a wallet fails"
+    "description": "Shown when saving a wallet fails for a reason the user can't fix; nothing was written"
   },
   "deleteError": "There was a problem deleting the wallet. Please try again.",
   "@deleteError": {
