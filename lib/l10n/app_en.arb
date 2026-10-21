@@ -396,7 +396,7 @@
   "@categoriesError": {
     "description": "Generic error message shown when categories fail to load"
   },
-  "categorySaveError": "There was a problem saving the category. Please try again.",
+  "categorySaveError": "Couldn't save the category. Nothing was changed.",
   "@categorySaveError": {
     "description": "Generic error message shown when saving a category fails"
   },
@@ -488,7 +488,7 @@
   "@preferencesError": {
     "description": "Generic error message shown when preferences fail to load"
   },
-  "preferencesSaveError": "There was a problem saving your preference. Please try again.",
+  "preferencesSaveError": "Couldn't save your preference. Nothing was changed.",
   "@preferencesSaveError": {
     "description": "Error message shown when a preference fails to save"
   },
