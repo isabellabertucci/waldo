@@ -158,7 +158,7 @@ void main() {
     await pumpTransactionsScreen(tester);
 
     expect(find.byTooltip('Back'), findsOneWidget);
-    expect(find.byTooltip('New Transaction'), findsOneWidget);
+    expect(find.byTooltip('New transaction'), findsOneWidget);
     expect(find.byTooltip('Hide balance'), findsOneWidget);
   });
 

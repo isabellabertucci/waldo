@@ -134,7 +134,7 @@ extension AppTextStyles on TextTheme {
       labelSmall!.copyWith(fontWeight: FontWeight.w700);
 
   /// `headline-md` pushed one step, semibold - section headers within a
-  /// screen (e.g. "Recent transactions", "Cash Flow").
+  /// screen (e.g. "Recent transactions", "Cash flow").
   TextStyle get headlineMdStrong =>
       titleMedium!.copyWith(fontWeight: FontWeight.w600);
 
