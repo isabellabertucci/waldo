@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 
@@ -41,6 +42,32 @@ void main() {
     expect(
       tester.getSemantics(find.text('Create wallet')),
       isSemantics(isButton: true, isEnabled: false),
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('An icon-only button is read with its tooltip as one button', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pump(
+      tester,
+      DashedStitchButton(
+        icon: const Icon(AppIcons.add),
+        tooltip: 'Add category',
+        onPressed: () {},
+      ),
+    );
+
+    // Name, role and tap on the same node, or VoiceOver says "button" alone.
+    expect(
+      tester.getSemantics(find.byType(InkWell)),
+      isSemantics(
+        tooltip: 'Add category',
+        isButton: true,
+        isEnabled: true,
+        hasTapAction: true,
+      ),
     );
     semantics.dispose();
   });

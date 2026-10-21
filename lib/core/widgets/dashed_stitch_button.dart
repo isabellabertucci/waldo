@@ -45,75 +45,77 @@ class DashedStitchButton extends StatelessWidget {
     final colors = context.appColors;
     final isIconOnly = label == null;
 
-    // A button to screen readers, like Flutter's own buttons: a bare InkWell
-    // is only read as its label.
-    final button = Semantics(
-      container: true,
-      button: true,
-      enabled: onPressed != null,
-      child: Material(
-        color: colors.primary,
+    final button = Material(
+      color: colors.primary,
+      borderRadius: BorderRadius.circular(Rounded.pill),
+      child: InkWell(
         borderRadius: BorderRadius.circular(Rounded.pill),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(Rounded.pill),
-          onTap: onPressed,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: _DashedPillPainter(color: colors.onPrimary),
-                ),
+        onTap: onPressed,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _DashedPillPainter(color: colors.onPrimary),
               ),
-              Padding(
-                padding:
-                    padding ??
-                    (isIconOnly
-                        ? const EdgeInsets.all(Spacing.component)
-                        : EdgeInsets.symmetric(
-                            horizontal: compact ? Spacing.sm : Spacing.md,
-                            vertical: compact ? Spacing.xs : Spacing.sm,
-                          )),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (icon != null)
-                      IconTheme(
-                        data: IconThemeData(
-                          color: colors.onPrimary,
-                          size: IconSize.md,
-                        ),
-                        child: icon!,
+            ),
+            Padding(
+              padding:
+                  padding ??
+                  (isIconOnly
+                      ? const EdgeInsets.all(Spacing.component)
+                      : EdgeInsets.symmetric(
+                          horizontal: compact ? Spacing.sm : Spacing.md,
+                          vertical: compact ? Spacing.xs : Spacing.sm,
+                        )),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null)
+                    IconTheme(
+                      data: IconThemeData(
+                        color: colors.onPrimary,
+                        size: IconSize.md,
                       ),
-                    if (icon != null && label != null)
-                      const SizedBox(width: Spacing.xs),
-                    // Flexible so a narrow button (or large text) ellipsizes instead of overflowing.
-                    if (label != null)
-                      Flexible(
-                        child: Text(
-                          label!,
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style:
-                              (labelStyle ??
-                                      (compact
-                                          ? context.bodySmBold
-                                          : context.labelLgStrong))
-                                  .copyWith(color: colors.onPrimary),
-                        ),
+                      child: icon!,
+                    ),
+                  if (icon != null && label != null)
+                    const SizedBox(width: Spacing.xs),
+                  // Flexible so a narrow button (or large text) ellipsizes instead of overflowing.
+                  if (label != null)
+                    Flexible(
+                      child: Text(
+                        label!,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style:
+                            (labelStyle ??
+                                    (compact
+                                        ? context.bodySmBold
+                                        : context.labelLgStrong))
+                                .copyWith(color: colors.onPrimary),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
 
     final tooltip = this.tooltip;
-    return tooltip == null ? button : Tooltip(message: tooltip, child: button);
+    // A button to screen readers (a bare InkWell is only read as its label),
+    // outside the tooltip as Flutter's IconButton does, so name, role and tap
+    // share one node.
+    return Semantics(
+      button: true,
+      enabled: onPressed != null,
+      child: tooltip == null
+          ? button
+          : Tooltip(message: tooltip, child: button),
+    );
   }
 }
 
