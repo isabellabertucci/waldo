@@ -85,7 +85,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get deleteError =>
-      'Ocorreu um problema ao apagar a carteira. Tenta novamente.';
+      'Não foi possível apagar a carteira. Nada foi alterado.';
 
   @override
   String get deleteWallet => 'Apagar carteira?';
@@ -238,7 +238,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get transactionDeleteError =>
-      'Ocorreu um problema ao apagar a transação. Tenta novamente.';
+      'Não foi possível apagar a transação. Nada foi alterado.';
 
   @override
   String get amountRequired => 'O valor é obrigatório';
@@ -333,7 +333,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get categoryDeleteError =>
-      'Ocorreu um problema ao apagar a categoria. Tenta novamente.';
+      'Não foi possível apagar a categoria. Nada foi alterado.';
 
   @override
   String get categoryTypeGroceries => 'Supermercado';

@@ -211,6 +211,23 @@ void main() {
     expect(rows, isEmpty);
   });
 
+  testWidgets('A failed delete brings the category back and says nothing '
+      'was changed', (tester) async {
+    await pumpCategoriesScreen(tester);
+    await deleteCategory(tester, 'Education');
+    // Deleting moves the category's transactions first; with no table, that
+    // fails once the Undo window ends.
+    await currentDb!.execute('DROP TABLE ${TransactionsTable.table}');
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text("Couldn't delete the category. Nothing was changed."),
+      findsOneWidget,
+    );
+    expect(find.text('Education'), findsOneWidget);
+  });
+
   testWidgets('Deleting a used category says how many transactions move to '
       'Others, and moves them', (tester) async {
     final db = await createTestDatabase();

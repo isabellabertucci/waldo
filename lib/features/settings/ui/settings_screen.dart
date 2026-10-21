@@ -164,11 +164,11 @@ class _SettingsBody extends ConsumerWidget {
     try {
       await save();
     } catch (e) {
-      final message = switch (saveFailureOf(e)) {
-        SaveFailure.storageFull => l10n.saveErrorStorageFull,
-        SaveFailure.temporary => l10n.saveErrorTemporary,
-        SaveFailure.unknown => l10n.preferencesSaveError,
-      };
+      final message = failureMessage(
+        l10n,
+        e,
+        unknown: l10n.preferencesSaveError,
+      );
       messenger.showSnackBar(SnackBar(content: Text(message)));
     }
   }

@@ -82,8 +82,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saveError => 'Couldn\'t save the wallet. Nothing was changed.';
 
   @override
-  String get deleteError =>
-      'There was a problem deleting the wallet. Please try again.';
+  String get deleteError => 'Couldn\'t delete the wallet. Nothing was changed.';
 
   @override
   String get deleteWallet => 'Delete wallet?';
@@ -234,7 +233,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transactionDeleteError =>
-      'There was a problem deleting the transaction. Please try again.';
+      'Couldn\'t delete the transaction. Nothing was changed.';
 
   @override
   String get amountRequired => 'Amount is required';
@@ -328,7 +327,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryDeleteError =>
-      'There was a problem deleting the category. Please try again.';
+      'Couldn\'t delete the category. Nothing was changed.';
 
   @override
   String get categoryTypeGroceries => 'Groceries';

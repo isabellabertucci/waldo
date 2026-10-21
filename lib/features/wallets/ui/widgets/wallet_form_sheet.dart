@@ -125,11 +125,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
       final message = e is DuplicateWalletNameException
           // The list on screen was stale; the database still caught it.
           ? l10n.walletNameTaken
-          : switch (saveFailureOf(e)) {
-              SaveFailure.storageFull => l10n.saveErrorStorageFull,
-              SaveFailure.temporary => l10n.saveErrorTemporary,
-              SaveFailure.unknown => l10n.saveError,
-            };
+          : failureMessage(l10n, e, unknown: l10n.saveError);
       setState(() => _saveError = message);
     }
   }

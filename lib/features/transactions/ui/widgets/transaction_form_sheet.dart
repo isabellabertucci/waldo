@@ -125,11 +125,11 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     } catch (e) {
       if (mounted) {
         final l10n = AppLocalizations.of(context);
-        final message = switch (saveFailureOf(e)) {
-          SaveFailure.storageFull => l10n.saveErrorStorageFull,
-          SaveFailure.temporary => l10n.saveErrorTemporary,
-          SaveFailure.unknown => l10n.transactionSaveError,
-        };
+        final message = failureMessage(
+          l10n,
+          e,
+          unknown: l10n.transactionSaveError,
+        );
         setState(() => _saveError = message);
       }
     }
