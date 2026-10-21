@@ -263,7 +263,6 @@ class _MonthSelectorState extends State<MonthSelector> {
           ),
         ),
         _ChevronButton(
-          direction: _ChevronDirection.right,
           enabled: _canScrollForward,
           onTap: () => _step(forward: true),
         ),
@@ -272,8 +271,6 @@ class _MonthSelectorState extends State<MonthSelector> {
     );
   }
 }
-
-enum _ChevronDirection { left, right }
 
 /// The left chevron: nudges once on first show to hint the row scrolls, then
 /// steps the row back on tap, dimming when there's nothing earlier.
@@ -367,29 +364,18 @@ class _ScrollHintChevronState extends State<_ScrollHintChevron>
 
 /// The right chevron: steps the row forward on tap, dimming at the end.
 class _ChevronButton extends StatelessWidget {
-  const _ChevronButton({
-    required this.direction,
-    required this.enabled,
-    required this.onTap,
-  });
+  const _ChevronButton({required this.enabled, required this.onTap});
 
-  final _ChevronDirection direction;
   final bool enabled;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final isLeft = direction == _ChevronDirection.left;
-
     return _ChevronTarget(
-      tooltip: isLeft ? l10n.earlierMonths : l10n.laterMonths,
+      tooltip: AppLocalizations.of(context).laterMonths,
       enabled: enabled,
       onTap: onTap,
-      child: _ChevronDisc(
-        icon: isLeft ? AppIcons.back : AppIcons.chevronRight,
-        enabled: enabled,
-      ),
+      child: _ChevronDisc(icon: AppIcons.chevronRight, enabled: enabled),
     );
   }
 }
