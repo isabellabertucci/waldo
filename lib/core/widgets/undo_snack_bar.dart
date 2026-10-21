@@ -106,11 +106,14 @@ class _BarShell extends StatelessWidget {
         offset: Offset(0, _enterOffset * t),
         child: Opacity(opacity: 1 - t, child: child),
       ),
+      // At least 64 tall, and taller with large text, so it never clips.
       child: Container(
-        height: _barHeight,
-        padding: const EdgeInsets.only(
-          left: Spacing.component,
-          right: Spacing.xs,
+        constraints: const BoxConstraints(minHeight: _barHeight),
+        padding: const EdgeInsets.fromLTRB(
+          Spacing.component,
+          Spacing.xs,
+          Spacing.xs,
+          Spacing.xs,
         ),
         decoration: BoxDecoration(
           // Ink in both themes, like the wallet card.

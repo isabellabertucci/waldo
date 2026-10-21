@@ -6,6 +6,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/categories/ui/categories_screen.dart';
 import 'package:waldo/features/dashboard/models/dashboard_data.dart';
@@ -225,6 +226,37 @@ void main() {
           expect(find.byKey(const Key('categoryNameField')), findsOneWidget);
         });
       }
+
+      testWidgets('The undo bar keeps its text inside at $label', (
+        tester,
+      ) async {
+        await setUpPhone(tester, size, scale);
+        currentDb = await pumpWidgetWithProviders(
+          tester,
+          Scaffold(
+            body: Builder(
+              builder: (context) => TextButton(
+                onPressed: () => showUndoSnackBar(
+                  ScaffoldMessenger.of(context),
+                  title: 'Transaction deleted',
+                  subtitle: 'Coffee with friends',
+                  restoredLabel: 'Transaction restored',
+                ),
+                child: const Text('delete'),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('delete'));
+        // Not pumpAndSettle: the countdown would run out.
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+
+        expect(find.text('Coffee with friends'), findsOneWidget);
+        await tester.pump(const Duration(seconds: 6));
+        await tester.pumpAndSettle();
+      });
 
       testWidgets('The transaction detail sheet fits at $label', (
         tester,
