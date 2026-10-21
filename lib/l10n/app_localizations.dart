@@ -230,10 +230,10 @@ abstract class AppLocalizations {
   /// **'There was a problem loading your wallets. Please try again.'**
   String get walletsError;
 
-  /// Generic error message shown when saving a wallet fails
+  /// Shown when saving a wallet fails for a reason the user can't fix; nothing was written
   ///
   /// In en, this message translates to:
-  /// **'There was a problem saving the wallet. Please try again.'**
+  /// **'Couldn\'t save the wallet. Nothing was changed.'**
   String get saveError;
 
   /// Generic error message shown when deleting a wallet fails

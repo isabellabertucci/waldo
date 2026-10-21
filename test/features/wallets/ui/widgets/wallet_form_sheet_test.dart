@@ -17,6 +17,69 @@ void main() {
     currentDb = null;
   });
 
+  Future<void> openNewWalletSheet(WidgetTester tester) async {
+    // A portrait phone, so the whole sheet fits.
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    currentDb = await pumpWidgetWithProviders(
+      tester,
+      Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => showWalletFormSheet(context),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> tapCreate(WidgetTester tester) async {
+    await tester.ensureVisible(find.text('Create wallet'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Create wallet'));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('A name taken after the sheet opened shows on the sheet', (
+    tester,
+  ) async {
+    await openNewWalletSheet(tester);
+    await tester.enterText(find.byKey(const Key('walletNameField')), 'Cash');
+    // Saved elsewhere meanwhile: the name check passes, the database refuses.
+    await currentDb!.insert(
+      'wallets',
+      const Wallet(name: 'Cash', createdAt: '2026-08-10T12:00:00.000').toMap(),
+    );
+
+    await tapCreate(tester);
+
+    expect(
+      find.text('A wallet with this name already exists').hitTestable(),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('A failed wallet save shows its error on the sheet', (
+    tester,
+  ) async {
+    await openNewWalletSheet(tester);
+    await tester.enterText(find.byKey(const Key('walletNameField')), 'Cash');
+    // No table to write to, so the insert throws.
+    await currentDb!.execute('DROP TABLE wallets');
+
+    await tapCreate(tester);
+
+    expect(
+      find.text("Couldn't save the wallet. Nothing was changed.").hitTestable(),
+      findsOneWidget,
+    );
+  });
+
   testWidgets(
     'On a small phone the sheet stays below the status bar and scrolls',
     (tester) async {

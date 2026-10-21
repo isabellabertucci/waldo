@@ -78,7 +78,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get saveError =>
-      'Ocorreu um problema ao guardar a carteira. Tenta novamente.';
+      'Não foi possível guardar a carteira. Nada foi alterado.';
 
   @override
   String get deleteError =>

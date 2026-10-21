@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/database/save_failure.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/amount_input_formatter.dart';
@@ -102,6 +103,9 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     return null;
   }
 
+  /// Shown above the button: a SnackBar would land behind the sheet.
+  String? _saveError;
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) {
       _log.fine('Wallet form validation failed');
@@ -111,24 +115,22 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     final viewModel = ref.read(
       walletFormViewModelProvider(widget.wallet).notifier,
     );
+    setState(() => _saveError = null);
     try {
       final success = await viewModel.save();
       if (success && mounted) Navigator.of(context).pop();
-    } on DuplicateWalletNameException {
-      // The list on screen was stale; the database still caught it.
-      if (mounted) {
-        final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.walletNameTaken)));
-      }
-    } catch (_) {
-      if (mounted) {
-        final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.saveError)));
-      }
+    } catch (e) {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      final message = e is DuplicateWalletNameException
+          // The list on screen was stale; the database still caught it.
+          ? l10n.walletNameTaken
+          : switch (saveFailureOf(e)) {
+              SaveFailure.storageFull => l10n.saveErrorStorageFull,
+              SaveFailure.temporary => l10n.saveErrorTemporary,
+              SaveFailure.unknown => l10n.saveError,
+            };
+      setState(() => _saveError = message);
     }
   }
 
@@ -261,6 +263,17 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                 ],
               ),
               const SizedBox(height: Spacing.md),
+              if (_saveError case final error?) ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    error,
+                    textAlign: TextAlign.center,
+                    style: context.bodyMdStrong.copyWith(color: colors.error),
+                  ),
+                ),
+                const SizedBox(height: Spacing.sm),
+              ],
               SizedBox(
                 width: double.infinity,
                 child: DashedStitchButton(

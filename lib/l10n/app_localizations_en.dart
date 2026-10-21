@@ -76,8 +76,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'There was a problem loading your wallets. Please try again.';
 
   @override
-  String get saveError =>
-      'There was a problem saving the wallet. Please try again.';
+  String get saveError => 'Couldn\'t save the wallet. Nothing was changed.';
 
   @override
   String get deleteError =>
