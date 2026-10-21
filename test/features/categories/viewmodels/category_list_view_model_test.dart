@@ -133,6 +133,24 @@ void main() {
     verify(() => mockRepo.insert(any())).called(1);
   });
 
+  test('an add that throws does not block the next one', () async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries]);
+    var calls = 0;
+    when(() => mockRepo.insert(any())).thenAnswer((_) async {
+      // The first insert fails; the lock must still open for the retry.
+      if (calls++ == 0) throw StateError('db');
+      return 3;
+    });
+    container.listen(categoryListViewModelProvider, (_, _) {});
+    await container.read(categoryListViewModelProvider.future);
+    final notifier = container.read(categoryListViewModelProvider.notifier);
+
+    await expectLater(notifier.add('Gym'), throwsA(isA<StateError>()));
+    await notifier.add('Gym');
+
+    verify(() => mockRepo.insert(any())).called(2);
+  });
+
   test('add lets a duplicate-name error reach the screen', () async {
     when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries]);
     when(
