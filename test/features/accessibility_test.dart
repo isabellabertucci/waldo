@@ -164,4 +164,24 @@ void main() {
     expectNamed(tester, 'txNoteField', 'Note');
     semantics.dispose();
   });
+
+  testWidgets('The transaction detail sheet reads each label with its value', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pumpSheet(tester, sheets['transaction detail sheet']!);
+
+    expect(
+      tester.getSemantics(find.text('Paycheck')).label,
+      'Paycheck\nGroceries · Income',
+    );
+    for (final label in ['Amount', 'Date', 'Wallet', 'Note']) {
+      // The label and its value share one node, so it's more than the label.
+      expect(
+        tester.getSemantics(find.text(label)).label,
+        startsWith('$label\n'),
+      );
+    }
+    semantics.dispose();
+  });
 }

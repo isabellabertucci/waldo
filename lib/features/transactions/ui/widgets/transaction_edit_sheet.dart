@@ -490,25 +490,27 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               DashedCircleBadge(icon: categoryIcon, color: amountColor),
               const SizedBox(width: Spacing.sm),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.headlineLgStrong,
-                    ),
-                    Text(
-                      '$categoryLabel · ${formState.type.label(l10n)}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: colors.onSurfaceVariant,
+                child: MergeSemantics(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.headlineLgStrong,
                       ),
-                    ),
-                  ],
+                      Text(
+                        '$categoryLabel · ${formState.type.label(l10n)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: Spacing.sm),
@@ -528,21 +530,25 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             ),
             // Side by side when they fit; with large text the amount wraps
             // under its label rather than being cut.
-            child: Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Text(
-                  l10n.amount,
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurfaceVariant,
+            child: MergeSemantics(
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(
+                    l10n.amount,
+                    style: context.textTheme.bodyMedium?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
                   ),
-                ),
-                Text(
-                  amountText,
-                  style: context.headlineLgStrong.copyWith(color: amountColor),
-                ),
-              ],
+                  Text(
+                    amountText,
+                    style: context.headlineLgStrong.copyWith(
+                      color: amountColor,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: Spacing.sm),
@@ -1092,33 +1098,36 @@ class _ViewInfoRow extends StatelessWidget {
 
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: Spacing.sm),
-          child: Row(
-            children: [
-              FieldBadge(icon: icon, color: colors.onSurfaceVariant),
-              const SizedBox(width: Spacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      label,
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: colors.onSurfaceVariant,
+        // One stop for screen readers: "Date, Thu 8 Oct".
+        MergeSemantics(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: Spacing.sm),
+            child: Row(
+              children: [
+                FieldBadge(icon: icon, color: colors.onSurfaceVariant),
+                const SizedBox(width: Spacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        label,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                    Text(
-                      value,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.bodyMdBold,
-                    ),
-                  ],
+                      Text(
+                        value,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.bodyMdBold,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         if (showDivider)
