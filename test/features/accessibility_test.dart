@@ -153,4 +153,15 @@ void main() {
     expectNamed(tester, 'transactionDescriptionField', 'Description');
     semantics.dispose();
   });
+
+  testWidgets('The transaction edit fields are read with their labels', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pumpSheet(tester, sheets['transaction edit sheet']!);
+
+    expectNamed(tester, 'txNameField', 'Name');
+    expectNamed(tester, 'txNoteField', 'Note');
+    semantics.dispose();
+  });
 }

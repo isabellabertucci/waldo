@@ -760,35 +760,37 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                   ),
                   const SizedBox(width: Spacing.sm),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          l10n.name,
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                        TextField(
-                          key: const Key('txNameField'),
-                          controller: _nameController,
-                          focusNode: _nameFocusNode,
-                          maxLength: maxTransactionDescriptionLength,
-                          buildCounter: nearLimitCounter,
-                          textCapitalization: TextCapitalization.sentences,
-                          onChanged: (value) =>
-                              _viewModel(ref).updateDescription(value),
-                          decoration: const InputDecoration(
-                            isCollapsed: true,
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: Spacing.xs,
+                    child: MergeSemantics(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            l10n.name,
+                            style: context.textTheme.bodySmall?.copyWith(
+                              color: colors.onSurfaceVariant,
                             ),
                           ),
-                          style: context.bodyMdBold,
-                        ),
-                      ],
+                          TextField(
+                            key: const Key('txNameField'),
+                            controller: _nameController,
+                            focusNode: _nameFocusNode,
+                            maxLength: maxTransactionDescriptionLength,
+                            buildCounter: nearLimitCounter,
+                            textCapitalization: TextCapitalization.sentences,
+                            onChanged: (value) =>
+                                _viewModel(ref).updateDescription(value),
+                            decoration: const InputDecoration(
+                              isCollapsed: true,
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: Spacing.xs,
+                              ),
+                            ),
+                            style: context.bodyMdBold,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -834,35 +836,38 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                   ),
                   const SizedBox(width: Spacing.sm),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          l10n.transactionNote,
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                        TextField(
-                          controller: _noteController,
-                          focusNode: _noteFocusNode,
-                          maxLength: maxTransactionNoteLength,
-                          buildCounter: nearLimitCounter,
-                          textCapitalization: TextCapitalization.sentences,
-                          onChanged: (value) =>
-                              _viewModel(ref).updateNote(value),
-                          decoration: InputDecoration(
-                            isCollapsed: true,
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: Spacing.xs,
+                    child: MergeSemantics(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            l10n.transactionNote,
+                            style: context.textTheme.bodySmall?.copyWith(
+                              color: colors.onSurfaceVariant,
                             ),
-                            hintText: l10n.transactionNote,
                           ),
-                          style: context.bodyMdBold,
-                        ),
-                      ],
+                          TextField(
+                            key: const Key('txNoteField'),
+                            controller: _noteController,
+                            focusNode: _noteFocusNode,
+                            maxLength: maxTransactionNoteLength,
+                            buildCounter: nearLimitCounter,
+                            textCapitalization: TextCapitalization.sentences,
+                            onChanged: (value) =>
+                                _viewModel(ref).updateNote(value),
+                            decoration: InputDecoration(
+                              isCollapsed: true,
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: Spacing.xs,
+                              ),
+                              hintText: l10n.transactionNote,
+                            ),
+                            style: context.bodyMdBold,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
