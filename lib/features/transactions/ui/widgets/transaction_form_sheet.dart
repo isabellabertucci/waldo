@@ -310,6 +310,75 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                   ),
                 ),
               ),
+              const SizedBox(height: Spacing.sm),
+              // Right under the amount, as in the edit sheet and the detail.
+              Container(
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainer,
+                  borderRadius: BorderRadius.circular(Rounded.lg),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.md,
+                    vertical: Spacing.sm,
+                  ),
+                  child: Row(
+                    children: [
+                      FieldBadge(
+                        icon: AppIcons.name,
+                        color: colors.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: Spacing.sm),
+                      Expanded(
+                        child: MergeSemantics(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                l10n.transactionTitle,
+                                style: context.textTheme.bodySmall?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                              ),
+                              TextFormField(
+                                key: const Key('transactionDescriptionField'),
+                                controller: _descriptionController,
+                                onChanged: viewModel.updateDescription,
+                                // Stops typing at the limit instead of failing on save.
+                                maxLength: maxTransactionDescriptionLength,
+                                buildCounter: nearLimitCounter,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                decoration: InputDecoration(
+                                  isCollapsed: true,
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  disabledBorder: InputBorder.none,
+                                  errorBorder: InputBorder.none,
+                                  focusedErrorBorder: InputBorder.none,
+                                  filled: false,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: Spacing.xs,
+                                  ),
+                                  hintText: l10n.descriptionHint,
+                                  hintStyle: context.bodyMdBold.copyWith(
+                                    color: colors.onSurfaceVariant.withValues(
+                                      alpha: 0.6,
+                                    ),
+                                  ),
+                                ),
+                                style: context.bodyMdBold,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(height: Spacing.md),
               Row(
                 children: [
@@ -368,8 +437,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                 _ => const SizedBox.shrink(),
               },
               const SizedBox(height: Spacing.sm),
-              // Date, Wallet and Description share one card divided by
-              // hairlines - same as the edit sheet's Date/Wallet/Note card.
+              // Date and Wallet share one card divided by a hairline.
               Material(
                 color: colors.surfaceContainer,
                 borderRadius: BorderRadius.circular(Rounded.lg),
@@ -458,71 +526,6 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                         _ => const SizedBox.shrink(),
                       },
                     ],
-                    const _GroupDivider(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Spacing.md,
-                        vertical: Spacing.sm,
-                      ),
-                      child: Row(
-                        children: [
-                          FieldBadge(
-                            icon: AppIcons.name,
-                            color: colors.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: Spacing.sm),
-                          Expanded(
-                            child: MergeSemantics(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    l10n.transactionTitle,
-                                    style: context.textTheme.bodySmall
-                                        ?.copyWith(
-                                          color: colors.onSurfaceVariant,
-                                        ),
-                                  ),
-                                  TextFormField(
-                                    key: const Key(
-                                      'transactionDescriptionField',
-                                    ),
-                                    controller: _descriptionController,
-                                    onChanged: viewModel.updateDescription,
-                                    // Stops typing at the limit instead of failing on save.
-                                    maxLength: maxTransactionDescriptionLength,
-                                    buildCounter: nearLimitCounter,
-                                    textCapitalization:
-                                        TextCapitalization.sentences,
-                                    decoration: InputDecoration(
-                                      isCollapsed: true,
-                                      border: InputBorder.none,
-                                      enabledBorder: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                      disabledBorder: InputBorder.none,
-                                      errorBorder: InputBorder.none,
-                                      focusedErrorBorder: InputBorder.none,
-                                      filled: false,
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            vertical: Spacing.xs,
-                                          ),
-                                      hintText: l10n.descriptionHint,
-                                      hintStyle: context.bodyMdBold.copyWith(
-                                        color: colors.onSurfaceVariant
-                                            .withValues(alpha: 0.6),
-                                      ),
-                                    ),
-                                    style: context.bodyMdBold,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
               ),
