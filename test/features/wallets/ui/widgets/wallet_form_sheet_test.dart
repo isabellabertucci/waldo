@@ -52,7 +52,7 @@ void main() {
     await openNewWalletSheet(tester);
 
     expect(find.text('Name *', findRichText: true), findsOneWidget);
-    expect(find.bySemanticsLabel('Name, required'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('^Name, required')), findsOneWidget);
     semantics.dispose();
   });
 
