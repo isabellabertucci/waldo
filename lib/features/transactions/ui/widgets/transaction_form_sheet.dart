@@ -467,7 +467,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                       child: Row(
                         children: [
                           FieldBadge(
-                            icon: AppIcons.note,
+                            icon: AppIcons.name,
                             color: colors.onSurfaceVariant,
                           ),
                           const SizedBox(width: Spacing.sm),
