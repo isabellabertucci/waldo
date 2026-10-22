@@ -228,72 +228,82 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                       FormField<String>(
                         validator: (_) =>
                             _validateAmount(l10n, _amountController.text),
-                        builder: (field) => Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                        // One node named "Amount", with its sign, value and error.
+                        builder: (field) => MergeSemantics(
+                          child: Semantics(
+                            label: l10n.amount,
+                            child: Column(
                               children: [
-                                // The trailing space makes "+$ 0.00" read as one string.
-                                Text(
-                                  '${isIncome ? '+' : '-'}$currencySymbol ',
-                                  style: context.amountDisplayBold.copyWith(
-                                    color: amountColor,
-                                  ),
-                                ),
-                                // As wide as its text, so the gap stays one space.
-                                Flexible(
-                                  child: IntrinsicWidth(
-                                    child: TextField(
-                                      key: const Key('transactionAmountField'),
-                                      controller: _amountController,
-                                      focusNode: _amountFocus,
-                                      onChanged: (value) {
-                                        viewModel.updateAmount(value);
-                                        field.didChange(value);
-                                      },
-                                      keyboardType:
-                                          const TextInputType.numberWithOptions(
-                                            decimal: true,
-                                          ),
-                                      inputFormatters: const [
-                                        AmountInputFormatter(),
-                                      ],
-                                      decoration: InputDecoration(
-                                        isCollapsed: true,
-                                        border: InputBorder.none,
-                                        enabledBorder: InputBorder.none,
-                                        focusedBorder: InputBorder.none,
-                                        disabledBorder: InputBorder.none,
-                                        errorBorder: InputBorder.none,
-                                        focusedErrorBorder: InputBorder.none,
-                                        filled: false,
-                                        // The theme's padding would widen the one-space gap.
-                                        contentPadding: EdgeInsets.zero,
-                                        hintText: zeroAmountHint(
-                                          moneyLocale(context),
-                                        ),
-                                        hintStyle: context.amountDisplayBold
-                                            .copyWith(
-                                              color: colors.onSurfaceVariant,
-                                            ),
-                                      ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // The trailing space makes "+$ 0.00" read as one string.
+                                    Text(
+                                      '${isIncome ? '+' : '-'}$currencySymbol ',
                                       style: context.amountDisplayBold.copyWith(
-                                        color: colors.onSurface,
+                                        color: amountColor,
                                       ),
                                     ),
-                                  ),
+                                    // As wide as its text, so the gap stays one space.
+                                    Flexible(
+                                      child: IntrinsicWidth(
+                                        child: TextField(
+                                          key: const Key(
+                                            'transactionAmountField',
+                                          ),
+                                          controller: _amountController,
+                                          focusNode: _amountFocus,
+                                          onChanged: (value) {
+                                            viewModel.updateAmount(value);
+                                            field.didChange(value);
+                                          },
+                                          keyboardType:
+                                              const TextInputType.numberWithOptions(
+                                                decimal: true,
+                                              ),
+                                          inputFormatters: const [
+                                            AmountInputFormatter(),
+                                          ],
+                                          decoration: InputDecoration(
+                                            isCollapsed: true,
+                                            border: InputBorder.none,
+                                            enabledBorder: InputBorder.none,
+                                            focusedBorder: InputBorder.none,
+                                            disabledBorder: InputBorder.none,
+                                            errorBorder: InputBorder.none,
+                                            focusedErrorBorder:
+                                                InputBorder.none,
+                                            filled: false,
+                                            // The theme's padding would widen the one-space gap.
+                                            contentPadding: EdgeInsets.zero,
+                                            hintText: zeroAmountHint(
+                                              moneyLocale(context),
+                                            ),
+                                            hintStyle: context.amountDisplayBold
+                                                .copyWith(
+                                                  color:
+                                                      colors.onSurfaceVariant,
+                                                ),
+                                          ),
+                                          style: context.amountDisplayBold
+                                              .copyWith(
+                                                color: colors.onSurface,
+                                              ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                                if (field.hasError)
+                                  Text(
+                                    field.errorText!,
+                                    style: context.textTheme.bodySmall
+                                        ?.copyWith(color: colors.error),
+                                  ),
                               ],
                             ),
-                            if (field.hasError)
-                              Text(
-                                field.errorText!,
-                                style: context.textTheme.bodySmall?.copyWith(
-                                  color: colors.error,
-                                ),
-                              ),
-                          ],
+                          ),
                         ),
                       ),
                     ],
@@ -462,47 +472,52 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                           ),
                           const SizedBox(width: Spacing.sm),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  l10n.transactionDescription,
-                                  style: context.textTheme.bodySmall?.copyWith(
-                                    color: colors.onSurfaceVariant,
+                            child: MergeSemantics(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    l10n.transactionDescription,
+                                    style: context.textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: colors.onSurfaceVariant,
+                                        ),
                                   ),
-                                ),
-                                TextFormField(
-                                  key: const Key('transactionDescriptionField'),
-                                  controller: _descriptionController,
-                                  onChanged: viewModel.updateDescription,
-                                  // Stops typing at the limit instead of failing on save.
-                                  maxLength: maxTransactionDescriptionLength,
-                                  buildCounter: nearLimitCounter,
-                                  textCapitalization:
-                                      TextCapitalization.sentences,
-                                  decoration: InputDecoration(
-                                    isCollapsed: true,
-                                    border: InputBorder.none,
-                                    enabledBorder: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
-                                    disabledBorder: InputBorder.none,
-                                    errorBorder: InputBorder.none,
-                                    focusedErrorBorder: InputBorder.none,
-                                    filled: false,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      vertical: Spacing.xs,
+                                  TextFormField(
+                                    key: const Key(
+                                      'transactionDescriptionField',
                                     ),
-                                    hintText: l10n.descriptionHint,
-                                    hintStyle: context.bodyMdBold.copyWith(
-                                      color: colors.onSurfaceVariant.withValues(
-                                        alpha: 0.6,
+                                    controller: _descriptionController,
+                                    onChanged: viewModel.updateDescription,
+                                    // Stops typing at the limit instead of failing on save.
+                                    maxLength: maxTransactionDescriptionLength,
+                                    buildCounter: nearLimitCounter,
+                                    textCapitalization:
+                                        TextCapitalization.sentences,
+                                    decoration: InputDecoration(
+                                      isCollapsed: true,
+                                      border: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                      disabledBorder: InputBorder.none,
+                                      errorBorder: InputBorder.none,
+                                      focusedErrorBorder: InputBorder.none,
+                                      filled: false,
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            vertical: Spacing.xs,
+                                          ),
+                                      hintText: l10n.descriptionHint,
+                                      hintStyle: context.bodyMdBold.copyWith(
+                                        color: colors.onSurfaceVariant
+                                            .withValues(alpha: 0.6),
                                       ),
                                     ),
+                                    style: context.bodyMdBold,
                                   ),
-                                  style: context.bodyMdBold,
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ],

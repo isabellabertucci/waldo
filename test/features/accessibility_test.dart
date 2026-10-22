@@ -136,9 +136,21 @@ void main() {
 
   testWidgets('The new category field is read with its label', (tester) async {
     final semantics = tester.ensureSemantics();
-    await pumpWidgetWithProviders(tester, const CategoriesScreen());
+    final db = await pumpWidgetWithProviders(tester, const CategoriesScreen());
+    addTearDown(db.close);
 
     expectNamed(tester, 'categoryNameField', 'New category');
+    semantics.dispose();
+  });
+
+  testWidgets('The new transaction fields are read with their labels', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pumpSheet(tester, (context, _) => showTransactionFormSheet(context));
+
+    expectNamed(tester, 'transactionAmountField', 'Amount');
+    expectNamed(tester, 'transactionDescriptionField', 'Description');
     semantics.dispose();
   });
 }
