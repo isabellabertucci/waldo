@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:waldo/core/constants/db_constants.dart';
+import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/features/categories/ui/categories_screen.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_edit_sheet.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_form_sheet.dart';
+import 'package:waldo/features/wallets/ui/wallets_screen.dart';
 
 import '../helpers/golden_seed.dart';
 import '../helpers/test_app.dart';
@@ -106,6 +109,36 @@ void main() {
       tester.getSemantics(find.text('Education')),
       isSemantics(isButton: true, isSelected: false),
     );
+    semantics.dispose();
+  });
+
+  /// A field read with its visible label, not just its example text.
+  void expectNamed(WidgetTester tester, String key, String label) {
+    final node = tester.getSemantics(find.byKey(Key(key)));
+    expect(node.flagsCollection.isTextField, isTrue);
+    expect(node.label, startsWith(label));
+  }
+
+  testWidgets('The new wallet fields are read with their labels', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    final db = await createTestDatabase();
+    addTearDown(db.close);
+    await pumpWidgetWithProviders(tester, const WalletsScreen(), db: db);
+    await tester.tap(find.byType(DashedStitchButton));
+    await tester.pumpAndSettle();
+
+    expectNamed(tester, 'walletNameField', 'Name, required');
+    expectNamed(tester, 'walletBalanceField', 'How much is in it today?');
+    semantics.dispose();
+  });
+
+  testWidgets('The new category field is read with its label', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pumpWidgetWithProviders(tester, const CategoriesScreen());
+
+    expectNamed(tester, 'categoryNameField', 'New category');
     semantics.dispose();
   });
 }

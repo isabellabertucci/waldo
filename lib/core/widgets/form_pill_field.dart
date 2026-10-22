@@ -124,49 +124,53 @@ class _FormPillFieldState extends State<FormPillField> {
                 ),
                 const SizedBox(width: Spacing.sm),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FieldLabel(widget.label, required: widget.required),
-                      TextFormField(
-                        key: widget.fieldKey,
-                        controller: widget.controller,
-                        focusNode: _focusNode,
-                        enabled: widget.enabled,
-                        onChanged: widget.onChanged,
-                        validator: widget.validator,
-                        keyboardType: widget.keyboardType,
-                        inputFormatters: widget.inputFormatters,
-                        textCapitalization: widget.textCapitalization,
-                        maxLength: widget.maxLength,
-                        onFieldSubmitted: widget.onSubmitted,
-                        textInputAction: widget.onSubmitted == null
-                            ? null
-                            : TextInputAction.done,
-                        buildCounter: nearLimitCounter,
-                        decoration: InputDecoration(
-                          isCollapsed: true,
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          focusedErrorBorder: InputBorder.none,
-                          filled: false,
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: Spacing.xs,
-                          ),
-                          hintText: widget.hint,
-                          hintStyle: context.bodyMdBold.copyWith(
-                            color: colors.onSurfaceVariant.withValues(
-                              alpha: 0.6,
+                  // One node, so screen readers name the field by its label
+                  // (a collapsed decoration can't take a labelText).
+                  child: MergeSemantics(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FieldLabel(widget.label, required: widget.required),
+                        TextFormField(
+                          key: widget.fieldKey,
+                          controller: widget.controller,
+                          focusNode: _focusNode,
+                          enabled: widget.enabled,
+                          onChanged: widget.onChanged,
+                          validator: widget.validator,
+                          keyboardType: widget.keyboardType,
+                          inputFormatters: widget.inputFormatters,
+                          textCapitalization: widget.textCapitalization,
+                          maxLength: widget.maxLength,
+                          onFieldSubmitted: widget.onSubmitted,
+                          textInputAction: widget.onSubmitted == null
+                              ? null
+                              : TextInputAction.done,
+                          buildCounter: nearLimitCounter,
+                          decoration: InputDecoration(
+                            isCollapsed: true,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedErrorBorder: InputBorder.none,
+                            filled: false,
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: Spacing.xs,
+                            ),
+                            hintText: widget.hint,
+                            hintStyle: context.bodyMdBold.copyWith(
+                              color: colors.onSurfaceVariant.withValues(
+                                alpha: 0.6,
+                              ),
                             ),
                           ),
+                          style: context.bodyMdBold,
                         ),
-                        style: context.bodyMdBold,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 if (trailing != null) ...[
