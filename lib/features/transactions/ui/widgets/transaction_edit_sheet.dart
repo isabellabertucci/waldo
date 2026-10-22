@@ -789,6 +789,14 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                             decoration: const InputDecoration(
                               isCollapsed: true,
                               border: InputBorder.none,
+                              // Off: the theme's boxed fill and focus ring.
+                              // The card's dashed outline shows focus.
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              focusedErrorBorder: InputBorder.none,
+                              filled: false,
                               contentPadding: EdgeInsets.symmetric(
                                 vertical: Spacing.xs,
                               ),
@@ -865,6 +873,14 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                             decoration: InputDecoration(
                               isCollapsed: true,
                               border: InputBorder.none,
+                              // Off: the theme's boxed fill and focus ring.
+                              // The card's dashed outline shows focus.
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              focusedErrorBorder: InputBorder.none,
+                              filled: false,
                               contentPadding: const EdgeInsets.symmetric(
                                 vertical: Spacing.xs,
                               ),
