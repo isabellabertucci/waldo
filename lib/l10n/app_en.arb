@@ -214,9 +214,9 @@
   "@category": {
     "description": "Category field label"
   },
-  "transactionDescription": "Description",
-  "@transactionDescription": {
-    "description": "Transaction description field label"
+  "transactionTitle": "Title",
+  "@transactionTitle": {
+    "description": "Transaction title field label: the name shown on the list and the detail"
   },
   "descriptionHint": "What was it for?",
   "@descriptionHint": {

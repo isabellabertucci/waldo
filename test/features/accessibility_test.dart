@@ -150,7 +150,7 @@ void main() {
     await pumpSheet(tester, (context, _) => showTransactionFormSheet(context));
 
     expectNamed(tester, 'transactionAmountField', 'Amount');
-    expectNamed(tester, 'transactionDescriptionField', 'Description');
+    expectNamed(tester, 'transactionDescriptionField', 'Title');
     semantics.dispose();
   });
 
@@ -160,7 +160,7 @@ void main() {
     final semantics = tester.ensureSemantics();
     await pumpSheet(tester, sheets['transaction edit sheet']!);
 
-    expectNamed(tester, 'txNameField', 'Name');
+    expectNamed(tester, 'txNameField', 'Title');
     expectNamed(tester, 'txNoteField', 'Note');
     semantics.dispose();
   });
