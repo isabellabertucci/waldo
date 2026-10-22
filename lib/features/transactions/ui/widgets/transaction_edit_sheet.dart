@@ -579,20 +579,24 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             children: [
               // A plain circle, same ~48px normal-button size as "Edit
               // transaction"'s height - not an elongated pill.
-              Tooltip(
-                message: l10n.delete,
-                child: Material(
-                  color: colors.error.withValues(alpha: 0.08),
-                  shape: const CircleBorder(),
-                  child: InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: _delete,
-                    child: Padding(
-                      padding: const EdgeInsets.all(Spacing.component),
-                      child: Icon(
-                        AppIcons.delete,
-                        size: IconSize.xl,
-                        color: colors.error,
+              // Outside the tooltip, as Flutter's IconButton does.
+              Semantics(
+                button: true,
+                child: Tooltip(
+                  message: l10n.delete,
+                  child: Material(
+                    color: colors.error.withValues(alpha: 0.08),
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: _delete,
+                      child: Padding(
+                        padding: const EdgeInsets.all(Spacing.component),
+                        child: Icon(
+                          AppIcons.delete,
+                          size: IconSize.xl,
+                          color: colors.error,
+                        ),
                       ),
                     ),
                   ),
@@ -697,17 +701,24 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                   onChanged: (type) => _viewModel(ref).updateType(type),
                 ),
                 const SizedBox(height: Spacing.sm),
-                InkWell(
-                  key: const Key('txAmountField'),
-                  borderRadius: BorderRadius.circular(Rounded.md),
-                  onTap: () => _openField(_EditField.amount),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: Spacing.xxs),
-                    child: Text(
-                      amountText,
-                      textAlign: TextAlign.center,
-                      style: context.headlineLgStrong.copyWith(
-                        color: amountColor,
+                // "Amount, +12.50, button": opens the keypad.
+                Semantics(
+                  button: true,
+                  label: l10n.amount,
+                  child: InkWell(
+                    key: const Key('txAmountField'),
+                    borderRadius: BorderRadius.circular(Rounded.md),
+                    onTap: () => _openField(_EditField.amount),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: Spacing.xxs,
+                      ),
+                      child: Text(
+                        amountText,
+                        textAlign: TextAlign.center,
+                        style: context.headlineLgStrong.copyWith(
+                          color: amountColor,
+                        ),
                       ),
                     ),
                   ),
@@ -738,6 +749,8 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             ),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
+              // Only widens the touch target; the field inside is what's read.
+              excludeFromSemantics: true,
               onTap: () => _nameFocusNode.requestFocus(),
               child: Row(
                 children: [
@@ -810,6 +823,8 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             ),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
+              // Only widens the touch target; the field inside is what's read.
+              excludeFromSemantics: true,
               onTap: () => _noteFocusNode.requestFocus(),
               child: Row(
                 children: [
@@ -1197,7 +1212,13 @@ class _NumpadKey extends StatelessWidget {
       ),
     );
     final tooltip = this.tooltip;
-    return tooltip == null ? button : Tooltip(message: tooltip, child: button);
+    // Outside the tooltip, as Flutter's IconButton does.
+    return Semantics(
+      button: true,
+      child: tooltip == null
+          ? button
+          : Tooltip(message: tooltip, child: button),
+    );
   }
 }
 

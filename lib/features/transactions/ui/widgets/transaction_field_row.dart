@@ -56,50 +56,54 @@ class EditFieldRow extends StatelessWidget {
     final colors = context.appColors;
     final radius = grouped ? null : BorderRadius.circular(Rounded.lg);
 
-    return Material(
-      color: grouped ? colors.transparent : colors.surfaceContainer,
-      borderRadius: radius,
-      child: InkWell(
+    // A button to screen readers: it opens a picker.
+    return Semantics(
+      button: true,
+      child: Material(
+        color: grouped ? colors.transparent : colors.surfaceContainer,
         borderRadius: radius,
-        onTap: onTap,
-        child: Container(
-          decoration: hasError && !grouped
-              ? BoxDecoration(
-                  borderRadius: BorderRadius.circular(Rounded.lg),
-                  border: Border.all(color: colors.error, width: 1.5),
-                )
-              : null,
-          padding: const EdgeInsets.symmetric(
-            horizontal: Spacing.md,
-            vertical: Spacing.sm,
-          ),
-          child: Row(
-            children: [
-              FieldBadge(icon: icon, color: colors.onSurfaceVariant),
-              const SizedBox(width: Spacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FieldLabel(label, required: required),
-                    Text(
-                      value,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: hasError && grouped
-                          ? context.bodyMdBold.copyWith(color: colors.error)
-                          : context.bodyMdBold,
-                    ),
-                  ],
+        child: InkWell(
+          borderRadius: radius,
+          onTap: onTap,
+          child: Container(
+            decoration: hasError && !grouped
+                ? BoxDecoration(
+                    borderRadius: BorderRadius.circular(Rounded.lg),
+                    border: Border.all(color: colors.error, width: 1.5),
+                  )
+                : null,
+            padding: const EdgeInsets.symmetric(
+              horizontal: Spacing.md,
+              vertical: Spacing.sm,
+            ),
+            child: Row(
+              children: [
+                FieldBadge(icon: icon, color: colors.onSurfaceVariant),
+                const SizedBox(width: Spacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FieldLabel(label, required: required),
+                      Text(
+                        value,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: hasError && grouped
+                            ? context.bodyMdBold.copyWith(color: colors.error)
+                            : context.bodyMdBold,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Icon(
-                AppIcons.chevronRight,
-                size: IconSize.lg,
-                color: colors.onSurfaceVariant.withValues(alpha: 0.5),
-              ),
-            ],
+                Icon(
+                  AppIcons.chevronRight,
+                  size: IconSize.lg,
+                  color: colors.onSurfaceVariant.withValues(alpha: 0.5),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -595,44 +595,50 @@ class _CategoryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
 
-    return Material(
-      color: colors.surfaceContainer,
-      borderRadius: BorderRadius.circular(Rounded.pill),
-      child: InkWell(
+    // Picks one of a set, like the wallet type tiles.
+    return Semantics(
+      button: true,
+      selected: selected,
+      inMutuallyExclusiveGroup: true,
+      child: Material(
+        color: colors.surfaceContainer,
         borderRadius: BorderRadius.circular(Rounded.pill),
-        onTap: onTap,
-        child: DashedBorder(
-          radius: Rounded.pill,
-          color: selected ? colors.primary : colors.transparent,
-          child: Padding(
-            padding: const EdgeInsets.only(
-              left: Spacing.xs,
-              right: Spacing.sm,
-              top: Spacing.xs,
-              bottom: Spacing.xs,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: BadgeSize.sm,
-                  height: BadgeSize.sm,
-                  decoration: BoxDecoration(
-                    color: colors.surface,
-                    shape: BoxShape.circle,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(Rounded.pill),
+          onTap: onTap,
+          child: DashedBorder(
+            radius: Rounded.pill,
+            color: selected ? colors.primary : colors.transparent,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: Spacing.xs,
+                right: Spacing.sm,
+                top: Spacing.xs,
+                bottom: Spacing.xs,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: BadgeSize.sm,
+                    height: BadgeSize.sm,
+                    decoration: BoxDecoration(
+                      color: colors.surface,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      icon,
+                      size: IconSize.sm,
+                      color: colors.onSurfaceVariant,
+                    ),
                   ),
-                  child: Icon(
-                    icon,
-                    size: IconSize.sm,
-                    color: colors.onSurfaceVariant,
+                  const SizedBox(width: Spacing.xs),
+                  Text(
+                    label,
+                    style: selected ? context.bodyMdBold : context.bodyMdStrong,
                   ),
-                ),
-                const SizedBox(width: Spacing.xs),
-                Text(
-                  label,
-                  style: selected ? context.bodyMdBold : context.bodyMdStrong,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
