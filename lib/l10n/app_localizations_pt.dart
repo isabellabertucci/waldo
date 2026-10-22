@@ -172,7 +172,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get category => 'Categoria';
 
   @override
-  String get transactionDescription => 'Descrição';
+  String get transactionTitle => 'Título';
 
   @override
   String get descriptionHint => 'Para que foi?';

@@ -168,7 +168,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get category => 'Category';
 
   @override
-  String get transactionDescription => 'Description';
+  String get transactionTitle => 'Title';
 
   @override
   String get descriptionHint => 'What was it for?';

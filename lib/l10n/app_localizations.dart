@@ -410,11 +410,11 @@ abstract class AppLocalizations {
   /// **'Category'**
   String get category;
 
-  /// Transaction description field label
+  /// Transaction title field label: the name shown on the list and the detail
   ///
   /// In en, this message translates to:
-  /// **'Description'**
-  String get transactionDescription;
+  /// **'Title'**
+  String get transactionTitle;
 
   /// Placeholder text for the new transaction's description field
   ///

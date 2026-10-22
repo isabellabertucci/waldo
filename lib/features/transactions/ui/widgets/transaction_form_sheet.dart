@@ -478,7 +478,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    l10n.transactionDescription,
+                                    l10n.transactionTitle,
                                     style: context.textTheme.bodySmall
                                         ?.copyWith(
                                           color: colors.onSurfaceVariant,

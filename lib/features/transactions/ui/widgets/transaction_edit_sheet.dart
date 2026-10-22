@@ -772,7 +772,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            l10n.name,
+                            l10n.transactionTitle,
                             style: context.textTheme.bodySmall?.copyWith(
                               color: colors.onSurfaceVariant,
                             ),

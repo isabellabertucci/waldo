@@ -53,7 +53,7 @@
   "date": "Data",
   "wallet": "Carteira",
   "category": "Categoria",
-  "transactionDescription": "Descrição",
+  "transactionTitle": "Título",
   "descriptionHint": "Para que foi?",
   "addExpense": "Adicionar despesa",
   "addIncome": "Adicionar receita",
