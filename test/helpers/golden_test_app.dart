@@ -8,6 +8,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/utils/localization_delegates.dart';
 
 /// Wraps [child] in the real app's providers, theme and localizations.
 /// [isBalanceHidden] starts with the eye toggle on; [locale] is the app language.
@@ -35,7 +36,7 @@ Widget wrapForGolden({
           ? ThemeMode.dark
           : ThemeMode.light,
       locale: locale,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localizationsDelegates: appLocalizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: child,
     ),
