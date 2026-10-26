@@ -24,7 +24,8 @@ class TransactionTypeToggle extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(Spacing.xxs),
+      // The top and bottom margin is inside each segment's touch.
+      padding: const EdgeInsets.symmetric(horizontal: Spacing.xxs),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(Rounded.pill),
@@ -79,19 +80,24 @@ class _TypeToggleSegment extends StatelessWidget {
       selected: selected,
       inMutuallyExclusiveGroup: true,
       child: GestureDetector(
+        // Taps on the track's margin count too: a 48px-tall touch.
+        behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(vertical: Spacing.xs),
-          decoration: BoxDecoration(
-            color: selected ? color : colors.transparent,
-            borderRadius: BorderRadius.circular(Rounded.pill),
-          ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: context.bodyMdBold.copyWith(
-              color: selected ? onColor : colors.onSurfaceVariant,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: Spacing.xxs),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(vertical: Spacing.component),
+            decoration: BoxDecoration(
+              color: selected ? color : colors.transparent,
+              borderRadius: BorderRadius.circular(Rounded.pill),
+            ),
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: context.bodyMdBold.copyWith(
+                color: selected ? onColor : colors.onSurfaceVariant,
+              ),
             ),
           ),
         ),
