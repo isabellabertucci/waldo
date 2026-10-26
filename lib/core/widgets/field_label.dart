@@ -10,6 +10,10 @@ class FieldLabel extends StatelessWidget {
   final String text;
   final bool required;
 
+  /// "Name, required": what screen readers hear for a required field's label.
+  static String requiredSemantics(BuildContext context, String text) =>
+      '$text, ${AppLocalizations.of(context).requiredField}';
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
@@ -25,9 +29,7 @@ class FieldLabel extends StatelessWidget {
             ),
         ],
       ),
-      semanticsLabel: required
-          ? '$text, ${AppLocalizations.of(context).requiredField}'
-          : null,
+      semanticsLabel: required ? requiredSemantics(context, text) : null,
       style: context.textTheme.bodySmall?.copyWith(
         color: colors.onSurfaceVariant,
       ),
