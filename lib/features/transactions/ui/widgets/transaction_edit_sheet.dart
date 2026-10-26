@@ -168,7 +168,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   TransactionFormState get _formState =>
       ref.read(transactionFormViewModelProvider(widget.transaction));
 
-  TransactionFormViewModel _viewModel(WidgetRef ref) =>
+  TransactionFormViewModel get _viewModel =>
       ref.read(transactionFormViewModelProvider(widget.transaction).notifier);
 
   @override
@@ -236,12 +236,12 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
 
   // Fields only stage changes on the view model; "Save changes" writes them.
   void _confirmAmount() {
-    _viewModel(ref).updateAmount(_amountController.text);
+    _viewModel.updateAmount(_amountController.text);
     _closeField();
   }
 
   void _selectCategory(int? value) {
-    _viewModel(ref).updateCategoryId(value);
+    _viewModel.updateCategoryId(value);
     _closeField();
   }
 
@@ -295,7 +295,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
       current.hour,
       current.minute,
     );
-    _viewModel(ref).updateDate(merged);
+    _viewModel.updateDate(merged);
   }
 
   /// Shown above the buttons: a SnackBar would land behind the sheet.
@@ -317,7 +317,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
 
     setState(() => _saveError = null);
     try {
-      final success = await _viewModel(ref).save();
+      final success = await _viewModel.save();
       if (!success || !mounted) return;
       setState(() => _editable = false);
     } catch (e) {
@@ -334,7 +334,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   /// Discards every staged change by putting back the form (and the text
   /// fields) as they were when editing started, then leaves edit mode.
   void _cancelEdit() {
-    _viewModel(ref).restore(_beforeEdit);
+    _viewModel.restore(_beforeEdit);
     _amountController.text = _beforeEdit.amount;
     _nameController.text = _beforeEdit.description;
     _noteController.text = _beforeEdit.note;
@@ -691,7 +691,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               children: [
                 TransactionTypeToggle(
                   selected: formState.type,
-                  onChanged: (type) => _viewModel(ref).updateType(type),
+                  onChanged: (type) => _viewModel.updateType(type),
                 ),
                 const SizedBox(height: Spacing.sm),
                 // "Amount, +12.50, button": opens the keypad.
@@ -728,7 +728,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             hint: l10n.descriptionHint,
             maxLength: maxTransactionDescriptionLength,
             textCapitalization: TextCapitalization.sentences,
-            onChanged: (value) => _viewModel(ref).updateDescription(value),
+            onChanged: (value) => _viewModel.updateDescription(value),
           ),
           const SizedBox(height: Spacing.sm),
           EditFieldRow(
@@ -754,7 +754,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             hint: l10n.noteHint,
             maxLength: maxTransactionNoteLength,
             textCapitalization: TextCapitalization.sentences,
-            onChanged: (value) => _viewModel(ref).updateNote(value),
+            onChanged: (value) => _viewModel.updateNote(value),
           ),
           const SizedBox(height: Spacing.md),
           if (_saveError case final error?) ...[

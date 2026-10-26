@@ -98,7 +98,6 @@ class _DottedLinePainter extends CustomPainter {
 class ReceiptRow extends StatelessWidget {
   const ReceiptRow({
     super.key,
-    required this.textStyles,
     required this.label,
     required this.value,
     required this.color,
@@ -106,7 +105,6 @@ class ReceiptRow extends StatelessWidget {
     this.large = false,
   });
 
-  final TextTheme textStyles;
   final String label;
   final String value;
   final Color color;
@@ -116,7 +114,7 @@ class ReceiptRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // one-off: the receipt's own print hierarchy, not the app's type scale.
-    final style = textStyles.bodyMedium?.copyWith(
+    final style = context.textTheme.bodyMedium?.copyWith(
       fontSize: large ? 15 : 12.5,
       fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
       color: color,

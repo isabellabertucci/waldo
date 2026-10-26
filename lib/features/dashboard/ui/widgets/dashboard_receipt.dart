@@ -121,7 +121,6 @@ class DashboardReceipt extends StatelessWidget {
                         DashedDivider(color: colors.onSurface),
                         const SizedBox(height: Spacing.sm),
                         ReceiptRow(
-                          textStyles: textStyles,
                           label: TransactionType.income
                               .label(l10n)
                               .toUpperCase(),
@@ -133,7 +132,6 @@ class DashboardReceipt extends StatelessWidget {
                         ),
                         const SizedBox(height: Spacing.xs),
                         ReceiptRow(
-                          textStyles: textStyles,
                           label: TransactionType.expense
                               .label(l10n)
                               .toUpperCase(),
@@ -148,7 +146,6 @@ class DashboardReceipt extends StatelessWidget {
                         const SizedBox(height: Spacing.sm),
                         for (var i = 0; i < visibleCategories.length; i++) ...[
                           ReceiptRow(
-                            textStyles: textStyles,
                             label: visibleCategories[i].category.displayName(
                               l10n,
                             ),
@@ -167,7 +164,6 @@ class DashboardReceipt extends StatelessWidget {
                         ],
                         if (otherCategories.isNotEmpty)
                           ReceiptRow(
-                            textStyles: textStyles,
                             label: l10n.dashboardReceiptOtherCategories(
                               otherCategories.length,
                             ),
@@ -184,7 +180,6 @@ class DashboardReceipt extends StatelessWidget {
                           if (visibleCategories.isNotEmpty)
                             const SizedBox(height: _lineGap),
                           ReceiptRow(
-                            textStyles: textStyles,
                             label: l10n.uncategorized,
                             value: amount(
                               formatCents(
@@ -200,7 +195,6 @@ class DashboardReceipt extends StatelessWidget {
                         DashedDivider(color: colors.onSurface, thick: true),
                         const SizedBox(height: Spacing.sm),
                         ReceiptRow(
-                          textStyles: textStyles,
                           label: l10n.monthNetLabel.toUpperCase(),
                           value: amount(
                             formatCents(
