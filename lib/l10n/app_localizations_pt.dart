@@ -64,6 +64,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get createWallet => 'Criar carteira';
 
   @override
+  String get createCategory => 'Criar categoria';
+
+  @override
   String get save => 'Guardar';
 
   @override
@@ -313,9 +316,6 @@ class AppLocalizationsPt extends AppLocalizations {
     );
     return '$_temp0. Se a apagares, $_temp1 para $others.';
   }
-
-  @override
-  String get addCategory => 'Adicionar categoria';
 
   @override
   String deleteCategoryNamed(String name) {

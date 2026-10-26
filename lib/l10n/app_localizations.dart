@@ -206,6 +206,12 @@ abstract class AppLocalizations {
   /// **'Create wallet'**
   String get createWallet;
 
+  /// Button that saves the new category in the new-category sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Create category'**
+  String get createCategory;
+
   /// Save button label
   ///
   /// In en, this message translates to:
@@ -631,12 +637,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 transaction uses \"{name}\"} other{{count} transactions use \"{name}\"}}. If you delete it, {count, plural, =1{it moves} other{they move}} to {others}.'**
   String deleteCategoryMovesTransactions(int count, String name, String others);
-
-  /// Tooltip for the button that adds the typed category name
-  ///
-  /// In en, this message translates to:
-  /// **'Add category'**
-  String get addCategory;
 
   /// Tooltip for the delete (X) button on a category row
   ///

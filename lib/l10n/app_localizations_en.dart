@@ -63,6 +63,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createWallet => 'Create wallet';
 
   @override
+  String get createCategory => 'Create category';
+
+  @override
   String get save => 'Save';
 
   @override
@@ -307,9 +310,6 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0. If you delete it, $_temp1 to $others.';
   }
-
-  @override
-  String get addCategory => 'Add category';
 
   @override
   String deleteCategoryNamed(String name) {

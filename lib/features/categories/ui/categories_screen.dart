@@ -2,27 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/database/save_failure.dart';
 import 'package:waldo/core/theme/badge_size.dart';
-import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/page_width.dart';
 import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
-import 'package:waldo/core/widgets/form_pill_field.dart';
 import 'package:waldo/core/widgets/surface_card.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/widgets/heading.dart';
 
 import '../categories_x.dart';
 import '../models/category.dart';
-import '../repositories/category_repository.dart';
 import '../viewmodels/category_list_view_model.dart';
+import 'widgets/category_form_sheet.dart';
 
 /// A field to add a category over the list of existing ones, each with an X.
 /// "Others" has no X: deleted categories' transactions move there.
@@ -59,13 +56,25 @@ class CategoriesScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(
                   horizontal: Spacing.pageMargin,
                 ),
-                child: Heading(
-                  child: Text(
-                    l10n.categories,
-                    style: context.headlineSmBold.copyWith(
-                      color: colors.onSurface,
+                // Title and "+" as on the Wallets screen; "+" opens a sheet.
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Heading(
+                        child: Text(
+                          l10n.categories,
+                          style: context.headlineSmBold.copyWith(
+                            color: colors.onSurface,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    DashedStitchButton(
+                      icon: const Icon(AppIcons.add),
+                      tooltip: l10n.newCategory,
+                      onPressed: () => showCategoryFormSheet(context),
+                    ),
+                  ],
                 ),
               ),
               Expanded(
@@ -97,49 +106,8 @@ class _CategoriesBody extends ConsumerStatefulWidget {
 }
 
 class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
-
   bool _isOthers(Category category) =>
       category.isDefault && category.type == CategoryType.others;
-
-  String? _validateName(AppLocalizations l10n, String? value) {
-    final name = value?.trim() ?? '';
-    if (name.isEmpty) return l10n.nameRequired;
-    if (name.length > maxCategoryNameLength) return l10n.nameTooLong;
-
-    // Built-ins match in every language, not just the one on screen.
-    final key = nameKey(name);
-    final taken = widget.categories.any(
-      (c) => c.namesInEveryLanguage.any((n) => nameKey(n) == key),
-    );
-    return taken ? l10n.categoryNameTaken : null;
-  }
-
-  Future<void> _add() async {
-    if (!_formKey.currentState!.validate()) return;
-    final l10n = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-
-    try {
-      await ref
-          .read(categoryListViewModelProvider.notifier)
-          .add(_nameController.text);
-      // Empty again, ready for the next one.
-      _nameController.clear();
-    } on DuplicateCategoryNameException {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.categoryNameTaken)));
-    } catch (e) {
-      final message = failureMessage(l10n, e, unknown: l10n.categorySaveError);
-      messenger.showSnackBar(SnackBar(content: Text(message)));
-    }
-  }
 
   Future<void> _confirmDelete(Category category) async {
     final l10n = AppLocalizations.of(context);
@@ -224,34 +192,6 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
         Spacing.lg,
       ),
       children: [
-        Form(
-          key: _formKey,
-          child: Row(
-            children: [
-              Expanded(
-                child: FormPillField(
-                  fieldKey: const Key('categoryNameField'),
-                  leading: const Icon(AppIcons.name),
-                  textCapitalization: TextCapitalization.sentences,
-                  maxLength: maxCategoryNameLength,
-                  onPage: true,
-                  controller: _nameController,
-                  label: l10n.newCategory,
-                  hint: l10n.categoryNameHint,
-                  onSubmitted: (_) => _add(),
-                  validator: (value) => _validateName(l10n, value),
-                ),
-              ),
-              const SizedBox(width: Spacing.xs),
-              DashedStitchButton(
-                icon: const Icon(AppIcons.add),
-                tooltip: l10n.addCategory,
-                onPressed: _add,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: Spacing.md),
         SurfaceCard(
           child: Column(
             children: [
