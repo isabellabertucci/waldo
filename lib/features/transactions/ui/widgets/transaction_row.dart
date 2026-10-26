@@ -7,6 +7,7 @@ import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/edit_delete_menu.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -129,7 +130,7 @@ class TransactionRow extends StatelessWidget {
                   },
                 ),
               ),
-              PopupMenuButton<_RowAction>(
+              PopupMenuButton<EditDeleteAction>(
                 tooltip: l10n.optionsFor(title),
                 padding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(
@@ -142,45 +143,17 @@ class TransactionRow extends StatelessWidget {
                 ),
                 onSelected: (action) {
                   switch (action) {
-                    case _RowAction.edit:
+                    case EditDeleteAction.edit:
                       showTransactionEditSheet(
                         context,
                         transaction: transaction,
                         startInEditMode: true,
                       );
-                    case _RowAction.delete:
+                    case EditDeleteAction.delete:
                       deleteTransactionWithUndo(context, transaction);
                   }
                 },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: _RowAction.edit,
-                    child: Row(
-                      children: [
-                        const Icon(AppIcons.edit, size: IconSize.lg),
-                        const SizedBox(width: Spacing.xs),
-                        Text(l10n.edit),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: _RowAction.delete,
-                    child: Row(
-                      children: [
-                        Icon(
-                          AppIcons.delete,
-                          size: IconSize.lg,
-                          color: colors.error,
-                        ),
-                        const SizedBox(width: Spacing.xs),
-                        Text(
-                          l10n.delete,
-                          style: TextStyle(color: colors.error),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                itemBuilder: editDeleteMenuItems,
               ),
             ],
           ),
@@ -189,8 +162,6 @@ class TransactionRow extends StatelessWidget {
     );
   }
 }
-
-enum _RowAction { edit, delete }
 
 /// 999,99: a typical large amount, for deciding where amounts go.
 const _referenceAmountCents = 99999;
