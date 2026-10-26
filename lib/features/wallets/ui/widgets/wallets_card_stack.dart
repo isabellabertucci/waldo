@@ -73,32 +73,45 @@ class WalletsCardStack extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Wrap, not Row: with large text the caption drops under the label.
-          SizedBox(
-            width: double.infinity,
-            child: Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              spacing: Spacing.sm,
+          // One stop for screen readers, in reading order: "Total balance,
+          // Kept 98% …, $3,458.00".
+          MergeSemantics(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  l10n.totalBalance,
-                  style: context.textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
+                // Wrap, not Row: with large text the caption drops under the label.
+                SizedBox(
+                  width: double.infinity,
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    spacing: Spacing.sm,
+                    children: [
+                      Text(
+                        l10n.totalBalance,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                      Text(
+                        captionText,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: isOverspent
+                              ? colors.error
+                              : colors.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                const SizedBox(height: Spacing.xs),
                 Text(
-                  captionText,
-                  style: context.textTheme.bodySmall?.copyWith(
-                    color: isOverspent ? colors.error : colors.onSurfaceVariant,
+                  totalText,
+                  style: context.headlineSmBold.copyWith(
+                    color: colors.onSurface,
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: Spacing.xs),
-          Text(
-            totalText,
-            style: context.headlineSmBold.copyWith(color: colors.onSurface),
           ),
           const SizedBox(height: Spacing.lg),
           Column(

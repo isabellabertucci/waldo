@@ -100,33 +100,36 @@ class _FormPillFieldState extends State<FormPillField> {
               color: widget.onPage ? colors.surface : colors.surfaceContainer,
               borderRadius: BorderRadius.circular(Rounded.lg),
             ),
-            child: Row(
-              children: [
-                Container(
-                  width: BadgeSize.md,
-                  height: BadgeSize.md,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: focused
-                        ? colors.primary
-                        : (widget.onPage
-                              ? colors.surfaceContainer
-                              : colors.surface),
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconTheme(
-                    data: IconThemeData(color: discInk, size: IconSize.md),
-                    child: DefaultTextStyle(
-                      style: context.bodyMdBold.copyWith(color: discInk),
-                      child: widget.leading,
+            // One node, so screen readers name the field by its label (a
+            // collapsed decoration can't take a labelText) and hear its unit.
+            child: MergeSemantics(
+              child: Row(
+                children: [
+                  // Decorative: an icon, or a symbol the unit after repeats.
+                  ExcludeSemantics(
+                    child: Container(
+                      width: BadgeSize.md,
+                      height: BadgeSize.md,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: focused
+                            ? colors.primary
+                            : (widget.onPage
+                                  ? colors.surfaceContainer
+                                  : colors.surface),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconTheme(
+                        data: IconThemeData(color: discInk, size: IconSize.md),
+                        child: DefaultTextStyle(
+                          style: context.bodyMdBold.copyWith(color: discInk),
+                          child: widget.leading,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: Spacing.sm),
-                Expanded(
-                  // One node, so screen readers name the field by its label
-                  // (a collapsed decoration can't take a labelText).
-                  child: MergeSemantics(
+                  const SizedBox(width: Spacing.sm),
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -172,17 +175,17 @@ class _FormPillFieldState extends State<FormPillField> {
                       ],
                     ),
                   ),
-                ),
-                if (trailing != null) ...[
-                  const SizedBox(width: Spacing.sm),
-                  Text(
-                    trailing,
-                    style: context.bodyMdBold.copyWith(
-                      color: colors.onSurfaceVariant,
+                  if (trailing != null) ...[
+                    const SizedBox(width: Spacing.sm),
+                    Text(
+                      trailing,
+                      style: context.bodyMdBold.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         );
