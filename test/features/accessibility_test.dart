@@ -215,4 +215,39 @@ void main() {
       semantics.dispose();
     });
   }
+
+  testWidgets('Section and day titles are headings, apart from the rows', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(402, 3000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final db = await createTestDatabase();
+    addTearDown(db.close);
+    await seedGoldenData(db);
+    await pumpWidgetWithProviders(tester, const DashboardScreen(), db: db);
+
+    for (final title in ['Recent transactions', 'Cash flow']) {
+      expect(
+        tester.getSemantics(find.text(title)),
+        isSemantics(label: title, isHeader: true),
+      );
+    }
+
+    await tester.pumpWidget(const SizedBox());
+    await pumpWidgetWithProviders(
+      tester,
+      const AllTransactionsScreen(),
+      db: db,
+    );
+    final day = find.textContaining(RegExp(r'^[A-Z]{3} \d+ [A-Z]{3}$'));
+    expect(day, findsWidgets);
+    for (final e in day.evaluate()) {
+      final node = tester.getSemantics(find.byWidget(e.widget));
+      expect(node.flagsCollection.isHeader, isTrue);
+      expect(node.label, (e.widget as Text).data);
+    }
+    semantics.dispose();
+  });
 }

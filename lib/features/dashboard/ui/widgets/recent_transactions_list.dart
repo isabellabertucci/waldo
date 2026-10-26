@@ -10,6 +10,7 @@ import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 class RecentTransactionsList extends ConsumerWidget {
   const RecentTransactionsList({
@@ -44,11 +45,13 @@ class RecentTransactionsList extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  l10n.recentTransactions,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.headlineMdStrong,
+                child: Heading(
+                  child: Text(
+                    l10n.recentTransactions,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.headlineMdStrong,
+                  ),
                 ),
               ),
               const SizedBox(width: Spacing.sm),

@@ -12,6 +12,7 @@ import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../models/dashboard_data.dart';
 import 'package:waldo/features/transactions/transactions_x.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 /// One series (income or expense) at a time; exact values are in the tooltip.
 class CashFlowCard extends StatefulWidget {
@@ -66,7 +67,9 @@ class _CashFlowCardState extends State<CashFlowCard> {
               crossAxisAlignment: WrapCrossAlignment.center,
               runSpacing: Spacing.sm,
               children: [
-                Text(l10n.cashFlow, style: context.headlineMdStrong),
+                Heading(
+                  child: Text(l10n.cashFlow, style: context.headlineMdStrong),
+                ),
                 _SeriesToggle(
                   selected: _selectedType,
                   onChanged: (type) => setState(() => _selectedType = type),
