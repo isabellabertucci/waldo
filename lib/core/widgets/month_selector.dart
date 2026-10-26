@@ -479,8 +479,9 @@ class _MonthPill extends StatelessWidget {
       selected: selected,
       inMutuallyExclusiveGroup: true,
       enabled: !disabled,
+      // The fill is the Material's, so the ripple draws over it.
       child: Material(
-        color: colors.transparent,
+        color: selected ? colors.primary : colors.transparent,
         borderRadius: BorderRadius.circular(Rounded.pill),
         child: InkWell(
           borderRadius: BorderRadius.circular(Rounded.pill),
@@ -493,10 +494,6 @@ class _MonthPill extends StatelessWidget {
               horizontal: selected ? _selectedChipPadding : Spacing.sm,
             ),
             alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: selected ? colors.primary : colors.transparent,
-              borderRadius: BorderRadius.circular(Rounded.pill),
-            ),
             child: Text(
               label,
               // The selected chip's own size/weight bump - a dedicated
