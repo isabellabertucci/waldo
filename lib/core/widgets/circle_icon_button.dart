@@ -12,7 +12,8 @@ class CircleIconButton extends StatelessWidget {
     required this.child,
     this.tooltip,
     this.flat = false,
-  });
+    this.tint,
+  }) : assert(tint == null || flat, 'Only a flat disc takes a tint');
 
   final VoidCallback onPressed;
   final Widget child;
@@ -24,12 +25,16 @@ class CircleIconButton extends StatelessWidget {
   /// Tinted and without a shadow, for a control inside a sheet.
   final bool flat;
 
+  /// A flat disc's fill in place of `surfaceContainer`, e.g. a faint orange
+  /// behind a delete.
+  final Color? tint;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
 
     final button = Material(
-      color: flat ? colors.surfaceContainer : colors.surface,
+      color: flat ? (tint ?? colors.surfaceContainer) : colors.surface,
       shape: const CircleBorder(),
       elevation: flat ? 0 : 1,
       shadowColor: Elevation.highShadowColor,
