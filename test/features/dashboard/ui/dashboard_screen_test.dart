@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
@@ -114,6 +115,14 @@ void main() {
       final currentMonth = DateFormat.MMMM('en').format(DateTime.now());
       expect(find.text(currentMonth), findsOneWidget);
       expect(find.text('Add first transaction'), findsOneWidget);
+      // The app's primary button, as every other first step uses.
+      expect(
+        find.ancestor(
+          of: find.text('Add first transaction'),
+          matching: find.byType(DashedStitchButton),
+        ),
+        findsOneWidget,
+      );
       // No ghost rows: the section stays hidden until the first transaction.
       expect(find.text('Recent transactions'), findsNothing);
       expect(find.text('See all'), findsNothing);
