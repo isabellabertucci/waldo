@@ -81,10 +81,10 @@ class BalanceOverviewCard extends StatelessWidget {
                         height: _cardPeek + 24,
                         child: Stack(
                           children: [
-                            // The first wallet, which always gets the platinum finish.
-                            const Positioned.fill(
+                            // The first wallet's finish, as on the Wallets screen.
+                            Positioned.fill(
                               child: WalletCardBackground(
-                                finish: WalletCardFinish.platinum,
+                                finish: WalletCardFinish.fromIndex(0),
                               ),
                             ),
                             Padding(

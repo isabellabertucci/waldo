@@ -16,7 +16,7 @@ const _trailingMonths = 12;
 const _recentTransactionsLimit = 5;
 
 /// The month the dashboard is currently showing stats for. Defaults to the
-/// current month; changeable via the month picker in the dashboard's app bar.
+/// current month; changeable via the month row at the top of the dashboard.
 @riverpod
 class SelectedDashboardMonth extends _$SelectedDashboardMonth {
   @override
@@ -137,13 +137,14 @@ class DashboardViewModel extends _$DashboardViewModel {
     return spending;
   }
 
+  /// The [_trailingMonths] months up to and including [anchor].
   List<MonthlyCashFlow> _buildMonthlyCashFlow(
     List<Transaction> transactions,
-    DateTime now,
+    DateTime anchor,
   ) {
     final months = List.generate(
       _trailingMonths,
-      (i) => DateTime(now.year, now.month - (_trailingMonths - 1) + i),
+      (i) => DateTime(anchor.year, anchor.month - (_trailingMonths - 1) + i),
     );
 
     final incomeByMonth = {for (final m in months) m: 0};
