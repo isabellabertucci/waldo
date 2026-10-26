@@ -114,6 +114,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get showBalance => 'Mostrar saldo';
 
   @override
+  String get receiptHint => 'Abre todas as transações';
+
+  @override
   String get edit => 'Editar';
 
   @override
