@@ -280,4 +280,21 @@ void main() {
     }
     semantics.dispose();
   });
+
+  testWidgets('Settings group names are headings', (tester) async {
+    final semantics = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(402, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final db = await pumpWidgetWithProviders(tester, const SettingsScreen());
+    addTearDown(db.close);
+
+    for (final group in ['MONEY', 'APPEARANCE']) {
+      expect(
+        tester.getSemantics(find.text(group)),
+        isSemantics(label: group, isHeader: true),
+      );
+    }
+    semantics.dispose();
+  });
 }

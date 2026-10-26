@@ -4,6 +4,7 @@ import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 class SectionLabel extends StatelessWidget {
   const SectionLabel({required this.title, super.key});
@@ -14,11 +15,13 @@ class SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: Spacing.xs),
-      child: Text(
-        title.toUpperCase(),
-        style: context.labelXs.copyWith(
-          color: context.appColors.onSurfaceVariant,
-          letterSpacing: 1.0,
+      child: Heading(
+        child: Text(
+          title.toUpperCase(),
+          style: context.labelXs.copyWith(
+            color: context.appColors.onSurfaceVariant,
+            letterSpacing: 1.0,
+          ),
         ),
       ),
     );
