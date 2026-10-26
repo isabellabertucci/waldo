@@ -141,6 +141,7 @@
   "dashboardReceiptNoWallet": "O recibo do mês aparece aqui depois da primeira transação.",
   "zeroWalletsLabel": "0 carteiras",
   "filterTitle": "Filtro",
+  "filterHint": "Abre o filtro",
   "filterReset": "Repor",
   "filterSectionMonth": "Mês",
   "earlierMonths": "Meses anteriores",

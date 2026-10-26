@@ -938,6 +938,12 @@ abstract class AppLocalizations {
   /// **'Filter'**
   String get filterTitle;
 
+  /// Screen reader hint on the button that shows the current month and type filter and opens the filter sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Opens the filter'**
+  String get filterHint;
+
   /// Link that clears the filter bottom sheet back to its defaults
   ///
   /// In en, this message translates to:

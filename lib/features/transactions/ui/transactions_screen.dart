@@ -315,8 +315,13 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
           child: Material(
             color: colors.surface,
             borderRadius: BorderRadius.circular(Rounded.pill),
+            // Named by what it shows (WCAG 2.5.3, for voice control), without
+            // the "·"; the hint says what a tap does.
             child: Semantics(
               button: true,
+              label: '$filterMonthLabel, ${l10n.filterChipLabel(typeLabel)}',
+              hint: l10n.filterHint,
+              excludeSemantics: true,
               child: InkWell(
                 borderRadius: BorderRadius.circular(Rounded.pill),
                 onTap: () => _openFilterSheet(locale),

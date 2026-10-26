@@ -626,6 +626,10 @@
   "@filterTitle": {
     "description": "Title of the wallet transactions filter bottom sheet"
   },
+  "filterHint": "Opens the filter",
+  "@filterHint": {
+    "description": "Screen reader hint on the button that shows the current month and type filter and opens the filter sheet"
+  },
   "filterReset": "Reset",
   "@filterReset": {
     "description": "Link that clears the filter bottom sheet back to its defaults"
