@@ -59,8 +59,10 @@ class TransactionsScreen extends ConsumerWidget {
     };
 
     final Widget body;
-    if (walletsAsync.hasError || transactionsAsync.hasError) {
+    if (walletsAsync.hasError) {
       body = Center(child: Text(l10n.walletsError));
+    } else if (transactionsAsync.hasError) {
+      body = Center(child: Text(l10n.transactionsError));
     } else if (wallet != null) {
       body = _TransactionsBody(
         wallet: wallet,

@@ -111,6 +111,28 @@ void main() {
     expect(find.text('Add expense'), findsOneWidget);
   });
 
+  testWidgets('Transactions that fail to load say so, not that the wallets '
+      'did', (tester) async {
+    final db = await createTestDatabase();
+    final walletId = await WalletRepositoryImpl(
+      db,
+    ).insert(const Wallet(name: 'Test Wallet', createdAt: '2026-08-10'));
+    await db.execute('DROP TABLE transactions');
+
+    currentDb = await pumpWidgetWithProviders(
+      tester,
+      TransactionsScreen(walletId: walletId),
+      db: db,
+    );
+
+    expect(
+      find.text(
+        'There was a problem loading your transactions. Please try again.',
+      ),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('A row shows its category, not a time of day', (tester) async {
     await pumpTransactionsScreen(tester);
     await createTransaction(tester, amount: '5.00', description: 'Coffee');
