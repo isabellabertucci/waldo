@@ -58,6 +58,7 @@
   "addExpense": "Adicionar despesa",
   "addIncome": "Adicionar receita",
   "transactionNote": "Nota",
+  "noteHint": "Algo a lembrar?",
   "editingAmountLabel": "{type} · a editar valor",
   "discardChangesTitle": "Descartar alterações?",
   "discardChangesMessage": "Tens alterações por guardar neste campo.",

@@ -162,6 +162,11 @@ void main() {
 
     expectNamed(tester, 'txNameField', 'Title');
     expectNamed(tester, 'txNoteField', 'Note');
+    // An empty note gives an example, not its label again.
+    expect(
+      tester.getSemantics(find.byKey(const Key('txNoteField'))).label,
+      'Note\nAnything to remember?',
+    );
     semantics.dispose();
   });
 

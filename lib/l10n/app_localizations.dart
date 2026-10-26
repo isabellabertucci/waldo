@@ -434,11 +434,17 @@ abstract class AppLocalizations {
   /// **'Add income'**
   String get addIncome;
 
-  /// Transaction note field label - a free-text note separate from its name
+  /// Transaction note field label - a free-text note separate from its title
   ///
   /// In en, this message translates to:
   /// **'Note'**
   String get transactionNote;
+
+  /// Placeholder for the transaction's note field
+  ///
+  /// In en, this message translates to:
+  /// **'Anything to remember?'**
+  String get noteHint;
 
   /// Caption above the amount keypad, e.g. 'Expense · editing amount'
   ///
