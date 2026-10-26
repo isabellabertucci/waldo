@@ -569,10 +569,15 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     TransactionFormViewModel viewModel,
     FormFieldState<int> field,
   ) {
+    final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
+      // Grows with the wallets, then scrolls, instead of overflowing; never
+      // under the status bar.
+      isScrollControlled: true,
+      useSafeArea: true,
       builder: (sheetContext) => SafeArea(
         child: Padding(
           // Same side margin as every other sheet.
@@ -582,20 +587,40 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (final wallet in wallets)
-                ListTile(
-                  leading: Icon(
-                    AppIcons.wallets,
-                    color: colors.onSurfaceVariant,
-                  ),
-                  title: Text(wallet.name, style: context.bodyMdBold),
-                  onTap: () {
-                    viewModel.updateWalletId(wallet.id!);
-                    field.didChange(wallet.id);
-                    Navigator.of(sheetContext).pop();
-                  },
+              const SheetGrabber(),
+              const SizedBox(height: Spacing.md),
+              Heading(
+                child: Text(l10n.wallet, style: context.headlineLgStrong),
+              ),
+              const SizedBox(height: Spacing.sm),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (final wallet in wallets)
+                      ListTile(
+                        // Marks the current wallet, as every picker does.
+                        selected: wallet.id == field.value,
+                        selectedColor: colors.onSurface,
+                        leading: Icon(
+                          AppIcons.wallets,
+                          color: colors.onSurfaceVariant,
+                        ),
+                        title: Text(wallet.name, style: context.bodyMdBold),
+                        trailing: wallet.id == field.value
+                            ? const Icon(AppIcons.check, size: IconSize.lg)
+                            : null,
+                        onTap: () {
+                          viewModel.updateWalletId(wallet.id!);
+                          field.didChange(wallet.id);
+                          Navigator.of(sheetContext).pop();
+                        },
+                      ),
+                  ],
                 ),
+              ),
             ],
           ),
         ),
