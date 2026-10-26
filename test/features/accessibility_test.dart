@@ -7,10 +7,13 @@ import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/features/categories/ui/categories_screen.dart';
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
+import 'package:waldo/features/settings/ui/settings_screen.dart';
 import 'package:waldo/features/transactions/ui/all_transactions_screen.dart';
+import 'package:waldo/features/transactions/ui/transactions_screen.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_edit_sheet.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_form_sheet.dart';
+import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/ui/wallets_screen.dart';
 
 import '../helpers/golden_seed.dart';
@@ -247,6 +250,33 @@ void main() {
       final node = tester.getSemantics(find.byWidget(e.widget));
       expect(node.flagsCollection.isHeader, isTrue);
       expect(node.label, (e.widget as Text).data);
+    }
+    semantics.dispose();
+  });
+
+  testWidgets('Every screen title is a heading', (tester) async {
+    final semantics = tester.ensureSemantics();
+    final db = await createTestDatabase();
+    addTearDown(db.close);
+    await seedGoldenData(db);
+    final wallet = Wallet.fromMap(
+      (await db.query(WalletsTable.table, limit: 1)).first,
+    );
+
+    for (final (screen, title) in [
+      (const WalletsScreen(), 'Wallets'),
+      (const SettingsScreen(), 'Settings'),
+      (const CategoriesScreen(), 'Categories'),
+      (TransactionsScreen(walletId: wallet.id!), wallet.name),
+    ]) {
+      await tester.pumpWidget(const SizedBox());
+      await pumpWidgetWithProviders(tester, screen, db: db);
+
+      expect(
+        tester.getSemantics(find.text(title).first),
+        isSemantics(label: title, isHeader: true),
+        reason: title,
+      );
     }
     semantics.dispose();
   });

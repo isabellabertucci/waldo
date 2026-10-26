@@ -17,6 +17,7 @@ import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/form_pill_field.dart';
 import 'package:waldo/core/widgets/surface_card.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 import '../categories_x.dart';
 import '../models/category.dart';
@@ -58,10 +59,12 @@ class CategoriesScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(
                   horizontal: Spacing.pageMargin,
                 ),
-                child: Text(
-                  l10n.categories,
-                  style: context.headlineSmBold.copyWith(
-                    color: colors.onSurface,
+                child: Heading(
+                  child: Text(
+                    l10n.categories,
+                    style: context.headlineSmBold.copyWith(
+                      color: colors.onSurface,
+                    ),
                   ),
                 ),
               ),
