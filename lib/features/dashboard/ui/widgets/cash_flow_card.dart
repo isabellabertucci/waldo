@@ -155,6 +155,7 @@ class _SeriesToggleSegment extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
+      inMutuallyExclusiveGroup: true,
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(

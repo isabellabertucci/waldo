@@ -479,6 +479,7 @@ class _MonthPill extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
+      inMutuallyExclusiveGroup: true,
       enabled: !disabled,
       child: Material(
         color: colors.transparent,
