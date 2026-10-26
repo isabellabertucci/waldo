@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 class Elevation {
   Elevation._();
 
-  static const none = <BoxShadow>[];
-
   static const low = [
     BoxShadow(
       color: Color(0x0A000000), // Colors.black @ 4%
