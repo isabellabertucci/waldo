@@ -6,6 +6,7 @@ import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/clock.dart';
+import 'package:waldo/core/widgets/sheet_grabber.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_form_sheet.dart';
@@ -158,6 +159,9 @@ void _showQuickAddSheet(BuildContext context) {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Like every other sheet: says it can be dragged away.
+            const SheetGrabber(),
+            const SizedBox(height: Spacing.sm),
             ListTile(
               leading: const Icon(AppIcons.receipt),
               title: Text(l10n.newTransaction),
