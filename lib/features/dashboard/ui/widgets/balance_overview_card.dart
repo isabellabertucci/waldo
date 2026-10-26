@@ -10,9 +10,9 @@ import 'package:waldo/core/widgets/pouch_shape.dart';
 import 'package:waldo/core/widgets/wallet_card_finish.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
+import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/eye_icon.dart';
 import 'package:waldo/core/widgets/min_tap_target.dart';
-import 'package:waldo/core/utils/dash_path.dart';
 
 /// How far the card behind peeks above the balance card; reserved here.
 const _cardPeek = 44.0;
@@ -286,16 +286,11 @@ class _EmptyPeekCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(Rounded.lg),
-        child: Container(
+        child: SizedBox(
           height: _cardPeek + 24,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Rounded.lg),
-          ),
-          child: CustomPaint(
-            painter: _DashedRRectPainter(
-              color: colors.onSurface.withValues(alpha: 0.3),
-              radius: Rounded.lg,
-            ),
+          child: DashedBorder(
+            radius: Rounded.lg,
+            color: colors.onSurface.withValues(alpha: 0.3),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
                 Spacing.md,
@@ -344,39 +339,4 @@ class _EmptyPeekCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _DashedRRectPainter extends CustomPainter {
-  const _DashedRRectPainter({required this.color, required this.radius});
-
-  final Color color;
-  final double radius;
-
-  static const _dashLength = 4.0;
-  static const _gapLength = 3.0;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rrect = RRect.fromRectAndRadius(
-      Offset.zero & size,
-      Radius.circular(radius),
-    );
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4;
-
-    canvas.drawPath(
-      dashPath(
-        Path()..addRRect(rrect),
-        dashLength: _dashLength,
-        gapLength: _gapLength,
-      ),
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedRRectPainter oldDelegate) =>
-      color != oldDelegate.color || radius != oldDelegate.radius;
 }
