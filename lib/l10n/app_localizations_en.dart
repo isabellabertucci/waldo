@@ -183,6 +183,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transactionNote => 'Note';
 
   @override
+  String get noteHint => 'Anything to remember?';
+
+  @override
   String editingAmountLabel(String type) {
     return '$type · editing amount';
   }

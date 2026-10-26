@@ -232,7 +232,11 @@
   },
   "transactionNote": "Note",
   "@transactionNote": {
-    "description": "Transaction note field label - a free-text note separate from its name"
+    "description": "Transaction note field label - a free-text note separate from its title"
+  },
+  "noteHint": "Anything to remember?",
+  "@noteHint": {
+    "description": "Placeholder for the transaction's note field"
   },
   "editingAmountLabel": "{type} · editing amount",
   "@editingAmountLabel": {

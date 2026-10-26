@@ -884,7 +884,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                               contentPadding: const EdgeInsets.symmetric(
                                 vertical: Spacing.xs,
                               ),
-                              hintText: l10n.transactionNote,
+                              hintText: l10n.noteHint,
                             ),
                             style: context.bodyMdBold,
                           ),
