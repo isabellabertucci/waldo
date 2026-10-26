@@ -49,6 +49,7 @@
   "addFirstTransaction": "Toca em + para adicionares a tua primeira transação",
   "newTransaction": "Nova transação",
   "transactionDefaultDescription": "Transação",
+  "optionsFor": "Opções de {name}",
   "amount": "Valor",
   "date": "Data",
   "wallet": "Carteira",

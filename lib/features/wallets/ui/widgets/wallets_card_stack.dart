@@ -223,71 +223,74 @@ class _WalletCard extends StatelessWidget {
             ),
           // Fill the card, so a tap anywhere on it opens the wallet, not just on the text.
           Positioned.fill(
-            child: InkWell(
-              onTap: onTap,
-              splashColor: walletCardInkColor(context, alpha: 0.12),
-              highlightColor: walletCardInkColor(context, alpha: 0.08),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  Spacing.sm,
-                  Spacing.md,
-                  Spacing.sm,
-                  Spacing.sm,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      // Leaves room for the menu button, so long names ellipsize before it.
-                      padding: const EdgeInsets.only(right: 36),
-                      child: Text(
-                        wallet.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.headlineLgStrong.copyWith(
-                          color: walletCardInkColor(context, alpha: 1),
-                          shadows: walletCardTextShadow,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: Spacing.xs),
-                    Row(
-                      children: [
-                        Icon(
-                          wallet.type.icon,
-                          size: IconSize.sm,
-                          color: walletCardInkColor(context, alpha: 0.6),
-                        ),
-                        const SizedBox(width: Spacing.xs),
-                        Expanded(
-                          child: Text(
-                            wallet.type.label(l10n),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.textTheme.bodySmall?.copyWith(
-                              color: walletCardInkColor(context, alpha: 0.6),
-                              shadows: walletCardTextShadow,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: Spacing.sm),
-                        Text(
-                          balanceText,
+            child: Semantics(
+              button: true,
+              child: InkWell(
+                onTap: onTap,
+                splashColor: walletCardInkColor(context, alpha: 0.12),
+                highlightColor: walletCardInkColor(context, alpha: 0.08),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    Spacing.sm,
+                    Spacing.md,
+                    Spacing.sm,
+                    Spacing.sm,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        // Leaves room for the menu button, so long names ellipsize before it.
+                        padding: const EdgeInsets.only(right: 36),
+                        child: Text(
+                          wallet.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          // one-off: titleMedium + w800 for the card's balance figure.
-                          style: context.textTheme.titleMedium?.copyWith(
-                            color: isNegative && !isBalanceHidden
-                                ? walletCardNegativeColor(context)
-                                : walletCardInkColor(context, alpha: 1),
-                            fontWeight: FontWeight.w800,
+                          style: context.headlineLgStrong.copyWith(
+                            color: walletCardInkColor(context, alpha: 1),
                             shadows: walletCardTextShadow,
                           ),
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      const SizedBox(height: Spacing.xs),
+                      Row(
+                        children: [
+                          Icon(
+                            wallet.type.icon,
+                            size: IconSize.sm,
+                            color: walletCardInkColor(context, alpha: 0.6),
+                          ),
+                          const SizedBox(width: Spacing.xs),
+                          Expanded(
+                            child: Text(
+                              wallet.type.label(l10n),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: context.textTheme.bodySmall?.copyWith(
+                                color: walletCardInkColor(context, alpha: 0.6),
+                                shadows: walletCardTextShadow,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: Spacing.sm),
+                          Text(
+                            balanceText,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            // one-off: titleMedium + w800 for the card's balance figure.
+                            style: context.textTheme.titleMedium?.copyWith(
+                              color: isNegative && !isBalanceHidden
+                                  ? walletCardNegativeColor(context)
+                                  : walletCardInkColor(context, alpha: 1),
+                              fontWeight: FontWeight.w800,
+                              shadows: walletCardTextShadow,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -295,7 +298,11 @@ class _WalletCard extends StatelessWidget {
           Positioned(
             top: Spacing.xs,
             right: Spacing.xs,
-            child: _CardMenuButton(onEdit: onEdit, onDelete: onDelete),
+            child: _CardMenuButton(
+              name: wallet.name,
+              onEdit: onEdit,
+              onDelete: onDelete,
+            ),
           ),
         ],
       ),
@@ -305,8 +312,13 @@ class _WalletCard extends StatelessWidget {
 
 /// The card's edit/delete menu.
 class _CardMenuButton extends StatelessWidget {
-  const _CardMenuButton({required this.onEdit, required this.onDelete});
+  const _CardMenuButton({
+    required this.name,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
+  final String name;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
@@ -315,47 +327,53 @@ class _CardMenuButton extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
 
-    return PopupMenuButton<_CardAction>(
-      padding: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Rounded.md),
-      ),
-      onSelected: (action) => switch (action) {
-        _CardAction.edit => onEdit(),
-        _CardAction.delete => onDelete(),
-      },
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          value: _CardAction.edit,
-          child: Row(
-            children: [
-              const Icon(AppIcons.edit, size: IconSize.lg),
-              const SizedBox(width: Spacing.xs),
-              Text(l10n.edit),
-            ],
+    // With a child (not an icon) PopupMenuButton is a bare InkWell to screen
+    // readers; outside its tooltip, as Flutter's IconButton does.
+    return Semantics(
+      button: true,
+      child: PopupMenuButton<_CardAction>(
+        tooltip: l10n.optionsFor(name),
+        padding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Rounded.md),
+        ),
+        onSelected: (action) => switch (action) {
+          _CardAction.edit => onEdit(),
+          _CardAction.delete => onDelete(),
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            value: _CardAction.edit,
+            child: Row(
+              children: [
+                const Icon(AppIcons.edit, size: IconSize.lg),
+                const SizedBox(width: Spacing.xs),
+                Text(l10n.edit),
+              ],
+            ),
           ),
-        ),
-        PopupMenuItem(
-          value: _CardAction.delete,
-          child: Row(
-            children: [
-              Icon(AppIcons.delete, size: IconSize.lg, color: colors.error),
-              const SizedBox(width: Spacing.xs),
-              Text(l10n.delete, style: TextStyle(color: colors.error)),
-            ],
+          PopupMenuItem(
+            value: _CardAction.delete,
+            child: Row(
+              children: [
+                Icon(AppIcons.delete, size: IconSize.lg, color: colors.error),
+                const SizedBox(width: Spacing.xs),
+                Text(l10n.delete, style: TextStyle(color: colors.error)),
+              ],
+            ),
           ),
-        ),
-      ],
-      child: Container(
-        padding: const EdgeInsets.all(Spacing.xs),
-        decoration: BoxDecoration(
-          color: walletCardInkColor(context, alpha: 0.08),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          AppIcons.more,
-          size: IconSize.lg,
-          color: walletCardInkColor(context, alpha: 0.85),
+        ],
+        child: Container(
+          padding: const EdgeInsets.all(Spacing.xs),
+          decoration: BoxDecoration(
+            color: walletCardInkColor(context, alpha: 0.08),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            AppIcons.more,
+            size: IconSize.lg,
+            color: walletCardInkColor(context, alpha: 0.85),
+          ),
         ),
       ),
     );

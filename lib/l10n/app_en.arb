@@ -198,6 +198,15 @@
   "@transactionDefaultDescription": {
     "description": "Fallback label when a transaction has no description"
   },
+  "optionsFor": "{name} options",
+  "@optionsFor": {
+    "description": "Screen reader name of the ⋮ menu on a wallet card or transaction row; names the item so each one is told apart",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "amount": "Amount",
   "@amount": {
     "description": "Amount field label"
