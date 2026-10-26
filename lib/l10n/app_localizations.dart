@@ -476,7 +476,7 @@ abstract class AppLocalizations {
   /// **'You have unsaved changes to this field.'**
   String get discardChangesMessage;
 
-  /// Discard button label, paired with Save on the unsaved-changes dialog
+  /// Discard button label, paired with Cancel on the unsaved-changes dialog
   ///
   /// In en, this message translates to:
   /// **'Discard'**

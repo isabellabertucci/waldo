@@ -215,7 +215,8 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     };
   }
 
-  /// Asks before the back chevron drops an unsaved amount.
+  /// Asks before the back chevron drops an unsaved amount. Cancel, or a tap
+  /// outside, keeps the editor open; ✓ is how the amount is kept.
   Future<void> _handleFieldBack(_EditField field) async {
     if (!_isFieldDirty(field)) {
       _closeField();
@@ -223,35 +224,14 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     }
 
     final l10n = AppLocalizations.of(context);
-    final shouldSave = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.discardChangesTitle),
-        content: Text(l10n.discardChangesMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.discard),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l10n.save),
-          ),
-        ],
-      ),
+    final discard = await ConfirmationDialog.show(
+      context,
+      icon: AppIcons.undo,
+      title: l10n.discardChangesTitle,
+      content: l10n.discardChangesMessage,
+      confirmLabel: l10n.discard,
     );
-    if (!mounted) return;
-
-    if (shouldSave ?? false) {
-      switch (field) {
-        case _EditField.amount:
-          _confirmAmount();
-        case _EditField.category:
-          break;
-      }
-    } else {
-      _closeField();
-    }
+    if (discard && mounted) _closeField();
   }
 
   // Fields only stage changes on the view model; "Save changes" writes them.

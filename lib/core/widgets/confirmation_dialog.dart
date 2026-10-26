@@ -13,17 +13,22 @@ class ConfirmationDialog extends StatelessWidget {
     required this.title,
     required this.content,
     required this.confirmLabel,
+    this.icon = AppIcons.delete,
   });
 
   final String title;
   final String content;
   final String confirmLabel;
 
+  /// The badge's icon: what the confirm button loses.
+  final IconData icon;
+
   static Future<bool> show(
     BuildContext context, {
     required String title,
     required String content,
     required String confirmLabel,
+    IconData icon = AppIcons.delete,
   }) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -31,6 +36,7 @@ class ConfirmationDialog extends StatelessWidget {
         title: title,
         content: content,
         confirmLabel: confirmLabel,
+        icon: icon,
       ),
     );
     return confirmed ?? false;
@@ -40,7 +46,8 @@ class ConfirmationDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
-    // Every confirmation here is a delete, so it's always the error orange.
+    // Every confirmation here loses something (a delete, unsaved changes),
+    // so it's always the error orange.
     final accent = colors.error;
     // As Flutter's AlertDialog: Android announces it as an alert; iOS lands
     // on the title.
@@ -66,7 +73,7 @@ class ConfirmationDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              DashedCircleBadge(icon: AppIcons.delete, color: accent),
+              DashedCircleBadge(icon: icon, color: accent),
               const SizedBox(height: Spacing.sm),
               Semantics(
                 container: true,

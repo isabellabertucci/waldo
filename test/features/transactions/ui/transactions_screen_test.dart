@@ -453,6 +453,19 @@ void main() {
     await tester.tap(find.byTooltip('Back').last);
     await tester.pumpAndSettle();
     expect(find.text('Discard changes?'), findsOneWidget);
+
+    // A tap outside keeps editing, with the typed amount.
+    await tester.tapAt(const Offset(5, 5));
+    await tester.pumpAndSettle();
+    expect(find.text('Discard changes?'), findsNothing);
+    expect(find.byIcon(AppIcons.backspace), findsOneWidget);
+
+    // Discard leaves the keypad.
+    await tester.tap(find.byTooltip('Back').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Discard'));
+    await tester.pumpAndSettle();
+    expect(find.byIcon(AppIcons.backspace), findsNothing);
   });
 
   testWidgets('Cancel puts the typed name back to what it was', (tester) async {
