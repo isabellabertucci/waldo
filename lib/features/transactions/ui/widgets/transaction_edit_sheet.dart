@@ -128,6 +128,15 @@ Future<void> deleteTransactionWithUndo(
 /// The field being edited in place - the sheet's content swaps to its editor.
 enum _EditField { amount, category }
 
+/// The amount, category and date as the view and the edit list show them.
+typedef _Summary = ({
+  String amountText,
+  Color amountColor,
+  IconData categoryIcon,
+  String categoryLabel,
+  String dateLabel,
+});
+
 class TransactionEditSheet extends ConsumerStatefulWidget {
   const TransactionEditSheet({
     super.key,
@@ -402,6 +411,13 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
       _ => null,
     };
 
+    final summary = _summarize(
+      formState,
+      categories,
+      currency,
+      dateFormat,
+      isAmountHidden: ref.watch(balanceHiddenProvider),
+    );
     final activeField = _activeField;
 
     return Padding(
@@ -422,22 +438,40 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                 currency,
               )
             : _editable
-            ? _buildEditList(
-                context,
-                formState,
-                categories,
-                currency,
-                dateFormat,
-              )
-            : _buildViewList(
-                context,
-                formState,
-                categories,
-                currency,
-                dateFormat,
-                wallet,
-              ),
+            ? _buildEditList(context, formState, summary)
+            : _buildViewList(context, formState, summary, wallet),
       ),
+    );
+  }
+
+  /// What the view and the edit list both show.
+  _Summary _summarize(
+    TransactionFormState formState,
+    List<Category> categories,
+    Currency currency,
+    DateFormat dateFormat, {
+    required bool isAmountHidden,
+  }) {
+    final l10n = AppLocalizations.of(context);
+    final colors = context.appColors;
+    final isIncome = formState.type == TransactionType.income;
+    final amountCents = parseToCents(formState.amount, allowNegative: false);
+    final category = categories
+        .where((c) => c.id == formState.categoryId)
+        .firstOrNull;
+    return (
+      // Masked like the lists; the keypad editor still shows what you type.
+      amountText: isAmountHidden
+          ? hiddenAmount
+          : amountCents == null
+          ? '—'
+          : '${isIncome ? '+' : '-'}${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currency.code)}',
+      amountColor: isIncome ? colors.primaryStrong : colors.error,
+      categoryIcon: category?.icon ?? AppIcons.categoryGeneric,
+      categoryLabel: category?.displayName(l10n) ?? l10n.none,
+      dateLabel: formState.date == null
+          ? '—'
+          : dateFormat.format(formState.date!),
     );
   }
 
@@ -445,38 +479,21 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   Widget _buildViewList(
     BuildContext context,
     TransactionFormState formState,
-    List<Category> categories,
-    Currency currency,
-    DateFormat dateFormat,
+    _Summary summary,
     Wallet? wallet,
   ) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
-
-    final isIncome = formState.type == TransactionType.income;
-    final amountColor = isIncome ? colors.primaryStrong : colors.error;
-    final amountCents = parseToCents(formState.amount, allowNegative: false);
-    // Masked like the lists; the keypad editor still shows what you type.
-    final amountText = ref.watch(balanceHiddenProvider)
-        ? hiddenAmount
-        : amountCents == null
-        ? '—'
-        : '${isIncome ? '+' : '-'}${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currency.code)}';
-    final category = categories
-        .where((c) => c.id == formState.categoryId)
-        .firstOrNull;
-    final categoryIcon = category == null
-        ? AppIcons.categoryGeneric
-        : category.icon;
-    final categoryLabel = category == null
-        ? l10n.none
-        : category.displayName(l10n);
+    final (
+      :amountText,
+      :amountColor,
+      :categoryIcon,
+      :categoryLabel,
+      :dateLabel,
+    ) = summary;
     final name = formState.description.trim().isEmpty
         ? l10n.transactionDefaultDescription
         : formState.description.trim();
-    final dateLabel = formState.date == null
-        ? '—'
-        : dateFormat.format(formState.date!);
     final walletLabel = wallet == null
         ? '—'
         : '${wallet.name} · ${wallet.type.label(l10n)}';
@@ -649,34 +666,17 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   Widget _buildEditList(
     BuildContext context,
     TransactionFormState formState,
-    List<Category> categories,
-    Currency currency,
-    DateFormat dateFormat,
+    _Summary summary,
   ) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
-
-    final isIncome = formState.type == TransactionType.income;
-    final amountColor = isIncome ? colors.primaryStrong : colors.error;
-    final amountCents = parseToCents(formState.amount, allowNegative: false);
-    // Masked like the lists; the keypad editor still shows what you type.
-    final amountText = ref.watch(balanceHiddenProvider)
-        ? hiddenAmount
-        : amountCents == null
-        ? '—'
-        : '${isIncome ? '+' : '-'}${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currency.code)}';
-    final category = categories
-        .where((c) => c.id == formState.categoryId)
-        .firstOrNull;
-    final categoryIcon = category == null
-        ? AppIcons.categoryGeneric
-        : category.icon;
-    final categoryLabel = category == null
-        ? l10n.none
-        : category.displayName(l10n);
-    final dateLabel = formState.date == null
-        ? '—'
-        : dateFormat.format(formState.date!);
+    final (
+      :amountText,
+      :amountColor,
+      :categoryIcon,
+      :categoryLabel,
+      :dateLabel,
+    ) = summary;
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(
