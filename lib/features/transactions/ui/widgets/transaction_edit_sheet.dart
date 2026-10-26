@@ -23,6 +23,7 @@ import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
+import 'package:waldo/features/preferences/models/preferences.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_form_state.dart';
@@ -391,10 +392,13 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
       _ => const <Category>[],
     };
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
-    final currency = switch (preferencesAsync) {
-      AsyncValue(:final value?) => value.currency,
-      _ => Currency.usd,
+    final preferences = switch (preferencesAsync) {
+      AsyncValue(:final value?) => value,
+      _ => const Preferences(),
     };
+    final currency = preferences.currency;
+    // The format picked in Settings, as the add form uses.
+    final dateFormat = DateFormat(preferences.dateFormat);
     final walletsAsync = ref.watch(walletListViewModelProvider());
     final wallet = switch (walletsAsync) {
       AsyncValue(:final value?) =>
@@ -422,8 +426,21 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                 currency,
               )
             : _editable
-            ? _buildEditList(context, formState, categories, currency)
-            : _buildViewList(context, formState, categories, currency, wallet),
+            ? _buildEditList(
+                context,
+                formState,
+                categories,
+                currency,
+                dateFormat,
+              )
+            : _buildViewList(
+                context,
+                formState,
+                categories,
+                currency,
+                dateFormat,
+                wallet,
+              ),
       ),
     );
   }
@@ -434,11 +451,11 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     TransactionFormState formState,
     List<Category> categories,
     Currency currency,
+    DateFormat dateFormat,
     Wallet? wallet,
   ) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
-    final locale = Localizations.localeOf(context).toString();
 
     final isIncome = formState.type == TransactionType.income;
     final amountColor = isIncome ? colors.primaryStrong : colors.error;
@@ -463,7 +480,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
         : formState.description.trim();
     final dateLabel = formState.date == null
         ? '—'
-        : DateFormat('EEE d MMM', locale).format(formState.date!);
+        : dateFormat.format(formState.date!);
     final walletLabel = wallet == null
         ? '—'
         : '${wallet.name} · ${wallet.type.label(l10n)}';
@@ -638,10 +655,10 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     TransactionFormState formState,
     List<Category> categories,
     Currency currency,
+    DateFormat dateFormat,
   ) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
-    final locale = Localizations.localeOf(context).toString();
 
     final isIncome = formState.type == TransactionType.income;
     final amountColor = isIncome ? colors.primaryStrong : colors.error;
@@ -663,7 +680,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
         : category.displayName(l10n);
     final dateLabel = formState.date == null
         ? '—'
-        : DateFormat('EEE d MMM', locale).format(formState.date!);
+        : dateFormat.format(formState.date!);
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(

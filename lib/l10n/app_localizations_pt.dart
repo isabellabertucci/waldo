@@ -395,7 +395,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get currencyRowSubtitle => 'Como os valores são apresentados';
 
   @override
-  String get dateFormatRowSubtitle => 'Usado em listas e detalhes';
+  String get dateFormatRowSubtitle => 'Usado na data de cada transação';
 
   @override
   String get currencyChangeNotice =>
