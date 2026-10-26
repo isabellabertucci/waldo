@@ -14,10 +14,9 @@ import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/dashed_circle_badge.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/undo_snack_bar.dart';
-import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
-import 'package:waldo/core/widgets/near_limit_counter.dart';
+import 'package:waldo/core/widgets/form_pill_field.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/models/category.dart';
@@ -156,8 +155,6 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   late final TextEditingController _amountController;
   late final TextEditingController _nameController;
   late final TextEditingController _noteController;
-  final FocusNode _nameFocusNode = FocusNode();
-  final FocusNode _noteFocusNode = FocusNode();
 
   TransactionFormState get _formState =>
       ref.read(transactionFormViewModelProvider(widget.transaction));
@@ -180,8 +177,6 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     _amountController.dispose();
     _nameController.dispose();
     _noteController.dispose();
-    _nameFocusNode.dispose();
-    _noteFocusNode.dispose();
     super.dispose();
   }
 
@@ -758,83 +753,15 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             ),
           ),
           const SizedBox(height: Spacing.sm),
-          ListenableBuilder(
-            listenable: _nameFocusNode,
-            builder: (context, child) => DashedBorder(
-              radius: Rounded.lg,
-              color: _nameFocusNode.hasFocus
-                  ? colors.primary
-                  : colors.transparent,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.md,
-                  vertical: Spacing.sm,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.surfaceContainer,
-                  borderRadius: BorderRadius.circular(Rounded.lg),
-                ),
-                child: child,
-              ),
-            ),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              // Only widens the touch target; the field inside is what's read.
-              excludeFromSemantics: true,
-              onTap: () => _nameFocusNode.requestFocus(),
-              child: Row(
-                children: [
-                  FieldBadge(
-                    icon: AppIcons.name,
-                    color: colors.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: Spacing.sm),
-                  Expanded(
-                    child: MergeSemantics(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            l10n.transactionTitle,
-                            style: context.textTheme.bodySmall?.copyWith(
-                              color: colors.onSurfaceVariant,
-                            ),
-                          ),
-                          TextField(
-                            key: const Key('txNameField'),
-                            controller: _nameController,
-                            focusNode: _nameFocusNode,
-                            maxLength: maxTransactionDescriptionLength,
-                            buildCounter: nearLimitCounter,
-                            textCapitalization: TextCapitalization.sentences,
-                            onChanged: (value) =>
-                                _viewModel(ref).updateDescription(value),
-                            decoration: const InputDecoration(
-                              isCollapsed: true,
-                              border: InputBorder.none,
-                              // Off: the theme's boxed fill and focus ring.
-                              // The card's dashed outline shows focus.
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              focusedErrorBorder: InputBorder.none,
-                              filled: false,
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: Spacing.xs,
-                              ),
-                            ),
-                            style: context.bodyMdBold,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          FormPillField(
+            fieldKey: const Key('txNameField'),
+            leading: const Icon(AppIcons.name),
+            controller: _nameController,
+            label: l10n.transactionTitle,
+            hint: l10n.descriptionHint,
+            maxLength: maxTransactionDescriptionLength,
+            textCapitalization: TextCapitalization.sentences,
+            onChanged: (value) => _viewModel(ref).updateDescription(value),
           ),
           const SizedBox(height: Spacing.sm),
           EditFieldRow(
@@ -852,74 +779,15 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             onTap: () => _editDate(formState),
           ),
           const SizedBox(height: Spacing.sm),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(
-              horizontal: Spacing.md,
-              vertical: Spacing.sm,
-            ),
-            decoration: BoxDecoration(
-              color: colors.surfaceContainer,
-              borderRadius: BorderRadius.circular(Rounded.lg),
-            ),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              // Only widens the touch target; the field inside is what's read.
-              excludeFromSemantics: true,
-              onTap: () => _noteFocusNode.requestFocus(),
-              child: Row(
-                children: [
-                  FieldBadge(
-                    icon: AppIcons.note,
-                    color: colors.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: Spacing.sm),
-                  Expanded(
-                    child: MergeSemantics(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            l10n.transactionNote,
-                            style: context.textTheme.bodySmall?.copyWith(
-                              color: colors.onSurfaceVariant,
-                            ),
-                          ),
-                          TextField(
-                            key: const Key('txNoteField'),
-                            controller: _noteController,
-                            focusNode: _noteFocusNode,
-                            maxLength: maxTransactionNoteLength,
-                            buildCounter: nearLimitCounter,
-                            textCapitalization: TextCapitalization.sentences,
-                            onChanged: (value) =>
-                                _viewModel(ref).updateNote(value),
-                            decoration: InputDecoration(
-                              isCollapsed: true,
-                              border: InputBorder.none,
-                              // Off: the theme's boxed fill and focus ring.
-                              // The card's dashed outline shows focus.
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              focusedErrorBorder: InputBorder.none,
-                              filled: false,
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: Spacing.xs,
-                              ),
-                              hintText: l10n.noteHint,
-                            ),
-                            style: context.bodyMdBold,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          FormPillField(
+            fieldKey: const Key('txNoteField'),
+            leading: const Icon(AppIcons.note),
+            controller: _noteController,
+            label: l10n.transactionNote,
+            hint: l10n.noteHint,
+            maxLength: maxTransactionNoteLength,
+            textCapitalization: TextCapitalization.sentences,
+            onChanged: (value) => _viewModel(ref).updateNote(value),
           ),
           const SizedBox(height: Spacing.md),
           if (_saveError case final error?) ...[

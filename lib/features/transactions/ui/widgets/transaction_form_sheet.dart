@@ -20,7 +20,7 @@ import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/secondary_button.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/field_label.dart';
-import 'package:waldo/core/widgets/near_limit_counter.dart';
+import 'package:waldo/core/widgets/form_pill_field.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
@@ -320,72 +320,16 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
               ),
               const SizedBox(height: Spacing.sm),
               // Right under the amount, as in the edit sheet and the detail.
-              Container(
-                decoration: BoxDecoration(
-                  color: colors.surfaceContainer,
-                  borderRadius: BorderRadius.circular(Rounded.lg),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Spacing.md,
-                    vertical: Spacing.sm,
-                  ),
-                  child: Row(
-                    children: [
-                      FieldBadge(
-                        icon: AppIcons.name,
-                        color: colors.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: Spacing.sm),
-                      Expanded(
-                        child: MergeSemantics(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                l10n.transactionTitle,
-                                style: context.textTheme.bodySmall?.copyWith(
-                                  color: colors.onSurfaceVariant,
-                                ),
-                              ),
-                              TextFormField(
-                                key: const Key('transactionDescriptionField'),
-                                controller: _descriptionController,
-                                onChanged: viewModel.updateDescription,
-                                // Stops typing at the limit instead of failing on save.
-                                maxLength: maxTransactionDescriptionLength,
-                                buildCounter: nearLimitCounter,
-                                textCapitalization:
-                                    TextCapitalization.sentences,
-                                decoration: InputDecoration(
-                                  isCollapsed: true,
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                  disabledBorder: InputBorder.none,
-                                  errorBorder: InputBorder.none,
-                                  focusedErrorBorder: InputBorder.none,
-                                  filled: false,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: Spacing.xs,
-                                  ),
-                                  hintText: l10n.descriptionHint,
-                                  hintStyle: context.bodyMdBold.copyWith(
-                                    color: colors.onSurfaceVariant.withValues(
-                                      alpha: 0.6,
-                                    ),
-                                  ),
-                                ),
-                                style: context.bodyMdBold,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              FormPillField(
+                fieldKey: const Key('transactionDescriptionField'),
+                leading: const Icon(AppIcons.name),
+                controller: _descriptionController,
+                label: l10n.transactionTitle,
+                hint: l10n.descriptionHint,
+                // Stops typing at the limit instead of failing on save.
+                maxLength: maxTransactionDescriptionLength,
+                textCapitalization: TextCapitalization.sentences,
+                onChanged: viewModel.updateDescription,
               ),
               const SizedBox(height: Spacing.md),
               Row(
