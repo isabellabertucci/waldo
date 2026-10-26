@@ -2,6 +2,10 @@ import 'dart:ui' show CheckedState, SemanticsRole, Tristate;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:waldo/features/dashboard/ui/widgets/cash_flow_card.dart';
+import 'package:waldo/features/dashboard/models/dashboard_data.dart';
+import 'package:waldo/core/constants/enums.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:waldo/core/constants/db_constants.dart';
@@ -646,6 +650,66 @@ void main() {
       tester.getSemantics(find.textContaining('WALDO')),
       isSemantics(isButton: true, hint: 'Opens all transactions'),
     );
+    semantics.dispose();
+  });
+
+  Future<void> pumpCashFlow(WidgetTester tester, {bool hidden = false}) async {
+    final db = await pumpWidgetWithProviders(
+      tester,
+      Scaffold(
+        body: CashFlowCard(
+          monthlyCashFlow: [
+            MonthlyCashFlow(month: DateTime(2026, 8), income: 0, expense: 0),
+            MonthlyCashFlow(
+              month: DateTime(2026, 9),
+              income: 50000,
+              expense: 0,
+            ),
+            MonthlyCashFlow(
+              month: DateTime(2026, 10),
+              income: 0,
+              expense: 1250,
+            ),
+          ],
+          currency: Currency.eur,
+          isBalanceHidden: hidden,
+        ),
+      ),
+    );
+    addTearDown(db.close);
+  }
+
+  testWidgets('The cash flow chart reads what it shows and every month', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pumpCashFlow(tester);
+
+    final chart = tester.getSemantics(find.byType(LineChart));
+    expect(chart.label, 'Expenses by month, Aug 2026 to Oct 2026');
+    expect(
+      chart.value,
+      matches(
+        RegExp(r'^August: .*0\.00; September: .*0\.00; October: .*12\.50$'),
+      ),
+    );
+
+    await tester.tap(find.text('Income'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.getSemantics(find.byType(LineChart)).label,
+      'Income by month, Aug 2026 to Oct 2026',
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('With the balance hidden the chart keeps its amounts hidden', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pumpCashFlow(tester, hidden: true);
+
+    expect(tester.getSemantics(find.byType(LineChart)).value, 'Amounts hidden');
     semantics.dispose();
   });
 }

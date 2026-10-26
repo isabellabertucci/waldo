@@ -458,6 +458,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cashFlow => 'Cash flow';
 
   @override
+  String cashFlowChartExpense(String from, String to) {
+    return 'Expenses by month, $from to $to';
+  }
+
+  @override
+  String cashFlowChartIncome(String from, String to) {
+    return 'Income by month, $from to $to';
+  }
+
+  @override
+  String get amountsHidden => 'Amounts hidden';
+
+  @override
   String get recentTransactions => 'Recent transactions';
 
   @override

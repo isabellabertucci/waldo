@@ -231,135 +231,160 @@ class _CashFlowChart extends StatelessWidget {
       for (final month in monthlyCashFlow) monthFormat.format(month.month),
     ];
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Measured, so labels never overlap or get cut at any text size.
-        final textScaler = MediaQuery.textScalerOf(context);
-        var widest = 0.0;
-        var tallest = 0.0;
-        for (final label in labels) {
-          final painter = TextPainter(
-            // The theme's font too, as the Text below gets it.
-            text: TextSpan(
-              text: label,
-              style: DefaultTextStyle.of(context).style.merge(labelStyle),
-            ),
-            textScaler: textScaler,
-            textDirection: Directionality.of(context),
-            maxLines: 1,
-          )..layout();
-          widest = max(widest, painter.width);
-          tallest = max(tallest, painter.height);
-          painter.dispose();
-        }
-        final lastIndex = labels.length - 1;
-        final monthGap = lastIndex > 0
-            ? constraints.maxWidth / lastIndex
-            : constraints.maxWidth;
-        // Every [step]th month, counted back from the last so it always shows.
-        final step = max(1, ((widest + Spacing.xs) / monthGap).ceil());
+    // One node for screen readers: what the chart shows, then every month's
+    // amount (what a touch shows), instead of the bare axis labels.
+    final l10n = AppLocalizations.of(context);
+    final range = monthlyCashFlow.isEmpty
+        ? l10n.cashFlow
+        : (selectedType == TransactionType.income
+              ? l10n.cashFlowChartIncome
+              : l10n.cashFlowChartExpense)(
+            DateFormat.yMMM(locale).format(monthlyCashFlow.first.month),
+            DateFormat.yMMM(locale).format(monthlyCashFlow.last.month),
+          );
+    final amounts = isBalanceHidden
+        ? l10n.amountsHidden
+        : [
+            for (final month in monthlyCashFlow)
+              '${DateFormat.MMMM(locale).format(month.month)}: '
+                  '${formatCents(_valueFor(month), locale: moneyLocale(context), currencyCode: currencyCode)}',
+          ].join('; ');
 
-        return LineChart(
-          LineChartData(
-            gridData: const FlGridData(show: false),
-            borderData: FlBorderData(show: false),
-            titlesData: FlTitlesData(
-              topTitles: const AxisTitles(),
-              rightTitles: const AxisTitles(),
-              leftTitles: const AxisTitles(),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  // Asks for every month; [step] picks which get a label.
-                  interval: 1,
-                  reservedSize: tallest + Spacing.xs,
-                  getTitlesWidget: (value, meta) {
-                    final index = value.toInt();
-                    if (index < 0 || index > lastIndex) {
-                      return const SizedBox.shrink();
-                    }
-                    if ((lastIndex - index) % step != 0) {
-                      return const SizedBox.shrink();
-                    }
-                    return Padding(
-                      padding: const EdgeInsets.only(top: Spacing.xs),
-                      child: Text(
-                        labels[index],
-                        maxLines: 1,
-                        style: labelStyle,
-                      ),
-                    );
-                  },
-                ),
+    return Semantics(
+      container: true,
+      label: range,
+      value: amounts,
+      excludeSemantics: true,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Measured, so labels never overlap or get cut at any text size.
+          final textScaler = MediaQuery.textScalerOf(context);
+          var widest = 0.0;
+          var tallest = 0.0;
+          for (final label in labels) {
+            final painter = TextPainter(
+              // The theme's font too, as the Text below gets it.
+              text: TextSpan(
+                text: label,
+                style: DefaultTextStyle.of(context).style.merge(labelStyle),
               ),
-            ),
-            lineTouchData: LineTouchData(
-              enabled: !isBalanceHidden,
-              getTouchedSpotIndicator: (barData, indicators) =>
-                  indicators.map((index) {
-                    return TouchedSpotIndicatorData(
-                      FlLine(
-                        color: seriesColor.withValues(alpha: 0.4),
-                        strokeWidth: 1.5,
-                        dashArray: const [4, 4],
-                      ),
-                      FlDotData(
-                        getDotPainter: (spot, percent, bar, index) =>
-                            FlDotCirclePainter(
-                              radius: 4,
-                              color: seriesColor,
-                              strokeWidth: 2,
-                              strokeColor: colors.surface,
-                            ),
-                      ),
-                    );
-                  }).toList(),
-              touchTooltipData: LineTouchTooltipData(
-                getTooltipColor: (spot) => colors.primaryStrong,
-                tooltipBorderRadius: BorderRadius.circular(Rounded.pill),
-                tooltipPadding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.sm,
-                  vertical: Spacing.xs,
-                ),
-                getTooltipItems: (touchedSpots) => touchedSpots.map((spot) {
-                  final month = monthlyCashFlow[spot.spotIndex].month;
-                  final amountCents = (spot.y * 100).round();
-                  return LineTooltipItem(
-                    '${monthFormat.format(month)} · '
-                    '${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currencyCode)}',
-                    // Tooltip text drawn by fl_chart on the canvas, not a UI text style.
-                    TextStyle(
-                      color: colors.onPrimary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12, // one-off
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-            lineBarsData: [
-              LineChartBarData(
-                spots: spots,
-                isCurved: true,
-                color: seriesColor,
-                barWidth: 2.5,
-                dotData: const FlDotData(show: false),
-                belowBarData: BarAreaData(
-                  show: true,
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      seriesColor.withValues(alpha: 0.28),
-                      seriesColor.withValues(alpha: 0),
-                    ],
+              textScaler: textScaler,
+              textDirection: Directionality.of(context),
+              maxLines: 1,
+            )..layout();
+            widest = max(widest, painter.width);
+            tallest = max(tallest, painter.height);
+            painter.dispose();
+          }
+          final lastIndex = labels.length - 1;
+          final monthGap = lastIndex > 0
+              ? constraints.maxWidth / lastIndex
+              : constraints.maxWidth;
+          // Every [step]th month, counted back from the last so it always shows.
+          final step = max(1, ((widest + Spacing.xs) / monthGap).ceil());
+
+          return LineChart(
+            LineChartData(
+              gridData: const FlGridData(show: false),
+              borderData: FlBorderData(show: false),
+              titlesData: FlTitlesData(
+                topTitles: const AxisTitles(),
+                rightTitles: const AxisTitles(),
+                leftTitles: const AxisTitles(),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    // Asks for every month; [step] picks which get a label.
+                    interval: 1,
+                    reservedSize: tallest + Spacing.xs,
+                    getTitlesWidget: (value, meta) {
+                      final index = value.toInt();
+                      if (index < 0 || index > lastIndex) {
+                        return const SizedBox.shrink();
+                      }
+                      if ((lastIndex - index) % step != 0) {
+                        return const SizedBox.shrink();
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(top: Spacing.xs),
+                        child: Text(
+                          labels[index],
+                          maxLines: 1,
+                          style: labelStyle,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
-            ],
-          ),
-        );
-      },
+              lineTouchData: LineTouchData(
+                enabled: !isBalanceHidden,
+                getTouchedSpotIndicator: (barData, indicators) =>
+                    indicators.map((index) {
+                      return TouchedSpotIndicatorData(
+                        FlLine(
+                          color: seriesColor.withValues(alpha: 0.4),
+                          strokeWidth: 1.5,
+                          dashArray: const [4, 4],
+                        ),
+                        FlDotData(
+                          getDotPainter: (spot, percent, bar, index) =>
+                              FlDotCirclePainter(
+                                radius: 4,
+                                color: seriesColor,
+                                strokeWidth: 2,
+                                strokeColor: colors.surface,
+                              ),
+                        ),
+                      );
+                    }).toList(),
+                touchTooltipData: LineTouchTooltipData(
+                  getTooltipColor: (spot) => colors.primaryStrong,
+                  tooltipBorderRadius: BorderRadius.circular(Rounded.pill),
+                  tooltipPadding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.sm,
+                    vertical: Spacing.xs,
+                  ),
+                  getTooltipItems: (touchedSpots) => touchedSpots.map((spot) {
+                    final month = monthlyCashFlow[spot.spotIndex].month;
+                    final amountCents = (spot.y * 100).round();
+                    return LineTooltipItem(
+                      '${monthFormat.format(month)} · '
+                      '${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currencyCode)}',
+                      // Tooltip text drawn by fl_chart on the canvas, not a UI text style.
+                      TextStyle(
+                        color: colors.onPrimary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12, // one-off
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: spots,
+                  isCurved: true,
+                  color: seriesColor,
+                  barWidth: 2.5,
+                  dotData: const FlDotData(show: false),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        seriesColor.withValues(alpha: 0.28),
+                        seriesColor.withValues(alpha: 0),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

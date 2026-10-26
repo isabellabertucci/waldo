@@ -464,6 +464,19 @@ class AppLocalizationsPt extends AppLocalizations {
   String get cashFlow => 'Fluxo de caixa';
 
   @override
+  String cashFlowChartExpense(String from, String to) {
+    return 'Despesas por mês, de $from a $to';
+  }
+
+  @override
+  String cashFlowChartIncome(String from, String to) {
+    return 'Receitas por mês, de $from a $to';
+  }
+
+  @override
+  String get amountsHidden => 'Valores escondidos';
+
+  @override
   String get recentTransactions => 'Transações recentes';
 
   @override
