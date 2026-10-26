@@ -785,7 +785,7 @@ abstract class AppLocalizations {
   /// Subtitle under the Date format row in settings
   ///
   /// In en, this message translates to:
-  /// **'Used in lists and details'**
+  /// **'Used for a transaction\'s date'**
   String get dateFormatRowSubtitle;
 
   /// Notice shown at the bottom of the currency picker sheet

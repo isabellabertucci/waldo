@@ -493,7 +493,7 @@
   "@currencyRowSubtitle": {
     "description": "Subtitle under the Currency row in settings"
   },
-  "dateFormatRowSubtitle": "Used in lists and details",
+  "dateFormatRowSubtitle": "Used for a transaction's date",
   "@dateFormatRowSubtitle": {
     "description": "Subtitle under the Date format row in settings"
   },

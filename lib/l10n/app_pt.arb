@@ -115,7 +115,7 @@
   "moneySection": "Dinheiro",
   "appearanceSection": "Aparência",
   "currencyRowSubtitle": "Como os valores são apresentados",
-  "dateFormatRowSubtitle": "Usado em listas e detalhes",
+  "dateFormatRowSubtitle": "Usado na data de cada transação",
   "currencyChangeNotice": "Isto altera apenas o símbolo. Os teus valores mantêm-se e não são convertidos.",
   "preferencesError": "Ocorreu um problema ao carregar as tuas preferências. Tenta novamente.",
   "preferencesSaveError": "Não foi possível guardar a tua preferência. Nada foi alterado.",

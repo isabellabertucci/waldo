@@ -389,7 +389,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currencyRowSubtitle => 'How amounts are shown';
 
   @override
-  String get dateFormatRowSubtitle => 'Used in lists and details';
+  String get dateFormatRowSubtitle => 'Used for a transaction\'s date';
 
   @override
   String get currencyChangeNotice =>
