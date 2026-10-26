@@ -7,6 +7,7 @@ import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/dashed_border.dart';
+import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/receipt_shell.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -317,21 +318,11 @@ class _EmptyReceipt extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: Spacing.sm),
-              TextButton.icon(
+              // The app's primary button, as on every other first step.
+              DashedStitchButton(
                 onPressed: onAddTransaction,
-                style: TextButton.styleFrom(
-                  backgroundColor: colors.primary,
-                  foregroundColor: colors.onPrimary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Spacing.md,
-                    vertical: Spacing.sm,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(Rounded.pill),
-                  ),
-                ),
                 icon: const Icon(AppIcons.add, size: IconSize.lg),
-                label: Text(l10n.addFirstTransactionButton),
+                label: l10n.addFirstTransactionButton,
               ),
             ],
           ),
