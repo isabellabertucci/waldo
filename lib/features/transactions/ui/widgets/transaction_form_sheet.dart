@@ -19,6 +19,7 @@ import 'package:waldo/core/widgets/sheet_grabber.dart';
 import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/secondary_button.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/field_label.dart';
 import 'package:waldo/core/widgets/near_limit_counter.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/categories/categories_x.dart';
@@ -231,7 +232,10 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                         // One node named "Amount", with its sign, value and error.
                         builder: (field) => MergeSemantics(
                           child: Semantics(
-                            label: l10n.amount,
+                            label: FieldLabel.requiredSemantics(
+                              context,
+                              l10n.amount,
+                            ),
                             child: Column(
                               children: [
                                 Row(
