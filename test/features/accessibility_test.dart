@@ -437,4 +437,60 @@ void main() {
     );
     semantics.dispose();
   });
+
+  /// Read like Flutter's single-select SegmentedButton: a button, its
+  /// selected state, one choice of a group.
+  void expectSingleChoice(WidgetTester tester, String label, bool selected) {
+    expect(
+      tester.getSemantics(find.text(label).last),
+      isSemantics(
+        label: label,
+        isButton: true,
+        isSelected: selected,
+        isInMutuallyExclusiveGroup: true,
+      ),
+      reason: label,
+    );
+  }
+
+  testWidgets('The filter type options are single-choice buttons', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pumpSheet(tester, sheetHeadings['filter sheet']!.$1);
+
+    expectSingleChoice(tester, 'All', true);
+    expectSingleChoice(tester, 'Income', false);
+    expectSingleChoice(tester, 'Expense', false);
+    expectSingleChoice(tester, 'October', true);
+    semantics.dispose();
+  });
+
+  testWidgets('The expense/income toggles are single-choice buttons', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(402, 3000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final db = await createTestDatabase();
+    addTearDown(db.close);
+    await seedGoldenData(db);
+    // The cash flow card's toggle.
+    await pumpWidgetWithProviders(tester, const DashboardScreen(), db: db);
+    expectSingleChoice(tester, 'Expense', true);
+    expectSingleChoice(tester, 'Income', false);
+    semantics.dispose();
+  });
+
+  testWidgets('The new transaction type toggle is single-choice', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pumpSheet(tester, sheets['new transaction sheet']!);
+
+    expectSingleChoice(tester, 'Expense', true);
+    expectSingleChoice(tester, 'Income', false);
+    semantics.dispose();
+  });
 }

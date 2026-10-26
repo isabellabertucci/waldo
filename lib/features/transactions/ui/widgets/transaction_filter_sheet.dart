@@ -207,18 +207,24 @@ class _TypeSegment extends StatelessWidget {
         borderRadius: BorderRadius.circular(Rounded.pill),
         elevation: selected ? 1 : 0,
         shadowColor: Elevation.highShadowColor,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(Rounded.pill),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: Spacing.component),
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              // one-off: the toggle's own selected/unselected weights.
-              style: context.textTheme.bodySmall?.copyWith(
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                color: selected ? colors.onSurface : colors.onSurfaceVariant,
+        child: Semantics(
+          // One choice of three, like Flutter's SegmentedButton.
+          button: true,
+          selected: selected,
+          inMutuallyExclusiveGroup: true,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(Rounded.pill),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: Spacing.component),
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                // one-off: the toggle's own selected/unselected weights.
+                style: context.textTheme.bodySmall?.copyWith(
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                  color: selected ? colors.onSurface : colors.onSurfaceVariant,
+                ),
               ),
             ),
           ),
