@@ -6,8 +6,20 @@ import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/min_tap_target.dart';
 import 'package:waldo/core/utils/dash_path.dart';
 
-/// A `primary` pill with a dashed stitch just inside its edge - the app's
-/// primary-action button.
+/// How much a [DashedStitchButton] stands out. Every variant has the same
+/// size, so buttons side by side always match.
+enum StitchVariant {
+  /// The ink pill with the stitch: the main action.
+  primary,
+
+  /// A tinted pill, no stitch: the action beside the main one (Cancel).
+  secondary,
+
+  /// The error orange with the stitch: an action that loses something.
+  destructive,
+}
+
+/// A pill with a dashed stitch just inside its edge - the app's button.
 class DashedStitchButton extends StatelessWidget {
   const DashedStitchButton({
     super.key,
@@ -18,6 +30,7 @@ class DashedStitchButton extends StatelessWidget {
     this.padding,
     this.labelStyle,
     this.tooltip,
+    this.variant = StitchVariant.primary,
   }) : assert(
          label != null || icon != null,
          'DashedStitchButton needs a label or an icon',
@@ -41,13 +54,25 @@ class DashedStitchButton extends StatelessWidget {
   /// practice when the button has an [icon] but no [label].
   final String? tooltip;
 
+  final StitchVariant variant;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final isIconOnly = label == null;
+    // No `onError` token yet; a filled button's ink is `onPrimary`.
+    final (fill, ink, hasStitch) = switch (variant) {
+      StitchVariant.primary => (colors.primary, colors.onPrimary, true),
+      StitchVariant.secondary => (
+        colors.surfaceContainer,
+        colors.onSurface,
+        false,
+      ),
+      StitchVariant.destructive => (colors.error, colors.onPrimary, true),
+    };
 
     final button = Material(
-      color: colors.primary,
+      color: fill,
       borderRadius: BorderRadius.circular(Rounded.pill),
       child: InkWell(
         borderRadius: BorderRadius.circular(Rounded.pill),
@@ -55,11 +80,10 @@ class DashedStitchButton extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Positioned.fill(
-              child: CustomPaint(
-                painter: _DashedPillPainter(color: colors.onPrimary),
+            if (hasStitch)
+              Positioned.fill(
+                child: CustomPaint(painter: _DashedPillPainter(color: ink)),
               ),
-            ),
             Padding(
               padding:
                   padding ??
@@ -74,10 +98,7 @@ class DashedStitchButton extends StatelessWidget {
                 children: [
                   if (icon != null)
                     IconTheme(
-                      data: IconThemeData(
-                        color: colors.onPrimary,
-                        size: IconSize.md,
-                      ),
+                      data: IconThemeData(color: ink, size: IconSize.md),
                       child: icon!,
                     ),
                   if (icon != null && label != null)
@@ -95,7 +116,7 @@ class DashedStitchButton extends StatelessWidget {
                                     (compact
                                         ? context.bodySmBold
                                         : context.labelLgStrong))
-                                .copyWith(color: colors.onPrimary),
+                                .copyWith(color: ink),
                       ),
                     ),
                 ],

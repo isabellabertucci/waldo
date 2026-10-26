@@ -125,6 +125,12 @@ Future<void> deleteTransactionWithUndo(
   }
 }
 
+/// Cancel and Save: room for "Save changes" beside Cancel, at a 48px height.
+const _actionPadding = EdgeInsets.symmetric(
+  horizontal: Spacing.xxs,
+  vertical: Spacing.sm,
+);
+
 /// The field being edited in place - the sheet's content swaps to its editor.
 enum _EditField { amount, category }
 
@@ -770,38 +776,24 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           ],
           Row(
             children: [
-              // Cancel and Save get (nearly) equal widths.
+              // One button in two variants, so they match in size.
               Expanded(
-                flex: 5,
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: colors.surfaceContainer,
-                    foregroundColor: colors.onSurface,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: Spacing.component,
-                      horizontal: Spacing.xs,
-                    ),
-                    textStyle: context.bodySmBold,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(Rounded.pill),
-                    ),
-                  ),
+                child: DashedStitchButton(
+                  variant: StitchVariant.secondary,
+                  label: l10n.cancel,
                   onPressed: _cancelEdit,
-                  child: Text(l10n.cancel),
+                  compact: true,
+                  padding: _actionPadding,
                 ),
               ),
               const SizedBox(width: Spacing.xs),
               Expanded(
-                flex: 6,
                 child: DashedStitchButton(
                   icon: const Icon(AppIcons.check, size: IconSize.sm),
                   label: l10n.saveChanges,
                   onPressed: _saveChanges,
                   compact: true,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Spacing.xxs,
-                    vertical: Spacing.sm,
-                  ),
+                  padding: _actionPadding,
                 ),
               ),
             ],

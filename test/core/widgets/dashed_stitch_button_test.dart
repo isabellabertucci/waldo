@@ -95,4 +95,30 @@ void main() {
     );
     semantics.dispose();
   });
+
+  testWidgets('Every variant is the same size, so a pair always matches', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final variant in StitchVariant.values)
+            DashedStitchButton(
+              key: ValueKey(variant),
+              variant: variant,
+              label: 'Save',
+              onPressed: () {},
+            ),
+        ],
+      ),
+    );
+
+    final sizes = {
+      for (final variant in StitchVariant.values)
+        tester.getSize(find.byKey(ValueKey(variant))),
+    };
+    expect(sizes, hasLength(1));
+  });
 }

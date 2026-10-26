@@ -5,7 +5,14 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/dashed_circle_badge.dart';
+import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+
+/// Room for "Cancelar" and "Descartar" side by side, at a 48px height.
+const _buttonPadding = EdgeInsets.symmetric(
+  horizontal: Spacing.xs,
+  vertical: Spacing.sm,
+);
 
 class ConfirmationDialog extends StatelessWidget {
   const ConfirmationDialog({
@@ -94,42 +101,26 @@ class ConfirmationDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: Spacing.lg),
+              // One button in two variants, so they match in size.
               Row(
                 children: [
                   Expanded(
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: colors.surfaceContainer,
-                        foregroundColor: colors.onSurface,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: Spacing.component,
-                        ),
-                        textStyle: context.bodyMdBold,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(Rounded.pill),
-                        ),
-                      ),
+                    child: DashedStitchButton(
+                      variant: StitchVariant.secondary,
+                      label: l10n.cancel,
+                      labelStyle: context.bodyMdBold,
+                      padding: _buttonPadding,
                       onPressed: () => Navigator.of(context).pop(false),
-                      child: Text(l10n.cancel),
                     ),
                   ),
                   const SizedBox(width: Spacing.sm),
                   Expanded(
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: accent,
-                        // No `onError` token yet; buttons use `onPrimary` on a filled background.
-                        foregroundColor: colors.onPrimary,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: Spacing.component,
-                        ),
-                        textStyle: context.bodyMdBold,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(Rounded.pill),
-                        ),
-                      ),
+                    child: DashedStitchButton(
+                      variant: StitchVariant.destructive,
+                      label: confirmLabel,
+                      labelStyle: context.bodyMdBold,
+                      padding: _buttonPadding,
                       onPressed: () => Navigator.of(context).pop(true),
-                      child: Text(confirmLabel),
                     ),
                   ),
                 ],

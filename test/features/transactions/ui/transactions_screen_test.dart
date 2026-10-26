@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/transactions/ui/transactions_screen.dart';
@@ -466,6 +467,21 @@ void main() {
     await tester.tap(find.text('Discard'));
     await tester.pumpAndSettle();
     expect(find.byIcon(AppIcons.backspace), findsNothing);
+  });
+
+  testWidgets('Cancel and Save changes are the same size', (tester) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '25.00', description: 'Groceries');
+    await openEditFromRowMenu(tester);
+
+    Size sizeOf(String label) => tester.getSize(
+      find.ancestor(
+        of: find.text(label),
+        matching: find.byType(DashedStitchButton),
+      ),
+    );
+    expect(sizeOf('Cancel'), sizeOf('Save changes'));
+    expect(sizeOf('Cancel').height, greaterThanOrEqualTo(48));
   });
 
   testWidgets('Cancel puts the typed name back to what it was', (tester) async {
