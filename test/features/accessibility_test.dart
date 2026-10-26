@@ -757,4 +757,37 @@ void main() {
     );
     semantics.dispose();
   });
+
+  for (final MapEntry(key: name, value: screen) in screens.entries) {
+    testWidgets('Everything tappable on the $name is read as a button', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      tester.view.physicalSize = const Size(402, 2400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final db = await createTestDatabase();
+      addTearDown(db.close);
+      await seedGoldenData(db);
+      await pumpWidgetWithProviders(tester, screen, db: db);
+
+      expect(tappablesThatArentButtons(), isEmpty);
+      semantics.dispose();
+    });
+  }
+
+  for (final MapEntry(key: name, value: open) in {
+    'new wallet sheet': sheetHeadings['new wallet sheet']!.$1,
+    'filter sheet': sheetHeadings['filter sheet']!.$1,
+  }.entries) {
+    testWidgets('Everything tappable in the $name is read as a button', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await pumpSheet(tester, open);
+
+      expect(tappablesThatArentButtons(), isEmpty);
+      semantics.dispose();
+    });
+  }
 }
