@@ -283,4 +283,22 @@ void main() {
     expect(find.text('A wallet with this name already exists'), findsNothing);
     expect(find.text('Save changes'), findsNothing, reason: 'sheet closed');
   });
+
+  testWidgets('The locked balance uses the phone\'s decimal separator', (
+    tester,
+  ) async {
+    tester.platformDispatcher.localeTestValue = const Locale('pt', 'PT');
+    addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+
+    await pumpWithOneWallet(tester, editIt: true);
+
+    // The field's own text, not the "0,00" hint drawn under it.
+    final field = tester.widget<EditableText>(
+      find.descendant(
+        of: find.byKey(const Key('walletBalanceField')),
+        matching: find.byType(EditableText),
+      ),
+    );
+    expect(field.controller.text, '0,00');
+  });
 }
