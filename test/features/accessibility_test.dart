@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/features/categories/ui/categories_screen.dart';
+import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
+import 'package:waldo/features/transactions/ui/all_transactions_screen.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_edit_sheet.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_form_sheet.dart';
@@ -189,4 +191,28 @@ void main() {
     }
     semantics.dispose();
   });
+
+  for (final MapEntry(key: name, value: screen) in const {
+    'dashboard': DashboardScreen(),
+    'transaction list': AllTransactionsScreen(),
+  }.entries) {
+    testWidgets('A transaction row on the $name is read as a button', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      tester.view.physicalSize = const Size(402, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final db = await createTestDatabase();
+      addTearDown(db.close);
+      await seedGoldenData(db);
+      await pumpWidgetWithProviders(tester, screen, db: db);
+
+      final row = tester.getSemantics(find.text('Weekly groceries'));
+      expect(row.flagsCollection.isButton, isTrue);
+      // Only the row itself, not the section or day heading above it.
+      expect(row.label, startsWith('Weekly groceries'));
+      semantics.dispose();
+    });
+  }
 }
