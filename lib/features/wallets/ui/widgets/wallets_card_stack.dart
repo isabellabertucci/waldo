@@ -8,6 +8,7 @@ import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/wallet_card_finish.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/edit_delete_menu.dart';
 import 'package:waldo/core/widgets/min_tap_target.dart';
 
 import '../../models/wallet.dart';
@@ -16,8 +17,6 @@ import '../../wallets_x.dart';
 const _cardHeight = 187.0;
 
 const _overlapHeightFactor = 124 / 170;
-
-enum _CardAction { edit, delete }
 
 class WalletsCardStack extends StatelessWidget {
   const WalletsCardStack({
@@ -347,12 +346,11 @@ class _CardMenuButton extends StatefulWidget {
 }
 
 class _CardMenuButtonState extends State<_CardMenuButton> {
-  final _menuKey = GlobalKey<PopupMenuButtonState<_CardAction>>();
+  final _menuKey = GlobalKey<PopupMenuButtonState<EditDeleteAction>>();
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final colors = context.appColors;
 
     // With a child (not an icon) PopupMenuButton is a bare InkWell to screen
     // readers; outside its tooltip, as Flutter's IconButton does.
@@ -360,7 +358,7 @@ class _CardMenuButtonState extends State<_CardMenuButton> {
       button: true,
       child: MinTapTarget(
         onTap: () => _menuKey.currentState?.showButtonMenu(),
-        child: PopupMenuButton<_CardAction>(
+        child: PopupMenuButton<EditDeleteAction>(
           key: _menuKey,
           tooltip: l10n.optionsFor(widget.name),
           padding: EdgeInsets.zero,
@@ -368,31 +366,10 @@ class _CardMenuButtonState extends State<_CardMenuButton> {
             borderRadius: BorderRadius.circular(Rounded.md),
           ),
           onSelected: (action) => switch (action) {
-            _CardAction.edit => widget.onEdit(),
-            _CardAction.delete => widget.onDelete(),
+            EditDeleteAction.edit => widget.onEdit(),
+            EditDeleteAction.delete => widget.onDelete(),
           },
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              value: _CardAction.edit,
-              child: Row(
-                children: [
-                  const Icon(AppIcons.edit, size: IconSize.lg),
-                  const SizedBox(width: Spacing.xs),
-                  Text(l10n.edit),
-                ],
-              ),
-            ),
-            PopupMenuItem(
-              value: _CardAction.delete,
-              child: Row(
-                children: [
-                  Icon(AppIcons.delete, size: IconSize.lg, color: colors.error),
-                  const SizedBox(width: Spacing.xs),
-                  Text(l10n.delete, style: TextStyle(color: colors.error)),
-                ],
-              ),
-            ),
-          ],
+          itemBuilder: editDeleteMenuItems,
           child: Container(
             padding: const EdgeInsets.all(Spacing.xs),
             decoration: BoxDecoration(
