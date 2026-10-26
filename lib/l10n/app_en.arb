@@ -138,6 +138,10 @@
   "@showBalance": {
     "description": "Accessibility label and tooltip for the eye button when amounts are masked - tapping it reveals them"
   },
+  "receiptHint": "Opens all transactions",
+  "@receiptHint": {
+    "description": "Screen reader hint on the dashboard's month receipt, which opens the transaction list when tapped"
+  },
   "edit": "Edit",
   "@edit": {
     "description": "Edit action label"

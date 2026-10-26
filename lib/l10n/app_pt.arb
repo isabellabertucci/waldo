@@ -34,6 +34,7 @@
   "deleteDigit": "Apagar dígito",
   "hideBalance": "Esconder saldo",
   "showBalance": "Mostrar saldo",
+  "receiptHint": "Abre todas as transações",
   "edit": "Editar",
   "delete": "Apagar",
   "walletDeleted": "Carteira apagada",

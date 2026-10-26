@@ -622,4 +622,30 @@ void main() {
     );
     semantics.dispose();
   });
+
+  testWidgets('The balance eye is its own button and the receipt says where '
+      'it goes', (tester) async {
+    final semantics = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(402, 3000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final db = await createTestDatabase();
+    addTearDown(db.close);
+    await seedGoldenData(db);
+    await pumpWidgetWithProviders(tester, const DashboardScreen(), db: db);
+
+    final eye = tester.getSemantics(find.byTooltip('Hide balance'));
+    expect(
+      eye,
+      isSemantics(isButton: true, tooltip: 'Hide balance', hasTapAction: true),
+    );
+    // Not the card's text, which is read apart.
+    expect(eye.label, isEmpty);
+
+    expect(
+      tester.getSemantics(find.textContaining('WALDO')),
+      isSemantics(isButton: true, hint: 'Opens all transactions'),
+    );
+    semantics.dispose();
+  });
 }

@@ -296,6 +296,12 @@ abstract class AppLocalizations {
   /// **'Show balance'**
   String get showBalance;
 
+  /// Screen reader hint on the dashboard's month receipt, which opens the transaction list when tapped
+  ///
+  /// In en, this message translates to:
+  /// **'Opens all transactions'**
+  String get receiptHint;
+
   /// Edit action label
   ///
   /// In en, this message translates to:

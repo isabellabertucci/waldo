@@ -12,6 +12,7 @@ import 'package:waldo/core/widgets/wallet_card_finish.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 import 'package:waldo/core/widgets/eye_icon.dart';
+import 'package:waldo/core/widgets/min_tap_target.dart';
 
 /// How far the card behind peeks above the balance card; reserved here.
 const _cardPeek = 44.0;
@@ -182,41 +183,57 @@ class BalanceOverviewCard extends StatelessWidget {
                   ),
                 ] else ...[
                   const SizedBox(height: Spacing.md),
-                  Row(
-                    children: [
-                      TextButton.icon(
-                        onPressed: onAddPressed,
-                        style: TextButton.styleFrom(
-                          backgroundColor: colors.onLeather.withValues(
-                            alpha: 0.15,
+                  // One at each end; with large text the eye wraps below
+                  // instead of overflowing.
+                  SizedBox(
+                    width: double.infinity,
+                    child: Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      runSpacing: Spacing.xs,
+                      children: [
+                        TextButton.icon(
+                          onPressed: onAddPressed,
+                          style: TextButton.styleFrom(
+                            backgroundColor: colors.onLeather.withValues(
+                              alpha: 0.15,
+                            ),
+                            foregroundColor: colors.onLeather,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: Spacing.md,
+                              vertical: Spacing.xs,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(Rounded.pill),
+                            ),
                           ),
-                          foregroundColor: colors.onLeather,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: Spacing.md,
-                            vertical: Spacing.xs,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(Rounded.pill),
+                          icon: const Icon(AppIcons.add, size: IconSize.lg),
+                          label: Text(l10n.add),
+                        ),
+                        // Its own node (container, outside the tooltip): name,
+                        // role and tap together, apart from the card's text.
+                        Semantics(
+                          container: true,
+                          button: true,
+                          child: MinTapTarget(
+                            onTap: onToggleBalanceHidden,
+                            child: Tooltip(
+                              message: isBalanceHidden
+                                  ? l10n.showBalance
+                                  : l10n.hideBalance,
+                              child: _RoundIconButton(
+                                onPressed: onToggleBalanceHidden,
+                                child: EyeIcon(
+                                  color: colors.onLeather,
+                                  hidden: isBalanceHidden,
+                                  size: 17,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                        icon: const Icon(AppIcons.add, size: IconSize.lg),
-                        label: Text(l10n.add),
-                      ),
-                      const Spacer(),
-                      Tooltip(
-                        message: isBalanceHidden
-                            ? l10n.showBalance
-                            : l10n.hideBalance,
-                        child: _RoundIconButton(
-                          onPressed: onToggleBalanceHidden,
-                          child: EyeIcon(
-                            color: colors.onLeather,
-                            hidden: isBalanceHidden,
-                            size: 17,
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ],

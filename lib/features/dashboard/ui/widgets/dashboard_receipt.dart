@@ -93,123 +93,130 @@ class DashboardReceipt extends StatelessWidget {
           children: [
             Material(
               color: colors.surface,
-              child: InkWell(
-                onTap: onTap,
-                child: Padding(
-                  padding: _receiptPadding,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        l10n.dashboardReceiptHeader(
-                          monthLabel.toUpperCase(),
-                          '$year',
+              child: Semantics(
+                // Says where a tap goes: the whole receipt opens the transactions.
+                button: true,
+                hint: l10n.receiptHint,
+                child: InkWell(
+                  onTap: onTap,
+                  child: Padding(
+                    padding: _receiptPadding,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          l10n.dashboardReceiptHeader(
+                            monthLabel.toUpperCase(),
+                            '$year',
+                          ),
+                          textAlign: TextAlign.center,
+                          // The receipt header's own size and tracking.
+                          style: textStyles.bodySmall?.copyWith(
+                            fontSize: 11, // one-off
+                            letterSpacing: 0.8,
+                            color: colors.onSurfaceVariant,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                        // The receipt header's own size and tracking.
-                        style: textStyles.bodySmall?.copyWith(
-                          fontSize: 11, // one-off
-                          letterSpacing: 0.8,
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: Spacing.sm),
-                      DashedDivider(color: colors.onSurface),
-                      const SizedBox(height: Spacing.sm),
-                      ReceiptRow(
-                        textStyles: textStyles,
-                        label: TransactionType.income.label(l10n).toUpperCase(),
-                        value: amount(
-                          '+${formatCents(monthlyIncome, locale: moneyLocale(context), currencyCode: currencyCode)}',
-                        ),
-                        color: colors.primaryStrong,
-                        bold: true,
-                      ),
-                      const SizedBox(height: Spacing.xs),
-                      ReceiptRow(
-                        textStyles: textStyles,
-                        label: TransactionType.expense
-                            .label(l10n)
-                            .toUpperCase(),
-                        value: amount(
-                          '-${formatCents(monthlyExpense, locale: moneyLocale(context), currencyCode: currencyCode)}',
-                        ),
-                        color: colors.error,
-                        bold: true,
-                      ),
-                      const SizedBox(height: Spacing.sm),
-                      DashedDivider(color: colors.onSurface),
-                      const SizedBox(height: Spacing.sm),
-                      for (var i = 0; i < visibleCategories.length; i++) ...[
+                        const SizedBox(height: Spacing.sm),
+                        DashedDivider(color: colors.onSurface),
+                        const SizedBox(height: Spacing.sm),
                         ReceiptRow(
                           textStyles: textStyles,
-                          label: visibleCategories[i].category.displayName(
-                            l10n,
+                          label: TransactionType.income
+                              .label(l10n)
+                              .toUpperCase(),
+                          value: amount(
+                            '+${formatCents(monthlyIncome, locale: moneyLocale(context), currencyCode: currencyCode)}',
                           ),
+                          color: colors.primaryStrong,
+                          bold: true,
+                        ),
+                        const SizedBox(height: Spacing.xs),
+                        ReceiptRow(
+                          textStyles: textStyles,
+                          label: TransactionType.expense
+                              .label(l10n)
+                              .toUpperCase(),
+                          value: amount(
+                            '-${formatCents(monthlyExpense, locale: moneyLocale(context), currencyCode: currencyCode)}',
+                          ),
+                          color: colors.error,
+                          bold: true,
+                        ),
+                        const SizedBox(height: Spacing.sm),
+                        DashedDivider(color: colors.onSurface),
+                        const SizedBox(height: Spacing.sm),
+                        for (var i = 0; i < visibleCategories.length; i++) ...[
+                          ReceiptRow(
+                            textStyles: textStyles,
+                            label: visibleCategories[i].category.displayName(
+                              l10n,
+                            ),
+                            value: amount(
+                              formatCents(
+                                visibleCategories[i].amount,
+                                locale: moneyLocale(context),
+                                currencyCode: currencyCode,
+                              ),
+                            ),
+                            color: colors.onSurface.withValues(alpha: 0.8),
+                          ),
+                          if (i < visibleCategories.length - 1 ||
+                              otherCategories.isNotEmpty)
+                            const SizedBox(height: _lineGap),
+                        ],
+                        if (otherCategories.isNotEmpty)
+                          ReceiptRow(
+                            textStyles: textStyles,
+                            label: l10n.dashboardReceiptOtherCategories(
+                              otherCategories.length,
+                            ),
+                            value: amount(
+                              formatCents(
+                                otherAmount,
+                                locale: moneyLocale(context),
+                                currencyCode: currencyCode,
+                              ),
+                            ),
+                            color: colors.onSurface.withValues(alpha: 0.8),
+                          ),
+                        if (uncategorizedSpending > 0) ...[
+                          if (visibleCategories.isNotEmpty)
+                            const SizedBox(height: _lineGap),
+                          ReceiptRow(
+                            textStyles: textStyles,
+                            label: l10n.uncategorized,
+                            value: amount(
+                              formatCents(
+                                uncategorizedSpending,
+                                locale: moneyLocale(context),
+                                currencyCode: currencyCode,
+                              ),
+                            ),
+                            color: colors.onSurface.withValues(alpha: 0.8),
+                          ),
+                        ],
+                        const SizedBox(height: _totalGap),
+                        DashedDivider(color: colors.onSurface, thick: true),
+                        const SizedBox(height: Spacing.sm),
+                        ReceiptRow(
+                          textStyles: textStyles,
+                          label: l10n.monthNetLabel.toUpperCase(),
                           value: amount(
                             formatCents(
-                              visibleCategories[i].amount,
+                              saved,
                               locale: moneyLocale(context),
                               currencyCode: currencyCode,
                             ),
                           ),
-                          color: colors.onSurface.withValues(alpha: 0.8),
+                          color: saved < 0 ? colors.error : colors.onSurface,
+                          bold: true,
+                          large: true,
                         ),
-                        if (i < visibleCategories.length - 1 ||
-                            otherCategories.isNotEmpty)
-                          const SizedBox(height: _lineGap),
+                        const SizedBox(height: _barcodeGap),
+                        Barcode(color: colors.onSurface),
                       ],
-                      if (otherCategories.isNotEmpty)
-                        ReceiptRow(
-                          textStyles: textStyles,
-                          label: l10n.dashboardReceiptOtherCategories(
-                            otherCategories.length,
-                          ),
-                          value: amount(
-                            formatCents(
-                              otherAmount,
-                              locale: moneyLocale(context),
-                              currencyCode: currencyCode,
-                            ),
-                          ),
-                          color: colors.onSurface.withValues(alpha: 0.8),
-                        ),
-                      if (uncategorizedSpending > 0) ...[
-                        if (visibleCategories.isNotEmpty)
-                          const SizedBox(height: _lineGap),
-                        ReceiptRow(
-                          textStyles: textStyles,
-                          label: l10n.uncategorized,
-                          value: amount(
-                            formatCents(
-                              uncategorizedSpending,
-                              locale: moneyLocale(context),
-                              currencyCode: currencyCode,
-                            ),
-                          ),
-                          color: colors.onSurface.withValues(alpha: 0.8),
-                        ),
-                      ],
-                      const SizedBox(height: _totalGap),
-                      DashedDivider(color: colors.onSurface, thick: true),
-                      const SizedBox(height: Spacing.sm),
-                      ReceiptRow(
-                        textStyles: textStyles,
-                        label: l10n.monthNetLabel.toUpperCase(),
-                        value: amount(
-                          formatCents(
-                            saved,
-                            locale: moneyLocale(context),
-                            currencyCode: currencyCode,
-                          ),
-                        ),
-                        color: saved < 0 ? colors.error : colors.onSurface,
-                        bold: true,
-                        large: true,
-                      ),
-                      const SizedBox(height: _barcodeGap),
-                      Barcode(color: colors.onSurface),
-                    ],
+                    ),
                   ),
                 ),
               ),

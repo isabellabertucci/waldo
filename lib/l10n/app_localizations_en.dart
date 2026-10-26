@@ -111,6 +111,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get showBalance => 'Show balance';
 
   @override
+  String get receiptHint => 'Opens all transactions';
+
+  @override
   String get edit => 'Edit';
 
   @override
