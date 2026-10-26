@@ -63,6 +63,19 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // The locked balance reads like every other amount: "500,00" on a
+    // Portuguese phone. Only now is the phone's region readable.
+    if (_isEditing) {
+      _balanceController.text = _balanceController.text.replaceFirst(
+        '.',
+        decimalSeparator(moneyLocale(context)),
+      );
+    }
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _balanceController.dispose();
