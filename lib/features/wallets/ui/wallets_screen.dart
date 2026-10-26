@@ -8,6 +8,7 @@ import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/heading.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 
@@ -21,7 +22,6 @@ import 'widgets/wallet_form_sheet.dart';
 import 'widgets/wallets_card_stack.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/router/app_router.dart';
-import 'package:waldo/core/widgets/heading.dart';
 
 class WalletsScreen extends ConsumerWidget {
   const WalletsScreen({super.key});
