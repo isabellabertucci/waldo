@@ -1054,9 +1054,15 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                 ),
               ),
               const SizedBox(height: Spacing.xs),
-              Text(
-                displayValue,
-                style: context.amountDisplayBold.copyWith(color: color),
+              // Announced as it changes, so each key press is followed by
+              // the amount it makes (a status message, WCAG 4.1.3).
+              Semantics(
+                container: true,
+                liveRegion: true,
+                child: Text(
+                  displayValue,
+                  style: context.amountDisplayBold.copyWith(color: color),
+                ),
               ),
             ],
           ),

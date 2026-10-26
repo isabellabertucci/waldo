@@ -741,4 +741,20 @@ void main() {
     );
     semantics.dispose();
   });
+
+  testWidgets('The amount editor announces the amount as keys change it', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pumpSheet(tester, sheets['transaction edit sheet']!);
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+
+    final display = find.textContaining(RegExp(r'^[-+]\$'));
+    expect(
+      tester.getSemantics(display),
+      isSemantics(isLiveRegion: true, label: tester.widget<Text>(display).data),
+    );
+    semantics.dispose();
+  });
 }
