@@ -152,8 +152,10 @@ void main() {
     final semantics = tester.ensureSemantics();
     final db = await pumpWidgetWithProviders(tester, const CategoriesScreen());
     addTearDown(db.close);
+    await tester.tap(find.byTooltip('New category'));
+    await tester.pumpAndSettle();
 
-    expectNamed(tester, 'categoryNameField', 'New category');
+    expectNamed(tester, 'categoryNameField', 'Name, required');
     semantics.dispose();
   });
 

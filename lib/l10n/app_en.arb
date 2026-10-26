@@ -73,6 +73,10 @@
   "@createWallet": {
     "description": "Button label for creating a new wallet"
   },
+  "createCategory": "Create category",
+  "@createCategory": {
+    "description": "Button that saves the new category in the new-category sheet"
+  },
   "save": "Save",
   "@save": {
     "description": "Save button label"
@@ -387,10 +391,6 @@
         "type": "String"
       }
     }
-  },
-  "addCategory": "Add category",
-  "@addCategory": {
-    "description": "Tooltip for the button that adds the typed category name"
   },
   "deleteCategoryNamed": "Delete {name}",
   "@deleteCategoryNamed": {

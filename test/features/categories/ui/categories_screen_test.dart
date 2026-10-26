@@ -30,13 +30,21 @@ void main() {
     );
   }
 
+  /// The header's "+", which opens the new-category sheet.
+  Future<void> openNewCategory(WidgetTester tester) async {
+    await tester.tap(find.byTooltip('New category'));
+    await tester.pumpAndSettle();
+  }
+
+  /// Opens the sheet and types [name] into it.
   Future<void> typeName(WidgetTester tester, String name) async {
+    await openNewCategory(tester);
     await tester.enterText(find.byKey(const Key('categoryNameField')), name);
     await tester.pump();
   }
 
   Future<void> tapAdd(WidgetTester tester) async {
-    await tester.tap(find.byTooltip('Add category'));
+    await tester.tap(find.text('Create category'));
     await tester.pumpAndSettle();
   }
 
@@ -91,7 +99,7 @@ void main() {
     );
   });
 
-  testWidgets('Adding a category lists it and empties the field', (
+  testWidgets('Adding a category closes the sheet and lists it', (
     tester,
   ) async {
     await pumpCategoriesScreen(tester);
@@ -99,20 +107,9 @@ void main() {
     await typeName(tester, 'Gym');
     await tapAdd(tester);
 
+    expect(find.text('Create category'), findsNothing, reason: 'sheet closed');
     expect(find.text('Gym'), findsOneWidget);
     expect(find.byTooltip('Delete Gym'), findsOneWidget);
-    expect(
-      tester
-          .widget<EditableText>(
-            find.descendant(
-              of: find.byKey(const Key('categoryNameField')),
-              matching: find.byType(EditableText),
-            ),
-          )
-          .controller
-          .text,
-      isEmpty,
-    );
   });
 
   testWidgets('The keyboard done key adds the category too', (tester) async {
@@ -128,10 +125,12 @@ void main() {
   testWidgets('An empty name shows an error and adds nothing', (tester) async {
     await pumpCategoriesScreen(tester);
 
+    await openNewCategory(tester);
     await tapAdd(tester);
 
     expect(find.text('Name is required'), findsOneWidget);
-    expect(find.byIcon(AppIcons.close), findsNWidgets(5));
+    expect(find.text('Create category'), findsOneWidget, reason: 'still open');
+    expect(find.byTooltip(RegExp('^Delete ')), findsNWidgets(5));
   });
 
   testWidgets('A name matching a listed category warns, ignoring case', (

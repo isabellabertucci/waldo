@@ -2,6 +2,7 @@ import 'package:alchemist/alchemist.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 
 import 'package:waldo/core/constants/db_constants.dart';
@@ -224,6 +225,9 @@ void main() {
             locale: locale,
           );
 
+          // The header's "+" (named in either language), and its sheet.
+          await tester.tap(find.byIcon(AppIcons.add));
+          await tester.pumpAndSettle();
           expect(find.byKey(const Key('categoryNameField')), findsOneWidget);
         });
       }
