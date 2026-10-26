@@ -206,7 +206,6 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final colors = context.appColors;
     // A-Z by the name on screen, with the undeletable "Others" last.
     final categories = [...widget.categories]
       ..sort((a, b) {
@@ -264,11 +263,7 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
                       : () => _confirmDelete(categories[i]),
                 ),
                 if (i != categories.length - 1)
-                  Container(
-                    height: 1,
-                    margin: const EdgeInsets.symmetric(horizontal: Spacing.md),
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.1),
-                  ),
+                  const Divider(indent: Spacing.md, endIndent: Spacing.md),
               ],
             ],
           ),

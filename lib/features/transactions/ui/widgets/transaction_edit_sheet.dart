@@ -1017,11 +1017,7 @@ class _ViewInfoRow extends StatelessWidget {
             ),
           ),
         ),
-        if (showDivider)
-          Divider(
-            height: 1,
-            color: colors.onSurfaceVariant.withValues(alpha: 0.1),
-          ),
+        if (showDivider) const Divider(),
       ],
     );
   }

@@ -55,11 +55,9 @@ class _RowDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Divider(
-      height: 1,
+    return const Divider(
       // Starts under the title: row padding + badge + title gap.
       indent: Spacing.sm + BadgeSize.lg + Spacing.component,
-      color: context.appColors.onSurfaceVariant.withValues(alpha: 0.12),
     );
   }
 }

@@ -60,6 +60,7 @@ class AppTheme {
       dialogTheme: Common.getDialogTheme(colors),
       snackBarTheme: Common.getSnackBarTheme(colors),
       bottomSheetTheme: Common.getBottomSheetTheme(colors),
+      dividerTheme: Common.getDividerTheme(colors),
       listTileTheme: Common.getListTileTheme(colors),
       inputDecorationTheme: Common.getInputDecorationTheme(colors),
       datePickerTheme: Common.getDatePickerTheme(colors),
