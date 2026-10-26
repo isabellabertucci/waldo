@@ -13,7 +13,6 @@ import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/heading.dart';
 import 'package:waldo/core/widgets/wallet_card_finish.dart';
-import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
@@ -172,14 +171,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
       AsyncValue(:final value?) => value.currency,
       _ => Currency.usd,
     };
-    final categoriesAsync = ref.watch(categoryListViewModelProvider);
-    final categoriesById = switch (categoriesAsync) {
-      AsyncValue(:final value?) => {
-        for (final c in value)
-          if (c.id != null) c.id!: c,
-      },
-      _ => const <int, Category>{},
-    };
+    final categoriesById = ref.watch(categoriesByIdProvider);
     final isBalanceHidden = ref.watch(balanceHiddenProvider);
     final filtered = _applyFilter(_filter);
     // Same order the Wallets stack lists them in, so the same wallet always

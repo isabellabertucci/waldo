@@ -53,6 +53,16 @@ void main() {
     expect(categories, [groceries, custom]);
   });
 
+  test('categoriesById is empty while loading, then keyed by id', () async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries, custom]);
+    // Kept listened, as a screen would, so it follows the list as it loads.
+    container.listen(categoriesByIdProvider, (_, _) {});
+
+    expect(container.read(categoriesByIdProvider), isEmpty);
+    await container.read(categoryListViewModelProvider.future);
+    expect(container.read(categoriesByIdProvider), {1: groceries, 2: custom});
+  });
+
   test('hideCategory removes the category from state optimistically', () async {
     when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries, custom]);
     await container.read(categoryListViewModelProvider.future);

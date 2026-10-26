@@ -54,3 +54,58 @@ abstract class _$CategoryListViewModel extends $AsyncNotifier<List<Category>> {
     element.handleValue(ref, created);
   }
 }
+
+/// The categories by id, for rows that show a transaction's category; empty
+/// until they load.
+
+@ProviderFor(categoriesById)
+const categoriesByIdProvider = CategoriesByIdProvider._();
+
+/// The categories by id, for rows that show a transaction's category; empty
+/// until they load.
+
+final class CategoriesByIdProvider
+    extends
+        $FunctionalProvider<
+          Map<int, Category>,
+          Map<int, Category>,
+          Map<int, Category>
+        >
+    with $Provider<Map<int, Category>> {
+  /// The categories by id, for rows that show a transaction's category; empty
+  /// until they load.
+  const CategoriesByIdProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'categoriesByIdProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$categoriesByIdHash();
+
+  @$internal
+  @override
+  $ProviderElement<Map<int, Category>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  Map<int, Category> create(Ref ref) {
+    return categoriesById(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Map<int, Category> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Map<int, Category>>(value),
+    );
+  }
+}
+
+String _$categoriesByIdHash() => r'aaf60e05751e35ab60e08720519d229c6f60f617';
