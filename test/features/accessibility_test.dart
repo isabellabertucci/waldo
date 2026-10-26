@@ -602,4 +602,24 @@ void main() {
     }
     semantics.dispose();
   });
+
+  testWidgets('Each category is read on its own, next to its delete button', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(402, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final db = await pumpWidgetWithProviders(tester, const CategoriesScreen());
+    addTearDown(db.close);
+
+    for (final name in ['Education', 'Groceries', 'Others']) {
+      expect(tester.getSemantics(find.text(name)).label, name);
+    }
+    expect(
+      tester.getSemantics(find.byTooltip('Delete Education')),
+      isSemantics(isButton: true),
+    );
+    semantics.dispose();
+  });
 }
