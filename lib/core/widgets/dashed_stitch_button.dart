@@ -4,6 +4,7 @@ import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/min_tap_target.dart';
 
 /// A `primary` pill with a dashed stitch just inside its edge - the app's
 /// primary-action button.
@@ -106,15 +107,17 @@ class DashedStitchButton extends StatelessWidget {
     );
 
     final tooltip = this.tooltip;
+    final named = tooltip == null
+        ? button
+        : Tooltip(message: tooltip, child: button);
     // A button to screen readers (a bare InkWell is only read as its label),
     // outside the tooltip as Flutter's IconButton does, so name, role and tap
     // share one node.
     return Semantics(
       button: true,
       enabled: onPressed != null,
-      child: tooltip == null
-          ? button
-          : Tooltip(message: tooltip, child: button),
+      // The icon-only disc is smaller than a comfortable touch.
+      child: isIconOnly ? MinTapTarget(onTap: onPressed, child: named) : named,
     );
   }
 }

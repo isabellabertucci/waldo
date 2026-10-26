@@ -109,7 +109,8 @@ class _SeriesToggle extends StatelessWidget {
     final colors = context.appColors;
 
     return Container(
-      padding: const EdgeInsets.all(Spacing.xxs),
+      // The top and bottom margin is inside each segment's touch.
+      padding: const EdgeInsets.symmetric(horizontal: Spacing.xxs),
       decoration: BoxDecoration(
         color: colors.surfaceContainer,
         borderRadius: BorderRadius.circular(Rounded.pill),
@@ -157,26 +158,31 @@ class _SeriesToggleSegment extends StatelessWidget {
       selected: selected,
       inMutuallyExclusiveGroup: true,
       child: GestureDetector(
+        // Taps on the track's margin count too: a 48px-tall touch.
+        behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(
-            horizontal: Spacing.sm,
-            vertical: Spacing.xs,
-          ),
-          decoration: BoxDecoration(
-            color: selected ? colors.primary : colors.transparent,
-            borderRadius: BorderRadius.circular(Rounded.pill),
-          ),
-          // Shrinks only when even a line of its own is too narrow (large
-          // text on a small phone), so the word stays whole.
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              label,
-              maxLines: 1,
-              style: context.bodySmBold.copyWith(
-                color: selected ? colors.onPrimary : colors.onSurfaceVariant,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: Spacing.xxs),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(
+              horizontal: Spacing.sm,
+              vertical: Spacing.component,
+            ),
+            decoration: BoxDecoration(
+              color: selected ? colors.primary : colors.transparent,
+              borderRadius: BorderRadius.circular(Rounded.pill),
+            ),
+            // Shrinks only when even a line of its own is too narrow (large
+            // text on a small phone), so the word stays whole.
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: context.bodySmBold.copyWith(
+                  color: selected ? colors.onPrimary : colors.onSurfaceVariant,
+                ),
               ),
             ),
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/min_tap_target.dart';
 
 /// A `surface` disc with a soft shadow, for secondary header actions.
 class CircleIconButton extends StatelessWidget {
@@ -43,9 +44,12 @@ class CircleIconButton extends StatelessWidget {
     // button role and the tap end up in one node for screen readers.
     return Semantics(
       button: true,
-      child: tooltip == null
-          ? button
-          : Tooltip(message: tooltip, child: button),
+      child: MinTapTarget(
+        onTap: onPressed,
+        child: tooltip == null
+            ? button
+            : Tooltip(message: tooltip, child: button),
+      ),
     );
   }
 }

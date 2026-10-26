@@ -117,7 +117,8 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
               child: Container(
-                padding: const EdgeInsets.all(Spacing.xxs),
+                // The top and bottom margin is inside each segment's touch.
+                padding: const EdgeInsets.symmetric(horizontal: Spacing.xxs),
                 decoration: BoxDecoration(
                   color: colors.onSurface.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(Rounded.pill),
@@ -202,28 +203,41 @@ class _TypeSegment extends StatelessWidget {
     final colors = context.appColors;
 
     return Expanded(
-      child: Material(
-        color: selected ? colors.surface : colors.transparent,
-        borderRadius: BorderRadius.circular(Rounded.pill),
-        elevation: selected ? 1 : 0,
-        shadowColor: Elevation.highShadowColor,
-        child: Semantics(
-          // One choice of three, like Flutter's SegmentedButton.
-          button: true,
-          selected: selected,
-          inMutuallyExclusiveGroup: true,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(Rounded.pill),
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: Spacing.component),
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                // one-off: the toggle's own selected/unselected weights.
-                style: context.textTheme.bodySmall?.copyWith(
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                  color: selected ? colors.onSurface : colors.onSurfaceVariant,
+      child: Semantics(
+        // One choice of three, like Flutter's SegmentedButton.
+        button: true,
+        selected: selected,
+        inMutuallyExclusiveGroup: true,
+        child: GestureDetector(
+          // Taps on the track's margin count too: a 48px-tall touch.
+          behavior: HitTestBehavior.opaque,
+          excludeFromSemantics: true,
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: Spacing.xxs),
+            child: Material(
+              color: selected ? colors.surface : colors.transparent,
+              borderRadius: BorderRadius.circular(Rounded.pill),
+              elevation: selected ? 1 : 0,
+              shadowColor: Elevation.highShadowColor,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(Rounded.pill),
+                onTap: onTap,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: Spacing.component,
+                  ),
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    // one-off: the toggle's own selected/unselected weights.
+                    style: context.textTheme.bodySmall?.copyWith(
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                      color: selected
+                          ? colors.onSurface
+                          : colors.onSurfaceVariant,
+                    ),
+                  ),
                 ),
               ),
             ),
