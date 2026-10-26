@@ -11,6 +11,7 @@ class CircleIconButton extends StatelessWidget {
     required this.onPressed,
     required this.child,
     this.tooltip,
+    this.flat = false,
   });
 
   final VoidCallback onPressed;
@@ -20,14 +21,17 @@ class CircleIconButton extends StatelessWidget {
   /// practice whenever [child] is only an icon.
   final String? tooltip;
 
+  /// Tinted and without a shadow, for a control inside a sheet.
+  final bool flat;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
 
     final button = Material(
-      color: colors.surface,
+      color: flat ? colors.surfaceContainer : colors.surface,
       shape: const CircleBorder(),
-      elevation: 1,
+      elevation: flat ? 0 : 1,
       shadowColor: Elevation.highShadowColor,
       child: InkWell(
         customBorder: const CircleBorder(),

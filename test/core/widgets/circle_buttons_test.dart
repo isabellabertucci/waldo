@@ -58,4 +58,29 @@ void main() {
     );
     semantics.dispose();
   });
+
+  // Measured directly: Flutter's tap target guideline skips controls at a
+  // scrollable's edge, where the sheet's ✕ sits.
+  testWidgets('Both circle buttons can be tapped across 48px', (tester) async {
+    await pump(
+      tester,
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleIconButton(
+            tooltip: 'Back',
+            onPressed: () {},
+            child: const Icon(AppIcons.back),
+          ),
+          const SheetCloseButton(),
+        ],
+      ),
+    );
+
+    for (final type in [CircleIconButton, SheetCloseButton]) {
+      final size = tester.getSize(find.byType(type).first);
+      expect(size.width, greaterThanOrEqualTo(kMinInteractiveDimension));
+      expect(size.height, greaterThanOrEqualTo(kMinInteractiveDimension));
+    }
+  });
 }
