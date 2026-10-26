@@ -202,6 +202,12 @@ void main() {
 
       expect(await repo.getCount(), 2);
     });
+
+    test('getCount rethrows a failed read', () async {
+      await db.execute('DROP TABLE ${WalletsTable.table}');
+
+      expect(() => repo.getCount(), throwsA(isA<DatabaseException>()));
+    });
   });
 }
 
