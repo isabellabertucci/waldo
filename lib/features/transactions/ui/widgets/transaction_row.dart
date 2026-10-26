@@ -229,11 +229,9 @@ class TransactionCard extends StatelessWidget {
               isAmountHidden: isAmountHidden,
             ),
             if (i < transactions.length - 1)
-              Divider(
-                height: 1,
+              const Divider(
                 indent: Spacing.sm + BadgeSize.md + Spacing.sm,
                 endIndent: Spacing.sm,
-                color: colors.onSurfaceVariant.withValues(alpha: 0.1),
               ),
           ],
         ],

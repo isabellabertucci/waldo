@@ -442,7 +442,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                       ),
                     ),
                     if (widget.initialWalletId == null) ...[
-                      const _GroupDivider(),
+                      const Divider(indent: Spacing.md, endIndent: Spacing.md),
                       switch (walletsAsync) {
                         AsyncValue(:final value?) => FormField<int>(
                           initialValue: formState.walletId,
@@ -656,20 +656,6 @@ class _CategoryChip extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// The hairline between rows of the Date/Wallet/Description card.
-class _GroupDivider extends StatelessWidget {
-  const _GroupDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 1,
-      margin: const EdgeInsets.symmetric(horizontal: Spacing.md),
-      color: context.appColors.onSurfaceVariant.withValues(alpha: 0.1),
     );
   }
 }

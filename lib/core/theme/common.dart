@@ -63,6 +63,15 @@ class Common {
     );
   }
 
+  /// The hairline between rows of a card: one pixel, no extra space.
+  static DividerThemeData getDividerTheme(AppColors colors) {
+    return DividerThemeData(
+      color: colors.onSurfaceVariant.withValues(alpha: 0.1),
+      thickness: 1,
+      space: 1,
+    );
+  }
+
   static BottomSheetThemeData getBottomSheetTheme(AppColors colors) {
     return BottomSheetThemeData(backgroundColor: colors.surface);
   }
