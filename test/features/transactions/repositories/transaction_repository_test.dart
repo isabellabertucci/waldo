@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 import 'package:waldo/features/categories/models/category.dart';
@@ -101,6 +102,15 @@ void main() {
       final empty = await repo.monthTotals(DateTime(2026, 12));
       expect(empty.income, 0);
       expect(empty.expense, 0);
+    });
+
+    test('monthTotals rethrows a failed read', () async {
+      await db.execute('DROP TABLE ${TransactionsTable.table}');
+
+      expect(
+        () => repo.monthTotals(DateTime(2026, 10)),
+        throwsA(isA<DatabaseException>()),
+      );
     });
 
     test('getByWallet only returns transactions for that wallet', () async {
