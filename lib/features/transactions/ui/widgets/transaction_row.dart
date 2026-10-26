@@ -40,6 +40,9 @@ class TransactionRow extends StatelessWidget {
     final amountColor = isIncome ? colors.primaryStrong : colors.error;
     final sign = isIncome ? '+' : '-';
     final description = transaction.description?.trim();
+    final title = description == null || description.isEmpty
+        ? l10n.transactionDefaultDescription
+        : description;
     final categoryLabel = category?.displayName(l10n);
     final amountText = isAmountHidden
         ? hiddenAmount
@@ -102,9 +105,7 @@ class TransactionRow extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          description == null || description.isEmpty
-                              ? l10n.transactionDefaultDescription
-                              : description,
+                          title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: context.bodyMdBold,
@@ -129,6 +130,7 @@ class TransactionRow extends StatelessWidget {
                 ),
               ),
               PopupMenuButton<_RowAction>(
+                tooltip: l10n.optionsFor(title),
                 padding: EdgeInsets.zero,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(Rounded.md),

@@ -493,4 +493,45 @@ void main() {
     expectSingleChoice(tester, 'Income', false);
     semantics.dispose();
   });
+
+  testWidgets('A wallet card and its menu are buttons, the menu named by '
+      'its wallet', (tester) async {
+    final semantics = tester.ensureSemantics();
+    final db = await createTestDatabase();
+    addTearDown(db.close);
+    await seedGoldenData(db);
+    await pumpWidgetWithProviders(tester, const WalletsScreen(), db: db);
+
+    expect(
+      tester.getSemantics(find.text('Everyday')),
+      isSemantics(isButton: true),
+    );
+    expect(
+      tester.getSemantics(find.byTooltip('Everyday options')),
+      isSemantics(isButton: true, tooltip: 'Everyday options'),
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('A transaction row menu is named by its transaction', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    final db = await createTestDatabase();
+    addTearDown(db.close);
+    await seedGoldenData(db);
+    await pumpWidgetWithProviders(
+      tester,
+      const AllTransactionsScreen(),
+      db: db,
+    );
+
+    for (final title in ['Weekly groceries', 'Paycheck']) {
+      expect(
+        tester.getSemantics(find.byTooltip('$title options')),
+        isSemantics(isButton: true, tooltip: '$title options'),
+      );
+    }
+    semantics.dispose();
+  });
 }

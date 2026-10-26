@@ -156,6 +156,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transactionDefaultDescription => 'Transaction';
 
   @override
+  String optionsFor(String name) {
+    return '$name options';
+  }
+
+  @override
   String get amount => 'Amount';
 
   @override

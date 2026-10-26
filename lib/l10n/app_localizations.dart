@@ -386,6 +386,12 @@ abstract class AppLocalizations {
   /// **'Transaction'**
   String get transactionDefaultDescription;
 
+  /// Screen reader name of the ⋮ menu on a wallet card or transaction row; names the item so each one is told apart
+  ///
+  /// In en, this message translates to:
+  /// **'{name} options'**
+  String optionsFor(String name);
+
   /// Amount field label
   ///
   /// In en, this message translates to:

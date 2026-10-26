@@ -160,6 +160,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get transactionDefaultDescription => 'Transação';
 
   @override
+  String optionsFor(String name) {
+    return 'Opções de $name';
+  }
+
+  @override
   String get amount => 'Valor';
 
   @override
