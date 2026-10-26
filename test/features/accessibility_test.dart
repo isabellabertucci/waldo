@@ -712,4 +712,33 @@ void main() {
     expect(tester.getSemantics(find.byType(LineChart)).value, 'Amounts hidden');
     semantics.dispose();
   });
+
+  testWidgets('The starting balance field is read with its unit, without a '
+      'loose symbol', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pumpSheet(tester, (context, _) => showWalletFormSheet(context));
+
+    final field = tester.getSemantics(
+      find.byKey(const Key('walletBalanceField')),
+    );
+    expect(field.label, 'How much is in it today?\n0.00\nUSD');
+    expect(find.bySemanticsLabel(r'$'), findsNothing);
+    semantics.dispose();
+  });
+
+  testWidgets("The wallets' total is one stop, in reading order", (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    final db = await createTestDatabase();
+    addTearDown(db.close);
+    await seedGoldenData(db);
+    await pumpWidgetWithProviders(tester, const WalletsScreen(), db: db);
+
+    expect(
+      tester.getSemantics(find.text('Total balance')).label,
+      matches(RegExp(r'^Total balance\nKept \d+% .*\n\$3,458\.00$')),
+    );
+    semantics.dispose();
+  });
 }
