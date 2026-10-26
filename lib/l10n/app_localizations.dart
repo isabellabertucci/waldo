@@ -890,6 +890,24 @@ abstract class AppLocalizations {
   /// **'Cash flow'**
   String get cashFlow;
 
+  /// Screen reader name of the cash flow chart showing expenses; from/to are the first and last months, e.g. Nov 2025
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses by month, {from} to {to}'**
+  String cashFlowChartExpense(String from, String to);
+
+  /// Screen reader name of the cash flow chart showing income; from/to are the first and last months, e.g. Nov 2025
+  ///
+  /// In en, this message translates to:
+  /// **'Income by month, {from} to {to}'**
+  String cashFlowChartIncome(String from, String to);
+
+  /// Screen reader value of the cash flow chart while the balance is hidden
+  ///
+  /// In en, this message translates to:
+  /// **'Amounts hidden'**
+  String get amountsHidden;
+
   /// Dashboard section header for the recent transactions list
   ///
   /// In en, this message translates to:

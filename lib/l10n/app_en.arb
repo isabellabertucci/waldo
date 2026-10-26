@@ -578,6 +578,34 @@
   "@cashFlow": {
     "description": "Dashboard cash flow chart card title"
   },
+  "cashFlowChartExpense": "Expenses by month, {from} to {to}",
+  "@cashFlowChartExpense": {
+    "description": "Screen reader name of the cash flow chart showing expenses; from/to are the first and last months, e.g. Nov 2025",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "cashFlowChartIncome": "Income by month, {from} to {to}",
+  "@cashFlowChartIncome": {
+    "description": "Screen reader name of the cash flow chart showing income; from/to are the first and last months, e.g. Nov 2025",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "amountsHidden": "Amounts hidden",
+  "@amountsHidden": {
+    "description": "Screen reader value of the cash flow chart while the balance is hidden"
+  },
   "recentTransactions": "Recent transactions",
   "@recentTransactions": {
     "description": "Dashboard section header for the recent transactions list"
