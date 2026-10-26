@@ -50,8 +50,10 @@ class CircleIconButton extends StatelessWidget {
 
     final tooltip = this.tooltip;
     // Outside the tooltip, as Flutter's IconButton does, so the name, the
-    // button role and the tap end up in one node for screen readers.
+    // button role and the tap end up in one node for screen readers; its own
+    // node, as Flutter's buttons are, so text beside it never joins its name.
     return Semantics(
+      container: true,
       button: true,
       child: MinTapTarget(
         onTap: onPressed,

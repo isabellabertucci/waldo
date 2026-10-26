@@ -112,8 +112,10 @@ class DashedStitchButton extends StatelessWidget {
         : Tooltip(message: tooltip, child: button);
     // A button to screen readers (a bare InkWell is only read as its label),
     // outside the tooltip as Flutter's IconButton does, so name, role and tap
-    // share one node.
+    // share one node; its own node, as Flutter's buttons are, so text beside
+    // it never joins its name.
     return Semantics(
+      container: true,
       button: true,
       enabled: onPressed != null,
       // The icon-only disc is smaller than a comfortable touch.
