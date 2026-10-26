@@ -598,29 +598,16 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           const SizedBox(height: Spacing.md),
           Row(
             children: [
-              // A plain circle, same ~48px normal-button size as "Edit
-              // transaction"'s height - not an elongated pill.
-              // Outside the tooltip, as Flutter's IconButton does.
-              Semantics(
-                button: true,
-                child: Tooltip(
-                  message: l10n.delete,
-                  child: Material(
-                    color: colors.error.withValues(alpha: 0.08),
-                    shape: const CircleBorder(),
-                    child: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: _delete,
-                      child: Padding(
-                        padding: const EdgeInsets.all(Spacing.component),
-                        child: Icon(
-                          AppIcons.delete,
-                          size: IconSize.xl,
-                          color: colors.error,
-                        ),
-                      ),
-                    ),
-                  ),
+              // A plain circle beside "Edit transaction", not a long pill.
+              CircleIconButton(
+                flat: true,
+                tint: colors.error.withValues(alpha: 0.08),
+                tooltip: l10n.delete,
+                onPressed: _delete,
+                child: Icon(
+                  AppIcons.delete,
+                  size: IconSize.xl,
+                  color: colors.error,
                 ),
               ),
               const SizedBox(width: Spacing.sm),
