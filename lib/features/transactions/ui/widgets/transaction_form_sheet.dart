@@ -30,6 +30,7 @@ import 'package:waldo/features/transactions/viewmodels/transaction_form_view_mod
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 import 'transaction_field_row.dart';
 import 'transaction_type_toggle.dart';
@@ -194,9 +195,11 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
               Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      l10n.newTransaction,
-                      style: context.headlineLgStrong,
+                    child: Heading(
+                      child: Text(
+                        l10n.newTransaction,
+                        style: context.headlineLgStrong,
+                      ),
                     ),
                   ),
                   const SheetCloseButton(),
@@ -389,27 +392,29 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                   // Says up front that skipping a category is fine; one text,
                   // so it ellipsizes before pushing the button off a narrow row.
                   Expanded(
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: l10n.category.toUpperCase(),
-                            style: context.bodySmBold.copyWith(
-                              color: colors.onSurfaceVariant,
-                              letterSpacing: 0.4,
+                    child: Heading(
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: l10n.category.toUpperCase(),
+                              style: context.bodySmBold.copyWith(
+                                color: colors.onSurfaceVariant,
+                                letterSpacing: 0.4,
+                              ),
                             ),
-                          ),
-                          const TextSpan(text: '  '),
-                          TextSpan(
-                            text: l10n.optional,
-                            style: context.textTheme.bodySmall?.copyWith(
-                              color: colors.onSurfaceVariant,
+                            const TextSpan(text: '  '),
+                            TextSpan(
+                              text: l10n.optional,
+                              style: context.textTheme.bodySmall?.copyWith(
+                                color: colors.onSurfaceVariant,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   SecondaryButton(

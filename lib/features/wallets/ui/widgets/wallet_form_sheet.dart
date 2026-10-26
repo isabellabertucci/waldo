@@ -23,6 +23,7 @@ import 'package:waldo/features/wallets/viewmodels/wallet_form_view_model.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/features/wallets/wallets_x.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 final _log = Logger('waldo.ui.wallet_form');
 
@@ -167,9 +168,11 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
               Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      _isEditing ? l10n.editWallet : l10n.newWallet,
-                      style: context.headlineLgStrong,
+                    child: Heading(
+                      child: Text(
+                        _isEditing ? l10n.editWallet : l10n.newWallet,
+                        style: context.headlineLgStrong,
+                      ),
                     ),
                   ),
                   const SheetCloseButton(),
@@ -189,11 +192,13 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                 validator: (value) => _validateName(l10n, value, wallets),
               ),
               const SizedBox(height: Spacing.md),
-              Text(
-                l10n.type.toUpperCase(),
-                style: context.bodySmBold.copyWith(
-                  color: colors.onSurfaceVariant,
-                  letterSpacing: 0.4,
+              Heading(
+                child: Text(
+                  l10n.type.toUpperCase(),
+                  style: context.bodySmBold.copyWith(
+                    color: colors.onSurfaceVariant,
+                    letterSpacing: 0.4,
+                  ),
                 ),
               ),
               const SizedBox(height: Spacing.sm),
@@ -217,25 +222,27 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                 ],
               ),
               const SizedBox(height: Spacing.md),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      l10n.startingBalance.toUpperCase(),
-                      style: context.bodySmBold.copyWith(
-                        color: colors.onSurfaceVariant,
-                        letterSpacing: 0.4,
+              Heading(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        l10n.startingBalance.toUpperCase(),
+                        style: context.bodySmBold.copyWith(
+                          color: colors.onSurfaceVariant,
+                          letterSpacing: 0.4,
+                        ),
                       ),
                     ),
-                  ),
-                  if (!_isEditing)
-                    Text(
-                      l10n.optional,
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: colors.onSurfaceVariant,
+                    if (!_isEditing)
+                      Text(
+                        l10n.optional,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: Spacing.sm),
               FormPillField(

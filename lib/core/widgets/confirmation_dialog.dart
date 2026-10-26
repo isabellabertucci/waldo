@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -41,6 +42,12 @@ class ConfirmationDialog extends StatelessWidget {
     final colors = context.appColors;
     // Every confirmation here is a delete, so it's always the error orange.
     final accent = colors.error;
+    // As Flutter's AlertDialog: Android announces it as an alert; iOS lands
+    // on the title.
+    final routeLabel = switch (defaultTargetPlatform) {
+      TargetPlatform.iOS || TargetPlatform.macOS => null,
+      _ => MaterialLocalizations.of(context).alertDialogLabel,
+    };
 
     return Dialog(
       backgroundColor: colors.surface,
@@ -49,68 +56,79 @@ class ConfirmationDialog extends StatelessWidget {
       ),
       // Scrolls when large text on a small phone outgrows the screen, so the
       // buttons stay reachable.
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(Spacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DashedCircleBadge(icon: AppIcons.delete, color: accent),
-            const SizedBox(height: Spacing.sm),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: context.headlineSmBold.copyWith(color: colors.onSurface),
-            ),
-            const SizedBox(height: Spacing.xs),
-            Text(
-              content,
-              textAlign: TextAlign.center,
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
+      child: Semantics(
+        scopesRoute: routeLabel != null,
+        explicitChildNodes: routeLabel != null,
+        namesRoute: routeLabel != null,
+        label: routeLabel,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(Spacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DashedCircleBadge(icon: AppIcons.delete, color: accent),
+              const SizedBox(height: Spacing.sm),
+              Semantics(
+                container: true,
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: context.headlineSmBold.copyWith(
+                    color: colors.onSurface,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: Spacing.lg),
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: colors.surfaceContainer,
-                      foregroundColor: colors.onSurface,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: Spacing.component,
-                      ),
-                      textStyle: context.bodyMdBold,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(Rounded.pill),
-                      ),
-                    ),
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text(l10n.cancel),
-                  ),
+              const SizedBox(height: Spacing.xs),
+              Text(
+                content,
+                textAlign: TextAlign.center,
+                style: context.textTheme.bodyMedium?.copyWith(
+                  color: colors.onSurfaceVariant,
                 ),
-                const SizedBox(width: Spacing.sm),
-                Expanded(
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: accent,
-                      // No `onError` token yet; buttons use `onPrimary` on a filled background.
-                      foregroundColor: colors.onPrimary,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: Spacing.component,
+              ),
+              const SizedBox(height: Spacing.lg),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: colors.surfaceContainer,
+                        foregroundColor: colors.onSurface,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: Spacing.component,
+                        ),
+                        textStyle: context.bodyMdBold,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(Rounded.pill),
+                        ),
                       ),
-                      textStyle: context.bodyMdBold,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(Rounded.pill),
-                      ),
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: Text(l10n.cancel),
                     ),
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: Text(confirmLabel),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(width: Spacing.sm),
+                  Expanded(
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: accent,
+                        // No `onError` token yet; buttons use `onPrimary` on a filled background.
+                        foregroundColor: colors.onPrimary,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: Spacing.component,
+                        ),
+                        textStyle: context.bodyMdBold,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(Rounded.pill),
+                        ),
+                      ),
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: Text(confirmLabel),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -8,6 +8,7 @@ import 'package:waldo/core/widgets/sheet_grabber.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/month_selector.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 import '../../models/transaction_filter.dart';
 import '../../transactions_x.dart';
@@ -79,7 +80,12 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
               padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
               child: Row(
                 children: [
-                  Text(l10n.filterTitle, style: context.headlineLgStrong),
+                  Heading(
+                    child: Text(
+                      l10n.filterTitle,
+                      style: context.headlineLgStrong,
+                    ),
+                  ),
                   const Spacer(),
                   TextButton(
                     onPressed: _reset,
@@ -96,11 +102,13 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
               padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  l10n.filterSectionType.toUpperCase(),
-                  style: context.textTheme.labelSmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                    letterSpacing: 0.6,
+                child: Heading(
+                  child: Text(
+                    l10n.filterSectionType.toUpperCase(),
+                    style: context.textTheme.labelSmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                      letterSpacing: 0.6,
+                    ),
                   ),
                 ),
               ),
@@ -140,11 +148,13 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
               padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  l10n.filterSectionMonth.toUpperCase(),
-                  style: context.textTheme.labelSmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                    letterSpacing: 0.6,
+                child: Heading(
+                  child: Text(
+                    l10n.filterSectionMonth.toUpperCase(),
+                    style: context.textTheme.labelSmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                      letterSpacing: 0.6,
+                    ),
                   ),
                 ),
               ),
