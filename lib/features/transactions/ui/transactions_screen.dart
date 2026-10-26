@@ -23,6 +23,7 @@ import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../../core/widgets/empty_state.dart';
 import 'package:waldo/core/widgets/eye_icon.dart';
+import 'package:waldo/core/widgets/heading.dart';
 import '../models/transaction.dart';
 import '../models/transaction_filter.dart';
 import '../viewmodels/transaction_list_view_model.dart';
@@ -262,11 +263,13 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.wallet.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.headlineLgStrong,
+                    Heading(
+                      child: Text(
+                        widget.wallet.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.headlineLgStrong,
+                      ),
                     ),
                     Text.rich(
                       TextSpan(

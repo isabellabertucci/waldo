@@ -21,6 +21,7 @@ import 'widgets/wallet_form_sheet.dart';
 import 'widgets/wallets_card_stack.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/router/app_router.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 class WalletsScreen extends ConsumerWidget {
   const WalletsScreen({super.key});
@@ -110,12 +111,14 @@ class WalletsScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
-                    child: Text(
-                      l10n.wallets,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.headlineSmBold.copyWith(
-                        color: colors.onSurface,
+                    child: Heading(
+                      child: Text(
+                        l10n.wallets,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.headlineSmBold.copyWith(
+                          color: colors.onSurface,
+                        ),
                       ),
                     ),
                   ),

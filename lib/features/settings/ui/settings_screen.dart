@@ -18,6 +18,7 @@ import 'package:waldo/features/settings/ui/widgets/settings_option_sheet.dart';
 import 'package:waldo/features/settings/ui/widgets/settings_row.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -40,7 +41,9 @@ class SettingsScreen extends ConsumerWidget {
                 Spacing.pageMargin,
                 0,
               ),
-              child: Text(l10n.settings, style: context.headlineSmBold),
+              child: Heading(
+                child: Text(l10n.settings, style: context.headlineSmBold),
+              ),
             ),
             Expanded(
               child: switch (preferencesAsync) {
