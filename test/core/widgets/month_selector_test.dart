@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/widgets/month_selector.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -216,5 +217,30 @@ void main() {
       greaterThanOrEqualTo(48),
       reason: '...but the pill around it is a full tap target',
     );
+  });
+
+  testWidgets('The selected month fills its Material, so a tap ripples over '
+      'it', (tester) async {
+    final db = await pumpWidgetWithProviders(
+      tester,
+      Scaffold(
+        body: MonthSelector(
+          months: selectorMonths(DateTime(2026, 10, 8)),
+          selectedMonth: DateTime(2026, 10),
+          currentMonth: DateTime(2026, 10),
+          locale: 'en',
+          onSelect: (_) {},
+        ),
+      ),
+    );
+    addTearDown(db.close);
+
+    // A filled box between the Material and the InkWell would hide the ink.
+    final material = tester.widget<Material>(
+      find
+          .ancestor(of: find.text('October'), matching: find.byType(Material))
+          .first,
+    );
+    expect(material.color, AppColors.light.primary);
   });
 }
