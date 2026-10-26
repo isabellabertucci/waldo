@@ -6,6 +6,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
+import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/transactions/ui/transactions_screen.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
@@ -131,6 +132,26 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('A note typed when adding is saved with the transaction', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await tester.tap(find.byIcon(AppIcons.add));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('transactionAmountField')),
+      '5.00',
+    );
+    final note = find.byKey(const Key('transactionNoteField'));
+    await tester.ensureVisible(note);
+    await tester.enterText(note, 'Split the bill');
+    await setDate(tester);
+    await tapAddExpense(tester);
+
+    final saved = await TransactionRepositoryImpl(currentDb!).getAll();
+    expect(saved.single.note, 'Split the bill');
   });
 
   testWidgets('A row shows its category, not a time of day', (tester) async {

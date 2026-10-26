@@ -66,6 +66,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _amountController;
   late final TextEditingController _descriptionController;
+  late final TextEditingController _noteController;
   final _amountFocus = FocusNode();
 
   @override
@@ -79,6 +80,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     );
     _amountController = TextEditingController(text: initial.amount);
     _descriptionController = TextEditingController(text: initial.description);
+    _noteController = TextEditingController(text: initial.note);
     // Redraw so the amount card's stitch follows focus.
     _amountFocus.addListener(() => setState(() {}));
   }
@@ -87,6 +89,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
   void dispose() {
     _amountController.dispose();
     _descriptionController.dispose();
+    _noteController.dispose();
     _amountFocus.dispose();
     super.dispose();
   }
@@ -482,6 +485,19 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                     ],
                   ],
                 ),
+              ),
+              const SizedBox(height: Spacing.sm),
+              // Last, as in the edit sheet: optional, so it never sits
+              // between the fields a save needs.
+              FormPillField(
+                fieldKey: const Key('transactionNoteField'),
+                leading: const Icon(AppIcons.note),
+                controller: _noteController,
+                label: l10n.transactionNote,
+                hint: l10n.noteHint,
+                maxLength: maxTransactionNoteLength,
+                textCapitalization: TextCapitalization.sentences,
+                onChanged: viewModel.updateNote,
               ),
               const SizedBox(height: Spacing.md),
               if (_saveError case final error?) ...[
