@@ -1,4 +1,4 @@
-import 'dart:ui' show CheckedState, Tristate;
+import 'dart:ui' show CheckedState, SemanticsRole, Tristate;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -579,4 +579,27 @@ void main() {
       });
     }
   }
+
+  testWidgets('The navbar is a tab bar whose tabs are named once', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    final db = await createTestDatabase();
+    addTearDown(db.close);
+    await pumpTestApp(tester, db: db);
+
+    final tabs = find.semantics
+        .byPredicate((n) => n.getSemanticsData().role == SemanticsRole.tab)
+        .evaluate()
+        .toList();
+    expect(tabs, hasLength(3));
+    for (final (i, name) in ['Dashboard', 'Wallets', 'Settings'].indexed) {
+      expect(tabs[i].label, '$name\nTab ${i + 1} of 3');
+      expect(
+        tabs[i],
+        isSemantics(isButton: true, isSelected: i == 0, hasTapAction: true),
+      );
+    }
+    semantics.dispose();
+  });
 }
