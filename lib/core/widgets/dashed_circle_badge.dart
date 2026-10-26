@@ -1,6 +1,6 @@
-import 'package:waldo/core/utils/dash_path.dart';
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/icon_size.dart';
+import 'package:waldo/core/utils/dash_path.dart';
 
 /// A dashed ring around a tinted circle holding an icon: the confirm
 /// dialog's badge and the transaction view's category badge.

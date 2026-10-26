@@ -1,5 +1,5 @@
-import 'package:waldo/core/utils/dash_path.dart';
 import 'package:flutter/material.dart';
+import 'package:waldo/core/utils/dash_path.dart';
 
 /// Waldo's stitch: a dashed outline around [child], following [radius].
 class DashedBorder extends StatelessWidget {

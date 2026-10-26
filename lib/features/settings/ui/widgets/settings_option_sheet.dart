@@ -1,4 +1,3 @@
-import 'package:waldo/core/utils/dash_path.dart';
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
@@ -11,6 +10,7 @@ import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/widgets/heading.dart';
+import 'package:waldo/core/utils/dash_path.dart';
 
 /// One choice in a [SettingsOptionSheet]: either an [icon] or a [symbolText].
 class SettingsOption<T> {

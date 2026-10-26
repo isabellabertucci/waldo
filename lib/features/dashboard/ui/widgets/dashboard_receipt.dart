@@ -10,9 +10,9 @@ import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/receipt_shell.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/features/transactions/transactions_x.dart';
 
 import '../../models/dashboard_data.dart';
-import 'package:waldo/features/transactions/transactions_x.dart';
 
 /// The receipt is narrower than the wallet card above it.
 const _receiptWidth = 300.0;

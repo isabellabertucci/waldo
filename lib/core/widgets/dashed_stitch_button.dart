@@ -1,10 +1,10 @@
-import 'package:waldo/core/utils/dash_path.dart';
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/min_tap_target.dart';
+import 'package:waldo/core/utils/dash_path.dart';
 
 /// A `primary` pill with a dashed stitch just inside its edge - the app's
 /// primary-action button.
