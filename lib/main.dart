@@ -65,7 +65,7 @@ class MyApp extends ConsumerWidget {
     // Default to system theme while preferences are still loading,
     // so there's no flash of the wrong theme on cold start.
     final themeMode = switch (preferencesAsync) {
-      AsyncData(:final value) => _toThemeMode(value.isDarkMode),
+      AsyncValue(:final value?) => _toThemeMode(value.isDarkMode),
       _ => ThemeMode.system,
     };
 
