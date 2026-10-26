@@ -239,7 +239,6 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
                   controller: _nameController,
                   label: l10n.newCategory,
                   hint: l10n.categoryNameHint,
-                  onChanged: (_) {},
                   onSubmitted: (_) => _add(),
                   validator: (value) => _validateName(l10n, value),
                 ),

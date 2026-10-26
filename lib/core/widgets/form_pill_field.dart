@@ -18,8 +18,8 @@ class FormPillField extends StatefulWidget {
     required this.controller,
     required this.label,
     required this.hint,
-    required this.onChanged,
-    required this.validator,
+    this.onChanged,
+    this.validator,
     this.trailing,
     this.enabled = true,
     this.keyboardType,
@@ -37,8 +37,10 @@ class FormPillField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
   final String hint;
-  final ValueChanged<String> onChanged;
-  final FormFieldValidator<String> validator;
+  final ValueChanged<String>? onChanged;
+
+  /// Only checked inside a [Form].
+  final FormFieldValidator<String>? validator;
 
   /// A short tag at the end of the pill, e.g. a currency code.
   final String? trailing;
@@ -81,115 +83,125 @@ class _FormPillFieldState extends State<FormPillField> {
     final colors = context.appColors;
     final trailing = widget.trailing;
 
-    return ListenableBuilder(
-      listenable: _focusNode,
-      builder: (context, _) {
-        final focused = _focusNode.hasFocus;
-        final discInk = focused ? colors.onPrimary : colors.onSurface;
+    // A tap anywhere on the pill, the disc included, goes to the field.
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      // The field inside is what screen readers focus and tap.
+      excludeFromSemantics: true,
+      onTap: widget.enabled ? _focusNode.requestFocus : null,
+      child: ListenableBuilder(
+        listenable: _focusNode,
+        builder: (context, _) {
+          final focused = _focusNode.hasFocus;
+          final discInk = focused ? colors.onPrimary : colors.onSurface;
 
-        return DashedBorder(
-          radius: Rounded.lg,
-          color: focused ? colors.primary : colors.transparent,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(
-              horizontal: Spacing.md,
-              vertical: Spacing.sm,
-            ),
-            decoration: BoxDecoration(
-              color: widget.onPage ? colors.surface : colors.surfaceContainer,
-              borderRadius: BorderRadius.circular(Rounded.lg),
-            ),
-            // One node, so screen readers name the field by its label (a
-            // collapsed decoration can't take a labelText) and hear its unit.
-            child: MergeSemantics(
-              child: Row(
-                children: [
-                  // Decorative: an icon, or a symbol the unit after repeats.
-                  ExcludeSemantics(
-                    child: Container(
-                      width: BadgeSize.md,
-                      height: BadgeSize.md,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: focused
-                            ? colors.primary
-                            : (widget.onPage
-                                  ? colors.surfaceContainer
-                                  : colors.surface),
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconTheme(
-                        data: IconThemeData(color: discInk, size: IconSize.md),
-                        child: DefaultTextStyle(
-                          style: context.bodyMdBold.copyWith(color: discInk),
-                          child: widget.leading,
+          return DashedBorder(
+            radius: Rounded.lg,
+            color: focused ? colors.primary : colors.transparent,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: Spacing.md,
+                vertical: Spacing.sm,
+              ),
+              decoration: BoxDecoration(
+                color: widget.onPage ? colors.surface : colors.surfaceContainer,
+                borderRadius: BorderRadius.circular(Rounded.lg),
+              ),
+              // One node, so screen readers name the field by its label (a
+              // collapsed decoration can't take a labelText) and hear its unit.
+              child: MergeSemantics(
+                child: Row(
+                  children: [
+                    // Decorative: an icon, or a symbol the unit after repeats.
+                    ExcludeSemantics(
+                      child: Container(
+                        width: BadgeSize.md,
+                        height: BadgeSize.md,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: focused
+                              ? colors.primary
+                              : (widget.onPage
+                                    ? colors.surfaceContainer
+                                    : colors.surface),
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconTheme(
+                          data: IconThemeData(
+                            color: discInk,
+                            size: IconSize.md,
+                          ),
+                          child: DefaultTextStyle(
+                            style: context.bodyMdBold.copyWith(color: discInk),
+                            child: widget.leading,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: Spacing.sm),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        FieldLabel(widget.label, required: widget.required),
-                        TextFormField(
-                          key: widget.fieldKey,
-                          controller: widget.controller,
-                          focusNode: _focusNode,
-                          enabled: widget.enabled,
-                          onChanged: widget.onChanged,
-                          validator: widget.validator,
-                          keyboardType: widget.keyboardType,
-                          inputFormatters: widget.inputFormatters,
-                          textCapitalization: widget.textCapitalization,
-                          maxLength: widget.maxLength,
-                          onFieldSubmitted: widget.onSubmitted,
-                          textInputAction: widget.onSubmitted == null
-                              ? null
-                              : TextInputAction.done,
-                          buildCounter: nearLimitCounter,
-                          decoration: InputDecoration(
-                            isCollapsed: true,
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            disabledBorder: InputBorder.none,
-                            errorBorder: InputBorder.none,
-                            focusedErrorBorder: InputBorder.none,
-                            filled: false,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: Spacing.xs,
-                            ),
-                            hintText: widget.hint,
-                            hintStyle: context.bodyMdBold.copyWith(
-                              color: colors.onSurfaceVariant.withValues(
-                                alpha: 0.6,
+                    const SizedBox(width: Spacing.sm),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          FieldLabel(widget.label, required: widget.required),
+                          TextFormField(
+                            key: widget.fieldKey,
+                            controller: widget.controller,
+                            focusNode: _focusNode,
+                            enabled: widget.enabled,
+                            onChanged: widget.onChanged,
+                            validator: widget.validator,
+                            keyboardType: widget.keyboardType,
+                            inputFormatters: widget.inputFormatters,
+                            textCapitalization: widget.textCapitalization,
+                            maxLength: widget.maxLength,
+                            onFieldSubmitted: widget.onSubmitted,
+                            textInputAction: widget.onSubmitted == null
+                                ? null
+                                : TextInputAction.done,
+                            buildCounter: nearLimitCounter,
+                            decoration: InputDecoration(
+                              isCollapsed: true,
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              focusedErrorBorder: InputBorder.none,
+                              filled: false,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: Spacing.xs,
+                              ),
+                              hintText: widget.hint,
+                              hintStyle: context.bodyMdBold.copyWith(
+                                color: colors.onSurfaceVariant.withValues(
+                                  alpha: 0.6,
+                                ),
                               ),
                             ),
+                            style: context.bodyMdBold,
                           ),
-                          style: context.bodyMdBold,
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (trailing != null) ...[
-                    const SizedBox(width: Spacing.sm),
-                    Text(
-                      trailing,
-                      style: context.bodyMdBold.copyWith(
-                        color: colors.onSurfaceVariant,
+                        ],
                       ),
                     ),
+                    if (trailing != null) ...[
+                      const SizedBox(width: Spacing.sm),
+                      Text(
+                        trailing,
+                        style: context.bodyMdBold.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
