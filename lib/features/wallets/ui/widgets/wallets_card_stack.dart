@@ -8,6 +8,7 @@ import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/wallet_card_finish.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/min_tap_target.dart';
 
 import '../../models/wallet.dart';
 import '../../wallets_x.dart';
@@ -296,8 +297,9 @@ class _WalletCard extends StatelessWidget {
             ),
           ),
           Positioned(
-            top: Spacing.xs,
-            right: Spacing.xs,
+            // The disc keeps its place; its larger touch area hangs around it.
+            top: Spacing.xs - _CardMenuButton.touchOverhang,
+            right: Spacing.xs - _CardMenuButton.touchOverhang,
             child: _CardMenuButton(
               name: wallet.name,
               onEdit: onEdit,
@@ -311,7 +313,7 @@ class _WalletCard extends StatelessWidget {
 }
 
 /// The card's edit/delete menu.
-class _CardMenuButton extends StatelessWidget {
+class _CardMenuButton extends StatefulWidget {
   const _CardMenuButton({
     required this.name,
     required this.onEdit,
@@ -322,6 +324,18 @@ class _CardMenuButton extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
+  static const _discSize = IconSize.lg + Spacing.xs * 2;
+
+  /// How far the 48px touch area reaches past the disc on each side.
+  static const touchOverhang = (kMinInteractiveDimension - _discSize) / 2;
+
+  @override
+  State<_CardMenuButton> createState() => _CardMenuButtonState();
+}
+
+class _CardMenuButtonState extends State<_CardMenuButton> {
+  final _menuKey = GlobalKey<PopupMenuButtonState<_CardAction>>();
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -331,48 +345,52 @@ class _CardMenuButton extends StatelessWidget {
     // readers; outside its tooltip, as Flutter's IconButton does.
     return Semantics(
       button: true,
-      child: PopupMenuButton<_CardAction>(
-        tooltip: l10n.optionsFor(name),
-        padding: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Rounded.md),
-        ),
-        onSelected: (action) => switch (action) {
-          _CardAction.edit => onEdit(),
-          _CardAction.delete => onDelete(),
-        },
-        itemBuilder: (context) => [
-          PopupMenuItem(
-            value: _CardAction.edit,
-            child: Row(
-              children: [
-                const Icon(AppIcons.edit, size: IconSize.lg),
-                const SizedBox(width: Spacing.xs),
-                Text(l10n.edit),
-              ],
+      child: MinTapTarget(
+        onTap: () => _menuKey.currentState?.showButtonMenu(),
+        child: PopupMenuButton<_CardAction>(
+          key: _menuKey,
+          tooltip: l10n.optionsFor(widget.name),
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(Rounded.md),
+          ),
+          onSelected: (action) => switch (action) {
+            _CardAction.edit => widget.onEdit(),
+            _CardAction.delete => widget.onDelete(),
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: _CardAction.edit,
+              child: Row(
+                children: [
+                  const Icon(AppIcons.edit, size: IconSize.lg),
+                  const SizedBox(width: Spacing.xs),
+                  Text(l10n.edit),
+                ],
+              ),
             ),
-          ),
-          PopupMenuItem(
-            value: _CardAction.delete,
-            child: Row(
-              children: [
-                Icon(AppIcons.delete, size: IconSize.lg, color: colors.error),
-                const SizedBox(width: Spacing.xs),
-                Text(l10n.delete, style: TextStyle(color: colors.error)),
-              ],
+            PopupMenuItem(
+              value: _CardAction.delete,
+              child: Row(
+                children: [
+                  Icon(AppIcons.delete, size: IconSize.lg, color: colors.error),
+                  const SizedBox(width: Spacing.xs),
+                  Text(l10n.delete, style: TextStyle(color: colors.error)),
+                ],
+              ),
             ),
-          ),
-        ],
-        child: Container(
-          padding: const EdgeInsets.all(Spacing.xs),
-          decoration: BoxDecoration(
-            color: walletCardInkColor(context, alpha: 0.08),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            AppIcons.more,
-            size: IconSize.lg,
-            color: walletCardInkColor(context, alpha: 0.85),
+          ],
+          child: Container(
+            padding: const EdgeInsets.all(Spacing.xs),
+            decoration: BoxDecoration(
+              color: walletCardInkColor(context, alpha: 0.08),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              AppIcons.more,
+              size: IconSize.lg,
+              color: walletCardInkColor(context, alpha: 0.85),
+            ),
           ),
         ),
       ),

@@ -534,4 +534,49 @@ void main() {
     }
     semantics.dispose();
   });
+
+  // Flutter's own accessibility checks: 48px touch targets (Material; Apple
+  // asks 44pt), a name on everything tappable, readable text contrast.
+  final guidelines = {
+    'touch targets are at least 48px': androidTapTargetGuideline,
+    'everything tappable has a name': labeledTapTargetGuideline,
+    'text contrast is readable': textContrastGuideline,
+  };
+  final screens = <String, Widget>{
+    'dashboard': const DashboardScreen(),
+    'wallets screen': const WalletsScreen(),
+    'settings screen': const SettingsScreen(),
+    'categories screen': const CategoriesScreen(),
+    'transaction list': const AllTransactionsScreen(),
+  };
+  for (final MapEntry(key: check, value: guideline) in guidelines.entries) {
+    for (final MapEntry(key: name, value: screen) in screens.entries) {
+      testWidgets('On the $name, $check', (tester) async {
+        final semantics = tester.ensureSemantics();
+        tester.view.physicalSize = const Size(402, 2400);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        final db = await createTestDatabase();
+        addTearDown(db.close);
+        await seedGoldenData(db);
+        await pumpWidgetWithProviders(tester, screen, db: db);
+
+        await expectLater(tester, meetsGuideline(guideline));
+        semantics.dispose();
+      });
+    }
+    for (final MapEntry(key: name, value: open) in {
+      ...sheets,
+      'new wallet sheet': sheetHeadings['new wallet sheet']!.$1,
+      'filter sheet': sheetHeadings['filter sheet']!.$1,
+    }.entries) {
+      testWidgets('In the $name, $check', (tester) async {
+        final semantics = tester.ensureSemantics();
+        await pumpSheet(tester, open);
+
+        await expectLater(tester, meetsGuideline(guideline));
+        semantics.dispose();
+      });
+    }
+  }
 }
