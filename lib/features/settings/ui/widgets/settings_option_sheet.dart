@@ -10,6 +10,7 @@ import 'package:waldo/core/widgets/sheet_grabber.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 /// One choice in a [SettingsOptionSheet]: either an [icon] or a [symbolText].
 class SettingsOption<T> {
@@ -92,10 +93,12 @@ class _SettingsOptionSheetState<T> extends State<SettingsOptionSheet<T>> {
                           Row(
                             children: [
                               Expanded(
-                                child: Text(
-                                  widget.title,
-                                  style: context.headlineSmBold.copyWith(
-                                    color: colors.onSurface,
+                                child: Heading(
+                                  child: Text(
+                                    widget.title,
+                                    style: context.headlineSmBold.copyWith(
+                                      color: colors.onSurface,
+                                    ),
                                   ),
                                 ),
                               ),

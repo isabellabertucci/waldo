@@ -31,6 +31,7 @@ import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/features/wallets/wallets_x.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 import '../../transactions_x.dart';
 import '../../viewmodels/transaction_list_view_model.dart';
@@ -491,25 +492,29 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               const SizedBox(width: Spacing.sm),
               Expanded(
                 child: MergeSemantics(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.headlineLgStrong,
-                      ),
-                      Text(
-                        '$categoryLabel · ${formState.type.label(l10n)}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
+                  child: Semantics(
+                    // The sheet's title, read with its category and type.
+                    header: true,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.headlineLgStrong,
                         ),
-                      ),
-                    ],
+                        Text(
+                          '$categoryLabel · ${formState.type.label(l10n)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.textTheme.bodySmall?.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -682,9 +687,11 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               ),
               const SizedBox(width: Spacing.component),
               Expanded(
-                child: Text(
-                  l10n.editTransactionAction,
-                  style: context.headlineLgStrong,
+                child: Heading(
+                  child: Text(
+                    l10n.editTransactionAction,
+                    style: context.headlineLgStrong,
+                  ),
                 ),
               ),
             ],
@@ -980,7 +987,12 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                 child: const Icon(AppIcons.back),
               ),
               const SizedBox(width: Spacing.component),
-              Text(_fieldTitle(field, l10n), style: context.headlineLgStrong),
+              Heading(
+                child: Text(
+                  _fieldTitle(field, l10n),
+                  style: context.headlineLgStrong,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: Spacing.md),

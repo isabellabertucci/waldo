@@ -1,9 +1,14 @@
 import 'dart:ui' show CheckedState, Tristate;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:waldo/core/constants/db_constants.dart';
+import 'package:waldo/features/wallets/ui/widgets/wallet_form_sheet.dart';
+import 'package:waldo/features/transactions/ui/widgets/transaction_filter_sheet.dart';
+import 'package:waldo/features/transactions/models/transaction_filter.dart';
+import 'package:waldo/core/widgets/confirmation_dialog.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/features/categories/ui/categories_screen.dart';
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
@@ -295,6 +300,141 @@ void main() {
         isSemantics(label: group, isHeader: true),
       );
     }
+    semantics.dispose();
+  });
+
+  /// Each text is its own heading node (or, for a merged title, part of one).
+  void expectHeadings(WidgetTester tester, List<String> texts) {
+    for (final text in texts) {
+      expect(
+        tester.getSemantics(find.textContaining(text).first),
+        isSemantics(isHeader: true),
+        reason: text,
+      );
+    }
+  }
+
+  final sheetHeadings =
+      <String, (void Function(BuildContext, Transaction), List<String>)>{
+        'new transaction sheet': (
+          sheets['new transaction sheet']!,
+          ['New transaction', 'CATEGORY'],
+        ),
+        'transaction edit sheet': (
+          sheets['transaction edit sheet']!,
+          ['Edit transaction'],
+        ),
+        'new wallet sheet': (
+          (context, _) => showWalletFormSheet(context),
+          ['New wallet', 'TYPE', 'STARTING BALANCE'],
+        ),
+        'filter sheet': (
+          (context, _) => showModalBottomSheet<void>(
+            context: context,
+            builder: (_) => TransactionFilterSheet(
+              initial: TransactionFilter(month: DateTime(2026, 10)),
+              locale: 'en',
+              now: DateTime(2026, 10, 22),
+              countForFilter: (_) => 0,
+            ),
+          ),
+          ['Filter', 'TYPE', 'MONTH'],
+        ),
+      };
+  for (final MapEntry(key: name, value: (open, headings))
+      in sheetHeadings.entries) {
+    testWidgets('The $name title and section labels are headings', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await pumpSheet(tester, open);
+
+      expectHeadings(tester, headings);
+      semantics.dispose();
+    });
+  }
+
+  testWidgets('"Optional" is read with its section heading', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pumpSheet(tester, (context, _) => showWalletFormSheet(context));
+
+    expect(
+      tester.getSemantics(find.text('STARTING BALANCE')).label,
+      'STARTING BALANCE\nOptional',
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('The detail title is one heading with its category and type', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pumpSheet(tester, sheets['transaction detail sheet']!);
+
+    expect(
+      tester.getSemantics(find.text('Paycheck')),
+      isSemantics(label: 'Paycheck\nGroceries · Income', isHeader: true),
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('On Android the delete dialog is announced as an alert, with '
+      'its title apart', (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    final semantics = tester.ensureSemantics();
+    await pumpSheet(
+      tester,
+      (context, _) => ConfirmationDialog.show(
+        context,
+        title: 'Delete category?',
+        content: 'This will delete "Education".',
+        confirmLabel: 'Delete',
+      ),
+    );
+
+    expect(
+      find.semantics.byPredicate(
+        (node) =>
+            node.label == 'Alert' &&
+            node.flagsCollection.scopesRoute &&
+            node.flagsCollection.namesRoute,
+      ),
+      findsOne,
+    );
+    expect(
+      tester.getSemantics(find.text('Delete category?')).label,
+      'Delete category?',
+    );
+    semantics.dispose();
+    debugDefaultTargetPlatformOverride = null;
+  });
+
+  testWidgets('A settings picker title is a heading', (tester) async {
+    final semantics = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(402, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final db = await pumpWidgetWithProviders(tester, const SettingsScreen());
+    addTearDown(db.close);
+    await tester.tap(find.text('Theme'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.getSemantics(find.text('Theme').last),
+      isSemantics(label: 'Theme', isHeader: true),
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('The amount editor title is a heading', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pumpSheet(tester, sheets['transaction edit sheet']!);
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getSemantics(find.text('Amount')),
+      isSemantics(label: 'Amount', isHeader: true),
+    );
     semantics.dispose();
   });
 }
