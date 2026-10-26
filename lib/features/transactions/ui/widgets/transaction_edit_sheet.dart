@@ -36,6 +36,7 @@ import 'package:waldo/core/widgets/heading.dart';
 
 import '../../transactions_x.dart';
 import '../../viewmodels/transaction_list_view_model.dart';
+import 'transaction_date_picker.dart';
 import 'transaction_field_row.dart';
 import 'transaction_type_toggle.dart';
 
@@ -294,12 +295,12 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   /// Date only - the app doesn't track a time of day. Whatever time the
   /// transaction already had is kept as-is, just never shown.
   Future<void> _editDate(TransactionFormState formState) async {
-    final current = formState.date ?? ref.read(clockProvider)();
-    final pickedDate = await showDatePicker(
-      context: context,
+    final now = ref.read(clockProvider)();
+    final current = formState.date ?? now;
+    final pickedDate = await showTransactionDatePicker(
+      context,
       initialDate: current,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      now: now,
     );
     if (pickedDate == null || !mounted) return;
 
