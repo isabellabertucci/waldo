@@ -270,7 +270,7 @@
   },
   "discard": "Discard",
   "@discard": {
-    "description": "Discard button label, paired with Save on the unsaved-changes dialog"
+    "description": "Discard button label, paired with Cancel on the unsaved-changes dialog"
   },
   "deleteTransaction": "Delete transaction?",
   "@deleteTransaction": {
