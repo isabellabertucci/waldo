@@ -9,9 +9,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
-/// The smallest comfortable tap target (Material and Apple guidelines).
-const _minTapTarget = 48.0;
-const _chevronHitSize = _minTapTarget;
+const _chevronHitSize = kMinInteractiveDimension;
 const _chevronDiscSize = 22.0; // one-off: a small hint, not a main control
 const _chevronOverhang = (_chevronHitSize - _chevronDiscSize) / 2;
 
@@ -488,7 +486,9 @@ class _MonthPill extends StatelessWidget {
           borderRadius: BorderRadius.circular(Rounded.pill),
           onTap: onTap,
           child: Container(
-            constraints: const BoxConstraints(minHeight: _minTapTarget),
+            constraints: const BoxConstraints(
+              minHeight: kMinInteractiveDimension,
+            ),
             padding: EdgeInsets.symmetric(
               horizontal: selected ? _selectedChipPadding : Spacing.sm,
             ),
