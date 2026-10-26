@@ -32,6 +32,7 @@ import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/widgets/heading.dart';
 
+import 'transaction_date_picker.dart';
 import 'transaction_field_row.dart';
 import 'transaction_type_toggle.dart';
 
@@ -102,11 +103,11 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
   }
 
   Future<DateTime?> _pickDate(DateTime? current) {
-    return showDatePicker(
-      context: context,
-      initialDate: current ?? ref.read(clockProvider)(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+    final now = ref.read(clockProvider)();
+    return showTransactionDatePicker(
+      context,
+      initialDate: current ?? now,
+      now: now,
     );
   }
 
