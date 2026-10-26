@@ -33,10 +33,13 @@ Future<bool> showUndoSnackBar(
 }) async {
   // A new delete finalizes the one on screen right away.
   messenger.hideCurrentSnackBar();
+  // Read now: the messenger's context isn't safe to use after the wait.
+  final transparent = messenger.context.appColors.transparent;
 
   final reason = await messenger
       .showSnackBar(
         _barSnackBar(
+          transparent,
           // The bar times itself, so it can pause while the app is away.
           duration: const Duration(days: 1),
           child: _UndoBar(
@@ -57,6 +60,7 @@ Future<bool> showUndoSnackBar(
   if (undone) {
     messenger.showSnackBar(
       _barSnackBar(
+        transparent,
         duration: _restoredDuration,
         child: _RestoredBar(label: restoredLabel),
       ),
@@ -66,12 +70,16 @@ Future<bool> showUndoSnackBar(
 }
 
 /// A transparent snackbar, so the bar draws its own shape and shadow.
-SnackBar _barSnackBar({required Duration duration, required Widget child}) {
+SnackBar _barSnackBar(
+  Color transparent, {
+  required Duration duration,
+  required Widget child,
+}) {
   return SnackBar(
     content: child,
     duration: duration,
     behavior: SnackBarBehavior.floating,
-    backgroundColor: Colors.transparent,
+    backgroundColor: transparent,
     elevation: 0,
     padding: EdgeInsets.zero,
     clipBehavior: Clip.none,
@@ -345,39 +353,45 @@ class _UndoButton extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
 
-    return Material(
-      color: colors.onLeather,
-      shape: const StadiumBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onPressed,
-        child: SizedBox(
-          height: _buttonHeight,
-          child: Padding(
-            padding: const EdgeInsets.all(Spacing.xxs),
-            child: DashedBorder(
-              radius: Rounded.pill,
-              color: colors.leather.withValues(alpha: 0.3),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.sm - Spacing.xxs,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      AppIcons.undo,
-                      size: IconSize.md,
-                      color: colors.leather,
-                    ),
-                    const SizedBox(width: Spacing.xs),
-                    Text(
-                      l10n.undo,
-                      style: context.bodyMdStrong.copyWith(
+    // A button to screen readers, apart from the bar's text: a bare InkWell
+    // is only read as its label.
+    return Semantics(
+      container: true,
+      button: true,
+      child: Material(
+        color: colors.onLeather,
+        shape: const StadiumBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onPressed,
+          child: SizedBox(
+            height: _buttonHeight,
+            child: Padding(
+              padding: const EdgeInsets.all(Spacing.xxs),
+              child: DashedBorder(
+                radius: Rounded.pill,
+                color: colors.leather.withValues(alpha: 0.3),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.sm - Spacing.xxs,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        AppIcons.undo,
+                        size: IconSize.md,
                         color: colors.leather,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: Spacing.xs),
+                      Text(
+                        l10n.undo,
+                        style: context.bodyMdStrong.copyWith(
+                          color: colors.leather,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
