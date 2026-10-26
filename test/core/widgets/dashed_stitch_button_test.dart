@@ -71,4 +71,28 @@ void main() {
     );
     semantics.dispose();
   });
+
+  testWidgets('Text beside it is not read as part of its name', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pump(
+      tester,
+      // A card that is one node, like the empty receipt.
+      Semantics(
+        container: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Nothing here yet'),
+            DashedStitchButton(label: 'Add', onPressed: () {}),
+          ],
+        ),
+      ),
+    );
+
+    expect(
+      tester.getSemantics(find.text('Add')),
+      isSemantics(label: 'Add', isButton: true),
+    );
+    semantics.dispose();
+  });
 }

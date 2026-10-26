@@ -83,4 +83,37 @@ void main() {
       expect(size.height, greaterThanOrEqualTo(kMinInteractiveDimension));
     }
   });
+
+  testWidgets('Text beside a circle button is not read as its name', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pump(
+      tester,
+      Semantics(
+        container: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Wallets'),
+            CircleIconButton(
+              tooltip: 'Hide balance',
+              onPressed: () {},
+              child: const Icon(AppIcons.add),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    expect(
+      tester.getSemantics(find.byType(CircleIconButton)),
+      isSemantics(tooltip: 'Hide balance', isButton: true),
+    );
+    expect(
+      tester.getSemantics(find.byType(CircleIconButton)).label,
+      isNot(contains('Wallets')),
+    );
+    semantics.dispose();
+  });
 }
