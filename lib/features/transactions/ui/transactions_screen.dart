@@ -11,6 +11,7 @@ import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/heading.dart';
 import 'package:waldo/core/widgets/wallet_card_finish.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
@@ -23,7 +24,6 @@ import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../../core/widgets/empty_state.dart';
 import 'package:waldo/core/widgets/eye_icon.dart';
-import 'package:waldo/core/widgets/heading.dart';
 import '../models/transaction.dart';
 import '../models/transaction_filter.dart';
 import '../viewmodels/transaction_list_view_model.dart';
