@@ -1,3 +1,5 @@
+import 'dart:ui' show SemanticsRole;
+
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -58,21 +60,29 @@ class AppNavBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(Rounded.pill),
               boxShadow: Elevation.low,
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (var i = 0; i < items.length; i++) ...[
-                  if (i > 0) const SizedBox(width: Spacing.xs / 2),
-                  AppNavButton(
-                    key: ValueKey('nav-$i'),
-                    icon: items[i].icon,
-                    selectedIcon: items[i].selectedIcon,
-                    label: items[i].label,
-                    selected: i == currentIndex,
-                    onTap: () => onSelect(i),
-                  ),
+            // A tab bar to screen readers, as Flutter's NavigationBar is.
+            child: Semantics(
+              role: SemanticsRole.tabBar,
+              explicitChildNodes: true,
+              container: true,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var i = 0; i < items.length; i++) ...[
+                    if (i > 0) const SizedBox(width: Spacing.xs / 2),
+                    AppNavButton(
+                      key: ValueKey('nav-$i'),
+                      icon: items[i].icon,
+                      selectedIcon: items[i].selectedIcon,
+                      label: items[i].label,
+                      selected: i == currentIndex,
+                      tabIndex: i + 1,
+                      tabCount: items.length,
+                      onTap: () => onSelect(i),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ],
@@ -90,6 +100,8 @@ class AppNavButton extends StatelessWidget {
     required this.selectedIcon,
     required this.label,
     required this.selected,
+    required this.tabIndex,
+    required this.tabCount,
     required this.onTap,
   });
 
@@ -97,6 +109,10 @@ class AppNavButton extends StatelessWidget {
   final IconData selectedIcon;
   final String label;
   final bool selected;
+
+  /// Its place in the bar, from 1, read as "Tab 2 of 3".
+  final int tabIndex;
+  final int tabCount;
   final VoidCallback onTap;
 
   @override
@@ -109,10 +125,15 @@ class AppNavButton extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(Rounded.pill),
         onTap: onTap,
+        // One node, as a NavigationBar destination: a selectable tab named
+        // once (the visible label is excluded) with its place in the bar.
         child: Semantics(
+          role: SemanticsRole.tab,
           button: true,
           selected: selected,
-          label: label,
+          label:
+              '$label\n${MaterialLocalizations.of(context).tabLabel(tabIndex: tabIndex, tabCount: tabCount)}',
+          excludeSemantics: true,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
