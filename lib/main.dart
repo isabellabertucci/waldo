@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
+import 'package:waldo/core/utils/localization_delegates.dart';
 
 import 'core/constants/app_constants.dart';
 import 'core/logging/app_logger.dart';
@@ -72,7 +73,7 @@ class MyApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       title: appName,
       routerConfig: router,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localizationsDelegates: appLocalizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
