@@ -293,53 +293,58 @@ class _CategoryRow extends StatelessWidget {
     final name = category.displayName(l10n);
     final onDelete = this.onDelete;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        Spacing.md,
-        Spacing.xxs,
-        Spacing.xxs,
-        Spacing.xxs,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: BadgeSize.md,
-            height: BadgeSize.md,
-            decoration: BoxDecoration(
-              color: colors.onSurface.withValues(alpha: 0.06),
-              shape: BoxShape.circle,
+    // Its own node, so each name is read apart rather than all in one; its
+    // delete button stays separate, so a tap on the row can't delete.
+    return Semantics(
+      container: true,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          Spacing.md,
+          Spacing.xxs,
+          Spacing.xxs,
+          Spacing.xxs,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: BadgeSize.md,
+              height: BadgeSize.md,
+              decoration: BoxDecoration(
+                color: colors.onSurface.withValues(alpha: 0.06),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                category.icon,
+                size: IconSize.md,
+                color: colors.onSurface,
+              ),
             ),
-            child: Icon(
-              category.icon,
-              size: IconSize.md,
-              color: colors.onSurface,
+            const SizedBox(width: Spacing.sm),
+            Expanded(
+              child: Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.bodyMdBold,
+              ),
             ),
-          ),
-          const SizedBox(width: Spacing.sm),
-          Expanded(
-            child: Text(
-              name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.bodyMdBold,
-            ),
-          ),
-          // A fixed-size slot, so rows line up whether or not they have an X.
-          SizedBox.square(
-            dimension: 48,
-            child: onDelete == null
-                ? null
-                : IconButton(
-                    tooltip: l10n.deleteCategoryNamed(name),
-                    onPressed: onDelete,
-                    icon: Icon(
-                      AppIcons.close,
-                      size: IconSize.lg,
-                      color: colors.onSurfaceVariant,
+            // A fixed-size slot, so rows line up whether or not they have an X.
+            SizedBox.square(
+              dimension: 48,
+              child: onDelete == null
+                  ? null
+                  : IconButton(
+                      tooltip: l10n.deleteCategoryNamed(name),
+                      onPressed: onDelete,
+                      icon: Icon(
+                        AppIcons.close,
+                        size: IconSize.lg,
+                        color: colors.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
