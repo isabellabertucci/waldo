@@ -6,7 +6,6 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/secondary_button.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_row.dart';
-import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -27,14 +26,7 @@ class RecentTransactionsList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final categoriesAsync = ref.watch(categoryListViewModelProvider);
-    final categoriesById = switch (categoriesAsync) {
-      AsyncValue(:final value?) => {
-        for (final c in value)
-          if (c.id != null) c.id!: c,
-      },
-      _ => const <int, Category>{},
-    };
+    final categoriesById = ref.watch(categoriesByIdProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

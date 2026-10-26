@@ -69,3 +69,16 @@ class CategoryListViewModel extends _$CategoryListViewModel {
     ref.invalidateSelf();
   }
 }
+
+/// The categories by id, for rows that show a transaction's category; empty
+/// until they load.
+@riverpod
+Map<int, Category> categoriesById(Ref ref) {
+  return switch (ref.watch(categoryListViewModelProvider)) {
+    AsyncValue(:final value?) => {
+      for (final c in value)
+        if (c.id != null) c.id!: c,
+    },
+    _ => const {},
+  };
+}

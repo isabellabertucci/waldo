@@ -7,7 +7,6 @@ import 'package:waldo/core/widgets/empty_state.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/core/utils/clock.dart';
-import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
@@ -53,13 +52,7 @@ class _AllTransactionsBody extends ConsumerWidget {
       AsyncValue(:final value?) => value.currency,
       _ => Currency.usd,
     };
-    final categoriesById = switch (ref.watch(categoryListViewModelProvider)) {
-      AsyncValue(:final value?) => {
-        for (final c in value)
-          if (c.id != null) c.id!: c,
-      },
-      _ => const <int, Category>{},
-    };
+    final categoriesById = ref.watch(categoriesByIdProvider);
     final isBalanceHidden = ref.watch(balanceHiddenProvider);
 
     if (transactions.isEmpty) {
