@@ -1,4 +1,3 @@
-import 'package:waldo/core/utils/dash_path.dart';
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
@@ -13,6 +12,7 @@ import 'package:waldo/l10n/app_localizations.dart';
 
 import 'package:waldo/core/widgets/eye_icon.dart';
 import 'package:waldo/core/widgets/min_tap_target.dart';
+import 'package:waldo/core/utils/dash_path.dart';
 
 /// How far the card behind peeks above the balance card; reserved here.
 const _cardPeek = 44.0;

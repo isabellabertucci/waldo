@@ -1,6 +1,6 @@
-import 'package:waldo/core/utils/dash_path.dart';
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/rounded.dart';
+import 'package:waldo/core/utils/dash_path.dart';
 
 /// A subtle diagonal lightening, so the pouch fill looks slightly 3D.
 LinearGradient pouchGradient(Color base) {

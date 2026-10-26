@@ -11,8 +11,8 @@ import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../models/dashboard_data.dart';
-import 'package:waldo/features/transactions/transactions_x.dart';
 import 'package:waldo/core/widgets/heading.dart';
+import 'package:waldo/features/transactions/transactions_x.dart';
 
 /// One series (income or expense) at a time; exact values are in the tooltip.
 class CashFlowCard extends StatefulWidget {
