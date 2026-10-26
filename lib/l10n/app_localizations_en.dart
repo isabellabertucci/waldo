@@ -487,6 +487,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterTitle => 'Filter';
 
   @override
+  String get filterHint => 'Opens the filter';
+
+  @override
   String get filterReset => 'Reset';
 
   @override

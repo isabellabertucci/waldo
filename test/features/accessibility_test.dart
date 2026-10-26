@@ -790,4 +790,31 @@ void main() {
       semantics.dispose();
     });
   }
+
+  testWidgets('The filter button is named by what it shows and says what it '
+      'opens', (tester) async {
+    final semantics = tester.ensureSemantics();
+    final db = await createTestDatabase();
+    addTearDown(db.close);
+    await seedGoldenData(db);
+    final wallet = Wallet.fromMap(
+      (await db.query(WalletsTable.table, limit: 1)).first,
+    );
+    await pumpWidgetWithProviders(
+      tester,
+      TransactionsScreen(walletId: wallet.id!),
+      db: db,
+    );
+
+    expect(
+      find.semantics.byPredicate(
+        (n) =>
+            n.flagsCollection.isButton &&
+            n.hint == 'Opens the filter' &&
+            RegExp(r'^\w+, All transactions$').hasMatch(n.label),
+      ),
+      findsOne,
+    );
+    semantics.dispose();
+  });
 }

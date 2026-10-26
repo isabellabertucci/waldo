@@ -493,6 +493,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get filterTitle => 'Filtro';
 
   @override
+  String get filterHint => 'Abre o filtro';
+
+  @override
   String get filterReset => 'Repor';
 
   @override
