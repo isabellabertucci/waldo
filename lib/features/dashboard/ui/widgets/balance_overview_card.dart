@@ -280,58 +280,64 @@ class _EmptyPeekCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
 
-    return Material(
-      color: colors.surface,
-      borderRadius: BorderRadius.circular(Rounded.lg),
-      child: InkWell(
-        onTap: onTap,
+    // Its own button to screen readers (a bare InkWell is only read as its
+    // text), apart from the balance card in front.
+    return Semantics(
+      container: true,
+      button: true,
+      child: Material(
+        color: colors.surface,
         borderRadius: BorderRadius.circular(Rounded.lg),
-        child: SizedBox(
-          height: _cardPeek + 24,
-          child: DashedBorder(
-            radius: Rounded.lg,
-            color: colors.onSurface.withValues(alpha: 0.3),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Spacing.md,
-                Spacing.sm,
-                Spacing.md,
-                0,
-              ),
-              // A Column, so the content sits at the top of the visible part of the card.
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 22,
-                        height: 22,
-                        decoration: BoxDecoration(
-                          color: colors.leather,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          AppIcons.add,
-                          size: IconSize.sm,
-                          color: colors.onLeather,
-                        ),
-                      ),
-                      const SizedBox(width: Spacing.xs),
-                      Flexible(
-                        child: Text(
-                          l10n.firstRunPeekCta,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.bodySmBold.copyWith(
-                            color: colors.onSurface,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(Rounded.lg),
+          child: SizedBox(
+            height: _cardPeek + 24,
+            child: DashedBorder(
+              radius: Rounded.lg,
+              color: colors.onSurface.withValues(alpha: 0.3),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  Spacing.md,
+                  Spacing.sm,
+                  Spacing.md,
+                  0,
+                ),
+                // A Column, so the content sits at the top of the visible part of the card.
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 22,
+                          height: 22,
+                          decoration: BoxDecoration(
+                            color: colors.leather,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            AppIcons.add,
+                            size: IconSize.sm,
+                            color: colors.onLeather,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: Spacing.xs),
+                        Flexible(
+                          child: Text(
+                            l10n.firstRunPeekCta,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.bodySmBold.copyWith(
+                              color: colors.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

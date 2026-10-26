@@ -62,6 +62,24 @@ void main() {
     },
   );
 
+  testWidgets('The first-wallet prompt is a button to screen readers', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pumpDashboardScreen(tester);
+
+    expect(
+      tester.getSemantics(find.text('Slide in your first wallet')),
+      // Named by its own text only, not merged with the balance card.
+      isSemantics(
+        label: 'Slide in your first wallet',
+        isButton: true,
+        hasTapAction: true,
+      ),
+    );
+    semantics.dispose();
+  });
+
   testWidgets('Tapping the first-wallet prompt opens the wallet form', (
     tester,
   ) async {
