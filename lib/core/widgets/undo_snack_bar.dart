@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -17,8 +18,6 @@ const undoWindow = Duration(seconds: 5);
 const _barHeight = 64.0; // one-off: two text lines plus the 48dp Undo button
 const _buttonHeight = 48.0;
 const _ringSize = 32.0;
-const _enterDuration = Duration(milliseconds: 350);
-const _enterCurve = Cubic(0.2, 0.8, 0.2, 1);
 const _enterOffset = 18.0;
 const _restoredDuration = Duration(seconds: 2);
 
@@ -108,8 +107,8 @@ class _BarShell extends StatelessWidget {
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 1, end: 0),
-      duration: _enterDuration,
-      curve: _enterCurve,
+      duration: Motion.enter,
+      curve: Motion.enterCurve,
       builder: (context, t, child) => Transform.translate(
         offset: Offset(0, _enterOffset * t),
         child: Opacity(opacity: 1 - t, child: child),

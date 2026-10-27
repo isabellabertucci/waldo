@@ -498,6 +498,23 @@ stitched shape - border, badge ring, pouch, button - cuts its dashes with
 - **Errors are the one solid border** (`error`), so a broken field differs from a
   selected one by line as well as color.
 
+## Motion
+
+Durations are Material 3's own steps, named for what they move, in `Motion`
+(`core/theme/motion.dart`). A new animation picks one of these instead of a
+number of its own.
+
+| Token | Duration | Use |
+|---|---|---|
+| `toggle` | 150ms (`short3`) | A segment or toggle filling in |
+| `navigation` | 200ms (`short4`) | The navbar's pill sliding to a tab |
+| `scroll` | 300ms (`medium2`), ease-out | A row scrolling to a picked item |
+| `enter` | 350ms (`medium3`), fast then settling | Something arriving, like the undo bar |
+| `hint` | 1400ms, out and back | The nudge hinting that a row scrolls |
+
+Anything that moves on its own, like the scroll hint, is skipped when the
+phone asks for reduced motion.
+
 ## Components
 
 - **Buttons (primary):** `DashedStitchButton` - a `primary`-filled pill

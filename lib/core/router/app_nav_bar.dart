@@ -1,6 +1,7 @@
 import 'dart:ui' show SemanticsRole;
 
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/elevation.dart';
@@ -135,7 +136,7 @@ class AppNavButton extends StatelessWidget {
               '$label\n${MaterialLocalizations.of(context).tabLabel(tabIndex: tabIndex, tabCount: tabCount)}',
           excludeSemantics: true,
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+            duration: Motion.navigation,
             decoration: BoxDecoration(
               color: selected ? colors.primary : colors.transparent,
               borderRadius: BorderRadius.circular(Rounded.pill),

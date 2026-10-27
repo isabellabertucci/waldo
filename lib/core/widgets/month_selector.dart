@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/motion.dart';
 import 'package:flutter/rendering.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/theme/app_icons.dart';
@@ -173,8 +174,8 @@ class _MonthSelectorState extends State<MonthSelector> {
   void _animateTo(double offset) {
     _scrollController.animateTo(
       offset,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
+      duration: Motion.scroll,
+      curve: Motion.scrollCurve,
     );
   }
 
@@ -308,23 +309,20 @@ class _ScrollHintChevronState extends State<_ScrollHintChevron>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    );
+    _controller = AnimationController(vsync: this, duration: Motion.hint);
     _offset = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween(
           begin: 0.0,
           end: -4.0,
-        ).chain(CurveTween(curve: Curves.easeOut)),
+        ).chain(CurveTween(curve: Motion.hintOut)),
         weight: 15,
       ),
       TweenSequenceItem(
         tween: Tween(
           begin: -4.0,
           end: 0.0,
-        ).chain(CurveTween(curve: Curves.easeIn)),
+        ).chain(CurveTween(curve: Motion.hintBack)),
         weight: 15,
       ),
       TweenSequenceItem(tween: ConstantTween(0.0), weight: 30),
@@ -332,14 +330,14 @@ class _ScrollHintChevronState extends State<_ScrollHintChevron>
         tween: Tween(
           begin: 0.0,
           end: -4.0,
-        ).chain(CurveTween(curve: Curves.easeOut)),
+        ).chain(CurveTween(curve: Motion.hintOut)),
         weight: 15,
       ),
       TweenSequenceItem(
         tween: Tween(
           begin: -4.0,
           end: 0.0,
-        ).chain(CurveTween(curve: Curves.easeIn)),
+        ).chain(CurveTween(curve: Motion.hintBack)),
         weight: 15,
       ),
     ]).animate(_controller);
