@@ -118,7 +118,7 @@ typography:
     fontWeight: 700
     lineHeight: 1.4
     letterSpacing: -0.06px
-  label-lg-strong:
+  label-lg-bold:
     fontFamily: system-ui
     fontSize: 14px
     fontWeight: 700
@@ -136,30 +136,84 @@ typography:
     fontWeight: 600
     lineHeight: 1.2
     letterSpacing: -0.32px
-  headline-lg-strong:
+  headline-lg-extra-bold:
     fontFamily: system-ui
     fontSize: 22px
     fontWeight: 800
     lineHeight: 1.2
     letterSpacing: -0.44px
-  headline-sm-bold:
+  headline-sm-extra-bold:
     fontFamily: system-ui
     fontSize: 24px
     fontWeight: 800
     lineHeight: 1.2
     letterSpacing: -0.48px
-  amount-display-bold:
+  amount-display-extra-bold:
     fontFamily: system-ui
     fontSize: 28px
     fontWeight: 800
     lineHeight: 1.2
     letterSpacing: -0.56px
-  headline-display-strong:
+  headline-display-black:
     fontFamily: system-ui
     fontSize: 28px
     fontWeight: 900
     lineHeight: 1.1
     letterSpacing: -0.56px
+  body-sm-strong:
+    fontFamily: system-ui
+    fontSize: 12px
+    fontWeight: 600
+    lineHeight: 1.4
+    letterSpacing: -0.06px
+  body-md-extra-bold:
+    fontFamily: system-ui
+    fontSize: 14px
+    fontWeight: 800
+    lineHeight: 1.4
+    letterSpacing: -0.07px
+  wallet-card-balance:
+    fontFamily: system-ui
+    fontSize: 16px
+    fontWeight: 800
+    lineHeight: 1.2
+    letterSpacing: -0.32px
+  month-pill:
+    fontFamily: system-ui
+    fontSize: 13px
+    fontWeight: 500
+    lineHeight: 1.4
+    letterSpacing: -0.07px
+  receipt-line:
+    fontFamily: system-ui
+    fontSize: 12.5px
+    fontWeight: 400
+    lineHeight: 1.4
+    letterSpacing: -0.07px
+  receipt-line-bold:
+    fontFamily: system-ui
+    fontSize: 12.5px
+    fontWeight: 700
+    lineHeight: 1.4
+    letterSpacing: -0.07px
+  receipt-total:
+    fontFamily: system-ui
+    fontSize: 15px
+    fontWeight: 700
+    lineHeight: 1.4
+    letterSpacing: -0.07px
+  receipt-header:
+    fontFamily: system-ui
+    fontSize: 11px
+    fontWeight: 400
+    lineHeight: 1.4
+    letterSpacing: 0.8px
+  chart-axis:
+    fontFamily: system-ui
+    fontSize: 11px
+    fontWeight: 400
+    lineHeight: 1.4
+    letterSpacing: -0.07px
 rounded:
   sm: 12px
   md: 20px
@@ -178,13 +232,13 @@ components:
   button-primary-light:
     backgroundColor: "{colors.primary-light}"
     textColor: "{colors.on-primary-light}"
-    typography: "{typography.label-lg-strong}"
+    typography: "{typography.label-lg-bold}"
     rounded: "{rounded.pill}"
     padding: 16px
   button-primary-dark:
     backgroundColor: "{colors.primary-dark}"
     textColor: "{colors.on-primary-dark}"
-    typography: "{typography.label-lg-strong}"
+    typography: "{typography.label-lg-bold}"
     rounded: "{rounded.pill}"
     padding: 16px
   card-light:
@@ -227,16 +281,16 @@ components:
     rounded: "{rounded.lg}"
   amount-positive-light:
     textColor: "{colors.primary-strong-light}"
-    typography: "{typography.label-lg-strong}"
+    typography: "{typography.label-lg-bold}"
   amount-positive-dark:
     textColor: "{colors.primary-strong-dark}"
-    typography: "{typography.label-lg-strong}"
+    typography: "{typography.label-lg-bold}"
   amount-negative-light:
     textColor: "{colors.error-light}"
-    typography: "{typography.label-lg-strong}"
+    typography: "{typography.label-lg-bold}"
   amount-negative-dark:
     textColor: "{colors.error-dark}"
-    typography: "{typography.label-lg-strong}"
+    typography: "{typography.label-lg-bold}"
   app-bar:
     backgroundColor: "{colors.transparent}"
 ---
@@ -318,7 +372,7 @@ to visually dominate the screen: transaction amounts, card titles, and the
 balance figure on the dashboard.
 
 - **Headline Display (28px / 500):** Reserved as the base for the dashboard
-  balance figure's weight ladder (see `headline-display-strong` below).
+  balance figure's weight ladder (see `headline-display-black` below).
 - **Headline Large / Medium (22px/16px / 500):** Card and section titles.
 - **Body Large / Medium / Small (16px/14px/12px / 400):** Paragraph and
   list-item copy.
@@ -326,31 +380,44 @@ balance figure on the dashboard.
   nav labels, captions.
 - **Label XS (11px / 600, uppercase, +4% tracking):** Eyebrow-style section
   headers (e.g. the "OCTOBER 2026" month divider in the transactions list).
-- **Strong variants**, one weight step above their base role, same size and
-  tracking:
+- **Weight variants**, same size and tracking as their base role. A suffix
+  always means the same weight: Strong 600, Bold 700, ExtraBold 800,
+  Black 900.
   - `body-md-strong` (600) - a touch heavier without reading as bold (links,
     row descriptions).
   - `body-md-bold` / `body-sm-bold` / `label-sm-bold` (700) - the common
     "this value matters" weight: form labels, button text, list-row
     emphasis. The most frequently used step in the app.
-  - `label-lg-strong` (700) - transaction amounts, nav labels, confirm
+  - `label-lg-bold` (700) - transaction amounts, nav labels, confirm
     buttons.
   - `headline-md-strong` (600) - section headers within a screen ("Recent
     transactions", "Cash Flow").
-  - `headline-lg-strong` (800) - the most common title weight: dialog
+  - `headline-lg-extra-bold` (800) - the most common title weight: dialog
     titles, form sheet headers, card titles.
-  - `headline-sm-bold` (800, 24px) - an alternate large title used by a
-    handful of dialogs/cards instead of `headline-lg-strong`.
-  - `amount-display-bold` (800, 28px) - the large numeric figure shown
+  - `headline-sm-extra-bold` (800, 24px) - an alternate large title used by a
+    handful of dialogs/cards instead of `headline-lg-extra-bold`.
+  - `amount-display-extra-bold` (800, 28px) - the large numeric figure shown
     while editing an amount (transaction/wallet balance input).
-  - `headline-display-strong` (900, 28px) - reserved for the single
+  - `headline-display-black` (900, 28px) - reserved for the single
     biggest number on a screen: the dashboard's total balance figure,
     specifically. Not general emphasis.
+  - `body-sm-strong` (600) - an unselected choice beside a bold one, and
+    the name on the wallet card peeking behind the balance.
+  - `body-md-extra-bold` (800) - a figure that must win its line, e.g. the
+    balance after a wallet's type.
+- **Styles named for one job**, so a screen never sets a size or weight:
+  - `wallet-card-balance` (16px / 800) - the balance on a wallet card.
+  - `month-pill` (13px / 500) - an unselected month; the selected one is
+    `body-md-bold`, a step larger.
+  - `receipt-line` / `receipt-line-bold` (12.5px / 400, 700) and
+    `receipt-total` (15px / 700) - the month receipt's own print scale.
+  - `receipt-header` (11px, +0.8px tracking) - the receipt's header.
+  - `chart-axis` (11px) - the cash flow chart's month labels.
 
 ### Principles
 
 - Weight only ever escalates along this named ladder (`body-md` →
-  `body-md-strong`, `label-lg` → `label-lg-strong`, etc.) - never a bespoke
+  `body-md-strong`, `label-lg` → `label-lg-bold`, etc.) - never a bespoke
   `fontWeight: 650` picked by eye for one screen.
 - Negative tracking scales with size: the biggest display text gets the most
   negative tracking (-2%), small labels get the least.
@@ -435,7 +502,7 @@ stitched shape - border, badge ring, pouch, button - cuts its dashes with
 
 - **Buttons (primary):** `DashedStitchButton` - a `primary`-filled pill
   (`rounded.pill`) with an `on-primary` dashed stitch just inside its edge,
-  `on-primary` text in `label-lg-strong`, 24px x 16px padding (16px x 8px
+  `on-primary` text in `label-lg-bold`, 24px x 16px padding (16px x 8px
   and `body-sm-bold` when `compact`). Plain `FilledButton`s get the same
   pill and type from the theme.
 - **Buttons (secondary):** `SecondaryButton` - no fill, on the page and on
@@ -459,8 +526,8 @@ stitched shape - border, badge ring, pouch, button - cuts its dashes with
   would land behind the sheet. It names the cause (storage full, try again)
   when it is known.
 - **List rows (transactions/wallets):** leading icon in a circular tint of
-  the row's semantic color (income/expense/wallet type), `label-lg-strong`
-  title, `body-sm` muted caption, trailing amount in `label-lg-strong` colored
+  the row's semantic color (income/expense/wallet type), `label-lg-bold`
+  title, `body-sm` muted caption, trailing amount in `label-lg-bold` colored
   by `primary-strong` (income) or `error` (expense).
 - **Wallet cards:** a photographic metal texture (light mode) or a true
   dark-metal gradient (dark mode) - never a flat themed color - with
@@ -470,7 +537,7 @@ stitched shape - border, badge ring, pouch, button - cuts its dashes with
 - **List rows (secondary caption):** `surface` background, `on-surface-variant`
   caption/subtitle text, `body-sm` typography.
 - **Amounts:** `primary-strong` text for income, `error` text for expense,
-  both at `label-lg-strong`.
+  both at `label-lg-bold`.
 - **App bar:** transparent background - it never visually separates from the
   page.
 
@@ -519,16 +586,12 @@ stitched shape - border, badge ring, pouch, button - cuts its dashes with
   `labelSmall`) and toward `700` more than `600`, so the set grew to the
   13 tokens now in the front matter - `bodyMdBold`/`bodySmBold`/
   `labelSmBold` (the most common step, `700`), `headlineMdStrong`/
-  `headlineSmBold`/`amountDisplayBold`, plus a correction:
-  `headlineDisplayStrong` was originally defined against `headlineLarge`
+  `headlineSmExtraBold`/`amountDisplayExtraBold`, plus a correction:
+  `headlineDisplayBlack` was originally defined against `headlineLarge`
   (32px, unused anywhere in the app) when the dashboard balance figure it's
   for actually uses `headlineMedium` (28px) - fixed to match the real call
   site rather than inflate the figure's size.
-  4 sites remain intentionally raw, each documented inline: the wallet
-  card's debossed ink-shadow label, one chart tooltip, one `TextSpan`
-  inheriting ambient style (not a base-role override), and the wallet
-  card's own titleMedium+800 balance figure (a real one-off step, not
-  `headline-md-strong`'s 600).
+  No raw `fontWeight:` or `fontSize:` is left outside `lib/core/theme`.
 - **Micro-text sizes (11-15px) stayed as documented one-offs, not
   `label-xs`.** The audit proposed one token for this whole cluster, but
   each site turned out to have its own real letter-spacing/weight pairing

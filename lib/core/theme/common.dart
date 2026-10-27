@@ -179,7 +179,7 @@ class Common {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Rounded.pill),
         ),
-        textStyle: textTheme.labelLgStrong,
+        textStyle: textTheme.labelLgBold,
       ),
     );
   }

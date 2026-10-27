@@ -112,6 +112,8 @@ class AppTheme {
 
 /// The DESIGN.md emphasis tokens. Defined on [TextTheme] so component themes,
 /// which have no `context`, share them; widgets use the [ThemeContext] getters.
+/// A weight suffix always means the same: Strong w600, Bold w700,
+/// ExtraBold w800, Black w900.
 extension AppTextStyles on TextTheme {
   /// `body-md`, semibold (w600).
   TextStyle get bodyMdStrong =>
@@ -126,7 +128,7 @@ extension AppTextStyles on TextTheme {
 
   /// `label-lg` pushed to bold - transaction amounts, confirm buttons, and
   /// other labels that need to visually win their row.
-  TextStyle get labelLgStrong =>
+  TextStyle get labelLgBold =>
       labelLarge!.copyWith(fontWeight: FontWeight.w700);
 
   /// `label-sm`, bold - a small label that still needs emphasis (distinct
@@ -141,19 +143,19 @@ extension AppTextStyles on TextTheme {
 
   /// `headline-lg` pushed to extra-bold - the most common "screen/sheet
   /// title" weight: dialog titles, form sheet headers, card titles.
-  TextStyle get headlineLgStrong =>
+  TextStyle get headlineLgExtraBold =>
       titleLarge!.copyWith(fontWeight: FontWeight.w800);
 
   /// `headlineSmall`, extra-bold - an alternate large title.
-  TextStyle get headlineSmBold =>
+  TextStyle get headlineSmExtraBold =>
       headlineSmall!.copyWith(fontWeight: FontWeight.w800);
 
   /// `headlineMedium`, extra-bold - the amount being edited.
-  TextStyle get amountDisplayBold =>
+  TextStyle get amountDisplayExtraBold =>
       headlineMedium!.copyWith(fontWeight: FontWeight.w800);
 
   /// `headlineMedium`, black (w900) - the dashboard's total balance.
-  TextStyle get headlineDisplayStrong =>
+  TextStyle get headlineDisplayBlack =>
       headlineMedium!.copyWith(fontWeight: FontWeight.w900);
 
   /// A small uppercase eyebrow label. Callers upper-case the text themselves.
@@ -206,13 +208,13 @@ extension ThemeContext on BuildContext {
   TextStyle get bodyMdStrong => textTheme.bodyMdStrong;
   TextStyle get bodyMdBold => textTheme.bodyMdBold;
   TextStyle get bodySmBold => textTheme.bodySmBold;
-  TextStyle get labelLgStrong => textTheme.labelLgStrong;
+  TextStyle get labelLgBold => textTheme.labelLgBold;
   TextStyle get labelSmBold => textTheme.labelSmBold;
   TextStyle get headlineMdStrong => textTheme.headlineMdStrong;
-  TextStyle get headlineLgStrong => textTheme.headlineLgStrong;
-  TextStyle get headlineSmBold => textTheme.headlineSmBold;
-  TextStyle get amountDisplayBold => textTheme.amountDisplayBold;
-  TextStyle get headlineDisplayStrong => textTheme.headlineDisplayStrong;
+  TextStyle get headlineLgExtraBold => textTheme.headlineLgExtraBold;
+  TextStyle get headlineSmExtraBold => textTheme.headlineSmExtraBold;
+  TextStyle get amountDisplayExtraBold => textTheme.amountDisplayExtraBold;
+  TextStyle get headlineDisplayBlack => textTheme.headlineDisplayBlack;
   TextStyle get labelXs => textTheme.labelXs;
   TextStyle get bodySmStrong => textTheme.bodySmStrong;
   TextStyle get bodyMdExtraBold => textTheme.bodyMdExtraBold;

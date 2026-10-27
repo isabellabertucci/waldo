@@ -171,7 +171,7 @@ class AppNavButton extends StatelessWidget {
                         const SizedBox(width: Spacing.xs),
                         Text(
                           label,
-                          style: context.labelLgStrong.copyWith(
+                          style: context.labelLgBold.copyWith(
                             color: colors.onPrimary,
                           ),
                         ),

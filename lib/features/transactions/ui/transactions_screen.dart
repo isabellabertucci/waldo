@@ -262,7 +262,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                         widget.wallet.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: context.headlineLgStrong,
+                        style: context.headlineLgExtraBold,
                       ),
                     ),
                     Text.rich(

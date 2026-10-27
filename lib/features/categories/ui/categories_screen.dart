@@ -63,7 +63,7 @@ class CategoriesScreen extends ConsumerWidget {
                       child: Heading(
                         child: Text(
                           l10n.categories,
-                          style: context.headlineSmBold.copyWith(
+                          style: context.headlineSmExtraBold.copyWith(
                             color: colors.onSurface,
                           ),
                         ),

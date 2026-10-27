@@ -519,7 +519,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                           name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: context.headlineLgStrong,
+                          style: context.headlineLgExtraBold,
                         ),
                         Text(
                           '$categoryLabel · ${formState.type.label(l10n)}',
@@ -564,7 +564,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                   ),
                   Text(
                     amountText,
-                    style: context.headlineLgStrong.copyWith(
+                    style: context.headlineLgExtraBold.copyWith(
                       color: amountColor,
                     ),
                   ),
@@ -676,7 +676,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                 child: Heading(
                   child: Text(
                     l10n.editTransactionAction,
-                    style: context.headlineLgStrong,
+                    style: context.headlineLgExtraBold,
                   ),
                 ),
               ),
@@ -715,7 +715,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                       child: Text(
                         amountText,
                         textAlign: TextAlign.center,
-                        style: context.headlineLgStrong.copyWith(
+                        style: context.headlineLgExtraBold.copyWith(
                           color: amountColor,
                         ),
                       ),
@@ -835,7 +835,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               Heading(
                 child: Text(
                   _fieldTitle(field, l10n),
-                  style: context.headlineLgStrong,
+                  style: context.headlineLgExtraBold,
                 ),
               ),
             ],
@@ -906,7 +906,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                 liveRegion: true,
                 child: Text(
                   displayValue,
-                  style: context.amountDisplayBold.copyWith(color: color),
+                  style: context.amountDisplayExtraBold.copyWith(color: color),
                 ),
               ),
             ],
@@ -1095,7 +1095,7 @@ class _NumpadKey extends StatelessWidget {
           child: Center(
             child: icon != null
                 ? Icon(icon, size: IconSize.xl, color: colors.onSurface)
-                : Text(label!, style: context.headlineLgStrong),
+                : Text(label!, style: context.headlineLgExtraBold),
           ),
         ),
       ),

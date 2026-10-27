@@ -115,7 +115,7 @@ class DashedStitchButton extends StatelessWidget {
                             (labelStyle ??
                                     (compact
                                         ? context.bodySmBold
-                                        : context.labelLgStrong))
+                                        : context.labelLgBold))
                                 .copyWith(color: ink),
                       ),
                     ),

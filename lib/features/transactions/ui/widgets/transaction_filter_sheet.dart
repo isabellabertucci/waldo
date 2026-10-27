@@ -83,7 +83,7 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
                   Heading(
                     child: Text(
                       l10n.filterTitle,
-                      style: context.headlineLgStrong,
+                      style: context.headlineLgExtraBold,
                     ),
                   ),
                   const Spacer(),

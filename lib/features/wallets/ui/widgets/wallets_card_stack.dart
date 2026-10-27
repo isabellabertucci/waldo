@@ -105,7 +105,7 @@ class WalletsCardStack extends StatelessWidget {
                 const SizedBox(height: Spacing.xs),
                 Text(
                   totalText,
-                  style: context.headlineSmBold.copyWith(
+                  style: context.headlineSmExtraBold.copyWith(
                     color: colors.onSurface,
                   ),
                 ),
@@ -260,7 +260,7 @@ class _WalletCard extends StatelessWidget {
                           wallet.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: context.headlineLgStrong.copyWith(
+                          style: context.headlineLgExtraBold.copyWith(
                             color: walletCardInkColor(context, alpha: 1),
                             shadows: walletCardTextShadow,
                           ),

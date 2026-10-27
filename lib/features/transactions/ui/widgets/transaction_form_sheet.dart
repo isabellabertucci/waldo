@@ -202,7 +202,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                     child: Heading(
                       child: Text(
                         l10n.newTransaction,
-                        style: context.headlineLgStrong,
+                        style: context.headlineLgExtraBold,
                       ),
                     ),
                   ),
@@ -252,9 +252,8 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                                     // The trailing space makes "+$ 0.00" read as one string.
                                     Text(
                                       '${isIncome ? '+' : '-'}$currencySymbol ',
-                                      style: context.amountDisplayBold.copyWith(
-                                        color: amountColor,
-                                      ),
+                                      style: context.amountDisplayExtraBold
+                                          .copyWith(color: amountColor),
                                     ),
                                     // As wide as its text, so the gap stays one space.
                                     Flexible(
@@ -291,13 +290,14 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                                             hintText: zeroAmountHint(
                                               moneyLocale(context),
                                             ),
-                                            hintStyle: context.amountDisplayBold
+                                            hintStyle: context
+                                                .amountDisplayExtraBold
                                                 .copyWith(
                                                   color:
                                                       colors.onSurfaceVariant,
                                                 ),
                                           ),
-                                          style: context.amountDisplayBold
+                                          style: context.amountDisplayExtraBold
                                               .copyWith(
                                                 color: colors.onSurface,
                                               ),
@@ -552,7 +552,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
               const SheetGrabber(),
               const SizedBox(height: Spacing.md),
               Heading(
-                child: Text(l10n.wallet, style: context.headlineLgStrong),
+                child: Text(l10n.wallet, style: context.headlineLgExtraBold),
               ),
               const SizedBox(height: Spacing.sm),
               Flexible(

@@ -167,7 +167,7 @@ class BalanceOverviewCard extends StatelessWidget {
                 const SizedBox(height: Spacing.xs),
                 Text(
                   balanceText,
-                  style: context.headlineDisplayStrong.copyWith(
+                  style: context.headlineDisplayBlack.copyWith(
                     color: colors.onLeather,
                   ),
                 ),

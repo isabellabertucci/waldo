@@ -96,7 +96,7 @@ class _SettingsOptionSheetState<T> extends State<SettingsOptionSheet<T>> {
                                 child: Heading(
                                   child: Text(
                                     widget.title,
-                                    style: context.headlineSmBold.copyWith(
+                                    style: context.headlineSmExtraBold.copyWith(
                                       color: colors.onSurface,
                                     ),
                                   ),
