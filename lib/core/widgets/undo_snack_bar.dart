@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/theme/app_colors.dart';
@@ -127,7 +128,9 @@ class _BarShell extends StatelessWidget {
           borderRadius: BorderRadius.circular(Rounded.md),
           // On the dark page the ink bar needs an edge to show where it ends.
           border: isDark
-              ? Border.all(color: colors.onLeather.withValues(alpha: 0.12))
+              ? Border.all(
+                  color: colors.onLeather.withValues(alpha: Alpha.soft),
+                )
               : null,
           boxShadow: Elevation.high,
         ),
@@ -238,7 +241,7 @@ class _UndoBarState extends State<_UndoBar>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: context.textTheme.bodySmall?.copyWith(
-                        color: colors.onLeather.withValues(alpha: 0.62),
+                        color: colors.onLeather.withValues(alpha: Alpha.muted),
                       ),
                     ),
                 ],
@@ -276,7 +279,7 @@ class _CountdownRing extends StatelessWidget {
             return CustomPaint(
               painter: _RingPainter(
                 remaining: 1 - progress.value,
-                track: colors.onLeather.withValues(alpha: 0.18),
+                track: colors.onLeather.withValues(alpha: Alpha.medium),
                 // The bar is ink in both themes, so it takes dark mode's orange.
                 fill: AppColors.dark.error,
               ),
@@ -368,7 +371,7 @@ class _UndoButton extends StatelessWidget {
               padding: const EdgeInsets.all(Spacing.xxs),
               child: DashedBorder(
                 radius: Rounded.pill,
-                color: colors.leather.withValues(alpha: 0.3),
+                color: colors.leather.withValues(alpha: Alpha.stitch),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: Spacing.sm - Spacing.xxs,

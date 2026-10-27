@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/fades.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/badge_size.dart';
@@ -429,7 +430,7 @@ class _ChevronDisc extends StatelessWidget {
       width: BadgeSize.xs,
       height: BadgeSize.xs,
       decoration: BoxDecoration(
-        color: colors.onSurface.withValues(alpha: 0.06),
+        color: colors.onSurface.withValues(alpha: Alpha.faint),
         shape: BoxShape.circle,
       ),
       child: Icon(

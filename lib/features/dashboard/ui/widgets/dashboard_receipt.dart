@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
@@ -143,7 +144,9 @@ class DashboardReceipt extends StatelessWidget {
                                 currencyCode: currencyCode,
                               ),
                             ),
-                            color: colors.onSurface.withValues(alpha: 0.8),
+                            color: colors.onSurface.withValues(
+                              alpha: Alpha.strong,
+                            ),
                           ),
                           if (i < visibleCategories.length - 1 ||
                               otherCategories.isNotEmpty)
@@ -163,7 +166,9 @@ class DashboardReceipt extends StatelessWidget {
                                 currencyCode: currencyCode,
                               ),
                             ),
-                            color: colors.onSurface.withValues(alpha: 0.8),
+                            color: colors.onSurface.withValues(
+                              alpha: Alpha.strong,
+                            ),
                           ),
                         if (uncategorizedSpending > 0) ...[
                           if (visibleCategories.isNotEmpty)
@@ -179,7 +184,9 @@ class DashboardReceipt extends StatelessWidget {
                                 currencyCode: currencyCode,
                               ),
                             ),
-                            color: colors.onSurface.withValues(alpha: 0.8),
+                            color: colors.onSurface.withValues(
+                              alpha: Alpha.strong,
+                            ),
                           ),
                         ],
                         const SizedBox(height: ComponentSize.receiptTotalGap),
@@ -298,7 +305,7 @@ class _EmptyReceipt extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(Spacing.lg, Spacing.md, Spacing.lg, 0),
       child: DashedBorder(
         radius: Rounded.lg,
-        color: colors.onSurfaceVariant.withValues(alpha: 0.4),
+        color: colors.onSurfaceVariant.withValues(alpha: Alpha.line),
         child: Container(
           padding: const EdgeInsets.all(Spacing.md),
           child: Column(

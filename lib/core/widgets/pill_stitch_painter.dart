@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/stitch.dart';
 import 'package:waldo/core/utils/dash_path.dart';
 
@@ -18,7 +19,7 @@ class PillStitchPainter extends CustomPainter {
         RRect.fromRectAndRadius(inner, Radius.circular(inner.shortestSide / 2)),
       );
     final paint = Paint()
-      ..color = color.withValues(alpha: 0.3)
+      ..color = color.withValues(alpha: Alpha.stitch)
       ..style = PaintingStyle.stroke
       ..strokeWidth = Stitch.width;
 

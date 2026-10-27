@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/stitch.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -144,7 +145,7 @@ class ReceiptRow extends StatelessWidget {
                       child: SizedBox(
                         width: double.infinity,
                         child: DottedLeader(
-                          color: color.withValues(alpha: 0.35),
+                          color: color.withValues(alpha: Alpha.stitch),
                         ),
                       ),
                     ),

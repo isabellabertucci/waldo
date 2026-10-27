@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -607,7 +608,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               // A plain circle beside "Edit transaction", not a long pill.
               CircleIconButton(
                 flat: true,
-                tint: colors.error.withValues(alpha: 0.08),
+                tint: colors.error.withValues(alpha: Alpha.tint),
                 tooltip: l10n.delete,
                 onPressed: _delete,
                 child: Icon(
@@ -885,9 +886,9 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             vertical: Spacing.md,
           ),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.08),
+            color: color.withValues(alpha: Alpha.tint),
             borderRadius: BorderRadius.circular(Rounded.lg),
-            border: Border.all(color: color.withValues(alpha: 0.3)),
+            border: Border.all(color: color.withValues(alpha: Alpha.stitch)),
           ),
           child: Column(
             children: [

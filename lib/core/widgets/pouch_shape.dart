@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/finish_colors.dart';
 import 'package:waldo/core/theme/stitch.dart';
 import 'package:waldo/core/theme/rounded.dart';
@@ -90,7 +91,7 @@ class PouchBorder extends ShapeBorder {
       dipDepth: dipDepth,
     );
     final paint = Paint()
-      ..color = stitchColor.withValues(alpha: 0.3)
+      ..color = stitchColor.withValues(alpha: Alpha.stitch)
       ..style = PaintingStyle.stroke
       ..strokeWidth = Stitch.width;
 

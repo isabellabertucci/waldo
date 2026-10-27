@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/stitch.dart';
@@ -26,7 +27,7 @@ class DashedCircleBadge extends StatelessWidget {
             width: BadgeSize.xl,
             height: BadgeSize.xl,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
+              color: color.withValues(alpha: Alpha.soft),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: IconSize.xl, color: color),
@@ -49,7 +50,7 @@ class _DashedCirclePainter extends CustomPainter {
     final path = Path()
       ..addOval((Offset.zero & size).deflate(Stitch.width / 2));
     final paint = Paint()
-      ..color = color.withValues(alpha: 0.6)
+      ..color = color.withValues(alpha: Alpha.muted)
       ..style = PaintingStyle.stroke
       ..strokeWidth = Stitch.width;
 

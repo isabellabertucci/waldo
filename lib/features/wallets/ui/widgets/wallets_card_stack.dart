@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
@@ -223,7 +224,7 @@ class _WalletCard extends StatelessWidget {
                   height: ComponentSize.walletCardSeam.height,
                   margin: const EdgeInsets.only(bottom: Spacing.xs),
                   decoration: BoxDecoration(
-                    color: walletCardInkColor(context, alpha: 0.3),
+                    color: walletCardInkColor(context, alpha: Alpha.stitch),
                     borderRadius: BorderRadius.circular(Rounded.pill),
                   ),
                 ),
@@ -235,8 +236,8 @@ class _WalletCard extends StatelessWidget {
               button: true,
               child: InkWell(
                 onTap: onTap,
-                splashColor: walletCardInkColor(context, alpha: 0.12),
-                highlightColor: walletCardInkColor(context, alpha: 0.08),
+                splashColor: walletCardInkColor(context, alpha: Alpha.soft),
+                highlightColor: walletCardInkColor(context, alpha: Alpha.tint),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(
                     Spacing.sm,
@@ -269,7 +270,10 @@ class _WalletCard extends StatelessWidget {
                           Icon(
                             wallet.type.icon,
                             size: IconSize.sm,
-                            color: walletCardInkColor(context, alpha: 0.6),
+                            color: walletCardInkColor(
+                              context,
+                              alpha: Alpha.muted,
+                            ),
                           ),
                           const SizedBox(width: Spacing.xs),
                           Expanded(
@@ -278,7 +282,10 @@ class _WalletCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: context.textTheme.bodySmall?.copyWith(
-                                color: walletCardInkColor(context, alpha: 0.6),
+                                color: walletCardInkColor(
+                                  context,
+                                  alpha: Alpha.muted,
+                                ),
                                 shadows: walletCardTextShadow,
                               ),
                             ),
@@ -368,13 +375,13 @@ class _CardMenuButtonState extends State<_CardMenuButton> {
           child: Container(
             padding: const EdgeInsets.all(Spacing.xs),
             decoration: BoxDecoration(
-              color: walletCardInkColor(context, alpha: 0.08),
+              color: walletCardInkColor(context, alpha: Alpha.tint),
               shape: BoxShape.circle,
             ),
             child: Icon(
               AppIcons.more,
               size: IconSize.lg,
-              color: walletCardInkColor(context, alpha: 0.85),
+              color: walletCardInkColor(context, alpha: Alpha.strong),
             ),
           ),
         ),

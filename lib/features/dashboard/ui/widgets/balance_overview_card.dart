@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
@@ -106,7 +107,7 @@ class BalanceOverviewCard extends StatelessWidget {
                                       style: context.bodySmStrong.copyWith(
                                         color: walletCardInkColor(
                                           context,
-                                          alpha: 0.6,
+                                          alpha: Alpha.muted,
                                         ),
                                         letterSpacing: 0.2,
                                         shadows: walletCardTextShadow,
@@ -120,7 +121,7 @@ class BalanceOverviewCard extends StatelessWidget {
                                         ?.copyWith(
                                           color: walletCardInkColor(
                                             context,
-                                            alpha: 0.6,
+                                            alpha: Alpha.muted,
                                           ),
                                           letterSpacing: 0.6,
                                           shadows: walletCardTextShadow,
@@ -162,7 +163,7 @@ class BalanceOverviewCard extends StatelessWidget {
                 Text(
                   l10n.totalBalance,
                   style: context.textTheme.bodySmall?.copyWith(
-                    color: colors.onLeather.withValues(alpha: 0.8),
+                    color: colors.onLeather.withValues(alpha: Alpha.strong),
                   ),
                 ),
                 const SizedBox(height: Spacing.xs),
@@ -177,7 +178,7 @@ class BalanceOverviewCard extends StatelessWidget {
                   Text(
                     l10n.zeroWalletsLabel,
                     style: context.textTheme.bodySmall?.copyWith(
-                      color: colors.onLeather.withValues(alpha: 0.6),
+                      color: colors.onLeather.withValues(alpha: Alpha.muted),
                     ),
                   ),
                 ] else ...[
@@ -195,7 +196,7 @@ class BalanceOverviewCard extends StatelessWidget {
                           onPressed: onAddPressed,
                           style: TextButton.styleFrom(
                             backgroundColor: colors.onLeather.withValues(
-                              alpha: 0.15,
+                              alpha: Alpha.soft,
                             ),
                             foregroundColor: colors.onLeather,
                             padding: const EdgeInsets.symmetric(
@@ -257,7 +258,7 @@ class _RoundIconButton extends StatelessWidget {
     final colors = context.appColors;
 
     return Material(
-      color: colors.onLeather.withValues(alpha: 0.15),
+      color: colors.onLeather.withValues(alpha: Alpha.soft),
       shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),
@@ -294,7 +295,7 @@ class _EmptyPeekCard extends StatelessWidget {
             height: ComponentSize.balancePeek + ComponentSize.balancePeekTuck,
             child: DashedBorder(
               radius: Rounded.lg,
-              color: colors.onSurface.withValues(alpha: 0.3),
+              color: colors.onSurface.withValues(alpha: Alpha.stitch),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
                   Spacing.md,

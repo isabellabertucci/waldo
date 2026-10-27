@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/elevation.dart';
@@ -120,7 +121,7 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
                 // The top and bottom margin is inside each segment's touch.
                 padding: const EdgeInsets.symmetric(horizontal: Spacing.xxs),
                 decoration: BoxDecoration(
-                  color: colors.onSurface.withValues(alpha: 0.04),
+                  color: colors.onSurface.withValues(alpha: Alpha.faint),
                   borderRadius: BorderRadius.circular(Rounded.pill),
                 ),
                 child: Row(

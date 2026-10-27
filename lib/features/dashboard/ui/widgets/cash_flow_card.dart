@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/motion.dart';
@@ -323,7 +324,7 @@ class _CashFlowChart extends StatelessWidget {
                     indicators.map((index) {
                       return TouchedSpotIndicatorData(
                         FlLine(
-                          color: seriesColor.withValues(alpha: 0.4),
+                          color: seriesColor.withValues(alpha: Alpha.line),
                           strokeWidth: ComponentSize.chartGuide,
                           dashArray: const [
                             ComponentSize.chartGuideDash,
@@ -372,7 +373,7 @@ class _CashFlowChart extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        seriesColor.withValues(alpha: 0.28),
+                        seriesColor.withValues(alpha: Alpha.stitch),
                         seriesColor.withValues(alpha: 0),
                       ],
                     ),
