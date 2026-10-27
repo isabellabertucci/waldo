@@ -96,7 +96,7 @@ class _SettingsOptionSheetState<T> extends State<SettingsOptionSheet<T>> {
                                 child: Heading(
                                   child: Text(
                                     widget.title,
-                                    style: context.headlineSmBold.copyWith(
+                                    style: context.headlineSmExtraBold.copyWith(
                                       color: colors.onSurface,
                                     ),
                                   ),
@@ -231,8 +231,8 @@ class _OptionRow<T> extends StatelessWidget {
                   const SizedBox(width: Spacing.sm),
                   if (selected)
                     Container(
-                      width: 22,
-                      height: 22,
+                      width: BadgeSize.xs,
+                      height: BadgeSize.xs,
                       decoration: BoxDecoration(
                         color: colors.primary,
                         shape: BoxShape.circle,
@@ -246,7 +246,7 @@ class _OptionRow<T> extends StatelessWidget {
                   else
                     Icon(
                       AppIcons.radioUnselected,
-                      size: 22,
+                      size: BadgeSize.xs,
                       // An unpicked option's ring: 3:1 for a state (WCAG 1.4.11).
                       color: colors.onSurfaceVariant,
                     ),

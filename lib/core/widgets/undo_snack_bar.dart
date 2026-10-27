@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
+import 'package:waldo/core/theme/component_size.dart';
+import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -14,12 +17,8 @@ import 'package:waldo/l10n/app_localizations.dart';
 /// How long a deleted item can still be brought back.
 const undoWindow = Duration(seconds: 5);
 
-const _barHeight = 64.0; // one-off: two text lines plus the 48dp Undo button
-const _buttonHeight = 48.0;
-const _ringSize = 32.0;
-const _enterDuration = Duration(milliseconds: 350);
-const _enterCurve = Cubic(0.2, 0.8, 0.2, 1);
-const _enterOffset = 18.0;
+/// The 48dp Undo button with the bar's padding above and below it.
+const _barHeight = kMinInteractiveDimension + Spacing.xs * 2;
 const _restoredDuration = Duration(seconds: 2);
 
 /// Shows the undo bar for an item that was just hidden. Completes with true
@@ -108,10 +107,10 @@ class _BarShell extends StatelessWidget {
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 1, end: 0),
-      duration: _enterDuration,
-      curve: _enterCurve,
+      duration: Motion.enter,
+      curve: Motion.enterCurve,
       builder: (context, t, child) => Transform.translate(
-        offset: Offset(0, _enterOffset * t),
+        offset: Offset(0, Motion.enterRise * t),
         child: Opacity(opacity: 1 - t, child: child),
       ),
       // At least 64 tall, and taller with large text, so it never clips.
@@ -129,7 +128,9 @@ class _BarShell extends StatelessWidget {
           borderRadius: BorderRadius.circular(Rounded.md),
           // On the dark page the ink bar needs an edge to show where it ends.
           border: isDark
-              ? Border.all(color: colors.onLeather.withValues(alpha: 0.12))
+              ? Border.all(
+                  color: colors.onLeather.withValues(alpha: Alpha.soft),
+                )
               : null,
           boxShadow: Elevation.high,
         ),
@@ -240,7 +241,7 @@ class _UndoBarState extends State<_UndoBar>
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: context.textTheme.bodySmall?.copyWith(
-                        color: colors.onLeather.withValues(alpha: 0.62),
+                        color: colors.onLeather.withValues(alpha: Alpha.muted),
                       ),
                     ),
                 ],
@@ -267,7 +268,7 @@ class _CountdownRing extends StatelessWidget {
 
     return ExcludeSemantics(
       child: SizedBox.square(
-        dimension: _ringSize,
+        dimension: ComponentSize.undoRing,
         child: AnimatedBuilder(
           animation: progress,
           builder: (context, _) {
@@ -278,7 +279,7 @@ class _CountdownRing extends StatelessWidget {
             return CustomPaint(
               painter: _RingPainter(
                 remaining: 1 - progress.value,
-                track: colors.onLeather.withValues(alpha: 0.18),
+                track: colors.onLeather.withValues(alpha: Alpha.medium),
                 // The bar is ink in both themes, so it takes dark mode's orange.
                 fill: AppColors.dark.error,
               ),
@@ -365,12 +366,12 @@ class _UndoButton extends StatelessWidget {
         child: InkWell(
           onTap: onPressed,
           child: SizedBox(
-            height: _buttonHeight,
+            height: kMinInteractiveDimension,
             child: Padding(
               padding: const EdgeInsets.all(Spacing.xxs),
               child: DashedBorder(
                 radius: Rounded.pill,
-                color: colors.leather.withValues(alpha: 0.3),
+                color: colors.leather.withValues(alpha: Alpha.stitch),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: Spacing.sm - Spacing.xxs,
@@ -413,8 +414,8 @@ class _IconDisc extends StatelessWidget {
     final colors = context.appColors;
 
     return Container(
-      width: _ringSize,
-      height: _ringSize,
+      width: ComponentSize.undoRing,
+      height: ComponentSize.undoRing,
       decoration: BoxDecoration(
         color: colors.onLeather,
         shape: BoxShape.circle,

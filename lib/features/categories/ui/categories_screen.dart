@@ -63,7 +63,7 @@ class CategoriesScreen extends ConsumerWidget {
                       child: Heading(
                         child: Text(
                           l10n.categories,
-                          style: context.headlineSmBold.copyWith(
+                          style: context.headlineSmExtraBold.copyWith(
                             color: colors.onSurface,
                           ),
                         ),
@@ -265,7 +265,7 @@ class _CategoryRow extends StatelessWidget {
             ),
             // A fixed-size slot, so rows line up whether or not they have an X.
             SizedBox.square(
-              dimension: 48,
+              dimension: kMinInteractiveDimension,
               child: onDelete == null
                   ? null
                   : IconButton(

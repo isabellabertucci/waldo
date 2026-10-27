@@ -1,18 +1,16 @@
 import 'dart:ui' show SemanticsRole;
 
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/component_size.dart';
+import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/core/utils/dash_path.dart';
+import 'package:waldo/core/widgets/pill_stitch_painter.dart';
 import 'package:waldo/l10n/app_localizations.dart';
-
-/// The selected pill's label is shorter than the icon-only buttons are tall,
-/// so it takes one more pixel each side to keep every button the same height.
-const _selectedVerticalPadding = 13.0; // one-off
 
 /// The floating pill navbar. Item order must match the router's branch order.
 class AppNavBar extends StatelessWidget {
@@ -135,7 +133,7 @@ class AppNavButton extends StatelessWidget {
               '$label\n${MaterialLocalizations.of(context).tabLabel(tabIndex: tabIndex, tabCount: tabCount)}',
           excludeSemantics: true,
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+            duration: Motion.navigation,
             decoration: BoxDecoration(
               color: selected ? colors.primary : colors.transparent,
               borderRadius: BorderRadius.circular(Rounded.pill),
@@ -147,14 +145,14 @@ class AppNavButton extends StatelessWidget {
                 if (selected)
                   Positioned.fill(
                     child: CustomPaint(
-                      painter: _DashedPillPainter(color: colors.onPrimary),
+                      painter: PillStitchPainter(color: colors.onPrimary),
                     ),
                   ),
                 Padding(
                   padding: selected
                       ? const EdgeInsets.symmetric(
                           horizontal: Spacing.sm,
-                          vertical: _selectedVerticalPadding,
+                          vertical: ComponentSize.navSelectedPadding,
                         )
                       : const EdgeInsets.all(Spacing.component),
                   child: Row(
@@ -171,7 +169,7 @@ class AppNavButton extends StatelessWidget {
                         const SizedBox(width: Spacing.xs),
                         Text(
                           label,
-                          style: context.labelLgStrong.copyWith(
+                          style: context.labelLgBold.copyWith(
                             color: colors.onPrimary,
                           ),
                         ),
@@ -186,41 +184,4 @@ class AppNavButton extends StatelessWidget {
       ),
     );
   }
-}
-
-/// A dashed stitch just inside a pill's rounded edge.
-class _DashedPillPainter extends CustomPainter {
-  const _DashedPillPainter({required this.color});
-
-  final Color color;
-
-  // Denser and fainter than [PouchBorder]'s stitch, to suit the smaller pill.
-  static const _inset = 5.0;
-  static const _dashLength = 3.0;
-  static const _gapLength = 2.5;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final path = Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          rect.deflate(_inset),
-          Radius.circular(rect.deflate(_inset).shortestSide / 2),
-        ),
-      );
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.3)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    canvas.drawPath(
-      dashPath(path, dashLength: _dashLength, gapLength: _gapLength),
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedPillPainter oldDelegate) =>
-      color != oldDelegate.color;
 }

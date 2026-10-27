@@ -116,7 +116,7 @@ class WalletsScreen extends ConsumerWidget {
                         l10n.wallets,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: context.headlineSmBold.copyWith(
+                        style: context.headlineSmExtraBold.copyWith(
                           color: colors.onSurface,
                         ),
                       ),

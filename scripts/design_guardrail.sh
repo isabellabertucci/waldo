@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
-# Fails if a hardcoded Color(0x...) or raw `fontSize:` number appears
-# outside lib/core/theme - the two most mechanically-checkable categories
-# from DESIGN.md's rules. A line with a real, reviewed
-# reason for being an exception is marked `// one-off` within a couple of
-# lines (see DESIGN.md's Known Gaps for the
-# reasoning behind each one) - checked as a window rather than requiring
-# the marker on the exact same line, since `dart format` is free to
-# rewrap a multi-line call and move a trailing comment to a different
-# physical line than the value it documents.
+# Fails if a widget holds a raw design value instead of a token from
+# lib/core/theme: a colour, a font size or weight, an animation duration,
+# or a fractional opacity. Every such value has a named token in
+# lib/core/theme (see DESIGN.md), so there is no exception marker.
 #
-# Note: this intentionally does not yet check raw EdgeInsets/SizedBox
-# numbers - see DESIGN.md's Known Gaps for why that check is deferred.
+# Not checked: the shape of a drawing inside a painter (the pouch's curve,
+# the eye's path), and behaviour constants such as counts and time windows.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -20,32 +15,26 @@ violations=0
 check() {
   local pattern="$1"
   local label="$2"
-  local file
-  local unmarked=""
-  for file in $(grep -rl "$pattern" lib/ --include="*.dart" | grep -v "lib/core/theme/"); do
-    local lines
-    lines=$(grep -n "$pattern" "$file" | cut -d: -f1)
-    for line in $lines; do
-      local window
-      window=$(sed -n "$((line > 2 ? line - 2 : 1)),$((line + 2))p" "$file")
-      if ! echo "$window" | grep -q "one-off"; then
-        unmarked="$unmarked$file:$line: $(sed -n "${line}p" "$file")"$'\n'
-      fi
-    done
-  done
-  if [ -n "$unmarked" ]; then
+  local found
+  found=$(grep -rnE "$pattern" lib/ --include="*.dart" | grep -v "^lib/core/theme/" || true)
+  if [ -n "$found" ]; then
     echo "=== $label outside lib/core/theme ==="
-    echo "$unmarked"
+    echo "$found"
+    echo
     violations=$((violations + 1))
   fi
 }
 
-check 'Color(0x' "Hardcoded Color(0x...)"
-check 'fontSize: [0-9]' "Raw fontSize:"
+check 'Color\(0x' "Hardcoded Color(0x...)"
+check '\bColors\.[a-z]' "Material Colors.*"
+check 'fontSize:' "Raw fontSize:"
+check 'fontWeight:' "Raw fontWeight:"
+check 'Duration\(milliseconds' "Raw animation duration"
+check 'alpha: 0\.[0-9]' "Raw opacity"
 
 if [ "$violations" -gt 0 ]; then
   echo "Design guardrail failed: $violations categorie(s) with hardcoded values."
-  echo "Replace with a lib/core/theme token, or mark a reviewed exception with '// one-off'."
+  echo "Use a token from lib/core/theme, or add one there and document it in DESIGN.md."
   exit 1
 fi
 

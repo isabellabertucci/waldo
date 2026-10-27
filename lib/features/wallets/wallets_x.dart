@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/app_icons.dart';
@@ -30,7 +31,7 @@ extension WalletTypeStyle on WalletType {
         ? colors.error
         : colors.onSurfaceVariant;
     return BadgeStyle(
-      background: color.withValues(alpha: 0.12),
+      background: color.withValues(alpha: Alpha.soft),
       foreground: color,
     );
   }

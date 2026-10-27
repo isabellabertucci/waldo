@@ -1,5 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:waldo/core/theme/alpha.dart';
+import 'package:waldo/core/theme/fades.dart';
+import 'package:waldo/core/theme/component_size.dart';
+import 'package:waldo/core/theme/badge_size.dart';
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/motion.dart';
 import 'package:flutter/rendering.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/theme/app_icons.dart';
@@ -10,12 +15,7 @@ import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
 const _chevronHitSize = kMinInteractiveDimension;
-const _chevronDiscSize = 22.0; // one-off: a small hint, not a main control
-const _chevronOverhang = (_chevronHitSize - _chevronDiscSize) / 2;
-
-/// The selected month is bolder and larger, so it gives back 2px a side to
-/// keep the chip from growing past its neighbours.
-const _selectedChipPadding = Spacing.sm - 2; // one-off
+const _chevronOverhang = (_chevronHitSize - BadgeSize.xs) / 2;
 
 /// The months a [MonthSelector] offers: the [count] months up to [now]'s,
 /// oldest first, plus next month (shown disabled) so the row doesn't end at
@@ -173,8 +173,8 @@ class _MonthSelectorState extends State<MonthSelector> {
   void _animateTo(double offset) {
     _scrollController.animateTo(
       offset,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
+      duration: Motion.scroll,
+      curve: Motion.scrollCurve,
     );
   }
 
@@ -225,19 +225,8 @@ class _MonthSelectorState extends State<MonthSelector> {
               // to the center.
               final edgePadding = constraints.maxWidth / 2;
 
-              // one-off: an alpha mask (dstIn only reads opacity), never painted.
               return ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black,
-                    Colors.black,
-                    Colors.transparent,
-                  ],
-                  stops: [0, 0.04, 0.92, 1],
-                ).createShader(bounds),
+                shaderCallback: Fades.rowEdges.createShader,
                 blendMode: BlendMode.dstIn,
                 child: NotificationListener<ScrollEndNotification>(
                   onNotification: (_) {
@@ -308,23 +297,20 @@ class _ScrollHintChevronState extends State<_ScrollHintChevron>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    );
+    _controller = AnimationController(vsync: this, duration: Motion.hint);
     _offset = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween(
           begin: 0.0,
           end: -4.0,
-        ).chain(CurveTween(curve: Curves.easeOut)),
+        ).chain(CurveTween(curve: Motion.hintOut)),
         weight: 15,
       ),
       TweenSequenceItem(
         tween: Tween(
           begin: -4.0,
           end: 0.0,
-        ).chain(CurveTween(curve: Curves.easeIn)),
+        ).chain(CurveTween(curve: Motion.hintBack)),
         weight: 15,
       ),
       TweenSequenceItem(tween: ConstantTween(0.0), weight: 30),
@@ -332,14 +318,14 @@ class _ScrollHintChevronState extends State<_ScrollHintChevron>
         tween: Tween(
           begin: 0.0,
           end: -4.0,
-        ).chain(CurveTween(curve: Curves.easeOut)),
+        ).chain(CurveTween(curve: Motion.hintOut)),
         weight: 15,
       ),
       TweenSequenceItem(
         tween: Tween(
           begin: -4.0,
           end: 0.0,
-        ).chain(CurveTween(curve: Curves.easeIn)),
+        ).chain(CurveTween(curve: Motion.hintBack)),
         weight: 15,
       ),
     ]).animate(_controller);
@@ -441,10 +427,10 @@ class _ChevronDisc extends StatelessWidget {
     final colors = context.appColors;
 
     return Container(
-      width: _chevronDiscSize,
-      height: _chevronDiscSize,
+      width: BadgeSize.xs,
+      height: BadgeSize.xs,
       decoration: BoxDecoration(
-        color: colors.onSurface.withValues(alpha: 0.06),
+        color: colors.onSurface.withValues(alpha: Alpha.faint),
         shape: BoxShape.circle,
       ),
       child: Icon(
@@ -491,22 +477,22 @@ class _MonthPill extends StatelessWidget {
               minHeight: kMinInteractiveDimension,
             ),
             padding: EdgeInsets.symmetric(
-              horizontal: selected ? _selectedChipPadding : Spacing.sm,
+              horizontal: selected
+                  ? ComponentSize.monthSelectedPadding
+                  : Spacing.sm,
             ),
             alignment: Alignment.center,
             child: Text(
               label,
-              // The selected chip's own size/weight bump - a dedicated
-              // selected-state treatment, not a named type-scale step.
-              style: context.textTheme.bodyMedium?.copyWith(
-                fontSize: selected ? 14 : 13,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                color: selected
-                    ? colors.onPrimary
-                    : colors.onSurfaceVariant.withValues(
-                        alpha: disabled ? 0.4 : 1,
-                      ),
-              ),
+              // The selected month is a step larger and bold.
+              style: (selected ? context.bodyMdBold : context.monthPill)
+                  .copyWith(
+                    color: selected
+                        ? colors.onPrimary
+                        : colors.onSurfaceVariant.withValues(
+                            alpha: disabled ? 0.4 : 1,
+                          ),
+                  ),
             ),
           ),
         ),

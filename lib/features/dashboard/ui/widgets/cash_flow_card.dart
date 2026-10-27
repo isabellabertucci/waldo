@@ -1,7 +1,10 @@
 import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:waldo/core/theme/alpha.dart';
+import 'package:waldo/core/theme/component_size.dart';
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/motion.dart';
 import 'package:intl/intl.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -79,7 +82,7 @@ class _CashFlowCardState extends State<CashFlowCard> {
           ),
           const SizedBox(height: Spacing.lg),
           SizedBox(
-            height: 160,
+            height: ComponentSize.chartHeight,
             child: _CashFlowChart(
               monthlyCashFlow: widget.monthlyCashFlow,
               currencyCode: currencyCode,
@@ -164,7 +167,7 @@ class _SeriesToggleSegment extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: Spacing.xxs),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
+            duration: Motion.toggle,
             padding: const EdgeInsets.symmetric(
               horizontal: Spacing.sm,
               vertical: Spacing.component,
@@ -224,9 +227,7 @@ class _CashFlowChart extends StatelessWidget {
         FlSpot(i.toDouble(), _valueFor(monthlyCashFlow[i]) / 100),
     ];
 
-    // Chart axis label - fl_chart's own small-print scale, not the app's
-    // type system.
-    final labelStyle = TextStyle(fontSize: 11, color: labelColor); // one-off
+    final labelStyle = context.chartAxis.copyWith(color: labelColor);
     final labels = [
       for (final month in monthlyCashFlow) monthFormat.format(month.month),
     ];
@@ -323,16 +324,19 @@ class _CashFlowChart extends StatelessWidget {
                     indicators.map((index) {
                       return TouchedSpotIndicatorData(
                         FlLine(
-                          color: seriesColor.withValues(alpha: 0.4),
-                          strokeWidth: 1.5,
-                          dashArray: const [4, 4],
+                          color: seriesColor.withValues(alpha: Alpha.line),
+                          strokeWidth: ComponentSize.chartGuide,
+                          dashArray: const [
+                            ComponentSize.chartGuideDash,
+                            ComponentSize.chartGuideDash,
+                          ],
                         ),
                         FlDotData(
                           getDotPainter: (spot, percent, bar, index) =>
                               FlDotCirclePainter(
-                                radius: 4,
+                                radius: ComponentSize.chartDotRadius,
                                 color: seriesColor,
-                                strokeWidth: 2,
+                                strokeWidth: ComponentSize.chartDotRing,
                                 strokeColor: colors.surface,
                               ),
                         ),
@@ -351,12 +355,7 @@ class _CashFlowChart extends StatelessWidget {
                     return LineTooltipItem(
                       '${monthFormat.format(month)} · '
                       '${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currencyCode)}',
-                      // Tooltip text drawn by fl_chart on the canvas, not a UI text style.
-                      TextStyle(
-                        color: colors.onPrimary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12, // one-off
-                      ),
+                      context.bodySmBold.copyWith(color: colors.onPrimary),
                     );
                   }).toList(),
                 ),
@@ -366,7 +365,7 @@ class _CashFlowChart extends StatelessWidget {
                   spots: spots,
                   isCurved: true,
                   color: seriesColor,
-                  barWidth: 2.5,
+                  barWidth: ComponentSize.chartLine,
                   dotData: const FlDotData(show: false),
                   belowBarData: BarAreaData(
                     show: true,
@@ -374,7 +373,7 @@ class _CashFlowChart extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        seriesColor.withValues(alpha: 0.28),
+                        seriesColor.withValues(alpha: Alpha.stitch),
                         seriesColor.withValues(alpha: 0),
                       ],
                     ),

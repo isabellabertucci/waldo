@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
+import 'package:waldo/core/theme/elevation.dart';
+import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/constants/enums.dart';
@@ -13,10 +16,6 @@ import 'package:waldo/core/widgets/min_tap_target.dart';
 
 import '../../models/wallet.dart';
 import '../../wallets_x.dart';
-
-const _cardHeight = 187.0;
-
-const _overlapHeightFactor = 124 / 170;
 
 class WalletsCardStack extends StatelessWidget {
   const WalletsCardStack({
@@ -105,7 +104,7 @@ class WalletsCardStack extends StatelessWidget {
                 const SizedBox(height: Spacing.xs),
                 Text(
                   totalText,
-                  style: context.headlineSmBold.copyWith(
+                  style: context.headlineSmExtraBold.copyWith(
                     color: colors.onSurface,
                   ),
                 ),
@@ -119,9 +118,11 @@ class WalletsCardStack extends StatelessWidget {
               final isLastCard = index == n - 1;
               return Align(
                 alignment: Alignment.topCenter,
-                heightFactor: isLastCard ? 1.0 : _overlapHeightFactor,
+                heightFactor: isLastCard
+                    ? 1.0
+                    : ComponentSize.walletCardStackOverlap,
                 child: SizedBox(
-                  height: _cardHeight,
+                  height: ComponentSize.walletCard,
                   width: double.infinity,
                   child: _WalletCard(
                     key: Key('walletCard_${wallet.id}'),
@@ -193,23 +194,18 @@ class _WalletCard extends StatelessWidget {
           ),
 
           // A soft shadow along the top edge, for depth where the cards overlap.
-          Positioned(
+          const Positioned(
             top: 0,
             left: 0,
             right: 0,
-            height: 28,
+            height: ComponentSize.walletCardTopShade,
             child: IgnorePointer(
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    // one-off: a shadow cast over the card stack - shadows
-                    // stay black in both themes, like Elevation's.
-                    colors: [
-                      Colors.black.withValues(alpha: 0.16),
-                      Colors.black.withValues(alpha: 0),
-                    ],
+                    colors: Elevation.stackShade,
                   ),
                 ),
               ),
@@ -224,11 +220,11 @@ class _WalletCard extends StatelessWidget {
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  width: 36,
-                  height: 5,
+                  width: ComponentSize.walletCardSeam.width,
+                  height: ComponentSize.walletCardSeam.height,
                   margin: const EdgeInsets.only(bottom: Spacing.xs),
                   decoration: BoxDecoration(
-                    color: walletCardInkColor(context, alpha: 0.3),
+                    color: walletCardInkColor(context, alpha: Alpha.stitch),
                     borderRadius: BorderRadius.circular(Rounded.pill),
                   ),
                 ),
@@ -240,8 +236,8 @@ class _WalletCard extends StatelessWidget {
               button: true,
               child: InkWell(
                 onTap: onTap,
-                splashColor: walletCardInkColor(context, alpha: 0.12),
-                highlightColor: walletCardInkColor(context, alpha: 0.08),
+                splashColor: walletCardInkColor(context, alpha: Alpha.soft),
+                highlightColor: walletCardInkColor(context, alpha: Alpha.tint),
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(
                     Spacing.sm,
@@ -255,12 +251,14 @@ class _WalletCard extends StatelessWidget {
                     children: [
                       Padding(
                         // Leaves room for the menu button, so long names ellipsize before it.
-                        padding: const EdgeInsets.only(right: 36),
+                        padding: const EdgeInsets.only(
+                          right: ComponentSize.walletCardMenuRoom,
+                        ),
                         child: Text(
                           wallet.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: context.headlineLgStrong.copyWith(
+                          style: context.headlineLgExtraBold.copyWith(
                             color: walletCardInkColor(context, alpha: 1),
                             shadows: walletCardTextShadow,
                           ),
@@ -272,7 +270,10 @@ class _WalletCard extends StatelessWidget {
                           Icon(
                             wallet.type.icon,
                             size: IconSize.sm,
-                            color: walletCardInkColor(context, alpha: 0.6),
+                            color: walletCardInkColor(
+                              context,
+                              alpha: Alpha.muted,
+                            ),
                           ),
                           const SizedBox(width: Spacing.xs),
                           Expanded(
@@ -281,7 +282,10 @@ class _WalletCard extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: context.textTheme.bodySmall?.copyWith(
-                                color: walletCardInkColor(context, alpha: 0.6),
+                                color: walletCardInkColor(
+                                  context,
+                                  alpha: Alpha.muted,
+                                ),
                                 shadows: walletCardTextShadow,
                               ),
                             ),
@@ -291,12 +295,10 @@ class _WalletCard extends StatelessWidget {
                             balanceText,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            // one-off: titleMedium + w800 for the card's balance figure.
-                            style: context.textTheme.titleMedium?.copyWith(
+                            style: context.walletCardBalance.copyWith(
                               color: isNegative && !isBalanceHidden
                                   ? walletCardNegativeColor(context)
                                   : walletCardInkColor(context, alpha: 1),
-                              fontWeight: FontWeight.w800,
                               shadows: walletCardTextShadow,
                             ),
                           ),
@@ -373,13 +375,13 @@ class _CardMenuButtonState extends State<_CardMenuButton> {
           child: Container(
             padding: const EdgeInsets.all(Spacing.xs),
             decoration: BoxDecoration(
-              color: walletCardInkColor(context, alpha: 0.08),
+              color: walletCardInkColor(context, alpha: Alpha.tint),
               shape: BoxShape.circle,
             ),
             child: Icon(
               AppIcons.more,
               size: IconSize.lg,
-              color: walletCardInkColor(context, alpha: 0.85),
+              color: walletCardInkColor(context, alpha: Alpha.strong),
             ),
           ),
         ),

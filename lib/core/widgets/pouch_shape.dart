@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
+import 'package:waldo/core/theme/finish_colors.dart';
+import 'package:waldo/core/theme/stitch.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/utils/dash_path.dart';
 
@@ -7,9 +10,14 @@ LinearGradient pouchGradient(Color base) {
   return LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    // one-off: white light falling across the leather, which is the same
-    // color in both themes on purpose, so the highlight is fixed too.
-    colors: [Color.lerp(base, Colors.white, 0.1)!, base],
+    colors: [
+      Color.lerp(
+        base,
+        FinishColors.leatherSheen,
+        FinishColors.leatherSheenAmount,
+      )!,
+      base,
+    ],
   );
 }
 
@@ -56,19 +64,11 @@ class PouchBorder extends ShapeBorder {
     required this.stitchColor,
     this.cornerRadius = Rounded.lg,
     this.dipDepth = 22.0,
-    this.inset = 7.0,
-    this.strokeWidth = 1.5,
-    this.dashLength = 6.0,
-    this.gapLength = 5.0,
   });
 
   final Color stitchColor;
   final double cornerRadius;
   final double dipDepth;
-  final double inset;
-  final double strokeWidth;
-  final double dashLength;
-  final double gapLength;
 
   @override
   EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
@@ -83,6 +83,7 @@ class PouchBorder extends ShapeBorder {
 
   @override
   void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    const inset = Stitch.pouchInset;
     final stitchRect = rect.deflate(inset);
     final path = pouchPath(
       stitchRect,
@@ -90,14 +91,11 @@ class PouchBorder extends ShapeBorder {
       dipDepth: dipDepth,
     );
     final paint = Paint()
-      ..color = stitchColor.withValues(alpha: 0.3)
+      ..color = stitchColor.withValues(alpha: Alpha.stitch)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth;
+      ..strokeWidth = Stitch.width;
 
-    canvas.drawPath(
-      dashPath(path, dashLength: dashLength, gapLength: gapLength),
-      paint,
-    );
+    canvas.drawPath(dashPath(path, Stitch.coarse), paint);
   }
 
   @override

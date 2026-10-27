@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
+import 'package:waldo/core/theme/component_size.dart';
+import 'package:waldo/core/theme/stitch.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 
 /// A horizontal dashed rule, matching the wallet card's stitch.
@@ -27,24 +30,22 @@ class _DashedLinePainter extends CustomPainter {
 
   final Color color;
 
-  static const _dashLength = 5.0;
-  static const _gapLength = 4.0;
-
   // Whole dash+gap units, centered, so both ends are a full dash.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
       ..strokeWidth = size.height;
-    const unit = _dashLength + _gapLength;
+    final (:dash, :gap) = Stitch.receipt;
+    final unit = dash + gap;
     final count = (size.width / unit).floor();
     if (count < 1) return;
-    final usedWidth = count * unit - _gapLength;
+    final usedWidth = count * unit - gap;
     var x = (size.width - usedWidth) / 2;
     for (var i = 0; i < count; i++) {
       canvas.drawLine(
         Offset(x, size.height / 2),
-        Offset(x + _dashLength, size.height / 2),
+        Offset(x + dash, size.height / 2),
         paint,
       );
       x += unit;
@@ -65,7 +66,7 @@ class DottedLeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 1.5,
+      height: ComponentSize.receiptLeader,
       child: CustomPaint(painter: _DottedLinePainter(color: color)),
     );
   }
@@ -113,15 +114,17 @@ class ReceiptRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // one-off: the receipt's own print hierarchy, not the app's type scale.
-    final style = context.textTheme.bodyMedium?.copyWith(
-      fontSize: large ? 15 : 12.5,
-      fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
-      color: color,
-    );
+    // The receipt's own print scale: lines, bold lines, the total.
+    final style =
+        (large
+                ? context.receiptTotal
+                : bold
+                ? context.receiptLineBold
+                : context.receiptLine)
+            .copyWith(color: color);
 
     // Nudged down by the text's descent, so the dots sit on the baseline.
-    final descent = (style?.fontSize ?? 12.5) * 0.22;
+    final descent = style.fontSize! * 0.22;
 
     // The dots run under the label, which covers them in the paper's colour:
     // a long label is cut with "…" and the value always shows whole.
@@ -142,7 +145,7 @@ class ReceiptRow extends StatelessWidget {
                       child: SizedBox(
                         width: double.infinity,
                         child: DottedLeader(
-                          color: color.withValues(alpha: 0.35),
+                          color: color.withValues(alpha: Alpha.stitch),
                         ),
                       ),
                     ),
@@ -152,7 +155,9 @@ class ReceiptRow extends StatelessWidget {
               ColoredBox(
                 color: context.appColors.surface,
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 6),
+                  padding: const EdgeInsets.only(
+                    right: ComponentSize.receiptLeaderGap,
+                  ),
                   child: Text(
                     label,
                     maxLines: 1,
@@ -164,7 +169,7 @@ class ReceiptRow extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: ComponentSize.receiptLeaderGap),
         Text(value, maxLines: 1, style: style),
       ],
     );
@@ -186,14 +191,14 @@ class Barcode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 32,
+      height: ComponentSize.barcodeHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (final width in _widths) ...[
             Container(width: width.toDouble(), color: color),
-            const SizedBox(width: 2),
+            const SizedBox(width: ComponentSize.barcodeBarGap),
           ],
         ],
       ),

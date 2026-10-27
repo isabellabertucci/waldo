@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -30,12 +31,6 @@ import 'widgets/day_grouped_transaction_list.dart';
 import 'widgets/transaction_form_sheet.dart';
 import 'widgets/transaction_filter_sheet.dart';
 import '../transactions_x.dart';
-
-/// Room under the list so the last row scrolls clear of the floating nav.
-const _navBarClearance = 72.0; // one-off: the nav pill's height plus its gap
-
-/// The wallet's finish beside its name: a small card, not a round badge.
-const _thumbnailSize = Size(52, 40); // one-off
 
 class TransactionsScreen extends ConsumerWidget {
   const TransactionsScreen({super.key, required this.walletId});
@@ -241,8 +236,8 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(Rounded.sm),
                 child: SizedBox(
-                  width: _thumbnailSize.width,
-                  height: _thumbnailSize.height,
+                  width: ComponentSize.walletThumbnail.width,
+                  height: ComponentSize.walletThumbnail.height,
                   // The wallet's own finish, with a Hero from its card (see `_showHero`).
                   child: _showHero
                       ? Hero(
@@ -262,7 +257,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                         widget.wallet.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: context.headlineLgStrong,
+                        style: context.headlineLgExtraBold,
                       ),
                     ),
                     Text.rich(
@@ -279,9 +274,8 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                                     locale: moneyLocale(context),
                                     currencyCode: currency.code,
                                   ),
-                            // one-off: bolds only the balance in the inherited line style.
-                            style: TextStyle(
-                              fontWeight: FontWeight.w800,
+                            // Only the balance is bold in the line.
+                            style: context.bodyMdExtraBold.copyWith(
                               color:
                                   !isBalanceHidden &&
                                       widget.wallet.currentBalance < 0
@@ -379,7 +373,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                     Spacing.pageMargin,
                     Spacing.md,
                     Spacing.pageMargin,
-                    Spacing.lg + _navBarClearance,
+                    Spacing.lg,
                   ),
                 ),
         ),

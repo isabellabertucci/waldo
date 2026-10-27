@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/finish_colors.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 
 /// A wallet card's metal finish, picked by its position in the list
@@ -6,15 +7,15 @@ import 'package:waldo/core/theme/app_theme.dart';
 enum WalletCardFinish {
   platinum(
     textureAsset: 'assets/textures/cards/metal-silver.png',
-    darkColors: (Color(0xFF1C1E21), Color(0xFF6E7378)), // one-off
+    darkColors: FinishColors.platinumDark,
   ),
   gold(
     textureAsset: 'assets/textures/cards/metal-champagne.png',
-    darkColors: (Color(0xFF241A0E), Color(0xFF8C6A3C)), // one-off
+    darkColors: FinishColors.goldDark,
   ),
   bronze(
     textureAsset: 'assets/textures/cards/metal-rose.png',
-    darkColors: (Color(0xFF241310), Color(0xFF8A5244)), // one-off
+    darkColors: FinishColors.bronzeDark,
   );
 
   const WalletCardFinish({
@@ -77,17 +78,13 @@ Color walletCardInkColor(BuildContext context, {required double alpha}) {
 /// An engraved look for text on a [WalletCardBackground]: a highlight below
 /// and a shadow above.
 const walletCardTextShadow = [
-  Shadow(offset: Offset(0, 1), color: Color(0x8CFFFFFF)), // one-off
+  Shadow(offset: Offset(0, 1), color: FinishColors.engravedHighlight),
   Shadow(
     offset: Offset(0, -1),
     blurRadius: 1,
-    color: Color(0x4D000000),
-  ), // one-off
+    color: FinishColors.engravedShadow,
+  ),
 ];
-
-/// How much lighter than dark-mode `error` a negative balance is on the dark
-/// metal, where plain `error` drops to about 1.7:1 on the finish's shine.
-const _negativeOnMetalLift = 0.18; // one-off: see DESIGN.md Known Gaps
 
 /// The negative-balance color for text on a [WalletCardBackground]; lighter in
 /// dark mode so it stays readable on the dark metal.
@@ -98,6 +95,8 @@ Color walletCardNegativeColor(BuildContext context) {
 
   final hsl = HSLColor.fromColor(error);
   return hsl
-      .withLightness((hsl.lightness + _negativeOnMetalLift).clamp(0.0, 1.0))
+      .withLightness(
+        (hsl.lightness + FinishColors.negativeOnMetalLift).clamp(0.0, 1.0),
+      )
       .toColor();
 }

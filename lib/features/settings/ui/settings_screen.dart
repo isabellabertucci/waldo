@@ -42,7 +42,7 @@ class SettingsScreen extends ConsumerWidget {
                 0,
               ),
               child: Heading(
-                child: Text(l10n.settings, style: context.headlineSmBold),
+                child: Text(l10n.settings, style: context.headlineSmExtraBold),
               ),
             ),
             Expanded(

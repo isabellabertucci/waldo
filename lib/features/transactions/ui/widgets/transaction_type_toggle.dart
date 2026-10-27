@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
@@ -86,7 +87,7 @@ class _TypeToggleSegment extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: Spacing.xxs),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
+            duration: Motion.toggle,
             padding: const EdgeInsets.symmetric(vertical: Spacing.component),
             decoration: BoxDecoration(
               color: selected ? color : colors.transparent,

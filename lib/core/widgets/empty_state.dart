@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
+import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
@@ -26,8 +28,8 @@ class EmptyState extends StatelessWidget {
           children: [
             Icon(
               icon,
-              size: 64,
-              color: colors.onSurfaceVariant.withValues(alpha: 0.5),
+              size: IconSize.hero,
+              color: colors.onSurfaceVariant.withValues(alpha: Alpha.muted),
             ),
             const SizedBox(height: Spacing.sm),
             Text(

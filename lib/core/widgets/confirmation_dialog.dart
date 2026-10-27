@@ -87,7 +87,7 @@ class ConfirmationDialog extends StatelessWidget {
                 child: Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: context.headlineSmBold.copyWith(
+                  style: context.headlineSmExtraBold.copyWith(
                     color: colors.onSurface,
                   ),
                 ),

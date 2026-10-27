@@ -184,7 +184,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                     child: Heading(
                       child: Text(
                         _isEditing ? l10n.editWallet : l10n.newWallet,
-                        style: context.headlineLgStrong,
+                        style: context.headlineLgExtraBold,
                       ),
                     ),
                   ),

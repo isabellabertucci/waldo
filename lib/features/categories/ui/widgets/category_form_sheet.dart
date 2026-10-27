@@ -119,7 +119,7 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
                     child: Heading(
                       child: Text(
                         l10n.newCategory,
-                        style: context.headlineLgStrong,
+                        style: context.headlineLgExtraBold,
                       ),
                     ),
                   ),

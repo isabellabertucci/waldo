@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -519,7 +520,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                           name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: context.headlineLgStrong,
+                          style: context.headlineLgExtraBold,
                         ),
                         Text(
                           '$categoryLabel · ${formState.type.label(l10n)}',
@@ -564,7 +565,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                   ),
                   Text(
                     amountText,
-                    style: context.headlineLgStrong.copyWith(
+                    style: context.headlineLgExtraBold.copyWith(
                       color: amountColor,
                     ),
                   ),
@@ -607,7 +608,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               // A plain circle beside "Edit transaction", not a long pill.
               CircleIconButton(
                 flat: true,
-                tint: colors.error.withValues(alpha: 0.08),
+                tint: colors.error.withValues(alpha: Alpha.tint),
                 tooltip: l10n.delete,
                 onPressed: _delete,
                 child: Icon(
@@ -676,7 +677,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                 child: Heading(
                   child: Text(
                     l10n.editTransactionAction,
-                    style: context.headlineLgStrong,
+                    style: context.headlineLgExtraBold,
                   ),
                 ),
               ),
@@ -715,7 +716,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                       child: Text(
                         amountText,
                         textAlign: TextAlign.center,
-                        style: context.headlineLgStrong.copyWith(
+                        style: context.headlineLgExtraBold.copyWith(
                           color: amountColor,
                         ),
                       ),
@@ -835,7 +836,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               Heading(
                 child: Text(
                   _fieldTitle(field, l10n),
-                  style: context.headlineLgStrong,
+                  style: context.headlineLgExtraBold,
                 ),
               ),
             ],
@@ -885,9 +886,9 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             vertical: Spacing.md,
           ),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.08),
+            color: color.withValues(alpha: Alpha.tint),
             borderRadius: BorderRadius.circular(Rounded.lg),
-            border: Border.all(color: color.withValues(alpha: 0.3)),
+            border: Border.all(color: color.withValues(alpha: Alpha.stitch)),
           ),
           child: Column(
             children: [
@@ -906,7 +907,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                 liveRegion: true,
                 child: Text(
                   displayValue,
-                  style: context.amountDisplayBold.copyWith(color: color),
+                  style: context.amountDisplayExtraBold.copyWith(color: color),
                 ),
               ),
             ],
@@ -1095,7 +1096,7 @@ class _NumpadKey extends StatelessWidget {
           child: Center(
             child: icon != null
                 ? Icon(icon, size: IconSize.xl, color: colors.onSurface)
-                : Text(label!, style: context.headlineLgStrong),
+                : Text(label!, style: context.headlineLgExtraBold),
           ),
         ),
       ),

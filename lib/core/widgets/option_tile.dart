@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -48,7 +49,7 @@ class OptionTile extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: selected
                         ? colors.primary
-                        : colors.onSurfaceVariant.withValues(alpha: 0.12),
+                        : colors.onSurfaceVariant.withValues(alpha: Alpha.soft),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
