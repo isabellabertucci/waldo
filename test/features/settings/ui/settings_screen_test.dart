@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
@@ -78,6 +79,23 @@ void main() {
 
     expect(find.byType(SettingsOptionSheet<bool?>), findsNothing);
     expect(find.text('Dark'), findsOneWidget);
+  });
+
+  testWidgets('A failed save says nothing was changed', (tester) async {
+    await pumpSettingsScreen(tester);
+    // No table to write to, so the update throws.
+    await currentDb!.execute('DROP TABLE ${PreferencesTable.table}');
+
+    await tester.tap(find.text('System').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Dark'));
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text("Couldn't save your preference. Nothing was changed."),
+      findsOneWidget,
+    );
   });
 
   testWidgets('Closing with the X button discards the pick', (tester) async {

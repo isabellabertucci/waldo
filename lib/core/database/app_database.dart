@@ -60,11 +60,4 @@ class AppDatabase {
       await reference.close();
     }
   }
-
-  // TODO: use only in devMode, delete when in prod.
-  static Future<void> deleteDatabase() async {
-    final dbPath = await getDatabasesPath();
-    final path = p.join(dbPath, dbName);
-    await databaseFactory.deleteDatabase(path);
-  }
 }

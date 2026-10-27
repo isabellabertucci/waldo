@@ -1,10 +1,6 @@
 {
   "@@locale": "en",
   "@@last_modified": "2026-08-18",
-  "appTitle": "Waldo",
-  "@appTitle": {
-    "description": "The title of the application"
-  },
   "dashboard": "Dashboard",
   "@dashboard": {
     "description": "Dashboard tab label"
@@ -29,11 +25,11 @@
   "@addFirstWallet": {
     "description": "Empty state subtitle for wallets list"
   },
-  "newWallet": "New Wallet",
+  "newWallet": "New wallet",
   "@newWallet": {
     "description": "Title of the create wallet form"
   },
-  "editWallet": "Edit Wallet",
+  "editWallet": "Edit wallet",
   "@editWallet": {
     "description": "Title of the edit wallet form"
   },
@@ -57,6 +53,10 @@
   "@optional": {
     "description": "Tag beside a form section title that doesn't need filling in"
   },
+  "requiredField": "required",
+  "@requiredField": {
+    "description": "Read by screen readers after a field label marked with *"
+  },
   "balanceLocked": "Cannot be changed after creation",
   "@balanceLocked": {
     "description": "Helper text for locked balance field"
@@ -68,6 +68,10 @@
   "createWallet": "Create wallet",
   "@createWallet": {
     "description": "Button label for creating a new wallet"
+  },
+  "createCategory": "Create category",
+  "@createCategory": {
+    "description": "Button that saves the new category in the new-category sheet"
   },
   "save": "Save",
   "@save": {
@@ -89,11 +93,11 @@
   "@walletsError": {
     "description": "Generic error message shown when wallets fail to load"
   },
-  "saveError": "There was a problem saving the wallet. Please try again.",
+  "saveError": "Couldn't save the wallet. Nothing was changed.",
   "@saveError": {
-    "description": "Generic error message shown when saving a wallet fails"
+    "description": "Shown when saving a wallet fails for a reason the user can't fix; nothing was written"
   },
-  "deleteError": "There was a problem deleting the wallet. Please try again.",
+  "deleteError": "Couldn't delete the wallet. Nothing was changed.",
   "@deleteError": {
     "description": "Generic error message shown when deleting a wallet fails"
   },
@@ -134,6 +138,10 @@
   "@showBalance": {
     "description": "Accessibility label and tooltip for the eye button when amounts are masked - tapping it reveals them"
   },
+  "receiptHint": "Opens all transactions",
+  "@receiptHint": {
+    "description": "Screen reader hint on the dashboard's month receipt, which opens the transaction list when tapped"
+  },
   "edit": "Edit",
   "@edit": {
     "description": "Edit action label"
@@ -170,7 +178,7 @@
   "@walletTypeCash": {
     "description": "Cash wallet type"
   },
-  "walletTypeCredit": "Credit Card",
+  "walletTypeCredit": "Credit card",
   "@walletTypeCredit": {
     "description": "Credit card wallet type"
   },
@@ -186,13 +194,22 @@
   "@addFirstTransaction": {
     "description": "Empty state subtitle for transactions list"
   },
-  "newTransaction": "New Transaction",
+  "newTransaction": "New transaction",
   "@newTransaction": {
     "description": "Title of the create transaction form"
   },
   "transactionDefaultDescription": "Transaction",
   "@transactionDefaultDescription": {
     "description": "Fallback label when a transaction has no description"
+  },
+  "optionsFor": "{name} options",
+  "@optionsFor": {
+    "description": "Screen reader name of the ⋮ menu on a wallet card or transaction row; names the item so each one is told apart",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "amount": "Amount",
   "@amount": {
@@ -210,9 +227,9 @@
   "@category": {
     "description": "Category field label"
   },
-  "transactionDescription": "Description",
-  "@transactionDescription": {
-    "description": "Transaction description field label"
+  "transactionTitle": "Title",
+  "@transactionTitle": {
+    "description": "Transaction title field label: the name shown on the list and the detail"
   },
   "descriptionHint": "What was it for?",
   "@descriptionHint": {
@@ -228,7 +245,11 @@
   },
   "transactionNote": "Note",
   "@transactionNote": {
-    "description": "Transaction note field label - a free-text note separate from its name"
+    "description": "Transaction note field label - a free-text note separate from its title"
+  },
+  "noteHint": "Anything to remember?",
+  "@noteHint": {
+    "description": "Placeholder for the transaction's note field"
   },
   "editingAmountLabel": "{type} · editing amount",
   "@editingAmountLabel": {
@@ -249,7 +270,7 @@
   },
   "discard": "Discard",
   "@discard": {
-    "description": "Discard button label, paired with Save on the unsaved-changes dialog"
+    "description": "Discard button label, paired with Cancel on the unsaved-changes dialog"
   },
   "deleteTransaction": "Delete transaction?",
   "@deleteTransaction": {
@@ -279,11 +300,19 @@
   "@transactionsError": {
     "description": "Generic error message shown when transactions fail to load"
   },
-  "transactionSaveError": "There was a problem saving the transaction. Please try again.",
+  "transactionSaveError": "Couldn't save the transaction. Nothing was changed.",
   "@transactionSaveError": {
-    "description": "Generic error message shown when saving a transaction fails"
+    "description": "Shown when saving a transaction fails for a reason the user can't fix; the write was rolled back"
   },
-  "transactionDeleteError": "There was a problem deleting the transaction. Please try again.",
+  "saveErrorStorageFull": "Your phone is out of space. Free some up and try again.",
+  "@saveErrorStorageFull": {
+    "description": "Shown when a save fails because the device storage is full"
+  },
+  "saveErrorTemporary": "Couldn't save right now. Please try again.",
+  "@saveErrorTemporary": {
+    "description": "Shown when a save fails because the database was briefly busy or closed"
+  },
+  "transactionDeleteError": "Couldn't delete the transaction. Nothing was changed.",
   "@transactionDeleteError": {
     "description": "Generic error message shown when deleting a transaction fails"
   },
@@ -310,14 +339,6 @@
   "categories": "Categories",
   "@categories": {
     "description": "Categories screen title"
-  },
-  "noCategoriesYet": "No categories yet",
-  "@noCategoriesYet": {
-    "description": "Empty state title for categories list"
-  },
-  "addFirstCategory": "Tap + to add your first category",
-  "@addFirstCategory": {
-    "description": "Empty state subtitle for categories list"
   },
   "newCategory": "New category",
   "@newCategory": {
@@ -359,10 +380,6 @@
       }
     }
   },
-  "addCategory": "Add category",
-  "@addCategory": {
-    "description": "Tooltip for the button that adds the typed category name"
-  },
   "deleteCategoryNamed": "Delete {name}",
   "@deleteCategoryNamed": {
     "description": "Tooltip for the delete (X) button on a category row",
@@ -384,7 +401,7 @@
   "@categoriesError": {
     "description": "Generic error message shown when categories fail to load"
   },
-  "categorySaveError": "There was a problem saving the category. Please try again.",
+  "categorySaveError": "Couldn't save the category. Nothing was changed.",
   "@categorySaveError": {
     "description": "Generic error message shown when saving a category fails"
   },
@@ -396,7 +413,7 @@
   "@walletNameTaken": {
     "description": "Validation error when the user types a wallet name another wallet already uses, ignoring case"
   },
-  "categoryDeleteError": "There was a problem deleting the category. Please try again.",
+  "categoryDeleteError": "Couldn't delete the category. Nothing was changed.",
   "@categoryDeleteError": {
     "description": "Generic error message shown when deleting a category fails"
   },
@@ -464,7 +481,7 @@
   "@currencyRowSubtitle": {
     "description": "Subtitle under the Currency row in settings"
   },
-  "dateFormatRowSubtitle": "Used in lists and details",
+  "dateFormatRowSubtitle": "Used for a transaction's date",
   "@dateFormatRowSubtitle": {
     "description": "Subtitle under the Date format row in settings"
   },
@@ -476,7 +493,7 @@
   "@preferencesError": {
     "description": "Generic error message shown when preferences fail to load"
   },
-  "preferencesSaveError": "There was a problem saving your preference. Please try again.",
+  "preferencesSaveError": "Couldn't save your preference. Nothing was changed.",
   "@preferencesSaveError": {
     "description": "Error message shown when a preference fails to save"
   },
@@ -492,7 +509,7 @@
   "@currencyNameGbp": {
     "description": "British Pound full name in the currency picker"
   },
-  "totalBalance": "Total Balance",
+  "totalBalance": "Total balance",
   "@totalBalance": {
     "description": "Label above the total balance amount on the dashboard"
   },
@@ -545,11 +562,39 @@
   "@addFirstTransactionButton": {
     "description": "Button label in the dashboard's category spending empty state"
   },
-  "cashFlow": "Cash Flow",
+  "cashFlow": "Cash flow",
   "@cashFlow": {
     "description": "Dashboard cash flow chart card title"
   },
-  "recentTransactions": "Recent Transactions",
+  "cashFlowChartExpense": "Expenses by month, {from} to {to}",
+  "@cashFlowChartExpense": {
+    "description": "Screen reader name of the cash flow chart showing expenses; from/to are the first and last months, e.g. Nov 2025",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "cashFlowChartIncome": "Income by month, {from} to {to}",
+  "@cashFlowChartIncome": {
+    "description": "Screen reader name of the cash flow chart showing income; from/to are the first and last months, e.g. Nov 2025",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "amountsHidden": "Amounts hidden",
+  "@amountsHidden": {
+    "description": "Screen reader value of the cash flow chart while the balance is hidden"
+  },
+  "recentTransactions": "Recent transactions",
   "@recentTransactions": {
     "description": "Dashboard section header for the recent transactions list"
   },
@@ -568,6 +613,10 @@
   "filterTitle": "Filter",
   "@filterTitle": {
     "description": "Title of the wallet transactions filter bottom sheet"
+  },
+  "filterHint": "Opens the filter",
+  "@filterHint": {
+    "description": "Screen reader hint on the button that shows the current month and type filter and opens the filter sheet"
   },
   "filterReset": "Reset",
   "@filterReset": {

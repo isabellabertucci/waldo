@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waldo/core/database/save_failure.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/heading.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 
@@ -58,9 +60,10 @@ class WalletsScreen extends ConsumerWidget {
 
     try {
       await viewModel.confirmDelete(wallet.id!);
-    } catch (_) {
+    } catch (e) {
       viewModel.restoreWallet();
-      messenger.showSnackBar(SnackBar(content: Text(l10n.deleteError)));
+      final message = failureMessage(l10n, e, unknown: l10n.deleteError);
+      messenger.showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
@@ -107,10 +110,16 @@ class WalletsScreen extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    l10n.wallets,
-                    style: context.headlineSmBold.copyWith(
-                      color: colors.onSurface,
+                  Flexible(
+                    child: Heading(
+                      child: Text(
+                        l10n.wallets,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.headlineSmBold.copyWith(
+                          color: colors.onSurface,
+                        ),
+                      ),
                     ),
                   ),
                   Row(

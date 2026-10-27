@@ -18,8 +18,22 @@ class CategoryListViewModel extends _$CategoryListViewModel {
     return repo.getAll();
   }
 
+  /// True while an add is writing, so the button and the keyboard's done
+  /// key fired together add it once.
+  bool _adding = false;
+
   /// Adds a custom category; throws [DuplicateCategoryNameException].
   Future<void> add(String name) async {
+    if (_adding) return;
+    _adding = true;
+    try {
+      await _add(name);
+    } finally {
+      _adding = false;
+    }
+  }
+
+  Future<void> _add(String name) async {
     final repo = await ref.read(categoryRepositoryProvider.future);
     await repo.insert(
       Category(
@@ -54,4 +68,17 @@ class CategoryListViewModel extends _$CategoryListViewModel {
   void restoreCategory() {
     ref.invalidateSelf();
   }
+}
+
+/// The categories by id, for rows that show a transaction's category; empty
+/// until they load.
+@riverpod
+Map<int, Category> categoriesById(Ref ref) {
+  return switch (ref.watch(categoryListViewModelProvider)) {
+    AsyncValue(:final value?) => {
+      for (final c in value)
+        if (c.id != null) c.id!: c,
+    },
+    _ => const {},
+  };
 }

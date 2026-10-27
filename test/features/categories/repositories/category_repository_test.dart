@@ -65,6 +65,19 @@ void main() {
       },
     );
 
+    test(
+      'insert treats accented letters in another case as the same name',
+      () async {
+        // SQLite's NOCASE only folds A-Z, so this needs the name_key.
+        await repo.insert(_custom('Café'));
+
+        expect(
+          () => repo.insert(_custom('CAFÉ')),
+          throwsA(isA<DuplicateCategoryNameException>()),
+        );
+      },
+    );
+
     test('insert allows a custom category named like a built-in', () async {
       // Built-ins are shown translated, so their stored name doesn't count.
       final id = await repo.insert(_custom('Groceries'));
@@ -142,6 +155,7 @@ void main() {
 
 Future<int> _insertWallet(Database db) => db.insert(WalletsTable.table, {
   WalletsTable.name: 'Cash',
+  WalletsTable.nameKey: 'cash',
   WalletsTable.createdAt: '2026-08-10T12:00:00.000',
 });
 

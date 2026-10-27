@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/icon_size.dart';
+import 'package:waldo/core/utils/dash_path.dart';
 
 /// A dashed ring around a tinted circle holding an icon: the confirm
 /// dialog's badge and the transaction view's category badge.
@@ -48,14 +49,10 @@ class _DashedCirclePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
-    for (final metric in path.computeMetrics()) {
-      var distance = 0.0;
-      while (distance < metric.length) {
-        final next = (distance + _dashLength).clamp(0.0, metric.length);
-        canvas.drawPath(metric.extractPath(distance, next), paint);
-        distance = next + _gapLength;
-      }
-    }
+    canvas.drawPath(
+      dashPath(path, dashLength: _dashLength, gapLength: _gapLength),
+      paint,
+    );
   }
 
   @override

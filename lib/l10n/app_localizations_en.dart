@@ -9,9 +9,6 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Waldo';
-
-  @override
   String get dashboard => 'Dashboard';
 
   @override
@@ -30,10 +27,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addFirstWallet => 'Tap + to add your first wallet';
 
   @override
-  String get newWallet => 'New Wallet';
+  String get newWallet => 'New wallet';
 
   @override
-  String get editWallet => 'Edit Wallet';
+  String get editWallet => 'Edit wallet';
 
   @override
   String get name => 'Name';
@@ -51,6 +48,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get optional => 'Optional';
 
   @override
+  String get requiredField => 'required';
+
+  @override
   String get balanceLocked => 'Cannot be changed after creation';
 
   @override
@@ -58,6 +58,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createWallet => 'Create wallet';
+
+  @override
+  String get createCategory => 'Create category';
 
   @override
   String get save => 'Save';
@@ -76,12 +79,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'There was a problem loading your wallets. Please try again.';
 
   @override
-  String get saveError =>
-      'There was a problem saving the wallet. Please try again.';
+  String get saveError => 'Couldn\'t save the wallet. Nothing was changed.';
 
   @override
-  String get deleteError =>
-      'There was a problem deleting the wallet. Please try again.';
+  String get deleteError => 'Couldn\'t delete the wallet. Nothing was changed.';
 
   @override
   String get deleteWallet => 'Delete wallet?';
@@ -108,6 +109,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get showBalance => 'Show balance';
+
+  @override
+  String get receiptHint => 'Opens all transactions';
 
   @override
   String get edit => 'Edit';
@@ -137,7 +141,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get walletTypeCash => 'Cash';
 
   @override
-  String get walletTypeCredit => 'Credit Card';
+  String get walletTypeCredit => 'Credit card';
 
   @override
   String get walletTypeInvestment => 'Investment';
@@ -149,10 +153,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addFirstTransaction => 'Tap + to add your first transaction';
 
   @override
-  String get newTransaction => 'New Transaction';
+  String get newTransaction => 'New transaction';
 
   @override
   String get transactionDefaultDescription => 'Transaction';
+
+  @override
+  String optionsFor(String name) {
+    return '$name options';
+  }
 
   @override
   String get amount => 'Amount';
@@ -167,7 +176,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get category => 'Category';
 
   @override
-  String get transactionDescription => 'Description';
+  String get transactionTitle => 'Title';
 
   @override
   String get descriptionHint => 'What was it for?';
@@ -180,6 +189,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transactionNote => 'Note';
+
+  @override
+  String get noteHint => 'Anything to remember?';
 
   @override
   String editingAmountLabel(String type) {
@@ -220,11 +232,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transactionSaveError =>
-      'There was a problem saving the transaction. Please try again.';
+      'Couldn\'t save the transaction. Nothing was changed.';
+
+  @override
+  String get saveErrorStorageFull =>
+      'Your phone is out of space. Free some up and try again.';
+
+  @override
+  String get saveErrorTemporary =>
+      'Couldn\'t save right now. Please try again.';
 
   @override
   String get transactionDeleteError =>
-      'There was a problem deleting the transaction. Please try again.';
+      'Couldn\'t delete the transaction. Nothing was changed.';
 
   @override
   String get amountRequired => 'Amount is required';
@@ -243,12 +263,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categories => 'Categories';
-
-  @override
-  String get noCategoriesYet => 'No categories yet';
-
-  @override
-  String get addFirstCategory => 'Tap + to add your first category';
 
   @override
   String get newCategory => 'New category';
@@ -289,9 +303,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get addCategory => 'Add category';
-
-  @override
   String deleteCategoryNamed(String name) {
     return 'Delete $name';
   }
@@ -308,7 +319,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categorySaveError =>
-      'There was a problem saving the category. Please try again.';
+      'Couldn\'t save the category. Nothing was changed.';
 
   @override
   String get categoryNameTaken => 'A category with this name already exists';
@@ -318,7 +329,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryDeleteError =>
-      'There was a problem deleting the category. Please try again.';
+      'Couldn\'t delete the category. Nothing was changed.';
 
   @override
   String get categoryTypeGroceries => 'Groceries';
@@ -369,7 +380,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currencyRowSubtitle => 'How amounts are shown';
 
   @override
-  String get dateFormatRowSubtitle => 'Used in lists and details';
+  String get dateFormatRowSubtitle => 'Used for a transaction\'s date';
 
   @override
   String get currencyChangeNotice =>
@@ -381,7 +392,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get preferencesSaveError =>
-      'There was a problem saving your preference. Please try again.';
+      'Couldn\'t save your preference. Nothing was changed.';
 
   @override
   String get currencyNameUsd => 'US dollar';
@@ -393,7 +404,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currencyNameGbp => 'British pound';
 
   @override
-  String get totalBalance => 'Total Balance';
+  String get totalBalance => 'Total balance';
 
   @override
   String get add => 'Add';
@@ -435,10 +446,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addFirstTransactionButton => 'Add first transaction';
 
   @override
-  String get cashFlow => 'Cash Flow';
+  String get cashFlow => 'Cash flow';
 
   @override
-  String get recentTransactions => 'Recent Transactions';
+  String cashFlowChartExpense(String from, String to) {
+    return 'Expenses by month, $from to $to';
+  }
+
+  @override
+  String cashFlowChartIncome(String from, String to) {
+    return 'Income by month, $from to $to';
+  }
+
+  @override
+  String get amountsHidden => 'Amounts hidden';
+
+  @override
+  String get recentTransactions => 'Recent transactions';
 
   @override
   String get firstRunPeekCta => 'Slide in your first wallet';
@@ -452,6 +476,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get filterTitle => 'Filter';
+
+  @override
+  String get filterHint => 'Opens the filter';
 
   @override
   String get filterReset => 'Reset';

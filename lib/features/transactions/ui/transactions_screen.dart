@@ -11,8 +11,8 @@ import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/heading.dart';
 import 'package:waldo/core/widgets/wallet_card_finish.dart';
-import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
@@ -29,6 +29,7 @@ import '../viewmodels/transaction_list_view_model.dart';
 import 'widgets/day_grouped_transaction_list.dart';
 import 'widgets/transaction_form_sheet.dart';
 import 'widgets/transaction_filter_sheet.dart';
+import '../transactions_x.dart';
 
 /// Room under the list so the last row scrolls clear of the floating nav.
 const _navBarClearance = 72.0; // one-off: the nav pill's height plus its gap
@@ -57,8 +58,10 @@ class TransactionsScreen extends ConsumerWidget {
     };
 
     final Widget body;
-    if (walletsAsync.hasError || transactionsAsync.hasError) {
+    if (walletsAsync.hasError) {
       body = Center(child: Text(l10n.walletsError));
+    } else if (transactionsAsync.hasError) {
+      body = Center(child: Text(l10n.transactionsError));
     } else if (wallet != null) {
       body = _TransactionsBody(
         wallet: wallet,
@@ -168,14 +171,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
       AsyncValue(:final value?) => value.currency,
       _ => Currency.usd,
     };
-    final categoriesAsync = ref.watch(categoryListViewModelProvider);
-    final categoriesById = switch (categoriesAsync) {
-      AsyncValue(:final value?) => {
-        for (final c in value)
-          if (c.id != null) c.id!: c,
-      },
-      _ => const <int, Category>{},
-    };
+    final categoriesById = ref.watch(categoriesByIdProvider);
     final isBalanceHidden = ref.watch(balanceHiddenProvider);
     final filtered = _applyFilter(_filter);
     // Same order the Wallets stack lists them in, so the same wallet always
@@ -191,11 +187,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
       walletIndex < 0 ? 0 : walletIndex,
     );
 
-    final typeLabel = switch (_filter.type) {
-      null => l10n.filterTypeAll,
-      TransactionType.income => l10n.transactionTypeIncome,
-      TransactionType.expense => l10n.transactionTypeExpense,
-    };
+    final typeLabel = _filter.type?.label(l10n) ?? l10n.filterTypeAll;
 
     return Column(
       children: [
@@ -265,11 +257,13 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.wallet.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.headlineLgStrong,
+                    Heading(
+                      child: Text(
+                        widget.wallet.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.headlineLgStrong,
+                      ),
                     ),
                     Text.rich(
                       TextSpan(
@@ -315,8 +309,13 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
           child: Material(
             color: colors.surface,
             borderRadius: BorderRadius.circular(Rounded.pill),
+            // Named by what it shows (WCAG 2.5.3, for voice control), without
+            // the "·"; the hint says what a tap does.
             child: Semantics(
               button: true,
+              label: '$filterMonthLabel, ${l10n.filterChipLabel(typeLabel)}',
+              hint: l10n.filterHint,
+              excludeSemantics: true,
               child: InkWell(
                 borderRadius: BorderRadius.circular(Rounded.pill),
                 onTap: () => _openFilterSheet(locale),

@@ -5,6 +5,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/field_label.dart';
 
 /// The small icon circle leading a field row in the transaction sheets.
 class FieldBadge extends StatelessWidget {
@@ -37,6 +38,7 @@ class EditFieldRow extends StatelessWidget {
     required this.onTap,
     this.hasError = false,
     this.grouped = false,
+    this.required = false,
   });
 
   final IconData icon;
@@ -46,60 +48,63 @@ class EditFieldRow extends StatelessWidget {
   final bool hasError;
   final bool grouped;
 
+  /// Marks the label with " *".
+  final bool required;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final radius = grouped ? null : BorderRadius.circular(Rounded.lg);
 
-    return Material(
-      color: grouped ? colors.transparent : colors.surfaceContainer,
-      borderRadius: radius,
-      child: InkWell(
+    // A button to screen readers: it opens a picker.
+    return Semantics(
+      button: true,
+      child: Material(
+        color: grouped ? colors.transparent : colors.surfaceContainer,
         borderRadius: radius,
-        onTap: onTap,
-        child: Container(
-          decoration: hasError && !grouped
-              ? BoxDecoration(
-                  borderRadius: BorderRadius.circular(Rounded.lg),
-                  border: Border.all(color: colors.error, width: 1.5),
-                )
-              : null,
-          padding: const EdgeInsets.symmetric(
-            horizontal: Spacing.md,
-            vertical: Spacing.sm,
-          ),
-          child: Row(
-            children: [
-              FieldBadge(icon: icon, color: colors.onSurfaceVariant),
-              const SizedBox(width: Spacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      label,
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: colors.onSurfaceVariant,
+        child: InkWell(
+          borderRadius: radius,
+          onTap: onTap,
+          child: Container(
+            decoration: hasError && !grouped
+                ? BoxDecoration(
+                    borderRadius: BorderRadius.circular(Rounded.lg),
+                    border: Border.all(color: colors.error, width: 1.5),
+                  )
+                : null,
+            padding: const EdgeInsets.symmetric(
+              horizontal: Spacing.md,
+              vertical: Spacing.sm,
+            ),
+            child: Row(
+              children: [
+                FieldBadge(icon: icon, color: colors.onSurfaceVariant),
+                const SizedBox(width: Spacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FieldLabel(label, required: required),
+                      Text(
+                        value,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: hasError && grouped
+                            ? context.bodyMdBold.copyWith(color: colors.error)
+                            : context.bodyMdBold,
                       ),
-                    ),
-                    Text(
-                      value,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: hasError && grouped
-                          ? context.bodyMdBold.copyWith(color: colors.error)
-                          : context.bodyMdBold,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Icon(
-                AppIcons.chevronRight,
-                size: IconSize.lg,
-                color: colors.onSurfaceVariant.withValues(alpha: 0.5),
-              ),
-            ],
+                Icon(
+                  AppIcons.chevronRight,
+                  size: IconSize.lg,
+                  // Says the row opens a picker: 3:1 at least (WCAG 1.4.11).
+                  color: colors.onSurfaceVariant,
+                ),
+              ],
+            ),
           ),
         ),
       ),

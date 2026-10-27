@@ -16,7 +16,9 @@ int? parseToCents(String input, {required bool allowNegative}) {
   if (isNegative && !allowNegative) return null;
   final wholePart = match.group(2)!;
   final fractionPart = (match.group(3) ?? '').padRight(2, '0');
-  final cents = int.parse('$wholePart$fractionPart');
+  // tryParse: a number too big for an int is unreadable, not a crash.
+  final cents = int.tryParse('$wholePart$fractionPart');
+  if (cents == null) return null;
   return isNegative ? -cents : cents;
 }
 
@@ -32,6 +34,21 @@ String moneyLocale(BuildContext context) => Intl.verifiedLocale(
   NumberFormat.localeExists,
   onFailure: (_) => 'en_US',
 )!;
+
+/// An empty amount field's "0.00" hint, with [locale]'s decimal separator
+/// ("0,00" in pt_PT). Both are accepted when typing.
+String zeroAmountHint(String locale) => NumberFormat.decimalPatternDigits(
+  locale: locale,
+  decimalDigits: 2,
+).format(0);
+
+/// The form a name is compared in: "  CAFÉ " and "Café" are the same name.
+/// Dart lower-cases accented letters; SQLite's NOCASE only does A-Z.
+String nameKey(String name) => name.trim().toLowerCase();
+
+/// [locale]'s decimal separator: "," in pt_PT, "." in en_US.
+String decimalSeparator(String locale) =>
+    NumberFormat.decimalPattern(locale).symbols.DECIMAL_SEP;
 
 String formatCents(
   int cents, {

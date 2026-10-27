@@ -5,6 +5,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 import '../../models/transaction.dart';
 import 'transaction_row.dart';
@@ -70,11 +71,13 @@ class DayGroupedTransactionList extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: Spacing.xxs),
-                child: Text(
-                  _dayLabel(l10n, locale, day),
-                  style: context.labelSmBold.copyWith(
-                    color: colors.onSurfaceVariant,
-                    letterSpacing: 0.4,
+                child: Heading(
+                  child: Text(
+                    _dayLabel(l10n, locale, day),
+                    style: context.labelSmBold.copyWith(
+                      color: colors.onSurfaceVariant,
+                      letterSpacing: 0.4,
+                    ),
                   ),
                 ),
               ),

@@ -6,9 +6,11 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/sheet_grabber.dart';
+import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 /// One choice in a [SettingsOptionSheet]: either an [icon] or a [symbolText].
 class SettingsOption<T> {
@@ -74,57 +76,64 @@ class _SettingsOptionSheetState<T> extends State<SettingsOptionSheet<T>> {
               children: [
                 const SizedBox(height: Spacing.sm),
                 const SheetGrabber(),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    Spacing.md,
-                    Spacing.md,
-                    Spacing.md,
-                    Spacing.lg,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
+                // Scrolls when large text makes it taller than the screen.
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        Spacing.md,
+                        Spacing.md,
+                        Spacing.md,
+                        Spacing.lg,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Expanded(
-                            child: Text(
-                              widget.title,
-                              style: context.headlineSmBold.copyWith(
-                                color: colors.onSurface,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Heading(
+                                  child: Text(
+                                    widget.title,
+                                    style: context.headlineSmBold.copyWith(
+                                      color: colors.onSurface,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SheetCloseButton(),
+                            ],
+                          ),
+                          const SizedBox(height: Spacing.md),
+                          for (var i = 0; i < widget.options.length; i++) ...[
+                            if (i > 0) const SizedBox(height: Spacing.sm),
+                            _OptionRow<T>(
+                              option: widget.options[i],
+                              selected: widget.options[i].value == _selected,
+                              onTap: () => setState(
+                                () => _selected = widget.options[i].value,
                               ),
                             ),
+                          ],
+                          if (widget.notice != null) ...[
+                            const SizedBox(height: Spacing.md),
+                            _NoticeBox(text: widget.notice!),
+                          ],
+                          const SizedBox(height: Spacing.lg),
+                          SizedBox(
+                            width: double.infinity,
+                            child: DashedStitchButton(
+                              label: l10n.done,
+                              onPressed: () {
+                                widget.onConfirm(_selected);
+                                Navigator.of(context).pop();
+                              },
+                            ),
                           ),
-                          const SheetCloseButton(),
                         ],
                       ),
-                      const SizedBox(height: Spacing.md),
-                      for (var i = 0; i < widget.options.length; i++) ...[
-                        if (i > 0) const SizedBox(height: Spacing.sm),
-                        _OptionRow<T>(
-                          option: widget.options[i],
-                          selected: widget.options[i].value == _selected,
-                          onTap: () => setState(
-                            () => _selected = widget.options[i].value,
-                          ),
-                        ),
-                      ],
-                      if (widget.notice != null) ...[
-                        const SizedBox(height: Spacing.md),
-                        _NoticeBox(text: widget.notice!),
-                      ],
-                      const SizedBox(height: Spacing.lg),
-                      SizedBox(
-                        width: double.infinity,
-                        child: DashedStitchButton(
-                          label: l10n.done,
-                          onPressed: () {
-                            widget.onConfirm(_selected);
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
@@ -150,7 +159,8 @@ class _OptionRow<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final badgeColor = selected ? colors.primary : colors.fieldFill;
+    // Unpicked, the sheet behind the row shows through, as if cut out.
+    final badgeColor = selected ? colors.primary : colors.surface;
 
     return Semantics(
       button: true,
@@ -162,97 +172,87 @@ class _OptionRow<T> extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(Rounded.md),
-          child: Stack(
-            children: [
-              if (selected)
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: CustomPaint(
-                      painter: _DashedBorderPainter(
-                        color: colors.primary,
-                        radius: Rounded.md,
-                        opaque: true,
-                      ),
+          // The app's stitch, as on every selected tile.
+          child: DashedBorder(
+            radius: Rounded.md,
+            color: selected ? colors.primary : colors.transparent,
+            child: Padding(
+              padding: const EdgeInsets.all(Spacing.sm),
+              child: Row(
+                children: [
+                  Container(
+                    width: BadgeSize.lg,
+                    height: BadgeSize.lg,
+                    decoration: BoxDecoration(
+                      color: badgeColor,
+                      shape: BoxShape.circle,
                     ),
-                  ),
-                ),
-              Padding(
-                padding: const EdgeInsets.all(Spacing.sm),
-                child: Row(
-                  children: [
-                    Container(
-                      width: BadgeSize.lg,
-                      height: BadgeSize.lg,
-                      decoration: BoxDecoration(
-                        color: badgeColor,
-                        shape: BoxShape.circle,
-                      ),
-                      alignment: Alignment.center,
-                      // Selected: `onPrimary` on `primary`; unselected: muted on a neutral fill.
-                      child: option.symbolText != null
-                          ? Text(
-                              option.symbolText!,
-                              style: context.headlineMdStrong.copyWith(
-                                color: selected
-                                    ? colors.onPrimary
-                                    : colors.onSurfaceVariant,
-                              ),
-                            )
-                          : Icon(
-                              option.icon,
-                              size: IconSize.lg,
+                    alignment: Alignment.center,
+                    // Selected: `onPrimary` on `primary`; unselected: muted on a neutral fill.
+                    child: option.symbolText != null
+                        ? Text(
+                            option.symbolText!,
+                            style: context.headlineMdStrong.copyWith(
                               color: selected
                                   ? colors.onPrimary
                                   : colors.onSurfaceVariant,
                             ),
-                    ),
-                    const SizedBox(width: Spacing.sm),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
+                          )
+                        : Icon(
+                            option.icon,
+                            size: IconSize.lg,
+                            color: selected
+                                ? colors.onPrimary
+                                : colors.onSurfaceVariant,
+                          ),
+                  ),
+                  const SizedBox(width: Spacing.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          option.label,
+                          style: context.bodyMdBold.copyWith(
+                            color: colors.onSurface,
+                          ),
+                        ),
+                        if (option.subtitle != null)
                           Text(
-                            option.label,
-                            style: context.bodyMdBold.copyWith(
-                              color: colors.onSurface,
+                            option.subtitle!,
+                            style: context.textTheme.bodySmall?.copyWith(
+                              color: colors.onSurfaceVariant,
                             ),
                           ),
-                          if (option.subtitle != null)
-                            Text(
-                              option.subtitle!,
-                              style: context.textTheme.bodySmall?.copyWith(
-                                color: colors.onSurfaceVariant,
-                              ),
-                            ),
-                        ],
-                      ),
+                      ],
                     ),
-                    const SizedBox(width: Spacing.sm),
-                    if (selected)
-                      Container(
-                        width: 22,
-                        height: 22,
-                        decoration: BoxDecoration(
-                          color: colors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          AppIcons.check,
-                          size: IconSize.sm,
-                          color: colors.onPrimary,
-                        ),
-                      )
-                    else
-                      Icon(
-                        AppIcons.radioUnselected,
-                        size: 22,
-                        color: colors.onSurfaceVariant.withValues(alpha: 0.6),
+                  ),
+                  const SizedBox(width: Spacing.sm),
+                  if (selected)
+                    Container(
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: colors.primary,
+                        shape: BoxShape.circle,
                       ),
-                  ],
-                ),
+                      child: Icon(
+                        AppIcons.check,
+                        size: IconSize.sm,
+                        color: colors.onPrimary,
+                      ),
+                    )
+                  else
+                    Icon(
+                      AppIcons.radioUnselected,
+                      size: 22,
+                      // An unpicked option's ring: 3:1 for a state (WCAG 1.4.11).
+                      color: colors.onSurfaceVariant,
+                    ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -296,48 +296,4 @@ class _NoticeBox extends StatelessWidget {
       ),
     );
   }
-}
-
-/// A dashed stitch around a rounded rect; [opaque] makes it stronger, for the
-/// selected row.
-class _DashedBorderPainter extends CustomPainter {
-  const _DashedBorderPainter({
-    required this.color,
-    required this.radius,
-    this.opaque = false,
-  });
-
-  final Color color;
-  final double radius;
-  final bool opaque;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rrect = RRect.fromRectAndRadius(
-      Offset.zero & size,
-      Radius.circular(radius),
-    );
-    final paint = Paint()
-      ..color = color.withValues(alpha: opaque ? 0.8 : 0.3)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    for (final metric in (Path()..addRRect(rrect)).computeMetrics()) {
-      var distance = 0.0;
-      while (distance < metric.length) {
-        final next = distance + 6.0;
-        canvas.drawPath(
-          metric.extractPath(distance, next.clamp(0, metric.length)),
-          paint,
-        );
-        distance = next + 5.0;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedBorderPainter oldDelegate) =>
-      color != oldDelegate.color ||
-      radius != oldDelegate.radius ||
-      opaque != oldDelegate.opaque;
 }

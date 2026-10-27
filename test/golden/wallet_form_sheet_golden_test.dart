@@ -51,4 +51,20 @@ void main() {
     builder: () =>
         wrapForGolden(child: sheet(), db: db, brightness: Brightness.dark),
   );
+
+  group('Portuguese', () {
+    usePortuguesePhone();
+
+    goldenTest(
+      'New wallet sheet - Portuguese, light',
+      fileName: 'wallet_form_sheet_pt_light',
+      constraints: BoxConstraints.tight(const Size(460, 1000)),
+      builder: () => wrapForGolden(
+        child: sheet(),
+        db: db,
+        brightness: Brightness.light,
+        locale: const Locale('pt'),
+      ),
+    );
+  });
 }

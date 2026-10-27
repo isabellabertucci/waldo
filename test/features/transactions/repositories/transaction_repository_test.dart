@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 import 'package:waldo/features/categories/models/category.dart';
@@ -74,6 +75,43 @@ void main() {
         expect(wallet!.currentBalance, 700);
       },
     );
+
+    test('monthTotals sums income and expense inside the month only', () async {
+      final walletId = await createWallet();
+      Future<void> add(int amount, TransactionType type, String date) =>
+          repo.insert(
+            Transaction(
+              walletId: walletId,
+              amount: amount,
+              type: type,
+              date: date,
+              createdAt: '2026-10-01T12:00:00.000',
+            ),
+          );
+      await add(1000, TransactionType.income, '2026-10-01');
+      await add(500, TransactionType.income, '2026-10-31T23:59:00.000');
+      await add(300, TransactionType.expense, '2026-10-15T09:30:00.000');
+      // Just outside October on each side.
+      await add(9999, TransactionType.income, '2026-09-30T23:59:00.000');
+      await add(9999, TransactionType.expense, '2026-11-01');
+
+      final october = await repo.monthTotals(DateTime(2026, 10, 20));
+      expect(october.income, 1500);
+      expect(october.expense, 300);
+
+      final empty = await repo.monthTotals(DateTime(2026, 12));
+      expect(empty.income, 0);
+      expect(empty.expense, 0);
+    });
+
+    test('monthTotals rethrows a failed read', () async {
+      await db.execute('DROP TABLE ${TransactionsTable.table}');
+
+      expect(
+        () => repo.monthTotals(DateTime(2026, 10)),
+        throwsA(isA<DatabaseException>()),
+      );
+    });
 
     test('getByWallet only returns transactions for that wallet', () async {
       final walletA = await createWallet();

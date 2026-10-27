@@ -35,6 +35,7 @@ void main() {
   test('a custom category can use the "others" type', () async {
     await db.insert(CategoriesTable.table, {
       CategoriesTable.name: 'Gifts',
+      CategoriesTable.nameKey: 'gifts',
       CategoriesTable.type: CategoryType.others.name,
       CategoriesTable.createdAt: '2026-10-12T12:00:00.000',
     });
@@ -43,6 +44,7 @@ void main() {
   test('transactions have a note column', () async {
     final walletId = await db.insert(WalletsTable.table, {
       WalletsTable.name: 'Cash',
+      WalletsTable.nameKey: 'cash',
       WalletsTable.createdAt: '2026-08-01T12:00:00.000',
     });
     await db.insert(TransactionsTable.table, {

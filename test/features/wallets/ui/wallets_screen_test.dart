@@ -91,7 +91,7 @@ void main() {
     await tester.tap(find.text('Create wallet'));
     await tester.pumpAndSettle();
 
-    expect(find.byTooltip('New Wallet'), findsOneWidget);
+    expect(find.byTooltip('New wallet'), findsOneWidget);
     expect(find.byTooltip('Hide balance'), findsOneWidget);
   });
 

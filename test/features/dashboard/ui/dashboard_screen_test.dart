@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/database/db_providers.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/month_selector.dart';
@@ -61,6 +63,24 @@ void main() {
     },
   );
 
+  testWidgets('The first-wallet prompt is a button to screen readers', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pumpDashboardScreen(tester);
+
+    expect(
+      tester.getSemantics(find.text('Slide in your first wallet')),
+      // Named by its own text only, not merged with the balance card.
+      isSemantics(
+        label: 'Slide in your first wallet',
+        isButton: true,
+        hasTapAction: true,
+      ),
+    );
+    semantics.dispose();
+  });
+
   testWidgets('Tapping the first-wallet prompt opens the wallet form', (
     tester,
   ) async {
@@ -73,7 +93,7 @@ void main() {
     await tester.tap(find.text('Slide in your first wallet'));
     await tester.pumpAndSettle();
 
-    expect(find.text('New Wallet'), findsOneWidget);
+    expect(find.text('New wallet'), findsOneWidget);
   });
 
   testWidgets(
@@ -95,8 +115,16 @@ void main() {
       final currentMonth = DateFormat.MMMM('en').format(DateTime.now());
       expect(find.text(currentMonth), findsOneWidget);
       expect(find.text('Add first transaction'), findsOneWidget);
+      // The app's primary button, as every other first step uses.
+      expect(
+        find.ancestor(
+          of: find.text('Add first transaction'),
+          matching: find.byType(DashedStitchButton),
+        ),
+        findsOneWidget,
+      );
       // No ghost rows: the section stays hidden until the first transaction.
-      expect(find.text('Recent Transactions'), findsNothing);
+      expect(find.text('Recent transactions'), findsNothing);
       expect(find.text('See all'), findsNothing);
     },
   );
@@ -136,11 +164,49 @@ void main() {
 
     await pumpDashboardScreen(tester, db: db);
 
-    expect(find.text('Total Balance'), findsOneWidget);
+    expect(find.text('Total balance'), findsOneWidget);
     expect(find.text('\$75.00'), findsOneWidget); // 10000 - 2500 cents
     expect(find.text('Weekly shop'), findsOneWidget);
     // On the receipt, and under the transaction's name in the recent list.
     expect(find.text(groceriesCategory.name), findsNWidgets(2));
+  });
+
+  testWidgets('Deleting a recent transaction hides it from the dashboard', (
+    tester,
+  ) async {
+    final db = await createTestDatabase();
+    final walletId = await WalletRepositoryImpl(db).insert(
+      const Wallet(name: 'Test Wallet', createdAt: '2026-08-10T12:00:00.000'),
+    );
+    final today = DateTime.now().toIso8601String();
+    await TransactionRepositoryImpl(db).insert(
+      Transaction(
+        walletId: walletId,
+        amount: 2500,
+        type: TransactionType.expense,
+        date: today,
+        description: 'Weekly shop',
+        createdAt: today,
+      ),
+    );
+
+    await pumpDashboardScreen(tester, db: db);
+    expect(find.text('Weekly shop'), findsOneWidget);
+
+    await tester.tap(find.byIcon(AppIcons.more));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+    // The confirmation dialog's own Delete button.
+    await tester.tap(find.text('Delete'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+
+    expect(textOutsideSnackBar('Weekly shop'), findsNothing);
+
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pumpAndSettle();
+    expect(textOutsideSnackBar('Weekly shop'), findsNothing);
   });
 
   testWidgets('Hiding the balance masks every amount on the dashboard', (

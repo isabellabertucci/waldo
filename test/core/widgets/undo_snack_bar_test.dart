@@ -55,6 +55,25 @@ void main() {
     await tester.pumpAndSettle();
   });
 
+  testWidgets('Screen readers hear Undo as a button of its own', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pumpHost(tester);
+    show('Index funds');
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(
+      tester.getSemantics(find.text('Undo')),
+      isSemantics(label: 'Undo', isButton: true, hasTapAction: true),
+    );
+
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pumpAndSettle();
+    semantics.dispose();
+  });
+
   testWidgets('Undo completes with true and confirms the restore', (
     tester,
   ) async {
@@ -89,6 +108,26 @@ void main() {
     await tester.pumpAndSettle();
     expect(results, [false]);
     expect(find.text('Wallet deleted'), findsNothing);
+  });
+
+  testWidgets('With a screen reader on, the bar waits for Undo instead of '
+      'timing out', (tester) async {
+    // VoiceOver or TalkBack: reaching the Undo button takes longer than 5 s.
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(accessibleNavigation: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    await pumpHost(tester);
+    final results = show('Index funds');
+    await tester.pump();
+
+    await tester.pump(const Duration(seconds: 30));
+    expect(results, isEmpty);
+    expect(find.text('Wallet deleted'), findsOneWidget);
+    expect(find.text('5'), findsNothing, reason: 'no clock while it waits');
+
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(results, [true]);
   });
 
   testWidgets('A second delete finalizes the first at once and restarts '

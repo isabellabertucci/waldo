@@ -9,6 +9,7 @@ import 'package:waldo/core/database/migrations.dart' as migrations;
 import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/utils/localization_delegates.dart';
 
 GoRouter createTestRouter({String initialLocation = '/dashboard'}) {
   return GoRouter(routes: $appRoutes, initialLocation: initialLocation);
@@ -38,7 +39,7 @@ Future<Database> pumpTestApp(
         routerConfig: router ?? createTestRouter(),
         theme: AppTheme.light,
         locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        localizationsDelegates: appLocalizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
       ),
     ),
@@ -52,6 +53,8 @@ Future<Database> pumpWidgetWithProviders(
   WidgetTester tester,
   Widget widget, {
   Database? db,
+  Locale locale = const Locale('en'),
+  ThemeData? theme,
 }) async {
   final testDb = db ?? await createTestDatabase();
 
@@ -59,9 +62,9 @@ Future<Database> pumpWidgetWithProviders(
     ProviderScope(
       overrides: [appDatabaseProvider.overrideWith((ref) async => testDb)],
       child: MaterialApp(
-        theme: AppTheme.light,
-        locale: const Locale('en'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        theme: theme ?? AppTheme.light,
+        locale: locale,
+        localizationsDelegates: appLocalizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: widget,
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
 class EmptyState extends StatelessWidget {
@@ -15,7 +16,7 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final colors = context.appColors;
 
     return Center(
       child: Padding(
@@ -26,14 +27,14 @@ class EmptyState extends StatelessWidget {
             Icon(
               icon,
               size: 64,
-              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+              color: colors.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             const SizedBox(height: Spacing.sm),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+              style: context.textTheme.titleMedium?.copyWith(
+                color: colors.onSurfaceVariant,
               ),
             ),
             if (subtitle != null) ...[
@@ -41,10 +42,8 @@ class EmptyState extends StatelessWidget {
               Text(
                 subtitle!,
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant.withValues(
-                    alpha: 0.7,
-                  ),
+                style: context.textTheme.bodyMedium?.copyWith(
+                  color: colors.onSurfaceVariant,
                 ),
               ),
             ],

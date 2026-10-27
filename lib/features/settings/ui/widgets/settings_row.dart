@@ -4,6 +4,7 @@ import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 class SectionLabel extends StatelessWidget {
   const SectionLabel({required this.title, super.key});
@@ -14,11 +15,13 @@ class SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: Spacing.xs),
-      child: Text(
-        title.toUpperCase(),
-        style: context.labelXs.copyWith(
-          color: context.appColors.onSurfaceVariant,
-          letterSpacing: 1.0,
+      child: Heading(
+        child: Text(
+          title.toUpperCase(),
+          style: context.labelXs.copyWith(
+            color: context.appColors.onSurfaceVariant,
+            letterSpacing: 1.0,
+          ),
         ),
       ),
     );
@@ -52,14 +55,16 @@ class _RowDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Divider(
-      height: 1,
+    return const Divider(
       // Starts under the title: row padding + badge + title gap.
       indent: Spacing.sm + BadgeSize.lg + Spacing.component,
-      color: context.appColors.onSurfaceVariant.withValues(alpha: 0.12),
     );
   }
 }
+
+/// From this text size up, the value moves under the title so the title
+/// keeps the row's width.
+const _stackValueTextScale = 1.5; // one-off
 
 class SettingsRow extends StatelessWidget {
   const SettingsRow({
@@ -82,6 +87,14 @@ class SettingsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final stacked =
+        MediaQuery.textScalerOf(context).scale(1) >= _stackValueTextScale;
+    final valueText = Text(
+      value,
+      style: context.textTheme.bodyMedium?.copyWith(
+        color: colors.onSurfaceVariant,
+      ),
+    );
 
     return ListTile(
       onTap: onTap,
@@ -95,30 +108,32 @@ class SettingsRow extends StatelessWidget {
         width: BadgeSize.lg,
         height: BadgeSize.lg,
         decoration: BoxDecoration(
-          color: colors.fieldFill,
+          // The page behind the card, as if the disc were cut out of it.
+          color: colors.surfaceContainer,
           shape: BoxShape.circle,
         ),
         child: Icon(icon, size: IconSize.lg, color: colors.onSurfaceVariant),
       ),
       title: Text(title, style: context.bodyMdBold),
-      subtitle: subtitle == null
+      subtitle: subtitle == null && !stacked
           ? null
-          : Text(
-              subtitle!,
-              style: context.textTheme.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
-              ),
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (subtitle != null)
+                  Text(
+                    subtitle!,
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                if (stacked) valueText,
+              ],
             ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            value,
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(width: Spacing.xs),
+          if (!stacked) ...[valueText, const SizedBox(width: Spacing.xs)],
           Icon(
             AppIcons.chevronRight,
             size: IconSize.xl,

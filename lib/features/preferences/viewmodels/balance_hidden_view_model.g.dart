@@ -8,22 +8,25 @@ part of 'balance_hidden_view_model.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Whether amounts are masked app-wide (the eye toggle).
+/// Whether amounts are masked app-wide (the eye toggle). Kept alive, so it
+/// can't reset while no screen happens to be watching it.
 
 @ProviderFor(BalanceHidden)
 const balanceHiddenProvider = BalanceHiddenProvider._();
 
-/// Whether amounts are masked app-wide (the eye toggle).
+/// Whether amounts are masked app-wide (the eye toggle). Kept alive, so it
+/// can't reset while no screen happens to be watching it.
 final class BalanceHiddenProvider
     extends $NotifierProvider<BalanceHidden, bool> {
-  /// Whether amounts are masked app-wide (the eye toggle).
+  /// Whether amounts are masked app-wide (the eye toggle). Kept alive, so it
+  /// can't reset while no screen happens to be watching it.
   const BalanceHiddenProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'balanceHiddenProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -44,9 +47,10 @@ final class BalanceHiddenProvider
   }
 }
 
-String _$balanceHiddenHash() => r'8e6999447b921190807ba6236001004fbbcc427e';
+String _$balanceHiddenHash() => r'dcb990b7a8b6af95a2e36a26f4bbcb2b710acbba';
 
-/// Whether amounts are masked app-wide (the eye toggle).
+/// Whether amounts are masked app-wide (the eye toggle). Kept alive, so it
+/// can't reset while no screen happens to be watching it.
 
 abstract class _$BalanceHidden extends $Notifier<bool> {
   bool build();

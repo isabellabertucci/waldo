@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 
 /// A wallet card's metal finish, picked by its position in the list
@@ -86,12 +85,19 @@ const walletCardTextShadow = [
   ), // one-off
 ];
 
+/// How much lighter than dark-mode `error` a negative balance is on the dark
+/// metal, where plain `error` drops to about 1.7:1 on the finish's shine.
+const _negativeOnMetalLift = 0.18; // one-off: see DESIGN.md Known Gaps
+
 /// The negative-balance color for text on a [WalletCardBackground]; lighter in
 /// dark mode so it stays readable on the dark metal.
 Color walletCardNegativeColor(BuildContext context) {
+  final error = context.appColors.error;
   final isDark = Theme.of(context).brightness == Brightness.dark;
-  if (!isDark) return AppColors.light.error;
+  if (!isDark) return error;
 
-  final hsl = HSLColor.fromColor(AppColors.dark.error);
-  return hsl.withLightness((hsl.lightness + 0.18).clamp(0.0, 1.0)).toColor();
+  final hsl = HSLColor.fromColor(error);
+  return hsl
+      .withLightness((hsl.lightness + _negativeOnMetalLift).clamp(0.0, 1.0))
+      .toColor();
 }

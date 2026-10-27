@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:waldo/core/database/db_providers.dart';
@@ -7,14 +8,16 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/utils/localization_delegates.dart';
 
 /// Wraps [child] in the real app's providers, theme and localizations.
-/// [isBalanceHidden] starts with the eye toggle on.
+/// [isBalanceHidden] starts with the eye toggle on; [locale] is the app language.
 Widget wrapForGolden({
   required Widget child,
   required Database db,
   required Brightness brightness,
   bool isBalanceHidden = false,
+  Locale locale = const Locale('en'),
 }) {
   return ProviderScope(
     // Root scope of each golden; the lint can't tell, as it's built in a helper.
@@ -32,11 +35,28 @@ Widget wrapForGolden({
       themeMode: brightness == Brightness.dark
           ? ThemeMode.dark
           : ThemeMode.light,
-      locale: const Locale('en'),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      locale: locale,
+      localizationsDelegates: appLocalizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: child,
     ),
+  );
+}
+
+/// Makes the tests in this scope run on a Portuguese phone, so money formats
+/// as pt_PT (`1 234,50 €`); pair it with `locale: Locale('pt')`.
+void usePortuguesePhone() {
+  setUp(() {
+    TestWidgetsFlutterBinding.ensureInitialized()
+        .platformDispatcher
+        .localeTestValue = const Locale(
+      'pt',
+      'PT',
+    );
+  });
+  tearDown(
+    () => TestWidgetsFlutterBinding.instance.platformDispatcher
+        .clearLocaleTestValue(),
   );
 }
 
