@@ -520,6 +520,26 @@ number of its own.
 Anything that moves on its own, like the scroll hint, is skipped when the
 phone asks for reduced motion.
 
+## Other tokens
+
+Every design value a widget uses comes from `lib/core/theme`; there is no
+`// one-off` escape hatch.
+
+- **`Alpha`** (`alpha.dart`): opacity steps - `faint` 0.06, `tint` 0.08,
+  `soft` 0.12, `medium` 0.18, `stitch` 0.3, `line` 0.4, `muted` 0.6,
+  `strong` 0.8.
+- **`ComponentSize`** (`component_size.dart`): dimensions that belong to one
+  component - the wallet card, the receipt, the chart, the undo ring, the
+  navbar's selected tab, the grabber.
+- **`FinishColors`** (`finish_colors.dart`): the metal and leather colours,
+  which imitate real objects and so don't follow the themes.
+- **`Fades`** (`fades.dart`): alpha masks that fade a row's edges.
+
+Two kinds of number stay in code: the shape of a drawing inside its painter
+(the pouch's curve, the eye's path, the barcode's bars), and behaviour
+constants such as counts and time windows (five category rows, the 5-second
+undo window).
+
 ## Components
 
 - **Buttons (primary):** `DashedStitchButton` - a `primary`-filled pill
@@ -573,8 +593,8 @@ phone asks for reduced motion.
   amounts.
 - Use `primary-strong` only on a plain surface for a single emphasized
   element (an amount, a link, a marker) - not as a button fill.
-- Escalate text weight only along the named `-strong` ladder, never with an
-  inline one-off `fontWeight`.
+- Escalate text weight only along the named ladder (Strong, Bold,
+  ExtraBold, Black), never with an inline `fontWeight`.
 - Keep the leather pouch and undo bar `leather`/`on-leather` in both themes.
 
 ### Don't
@@ -614,31 +634,22 @@ phone asks for reduced motion.
   for actually uses `headlineMedium` (28px) - fixed to match the real call
   site rather than inflate the figure's size.
   No raw `fontWeight:` or `fontSize:` is left outside `lib/core/theme`.
-- **Micro-text sizes (11-15px) stayed as documented one-offs, not
-  `label-xs`.** The audit proposed one token for this whole cluster, but
-  each site turned out to have its own real letter-spacing/weight pairing
-  (the receipt header's 0.8 tracking, the chart axis label's fl_chart-owned
-  styling, the month chip's selected/unselected size+weight pair) that
-  `label-xs` (11px/600/0.4 tracking) doesn't match - forcing it in would
-  have been a visual change, not just a naming change. Each site now has an
-  inline comment explaining why it's an exception; see
-  `scripts/design_guardrail.sh`'s `// one-off` convention.
 - **Elevation has no numeric scale.** `Elevation.low`/`.high` (BoxShadow
   lists) and `.highShadowColor` are live, but the handful of raw Material
   `elevation: 1` / `elevation: 3` doubles (`circle_icon_button.dart`,
   `wallets_card_stack.dart`) aren't tied to a named constant yet.
-- **Guardrail doesn't check `EdgeInsets`/`SizedBox` numbers yet.**
-  `make design-guardrail` currently only checks `Color(0x...)` and raw
-  `fontSize:` outside `lib/core/theme` (see
-  `scripts/design_guardrail.sh`) - EdgeInsets/SizedBox snapping to
-  `Spacing.xxs`/`.component` happened for the clearest cases but not
-  exhaustively, so turning that
-  check on now would fail on real, not-yet-reconciled call sites.
+- **Guardrail doesn't check `EdgeInsets`/`SizedBox` numbers.**
+  `make design-guardrail` fails on a raw `Color(0x...)`, `Colors.*`,
+  `fontSize:`, `fontWeight:`, `Duration(milliseconds: ...)` or fractional
+  `alpha:` outside `lib/core/theme`, with no exception marker. Spacing and
+  sizes come from `Spacing`, `BadgeSize`, `IconSize` and `ComponentSize`
+  today, but a numeric check would also flag painter geometry, so it isn't
+  on.
 - **A lighter orange for negative balances on dark metal.** In dark mode a
   wallet card's negative balance uses `error` lifted 18% in lightness
   (about `#F8B08F`, `walletCardNegativeColor` in `wallet_card_finish.dart`),
   not `error` itself: on the metal's lighter shine, plain `error` drops to
   about 1.7:1 and the lifted one reaches about 2.6:1. It is still the one
-  orange hue, only lighter, and it appears nowhere else - so it stays a
-  documented one-off rather than a token. Light mode uses plain `error`.
+  orange hue, only lighter, and it appears nowhere else; the lift is
+  `FinishColors.negativeOnMetalLift`. Light mode uses plain `error`.
 - **Figma:** no Figma file yet (Phase 4 of the design-system spec).
