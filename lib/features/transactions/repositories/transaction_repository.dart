@@ -173,6 +173,7 @@ class TransactionRepositoryImpl implements ITransactionRepository {
             TransactionsTable.type: transaction.type.name,
             TransactionsTable.date: transaction.date,
             TransactionsTable.description: transaction.description,
+            TransactionsTable.note: transaction.note,
           },
           where: '${TransactionsTable.id} = ?',
           whereArgs: [id],

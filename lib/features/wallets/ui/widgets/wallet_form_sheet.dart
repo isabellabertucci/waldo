@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/app_icons.dart';
+import 'package:waldo/core/theme/icon_size.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/theme/app_theme.dart';
+import 'package:waldo/core/theme/rounded.dart';
+import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/form_name_field.dart';
+import 'package:waldo/core/widgets/option_tile.dart';
+import 'package:waldo/core/widgets/sheet_close_button.dart';
+import 'package:waldo/features/preferences/currency_x.dart';
+import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_form_view_model.dart';
 import 'package:waldo/features/wallets/wallets_x.dart';
@@ -93,67 +105,170 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = context.appColors;
     final formState = ref.watch(walletFormViewModelProvider(widget.wallet));
     final viewModel = ref.read(
       walletFormViewModelProvider(widget.wallet).notifier,
     );
+    final preferencesAsync = ref.watch(preferencesViewModelProvider);
+    final currencySymbol = switch (preferencesAsync) {
+      AsyncValue(:final value?) => value.currency.symbol,
+      _ => Currency.usd.symbol,
+    };
+
     return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom:
-            MediaQuery.of(context).viewInsets.bottom +
-            MediaQuery.of(context).padding.bottom +
-            16,
+      padding: EdgeInsets.fromLTRB(
+        Spacing.md,
+        Spacing.sm,
+        Spacing.md,
+        MediaQuery.of(context).viewInsets.bottom + Spacing.md,
       ),
       child: Form(
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              _isEditing ? l10n.editWallet : l10n.newWallet,
-              style: Theme.of(context).textTheme.titleLarge,
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colors.onSurface.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(Rounded.pill),
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
-            TextFormField(
+            const SizedBox(height: Spacing.md),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _isEditing ? l10n.editWallet : l10n.newWallet,
+                    style: context.headlineLgStrong,
+                  ),
+                ),
+                const SheetCloseButton(),
+              ],
+            ),
+            const SizedBox(height: Spacing.md),
+            FormNameField(
+              fieldKey: const Key('walletNameField'),
               controller: _nameController,
+              label: l10n.name,
+              hint: l10n.walletNameHint,
               onChanged: viewModel.updateName,
-              decoration: InputDecoration(labelText: l10n.name),
               validator: (value) => _validateName(l10n, value),
             ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<WalletType>(
-              initialValue: formState.type,
-              decoration: InputDecoration(labelText: l10n.type),
-              items: WalletType.values.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(type.label(l10n)),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) viewModel.updateType(value);
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _balanceController,
-              enabled: !_isEditing,
-              onChanged: viewModel.updateBalance,
-              decoration: InputDecoration(
-                labelText: l10n.startingBalance,
-                helperText: _isEditing ? l10n.balanceLocked : null,
+            const SizedBox(height: Spacing.md),
+            Text(
+              l10n.type.toUpperCase(),
+              style: context.bodySmBold.copyWith(
+                color: colors.onSurfaceVariant,
+                letterSpacing: 0.4,
               ),
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              validator: (value) => _validateBalance(l10n, value),
             ),
-            const SizedBox(height: 24),
-            FilledButton(onPressed: _save, child: Text(l10n.save)),
+            const SizedBox(height: Spacing.sm),
+            GridView.count(
+              crossAxisCount: 3,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: Spacing.sm,
+              crossAxisSpacing: Spacing.sm,
+              childAspectRatio: 1.05,
+              children: [
+                for (final type in WalletType.values)
+                  OptionTile(
+                    icon: type.icon,
+                    label: type.label(l10n),
+                    selected: type == formState.type,
+                    onTap: () => viewModel.updateType(type),
+                  ),
+              ],
+            ),
+            const SizedBox(height: Spacing.sm),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(Spacing.md),
+              decoration: BoxDecoration(
+                color: colors.surfaceContainer,
+                borderRadius: BorderRadius.circular(Rounded.lg),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.startingBalance,
+                    style: context.textTheme.bodyMedium?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: Spacing.xs),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        currencySymbol,
+                        style: context.amountDisplayBold.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          key: const Key('walletBalanceField'),
+                          controller: _balanceController,
+                          enabled: !_isEditing,
+                          onChanged: viewModel.updateBalance,
+                          validator: (value) => _validateBalance(l10n, value),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'[0-9.,\-]'),
+                            ),
+                          ],
+                          decoration: const InputDecoration(
+                            isCollapsed: true,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            focusedErrorBorder: InputBorder.none,
+                            filled: false,
+                            hintText: '0.00',
+                          ),
+                          style: context.amountDisplayBold.copyWith(
+                            color: colors.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: Spacing.xs),
+                  Text(
+                    _isEditing ? l10n.balanceLocked : l10n.startingBalanceHint,
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: Spacing.md),
+            SizedBox(
+              width: double.infinity,
+              child: DashedStitchButton(
+                icon: const Icon(AppIcons.check, size: IconSize.md),
+                label: _isEditing ? l10n.saveChanges : l10n.createWallet,
+                onPressed: _save,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Spacing.sm,
+                  vertical: Spacing.md,
+                ),
+              ),
+            ),
           ],
         ),
       ),

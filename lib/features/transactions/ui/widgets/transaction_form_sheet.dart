@@ -1,28 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/icon_size.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/router/app_router.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
+import 'package:waldo/core/theme/rounded.dart';
+import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/sheet_close_button.dart';
+import 'package:waldo/features/categories/categories_x.dart';
+import 'package:waldo/features/categories/ui/widgets/category_form_sheet.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
+import 'package:waldo/features/preferences/currency_x.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
-import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_form_view_model.dart';
+import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
+import 'transaction_field_row.dart';
+import 'transaction_type_toggle.dart';
+
 final _log = Logger('waldo.ui.transaction_form');
 
-class TransactionFormSheet extends ConsumerStatefulWidget {
-  const TransactionFormSheet({
-    super.key,
-    this.transaction,
-    this.initialWalletId,
-  });
+/// Opens the classic field-by-field form for creating a brand-new
+/// transaction - kept separate from [showTransactionEditSheet], which is
+/// reserved for viewing/editing a transaction that already exists.
+Future<void> showTransactionFormSheet(
+  BuildContext context, {
+  int? initialWalletId,
+}) {
+  return showModalBottomSheet(
+    context: context,
+    useRootNavigator: true,
+    isScrollControlled: true,
+    builder: (_) => TransactionFormSheet(initialWalletId: initialWalletId),
+  );
+}
 
-  final Transaction? transaction;
+class TransactionFormSheet extends ConsumerStatefulWidget {
+  const TransactionFormSheet({super.key, this.initialWalletId});
+
   final int? initialWalletId;
 
   @override
@@ -35,14 +58,12 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
   late final TextEditingController _amountController;
   late final TextEditingController _descriptionController;
 
-  bool get _isEditing => widget.transaction != null;
-
   @override
   void initState() {
     super.initState();
     final initial = ref.read(
       transactionFormViewModelProvider(
-        widget.transaction,
+        null,
         initialWalletId: widget.initialWalletId,
       ),
     );
@@ -77,13 +98,22 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     );
   }
 
+  void _openNewCategorySheet() {
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      isScrollControlled: true,
+      builder: (_) => const CategoryFormSheet(),
+    );
+  }
+
   Future<void> _save(TransactionFormViewModel viewModel) async {
     if (!_formKey.currentState!.validate()) {
       _log.fine('Transaction form validation failed');
       return;
     }
     try {
-      final success = await viewModel.save(widget.transaction);
+      final success = await viewModel.save(null);
       if (success && mounted) {
         Navigator.of(context).pop();
       }
@@ -100,163 +130,444 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = context.appColors;
     final formState = ref.watch(
       transactionFormViewModelProvider(
-        widget.transaction,
+        null,
         initialWalletId: widget.initialWalletId,
       ),
     );
     final viewModel = ref.read(
       transactionFormViewModelProvider(
-        widget.transaction,
+        null,
         initialWalletId: widget.initialWalletId,
       ).notifier,
     );
     final walletsAsync = ref.watch(walletListViewModelProvider());
     final categoriesAsync = ref.watch(categoryListViewModelProvider);
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
+    final currencySymbol = switch (preferencesAsync) {
+      AsyncValue(:final value?) => value.currency.symbol,
+      _ => Currency.usd.symbol,
+    };
     final dateFormatPattern = switch (preferencesAsync) {
-      AsyncData(:final value) => value.dateFormat,
+      AsyncValue(:final value?) => value.dateFormat,
       _ => 'yyyy-MM-dd',
     };
     final dateFormat = DateFormat(dateFormatPattern);
 
+    final isIncome = formState.type == TransactionType.income;
+    final amountColor = isIncome ? colors.primaryStrong : colors.error;
+    final walletName = switch (walletsAsync) {
+      AsyncValue(:final value?) =>
+        value.where((w) => w.id == formState.walletId).firstOrNull?.name,
+      _ => null,
+    };
+
     return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom:
-            MediaQuery.of(context).viewInsets.bottom +
-            MediaQuery.of(context).padding.bottom +
-            16,
+      padding: EdgeInsets.fromLTRB(
+        Spacing.md,
+        Spacing.sm,
+        Spacing.md,
+        MediaQuery.of(context).viewInsets.bottom + Spacing.md,
       ),
       child: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                _isEditing ? l10n.editTransaction : l10n.newTransaction,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _amountController,
-                onChanged: viewModel.updateAmount,
-                decoration: InputDecoration(labelText: l10n.amount),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                validator: (value) => _validateAmount(l10n, value),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<TransactionType>(
-                initialValue: formState.type,
-                decoration: InputDecoration(labelText: l10n.type),
-                items: TransactionType.values.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Text(type.label(l10n)),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) viewModel.updateType(value);
-                },
-              ),
-              const SizedBox(height: 16),
-
-              if (widget.initialWalletId == null) ...[
-                switch (walletsAsync) {
-                  AsyncData(:final value) => DropdownButtonFormField<int>(
-                    initialValue: formState.walletId,
-                    decoration: InputDecoration(labelText: l10n.wallet),
-                    items: value.map((wallet) {
-                      return DropdownMenuItem(
-                        value: wallet.id,
-                        child: Text(wallet.name),
-                      );
-                    }).toList(),
-                    onChanged: (walletId) {
-                      if (walletId != null) viewModel.updateWalletId(walletId);
-                    },
-                    validator: (value) =>
-                        value == null ? l10n.walletRequired : null,
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: colors.onSurface.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(Rounded.pill),
                   ),
-                  _ => const SizedBox.shrink(),
-                },
-                const SizedBox(height: 16),
-              ],
-
-              switch (categoriesAsync) {
-                AsyncData(:final value) => DropdownButtonFormField<int?>(
-                  initialValue: formState.categoryId,
-                  decoration: InputDecoration(labelText: l10n.category),
-                  items: [
-                    DropdownMenuItem(value: null, child: Text(l10n.none)),
-                    ...value.map((category) {
-                      return DropdownMenuItem(
-                        value: category.id,
-                        child: Text(category.name),
-                      );
-                    }),
+                ),
+              ),
+              const SizedBox(height: Spacing.md),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.newTransaction,
+                      style: context.headlineLgStrong,
+                    ),
+                  ),
+                  const SheetCloseButton(),
+                ],
+              ),
+              const SizedBox(height: Spacing.md),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Spacing.sm,
+                  vertical: Spacing.sm,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainer,
+                  borderRadius: BorderRadius.circular(Rounded.lg),
+                  border: Border.all(color: colors.primary, width: 2),
+                ),
+                child: Column(
+                  children: [
+                    TransactionTypeToggle(
+                      selected: formState.type,
+                      onChanged: viewModel.updateType,
+                    ),
+                    const SizedBox(height: Spacing.sm),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${isIncome ? '+' : '-'}$currencySymbol',
+                          style: context.amountDisplayBold.copyWith(
+                            color: amountColor,
+                          ),
+                        ),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 160),
+                          child: TextFormField(
+                            key: const Key('transactionAmountField'),
+                            controller: _amountController,
+                            onChanged: viewModel.updateAmount,
+                            validator: (value) => _validateAmount(l10n, value),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'[0-9.,]'),
+                              ),
+                            ],
+                            textAlign: TextAlign.center,
+                            decoration: InputDecoration(
+                              isCollapsed: true,
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              focusedErrorBorder: InputBorder.none,
+                              filled: false,
+                              hintText: '0.00',
+                              hintStyle: context.amountDisplayBold.copyWith(
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
+                            style: context.amountDisplayBold.copyWith(
+                              color: colors.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
-                  onChanged: (categoryId) {
-                    viewModel.updateCategoryId(categoryId);
-                  },
+                ),
+              ),
+              const SizedBox(height: Spacing.md),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l10n.category.toUpperCase(),
+                      style: context.bodySmBold.copyWith(
+                        color: colors.onSurfaceVariant,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: colors.primaryStrong,
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    onPressed: () => const CategoriesRoute().push(context),
+                    child: Text(l10n.manageCategories),
+                  ),
+                ],
+              ),
+              const SizedBox(height: Spacing.sm),
+              switch (categoriesAsync) {
+                AsyncValue(:final value?) => Wrap(
+                  spacing: Spacing.sm,
+                  runSpacing: Spacing.sm,
+                  children: [
+                    for (final category in value)
+                      _CategoryChip(
+                        icon: category.type.icon,
+                        label: category.isDefault
+                            ? category.type.label(l10n)
+                            : category.name,
+                        selected: formState.categoryId == category.id,
+                        onTap: () => viewModel.updateCategoryId(category.id),
+                      ),
+                    _NewCategoryChip(onTap: _openNewCategorySheet),
+                  ],
                 ),
                 _ => const SizedBox.shrink(),
               },
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: context.appColors.primaryStrong,
-                  ),
-                  onPressed: () => const CategoriesRoute().push(context),
-                  child: Text(l10n.manageCategories),
-                ),
-              ),
-              const SizedBox(height: 8),
+              const SizedBox(height: Spacing.sm),
               FormField<DateTime>(
                 initialValue: formState.date,
                 validator: (value) => value == null ? l10n.dateRequired : null,
-                builder: (field) {
-                  return InkWell(
-                    onTap: () async {
-                      final picked = await _pickDate(formState.date);
-                      if (picked == null) return;
-                      viewModel.updateDate(picked);
-                      field.didChange(picked);
-                    },
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: l10n.date,
-                        errorText: field.errorText,
-                      ),
-                      child: Text(
-                        formState.date == null
-                            ? ''
-                            : dateFormat.format(formState.date!),
-                      ),
+                builder: (field) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    EditFieldRow(
+                      key: const Key('transactionDateField'),
+                      icon: Icons.calendar_today_outlined,
+                      label: l10n.date,
+                      value: formState.date == null
+                          ? '—'
+                          : dateFormat.format(formState.date!),
+                      hasError: field.hasError,
+                      onTap: () async {
+                        final picked = await _pickDate(formState.date);
+                        if (picked == null) return;
+                        viewModel.updateDate(picked);
+                        field.didChange(picked);
+                      },
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _descriptionController,
-                onChanged: viewModel.updateDescription,
-                decoration: InputDecoration(
-                  labelText: l10n.transactionDescription,
+                    if (field.hasError)
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: Spacing.xs,
+                          left: Spacing.md,
+                        ),
+                        child: Text(
+                          field.errorText!,
+                          style: context.textTheme.bodySmall?.copyWith(
+                            color: colors.error,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 24),
-              FilledButton(
-                onPressed: () => _save(viewModel),
-                child: Text(l10n.save),
+              if (widget.initialWalletId == null) ...[
+                const SizedBox(height: Spacing.sm),
+                switch (walletsAsync) {
+                  AsyncValue(:final value?) => FormField<int>(
+                    initialValue: formState.walletId,
+                    validator: (walletId) =>
+                        walletId == null ? l10n.walletRequired : null,
+                    builder: (field) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        EditFieldRow(
+                          icon: Icons.account_balance_wallet_outlined,
+                          label: l10n.wallet,
+                          value: walletName ?? l10n.none,
+                          hasError: field.hasError,
+                          onTap: () => _showWalletPicker(
+                            context,
+                            value,
+                            viewModel,
+                            field,
+                          ),
+                        ),
+                        if (field.hasError)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: Spacing.xs,
+                              left: Spacing.md,
+                            ),
+                            child: Text(
+                              field.errorText!,
+                              style: context.textTheme.bodySmall?.copyWith(
+                                color: colors.error,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  _ => const SizedBox.shrink(),
+                },
+              ],
+              const SizedBox(height: Spacing.sm),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Spacing.md,
+                  vertical: Spacing.sm,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainer,
+                  borderRadius: BorderRadius.circular(Rounded.lg),
+                ),
+                child: Row(
+                  children: [
+                    FieldBadge(
+                      icon: Icons.notes_outlined,
+                      color: colors.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: Spacing.sm),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            l10n.transactionDescription,
+                            style: context.textTheme.bodySmall?.copyWith(
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                          TextFormField(
+                            key: const Key('transactionDescriptionField'),
+                            controller: _descriptionController,
+                            onChanged: viewModel.updateDescription,
+                            textCapitalization: TextCapitalization.sentences,
+                            decoration: InputDecoration(
+                              isCollapsed: true,
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              disabledBorder: InputBorder.none,
+                              errorBorder: InputBorder.none,
+                              focusedErrorBorder: InputBorder.none,
+                              filled: false,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: Spacing.xs,
+                              ),
+                              hintText: l10n.descriptionHint,
+                              hintStyle: context.bodyMdBold.copyWith(
+                                color: colors.onSurfaceVariant.withValues(
+                                  alpha: 0.6,
+                                ),
+                              ),
+                            ),
+                            style: context.bodyMdBold,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: Spacing.md),
+              SizedBox(
+                width: double.infinity,
+                child: DashedStitchButton(
+                  icon: const Icon(AppIcons.check, size: IconSize.md),
+                  label: isIncome ? l10n.addIncome : l10n.addExpense,
+                  onPressed: () => _save(viewModel),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.sm,
+                    vertical: Spacing.md,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showWalletPicker(
+    BuildContext context,
+    List<Wallet> wallets,
+    TransactionFormViewModel viewModel,
+    FormFieldState<int> field,
+  ) {
+    final colors = context.appColors;
+    showModalBottomSheet(
+      context: context,
+      useRootNavigator: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: Spacing.sm),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final wallet in wallets)
+                ListTile(
+                  leading: Icon(
+                    Icons.account_balance_wallet_outlined,
+                    color: colors.onSurfaceVariant,
+                  ),
+                  title: Text(wallet.name, style: context.bodyMdBold),
+                  onTap: () {
+                    viewModel.updateWalletId(wallet.id!);
+                    field.didChange(wallet.id);
+                    Navigator.of(sheetContext).pop();
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One selectable category pill - a filled icon disc plus label, with a
+/// dashed accent border and bold label when selected.
+class _CategoryChip extends StatelessWidget {
+  const _CategoryChip({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return Material(
+      color: colors.surfaceContainer,
+      borderRadius: BorderRadius.circular(Rounded.pill),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Rounded.pill),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.only(
+            left: Spacing.xs,
+            right: Spacing.sm,
+            top: Spacing.xs,
+            bottom: Spacing.xs,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(Rounded.pill),
+            border: selected
+                ? Border.all(color: colors.primary, width: 1.5)
+                : null,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  size: IconSize.sm,
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(width: Spacing.xs),
+              Text(
+                label,
+                style: selected ? context.bodyMdBold : context.bodyMdStrong,
               ),
             ],
           ),
@@ -266,11 +577,55 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
   }
 }
 
-extension TransactionTypeLabel on TransactionType {
-  String label(AppLocalizations l10n) {
-    return switch (this) {
-      TransactionType.income => l10n.transactionTypeIncome,
-      TransactionType.expense => l10n.transactionTypeExpense,
-    };
+/// The trailing "+ New" chip that opens the new-category form - a dashed
+/// outline (no fill) so it reads as an action, not another option.
+class _NewCategoryChip extends StatelessWidget {
+  const _NewCategoryChip({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = context.appColors;
+
+    return Material(
+      color: colors.transparent,
+      borderRadius: BorderRadius.circular(Rounded.pill),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Rounded.pill),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.sm,
+            vertical: Spacing.sm,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(Rounded.pill),
+            border: Border.all(
+              color: colors.onSurfaceVariant.withValues(alpha: 0.4),
+              style: BorderStyle.solid,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                AppIcons.add,
+                size: IconSize.md,
+                color: colors.onSurfaceVariant,
+              ),
+              const SizedBox(width: Spacing.xxs),
+              Text(
+                l10n.addNewCategory,
+                style: context.bodyMdStrong.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

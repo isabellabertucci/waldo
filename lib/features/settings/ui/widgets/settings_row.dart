@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/app_icons.dart';
+import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
@@ -11,12 +13,12 @@ class SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: Spacing.sm, left: 4),
+      padding: const EdgeInsets.only(bottom: Spacing.sm, left: Spacing.xxs),
       child: Text(
-        title,
-        style: context.textTheme.labelLarge?.copyWith(
+        title.toUpperCase(),
+        style: context.labelXs.copyWith(
           color: context.appColors.onSurfaceVariant,
-          fontWeight: FontWeight.w600,
+          letterSpacing: 1.0,
         ),
       ),
     );
@@ -30,7 +32,29 @@ class SettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(child: Column(children: children));
+    return Card(
+      child: Column(
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) const _RowDivider(),
+            children[i],
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _RowDivider extends StatelessWidget {
+  const _RowDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(
+      height: 1,
+      indent: Spacing.lg + 36 + Spacing.sm,
+      color: context.appColors.onSurfaceVariant.withValues(alpha: 0.12),
+    );
   }
 }
 
@@ -40,11 +64,17 @@ class SettingsRow extends StatelessWidget {
     required this.title,
     required this.value,
     required this.onTap,
+    this.subtitle,
     super.key,
   });
 
   final IconData icon;
   final String title;
+
+  /// A second line under [title] explaining what the row controls, e.g.
+  /// "How amounts are shown" - optional, since a row as self-explanatory as
+  /// Theme doesn't need one.
+  final String? subtitle;
   final String value;
   final VoidCallback onTap;
 
@@ -54,6 +84,10 @@ class SettingsRow extends StatelessWidget {
 
     return ListTile(
       onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: Spacing.lg,
+        vertical: Spacing.xs,
+      ),
       leading: Container(
         width: 36,
         height: 36,
@@ -61,14 +95,17 @@ class SettingsRow extends StatelessWidget {
           color: colors.surfaceContainer,
           borderRadius: BorderRadius.circular(Rounded.md),
         ),
-        child: Icon(icon, size: 18, color: colors.onSurfaceVariant),
+        child: Icon(icon, size: IconSize.lg, color: colors.onSurfaceVariant),
       ),
-      title: Text(
-        title,
-        style: context.textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.w500,
-        ),
-      ),
+      title: Text(title, style: context.bodyMdBold),
+      subtitle: subtitle == null
+          ? null
+          : Text(
+              subtitle!,
+              style: context.textTheme.bodySmall?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -79,7 +116,11 @@ class SettingsRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: Spacing.xs),
-          Icon(Icons.chevron_right, size: 20, color: colors.onSurfaceVariant),
+          Icon(
+            AppIcons.chevronRight,
+            size: IconSize.xl,
+            color: colors.onSurfaceVariant,
+          ),
         ],
       ),
     );

@@ -67,6 +67,7 @@ dev_dependencies:
   freezed: ^3.2.3
   sqflite_common_ffi: ^2.4.2
   mocktail: ^1.0.5
+  alchemist: ^0.14.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -81,9 +82,15 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/textures/cards/metal-silver.png
+    - assets/textures/cards/metal-champagne.png
+    - assets/textures/cards/metal-rose.png
+    - assets/textures/cards/brushed-lines-overlay.png
+    - assets/textures/leather.png
+
+  # - images/a_dot_burr.jpeg
+  # - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

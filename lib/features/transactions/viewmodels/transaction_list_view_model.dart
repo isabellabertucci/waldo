@@ -4,7 +4,7 @@ import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
-import 'package:waldo/features/wallets/viewmodels/wallet_providers.dart';
+import 'package:waldo/features/wallets/viewmodels/wallets_summary_view_model.dart';
 
 part 'transaction_list_view_model.g.dart';
 
@@ -31,22 +31,16 @@ class TransactionListViewModel extends _$TransactionListViewModel {
   Future<void> confirmDelete(int id) async {
     final repo = await ref.read(transactionRepositoryProvider.future);
     await repo.delete(id);
-    ref.invalidateSelf();
+    // The whole family, so the "all transactions" list (no walletId) drops
+    // it too, not just this wallet's list.
+    ref.invalidate(transactionListViewModelProvider);
 
     ref.invalidate(walletListViewModelProvider);
-    if (walletId != null) {
-      ref.invalidate(walletByIdProvider(walletId!));
-    }
     ref.invalidate(dashboardViewModelProvider);
+    ref.invalidate(walletsSummaryViewModelProvider);
   }
 
   void restoreTransaction() {
     ref.invalidateSelf();
   }
-}
-
-@riverpod
-Future<Transaction?> transactionById(Ref ref, int id) async {
-  final repo = await ref.watch(transactionRepositoryProvider.future);
-  return repo.getById(id);
 }

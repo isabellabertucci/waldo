@@ -1,0 +1,164 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/theme/app_icons.dart';
+import 'package:waldo/core/theme/app_theme.dart';
+import 'package:waldo/core/theme/icon_size.dart';
+import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/surface_card.dart';
+import 'package:waldo/features/categories/categories_x.dart';
+import 'package:waldo/features/categories/models/category.dart';
+import 'package:waldo/features/transactions/models/transaction.dart';
+import 'package:waldo/l10n/app_localizations.dart';
+
+/// A single transaction row: leading icon circle, description/date, and a
+/// signed, colored amount. Used (within a [TransactionGroupCard]) by the
+/// dashboard's recent-transactions list and the all-transactions screen.
+/// The per-wallet transactions screen has its own day-grouped variant
+/// (category · time subtitle, plus an edit/delete menu) on purpose.
+///
+/// When [category] is known, the leading icon shows the category's own icon
+/// on a neutral tint (the dashboard's treatment). When it isn't available
+/// (the all-transactions list doesn't look categories up), it falls back to
+/// a plain income/expense direction icon on a color tint instead.
+class TransactionRow extends StatelessWidget {
+  const TransactionRow({
+    super.key,
+    required this.transaction,
+    required this.currency,
+    required this.dateFormat,
+    required this.onTap,
+    this.category,
+    this.isAmountHidden = false,
+  });
+
+  final Transaction transaction;
+  final Currency currency;
+  final DateFormat dateFormat;
+  final VoidCallback onTap;
+  final Category? category;
+
+  /// Shows [hiddenAmount] instead of the figure (the eye toggle).
+  final bool isAmountHidden;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = context.appColors;
+    final isIncome = transaction.type == TransactionType.income;
+    final color = isIncome ? colors.primaryStrong : colors.error;
+    final sign = isIncome ? '+' : '-';
+    final description = transaction.description?.trim();
+    final category = this.category;
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: Spacing.md,
+          vertical: Spacing.sm,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: category != null
+                    ? colors.onSurface.withValues(alpha: 0.06)
+                    : color.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                category != null
+                    ? category.type.icon
+                    : (isIncome ? AppIcons.income : AppIcons.expense),
+                size: IconSize.md,
+                color: category != null ? colors.onSurface : color,
+              ),
+            ),
+            const SizedBox(width: Spacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    description == null || description.isEmpty
+                        ? l10n.transactionDefaultDescription
+                        : description,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.bodyMdStrong,
+                  ),
+                  Text(
+                    dateFormat.format(DateTime.parse(transaction.date)),
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Text(
+              isAmountHidden
+                  ? hiddenAmount
+                  : '$sign${formatCents(transaction.amount, currencyCode: currency.code)}',
+              style: context.labelLgStrong.copyWith(color: color),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A [SurfaceCard] of [TransactionRow]s with a hairline divider between
+/// each one - the shared "statement card" look used by every transaction
+/// list in the app.
+class TransactionGroupCard extends StatelessWidget {
+  const TransactionGroupCard({
+    super.key,
+    required this.transactions,
+    required this.currency,
+    required this.dateFormat,
+    required this.onTapTransaction,
+    this.categoriesById,
+    this.isAmountHidden = false,
+  });
+
+  final List<Transaction> transactions;
+  final Currency currency;
+  final DateFormat dateFormat;
+  final ValueChanged<Transaction> onTapTransaction;
+  final Map<int, Category>? categoriesById;
+  final bool isAmountHidden;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    return SurfaceCard(
+      child: Column(
+        children: [
+          for (var i = 0; i < transactions.length; i++) ...[
+            TransactionRow(
+              transaction: transactions[i],
+              currency: currency,
+              dateFormat: dateFormat,
+              category: categoriesById?[transactions[i].categoryId],
+              isAmountHidden: isAmountHidden,
+              onTap: () => onTapTransaction(transactions[i]),
+            ),
+            if (i != transactions.length - 1)
+              Container(
+                height: 1,
+                margin: const EdgeInsets.symmetric(horizontal: Spacing.md),
+                color: colors.onSurfaceVariant.withValues(alpha: 0.1),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
