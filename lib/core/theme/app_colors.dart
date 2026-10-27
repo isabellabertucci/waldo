@@ -50,7 +50,7 @@ class AppColors extends ThemeExtension<AppColors> {
     primaryContainer: Color(0xFFF4F4F4),
     onPrimary: Color(0xFFF3F0EE),
     onSurfaceVariant: Color(0xFF696969),
-    error: Color(0xFFCF4500),
+    error: Color(0xFFC44100),
     fieldFill: Color(0xFFF5F5F5),
     fieldBorder: Color(0xFFEEEEEE),
     leather: Color(0xFF141413),

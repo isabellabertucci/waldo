@@ -33,7 +33,7 @@ colors:
   primary-container-dark: "#2A2724"
   on-primary-light: "#F3F0EE"
   on-primary-dark: "#141413"
-  error-light: "#CF4500"
+  error-light: "#C44100"
   error-dark: "#F37338"
   field-fill-light: "#F5F5F5"
   field-fill-dark: "#242422"
@@ -273,7 +273,9 @@ ink on the dark metal.
   from `surface` - used as the `Scaffold` background behind cards, so cards
   visibly lift off the page.
 - **On Surface Variant (`#696969` light / `#A39E97` dark):** Muted secondary
-  text - dates, captions, placeholder-like labels, dividers at low alpha.
+  text - dates, captions, placeholders, dividers at low alpha. As text it is
+  used at full strength (at least 4.8:1 on any surface); a faded copy would
+  drop placeholders and captions under WCAG's 4.5:1.
 - **Primary (`#141413` light / `#F3F0EE` dark):** The CTA color - ink black
   in light mode, inverts to cream in dark mode. Used for filled buttons, the
   FAB, and the active nav indicator.
@@ -289,9 +291,11 @@ ink on the dark metal.
   surface*, not a substitute for `primary` on filled buttons or chips.
 - **Primary Container (`#F4F4F4` light / `#2A2724` dark):** A soft tonal fill
   for selected/active chips and segmented controls.
-- **Error (`#CF4500` light / `#F37338` dark):** The single accent hue in the
+- **Error (`#C44100` light / `#F37338` dark):** The single accent hue in the
   entire system. Used only for destructive actions and negative/expense
-  amounts - never decoratively.
+  amounts - never decoratively. The light value is dark enough for both of
+  its jobs to reach 4.5:1: as text on the page (4.51:1) and under
+  `on-primary` text on a filled button (4.51:1).
 - **Field Fill / Field Border (`#F5F5F5`/`#EEEEEE` light,
   `#242422`/`#353330` dark):** A neutral gray, deliberately *not* tinted
   toward the warm cream palette - text inputs need to read as "a field,"
@@ -372,6 +376,12 @@ transaction form), `md` 36 (form fields, option tiles, category and list
 rows) and `lg` 40 (settings rows, option-sheet rows, transaction rows).
 A divider that starts under a row's title indents by row padding +
 badge + gap, so it moves with the badge.
+
+A badge's disc shows what is behind its card, as if cut out of it: the page
+(`surface-container`) for a card on the page, the sheet (`surface`) for a
+field or option row inside a sheet. The icon carries the meaning and stays
+at 3:1 or more against the disc; the disc itself is decoration. An ink
+(`primary`) disc is kept for a picked option or a focused field.
 
 ## Elevation & Depth
 
@@ -495,12 +505,11 @@ stitched shape - border, badge ring, pouch, button - cuts its dashes with
   second or third accent hue, and only needs the one surface step documented
   above. If a future screen needs one of these roles, add it deliberately
   rather than letting it fall back to a Material default.
-- **`on-error`:** resolved without a new token during Phase 2 - every
-  filled-`error` surface (the destructive confirm button) uses
-  `colors.onPrimary`, which already contrasts correctly against
-  `error` in both themes (verified case by case, see
-  `lib/core/widgets/confirmation_dialog.dart`). `ColorScheme.onError` is
-  mapped the same way in `app_theme.dart`.
+- **`on-error`:** resolved without a new token - every filled-`error`
+  surface (the destructive dialog button, the selected Expense segment) uses
+  `colors.onPrimary`. With the light `error` at `#C44100` that is 4.51:1
+  (it was 4.11:1 at `#CF4500`, under AA); dark is 6.43:1.
+  `ColorScheme.onError` is mapped the same way in `app_theme.dart`.
 - **Strong-weight token reconciliation is done.** All ~90 hardcoded
   `fontWeight:` call sites now go through a
   named `context.*` getter (`lib/core/theme/app_theme.dart`). The original 4
