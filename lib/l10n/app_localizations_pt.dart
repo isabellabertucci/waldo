@@ -9,9 +9,6 @@ class AppLocalizationsPt extends AppLocalizations {
   AppLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
-  String get appTitle => 'Waldo';
-
-  @override
   String get dashboard => 'Painel';
 
   @override
@@ -271,13 +268,6 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get categories => 'Categorias';
-
-  @override
-  String get noCategoriesYet => 'Ainda não há categorias';
-
-  @override
-  String get addFirstCategory =>
-      'Toca em + para adicionares a tua primeira categoria';
 
   @override
   String get newCategory => 'Nova categoria';

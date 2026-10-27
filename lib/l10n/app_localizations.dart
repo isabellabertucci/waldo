@@ -98,12 +98,6 @@ abstract class AppLocalizations {
     Locale('pt'),
   ];
 
-  /// The title of the application
-  ///
-  /// In en, this message translates to:
-  /// **'Waldo'**
-  String get appTitle;
-
   /// Dashboard tab label
   ///
   /// In en, this message translates to:
@@ -589,18 +583,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Categories'**
   String get categories;
-
-  /// Empty state title for categories list
-  ///
-  /// In en, this message translates to:
-  /// **'No categories yet'**
-  String get noCategoriesYet;
-
-  /// Empty state subtitle for categories list
-  ///
-  /// In en, this message translates to:
-  /// **'Tap + to add your first category'**
-  String get addFirstCategory;
 
   /// Title of the create category form
   ///

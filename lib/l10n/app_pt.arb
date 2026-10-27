@@ -1,7 +1,6 @@
 {
   "@@locale": "pt",
   "@@last_modified": "2026-08-18",
-  "appTitle": "Waldo",
   "dashboard": "Painel",
   "transactions": "Transações",
   "settings": "Definições",
@@ -83,8 +82,6 @@
   "transactionTypeIncome": "Receita",
   "transactionTypeExpense": "Despesa",
   "categories": "Categorias",
-  "noCategoriesYet": "Ainda não há categorias",
-  "addFirstCategory": "Toca em + para adicionares a tua primeira categoria",
   "newCategory": "Nova categoria",
   "categoryNameHint": "ex: Café, Ginásio",
   "manageCategories": "Gerir categorias",
