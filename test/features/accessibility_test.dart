@@ -25,6 +25,8 @@ import 'package:waldo/features/transactions/ui/widgets/transaction_form_sheet.da
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/ui/wallets_screen.dart';
 
+import 'package:waldo/core/theme/app_theme.dart';
+
 import '../helpers/golden_seed.dart';
 import '../helpers/test_app.dart';
 
@@ -58,8 +60,9 @@ void main() {
   /// and two transactions.
   Future<void> pumpSheet(
     WidgetTester tester,
-    void Function(BuildContext, Transaction) open,
-  ) async {
+    void Function(BuildContext, Transaction) open, {
+    ThemeData? theme,
+  }) async {
     tester.view.physicalSize = const Size(402, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -80,6 +83,7 @@ void main() {
         ),
       ),
       db: db,
+      theme: theme,
     );
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
@@ -584,6 +588,45 @@ void main() {
         semantics.dispose();
       });
     }
+  }
+
+  // The same contrast check in dark mode, where every colour changes.
+  for (final MapEntry(key: name, value: screen) in screens.entries) {
+    testWidgets('On the $name in dark mode, text contrast is readable', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      tester.view.physicalSize = const Size(402, 2400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final db = await createTestDatabase();
+      addTearDown(db.close);
+      await seedGoldenData(db);
+      await pumpWidgetWithProviders(
+        tester,
+        screen,
+        db: db,
+        theme: AppTheme.dark,
+      );
+
+      await expectLater(tester, meetsGuideline(textContrastGuideline));
+      semantics.dispose();
+    });
+  }
+  for (final MapEntry(key: name, value: open) in {
+    ...sheets,
+    'new wallet sheet': sheetHeadings['new wallet sheet']!.$1,
+    'filter sheet': sheetHeadings['filter sheet']!.$1,
+  }.entries) {
+    testWidgets('In the $name in dark mode, text contrast is readable', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await pumpSheet(tester, open, theme: AppTheme.dark);
+
+      await expectLater(tester, meetsGuideline(textContrastGuideline));
+      semantics.dispose();
+    });
   }
 
   testWidgets('The navbar is a tab bar whose tabs are named once', (

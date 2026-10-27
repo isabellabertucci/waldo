@@ -108,7 +108,8 @@ class SettingsRow extends StatelessWidget {
         width: BadgeSize.lg,
         height: BadgeSize.lg,
         decoration: BoxDecoration(
-          color: colors.fieldFill,
+          // The page behind the card, as if the disc were cut out of it.
+          color: colors.surfaceContainer,
           shape: BoxShape.circle,
         ),
         child: Icon(icon, size: IconSize.lg, color: colors.onSurfaceVariant),

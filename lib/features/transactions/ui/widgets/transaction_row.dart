@@ -71,7 +71,8 @@ class TransactionRow extends StatelessWidget {
                 width: BadgeSize.md,
                 height: BadgeSize.md,
                 decoration: BoxDecoration(
-                  color: colors.onSurface.withValues(alpha: 0.06),
+                  // The page behind the card, as if the disc were cut out of it.
+                  color: colors.surfaceContainer,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

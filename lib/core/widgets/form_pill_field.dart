@@ -175,10 +175,10 @@ class _FormPillFieldState extends State<FormPillField> {
                                 vertical: Spacing.xs,
                               ),
                               hintText: widget.hint,
+                              // Full strength: placeholder text is still text
+                              // (WCAG 1.4.3); the bold ink value reads apart.
                               hintStyle: context.bodyMdBold.copyWith(
-                                color: colors.onSurfaceVariant.withValues(
-                                  alpha: 0.6,
-                                ),
+                                color: colors.onSurfaceVariant,
                               ),
                             ),
                             style: context.bodyMdBold,

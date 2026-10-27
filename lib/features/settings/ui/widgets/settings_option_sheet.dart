@@ -159,7 +159,8 @@ class _OptionRow<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final badgeColor = selected ? colors.primary : colors.fieldFill;
+    // Unpicked, the sheet behind the row shows through, as if cut out.
+    final badgeColor = selected ? colors.primary : colors.surface;
 
     return Semantics(
       button: true,
@@ -246,7 +247,8 @@ class _OptionRow<T> extends StatelessWidget {
                     Icon(
                       AppIcons.radioUnselected,
                       size: 22,
-                      color: colors.onSurfaceVariant.withValues(alpha: 0.6),
+                      // An unpicked option's ring: 3:1 for a state (WCAG 1.4.11).
+                      color: colors.onSurfaceVariant,
                     ),
                 ],
               ),

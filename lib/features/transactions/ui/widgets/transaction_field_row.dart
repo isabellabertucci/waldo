@@ -100,7 +100,8 @@ class EditFieldRow extends StatelessWidget {
                 Icon(
                   AppIcons.chevronRight,
                   size: IconSize.lg,
-                  color: colors.onSurfaceVariant.withValues(alpha: 0.5),
+                  // Says the row opens a picker: 3:1 at least (WCAG 1.4.11).
+                  color: colors.onSurfaceVariant,
                 ),
               ],
             ),

@@ -41,4 +41,32 @@ void main() {
     );
     expect(stitch(), AppColors.light.primary);
   });
+
+  testWidgets('The placeholder is full-strength secondary text', (
+    tester,
+  ) async {
+    final controller = TextEditingController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: FormPillField(
+            leading: const Icon(AppIcons.note),
+            controller: controller,
+            label: 'Note',
+            hint: 'Add a note',
+          ),
+        ),
+      ),
+    );
+
+    // Faded, it would drop under 4.5:1 (WCAG 1.4.3).
+    final decoration = tester
+        .widget<InputDecorator>(find.byType(InputDecorator))
+        .decoration;
+    expect(decoration.hintStyle?.color, AppColors.light.onSurfaceVariant);
+  });
 }
