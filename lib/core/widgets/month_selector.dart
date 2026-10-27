@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/motion.dart';
@@ -13,10 +14,6 @@ import 'package:waldo/core/theme/spacing.dart';
 
 const _chevronHitSize = kMinInteractiveDimension;
 const _chevronOverhang = (_chevronHitSize - BadgeSize.xs) / 2;
-
-/// The selected month is bolder and larger, so it gives back 2px a side to
-/// keep the chip from growing past its neighbours.
-const _selectedChipPadding = Spacing.sm - 2; // one-off
 
 /// The months a [MonthSelector] offers: the [count] months up to [now]'s,
 /// oldest first, plus next month (shown disabled) so the row doesn't end at
@@ -489,7 +486,9 @@ class _MonthPill extends StatelessWidget {
               minHeight: kMinInteractiveDimension,
             ),
             padding: EdgeInsets.symmetric(
-              horizontal: selected ? _selectedChipPadding : Spacing.sm,
+              horizontal: selected
+                  ? ComponentSize.monthSelectedPadding
+                  : Spacing.sm,
             ),
             alignment: Alignment.center,
             child: Text(

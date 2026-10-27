@@ -7,6 +7,12 @@ import 'package:flutter/painting.dart';
 class ComponentSize {
   ComponentSize._();
 
+  // Month row
+
+  /// The selected month's side padding: bolder and larger, it gives back
+  /// 2px a side so it doesn't grow past its neighbours.
+  static const monthSelectedPadding = 14.0;
+
   // Navbar
 
   /// The selected tab's vertical padding: one pixel more than an icon-only
@@ -74,6 +80,16 @@ class ComponentSize {
   /// The dotted leader between a receipt line's label and its value.
   static const receiptLeader = 1.5;
   static const receiptLeaderGap = 6.0;
+
+  /// The receipt's own tighter, printed-paper rhythm, tuned to look like a
+  /// till slip rather than the page scale: its margins (more at the bottom
+  /// when it only holds a message), and the gaps between printed lines,
+  /// above the total's rule, and above the barcode.
+  static const receiptPadding = EdgeInsets.fromLTRB(22, 20, 22, 18);
+  static const receiptMessagePadding = EdgeInsets.fromLTRB(22, 20, 22, 24);
+  static const receiptLineGap = 9.0;
+  static const receiptTotalGap = 18.0;
+  static const receiptBarcodeGap = 20.0;
 
   // Buttons
 
