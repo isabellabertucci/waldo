@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/stitch.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 
 /// A horizontal dashed rule, matching the wallet card's stitch.
@@ -27,24 +28,22 @@ class _DashedLinePainter extends CustomPainter {
 
   final Color color;
 
-  static const _dashLength = 5.0;
-  static const _gapLength = 4.0;
-
   // Whole dash+gap units, centered, so both ends are a full dash.
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
       ..strokeWidth = size.height;
-    const unit = _dashLength + _gapLength;
+    final (:dash, :gap) = Stitch.receipt;
+    final unit = dash + gap;
     final count = (size.width / unit).floor();
     if (count < 1) return;
-    final usedWidth = count * unit - _gapLength;
+    final usedWidth = count * unit - gap;
     var x = (size.width - usedWidth) / 2;
     for (var i = 0; i < count; i++) {
       canvas.drawLine(
         Offset(x, size.height / 2),
-        Offset(x + _dashLength, size.height / 2),
+        Offset(x + dash, size.height / 2),
         paint,
       );
       x += unit;

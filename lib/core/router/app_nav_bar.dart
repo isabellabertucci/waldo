@@ -8,7 +8,7 @@ import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/core/utils/dash_path.dart';
+import 'package:waldo/core/widgets/pill_stitch_painter.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 /// The selected pill's label is shorter than the icon-only buttons are tall,
@@ -148,7 +148,7 @@ class AppNavButton extends StatelessWidget {
                 if (selected)
                   Positioned.fill(
                     child: CustomPaint(
-                      painter: _DashedPillPainter(color: colors.onPrimary),
+                      painter: PillStitchPainter(color: colors.onPrimary),
                     ),
                   ),
                 Padding(
@@ -187,41 +187,4 @@ class AppNavButton extends StatelessWidget {
       ),
     );
   }
-}
-
-/// A dashed stitch just inside a pill's rounded edge.
-class _DashedPillPainter extends CustomPainter {
-  const _DashedPillPainter({required this.color});
-
-  final Color color;
-
-  // Denser and fainter than [PouchBorder]'s stitch, to suit the smaller pill.
-  static const _inset = 5.0;
-  static const _dashLength = 3.0;
-  static const _gapLength = 2.5;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final path = Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          rect.deflate(_inset),
-          Radius.circular(rect.deflate(_inset).shortestSide / 2),
-        ),
-      );
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.3)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    canvas.drawPath(
-      dashPath(path, dashLength: _dashLength, gapLength: _gapLength),
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedPillPainter oldDelegate) =>
-      color != oldDelegate.color;
 }

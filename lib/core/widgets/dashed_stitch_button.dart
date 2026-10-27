@@ -4,7 +4,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/min_tap_target.dart';
-import 'package:waldo/core/utils/dash_path.dart';
+import 'package:waldo/core/widgets/pill_stitch_painter.dart';
 
 /// How much a [DashedStitchButton] stands out. Every variant has the same
 /// size, so buttons side by side always match.
@@ -82,7 +82,7 @@ class DashedStitchButton extends StatelessWidget {
           children: [
             if (hasStitch)
               Positioned.fill(
-                child: CustomPaint(painter: _DashedPillPainter(color: ink)),
+                child: CustomPaint(painter: PillStitchPainter(color: ink)),
               ),
             Padding(
               padding:
@@ -143,41 +143,4 @@ class DashedStitchButton extends StatelessWidget {
       child: isIconOnly ? MinTapTarget(onTap: onPressed, child: named) : named,
     );
   }
-}
-
-class _DashedPillPainter extends CustomPainter {
-  const _DashedPillPainter({required this.color});
-
-  final Color color;
-
-  static const _inset = 5.0;
-  static const _dashLength = 3.0;
-  static const _gapLength = 2.5;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final deflated = rect.deflate(_inset);
-    if (deflated.shortestSide <= 0) return;
-    final path = Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          deflated,
-          Radius.circular(deflated.shortestSide / 2),
-        ),
-      );
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.3)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    canvas.drawPath(
-      dashPath(path, dashLength: _dashLength, gapLength: _gapLength),
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedPillPainter oldDelegate) =>
-      color != oldDelegate.color;
 }

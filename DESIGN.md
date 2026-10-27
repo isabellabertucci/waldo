@@ -489,6 +489,11 @@ wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`). Every
 stitched shape - border, badge ring, pouch, button - cuts its dashes with
 `dashPath` (`core/utils/dash_path.dart`), so none carries its own loop.
 
+The thread and its patterns are tokens in `Stitch` (`core/theme/stitch.dart`):
+one width (1.5px) and four dash/gap patterns that grow coarser with the
+shape - `fine` 3/2.5 inside pills, `regular` 4/3 on borders and badge rings,
+`receipt` 5/4 on the receipt's rules, `coarse` 6/5 on the pouch.
+
 - **Selected and focused** states use an ink stitch (`primary`).
 - **Outlines and placeholders** use a faint stitch (`on-surface-variant` at low
   alpha).
