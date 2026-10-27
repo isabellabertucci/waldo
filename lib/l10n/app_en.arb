@@ -1,10 +1,6 @@
 {
   "@@locale": "en",
   "@@last_modified": "2026-08-18",
-  "appTitle": "Waldo",
-  "@appTitle": {
-    "description": "The title of the application"
-  },
   "dashboard": "Dashboard",
   "@dashboard": {
     "description": "Dashboard tab label"
@@ -343,14 +339,6 @@
   "categories": "Categories",
   "@categories": {
     "description": "Categories screen title"
-  },
-  "noCategoriesYet": "No categories yet",
-  "@noCategoriesYet": {
-    "description": "Empty state title for categories list"
-  },
-  "addFirstCategory": "Tap + to add your first category",
-  "@addFirstCategory": {
-    "description": "Empty state subtitle for categories list"
   },
   "newCategory": "New category",
   "@newCategory": {

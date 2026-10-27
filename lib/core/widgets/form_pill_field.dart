@@ -7,7 +7,6 @@ import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/field_label.dart';
-import 'package:waldo/core/widgets/near_limit_counter.dart';
 
 /// A form field in a filled pill: a leading disc, a label over the input, and
 /// an optional trailing tag. An ink stitch and an ink disc mark it as focused.
@@ -161,7 +160,7 @@ class _FormPillFieldState extends State<FormPillField> {
                             textInputAction: widget.onSubmitted == null
                                 ? null
                                 : TextInputAction.done,
-                            buildCounter: nearLimitCounter,
+                            buildCounter: _nearLimitCounter,
                             decoration: InputDecoration(
                               isCollapsed: true,
                               border: InputBorder.none,
@@ -204,4 +203,24 @@ class _FormPillFieldState extends State<FormPillField> {
       ),
     );
   }
+}
+
+/// A [TextField.buildCounter] that stays hidden until the text reaches 80% of
+/// `maxLength`, then shows "87/100" - in `error` once the limit stops typing.
+Widget? _nearLimitCounter(
+  BuildContext context, {
+  required int currentLength,
+  required int? maxLength,
+  required bool isFocused,
+}) {
+  if (maxLength == null || currentLength < maxLength * 0.8) return null;
+  final colors = context.appColors;
+  return Text(
+    '$currentLength/$maxLength',
+    style: context.textTheme.bodySmall?.copyWith(
+      color: currentLength >= maxLength
+          ? colors.error
+          : colors.onSurfaceVariant,
+    ),
+  );
 }

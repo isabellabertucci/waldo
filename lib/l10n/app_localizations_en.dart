@@ -9,9 +9,6 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Waldo';
-
-  @override
   String get dashboard => 'Dashboard';
 
   @override
@@ -266,12 +263,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categories => 'Categories';
-
-  @override
-  String get noCategoriesYet => 'No categories yet';
-
-  @override
-  String get addFirstCategory => 'Tap + to add your first category';
 
   @override
   String get newCategory => 'New category';
