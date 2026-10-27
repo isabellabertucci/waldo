@@ -4,6 +4,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import '../../transactions_x.dart';
 
 /// The Expense/Income toggle: Expense fills orange, Income fills `primary`.
 class TransactionTypeToggle extends StatelessWidget {
@@ -23,7 +24,8 @@ class TransactionTypeToggle extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(Spacing.xxs),
+      // The top and bottom margin is inside each segment's touch.
+      padding: const EdgeInsets.symmetric(horizontal: Spacing.xxs),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(Rounded.pill),
@@ -32,7 +34,7 @@ class TransactionTypeToggle extends StatelessWidget {
         children: [
           Expanded(
             child: _TypeToggleSegment(
-              label: l10n.transactionTypeExpense,
+              label: TransactionType.expense.label(l10n),
               selected: selected == TransactionType.expense,
               color: colors.error,
               onColor: colors.onPrimary,
@@ -41,7 +43,7 @@ class TransactionTypeToggle extends StatelessWidget {
           ),
           Expanded(
             child: _TypeToggleSegment(
-              label: l10n.transactionTypeIncome,
+              label: TransactionType.income.label(l10n),
               selected: selected == TransactionType.income,
               color: colors.primary,
               onColor: colors.onPrimary,
@@ -76,20 +78,26 @@ class _TypeToggleSegment extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
+      inMutuallyExclusiveGroup: true,
       child: GestureDetector(
+        // Taps on the track's margin count too: a 48px-tall touch.
+        behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(vertical: Spacing.xs),
-          decoration: BoxDecoration(
-            color: selected ? color : colors.transparent,
-            borderRadius: BorderRadius.circular(Rounded.pill),
-          ),
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: context.bodyMdBold.copyWith(
-              color: selected ? onColor : colors.onSurfaceVariant,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: Spacing.xxs),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(vertical: Spacing.component),
+            decoration: BoxDecoration(
+              color: selected ? color : colors.transparent,
+              borderRadius: BorderRadius.circular(Rounded.pill),
+            ),
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: context.bodyMdBold.copyWith(
+                color: selected ? onColor : colors.onSurfaceVariant,
+              ),
             ),
           ),
         ),

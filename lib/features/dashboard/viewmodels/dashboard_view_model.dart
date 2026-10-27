@@ -16,7 +16,7 @@ const _trailingMonths = 12;
 const _recentTransactionsLimit = 5;
 
 /// The month the dashboard is currently showing stats for. Defaults to the
-/// current month; changeable via the month picker in the dashboard's app bar.
+/// current month; changeable via the month row at the top of the dashboard.
 @riverpod
 class SelectedDashboardMonth extends _$SelectedDashboardMonth {
   @override
@@ -38,6 +38,8 @@ class DashboardViewModel extends _$DashboardViewModel {
     );
     final categoryRepo = await ref.watch(categoryRepositoryProvider.future);
     final anchor = ref.watch(selectedDashboardMonthProvider);
+    final now = ref.watch(clockProvider)();
+    final isCurrentMonth = anchor == DateTime(now.year, now.month);
 
     final totalBalance = await walletRepo.getTotalBalance();
     final walletCount = await walletRepo.getCount();
@@ -80,10 +82,12 @@ class DashboardViewModel extends _$DashboardViewModel {
       spendingByCategory: spendingByCategory,
       uncategorizedSpending: monthlyExpense - categorizedTotal,
       monthlyCashFlow: _buildMonthlyCashFlow(transactions, anchor),
-      // Already sorted newest first, so these are the month's most recent.
-      recentTransactions: currentMonthTransactions
-          .take(_recentTransactionsLimit)
-          .toList(),
+      // Newest first. On the current month, from any date, so the 1st isn't
+      // empty; on a past month, that month's, to match the receipt.
+      recentTransactions:
+          (isCurrentMonth ? transactions : currentMonthTransactions)
+              .take(_recentTransactionsLimit)
+              .toList(),
     );
   }
 
@@ -133,13 +137,14 @@ class DashboardViewModel extends _$DashboardViewModel {
     return spending;
   }
 
+  /// The [_trailingMonths] months up to and including [anchor].
   List<MonthlyCashFlow> _buildMonthlyCashFlow(
     List<Transaction> transactions,
-    DateTime now,
+    DateTime anchor,
   ) {
     final months = List.generate(
       _trailingMonths,
-      (i) => DateTime(now.year, now.month - (_trailingMonths - 1) + i),
+      (i) => DateTime(anchor.year, anchor.month - (_trailingMonths - 1) + i),
     );
 
     final incomeByMonth = {for (final m in months) m: 0};

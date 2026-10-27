@@ -14,6 +14,8 @@ void main() {
       ('-5', false, null),
       ('-5', true, -500),
       ('10.999', false, null),
+      ('123456789.99', false, 12345678999),
+      ('9999999999999999999999', false, null),
     ];
 
     for (final (input, allowNegative, expected) in cases) {
@@ -25,6 +27,16 @@ void main() {
         },
       );
     }
+  });
+
+  test('zeroAmountHint uses the phone\'s decimal separator', () {
+    expect(zeroAmountHint('en_US'), '0.00');
+    expect(zeroAmountHint('pt_PT'), '0,00');
+  });
+
+  test('decimalSeparator follows the locale', () {
+    expect(decimalSeparator('en_US'), '.');
+    expect(decimalSeparator('pt_PT'), ',');
   });
 
   group('formatCentsForInput', () {
@@ -97,5 +109,11 @@ void main() {
     );
 
     expect(locale, 'en_US');
+  });
+
+  test('nameKey ignores spaces at the ends and case, accents included', () {
+    expect(nameKey('  CAFÉ '), nameKey('Café'));
+    expect(nameKey('POUPANÇA'), 'poupança');
+    expect(nameKey('Cafe'), isNot(nameKey('Café')));
   });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_colors.dart';
+import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
@@ -59,6 +60,15 @@ class Common {
       ),
       behavior: SnackBarBehavior.floating,
       actionTextColor: colors.error,
+    );
+  }
+
+  /// The hairline between rows of a card: one pixel, no extra space.
+  static DividerThemeData getDividerTheme(AppColors colors) {
+    return DividerThemeData(
+      color: colors.onSurfaceVariant.withValues(alpha: 0.1),
+      thickness: 1,
+      space: 1,
     );
   }
 
@@ -155,16 +165,21 @@ class Common {
     );
   }
 
-  static FilledButtonThemeData getFilledButtonTheme(AppColors colors) {
+  /// Same pill and `label-lg-strong` as `DashedStitchButton`, the app's
+  /// primary button, for any plain `FilledButton`.
+  static FilledButtonThemeData getFilledButtonTheme(
+    AppColors colors,
+    TextTheme textTheme,
+  ) {
     return FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: colors.primary,
         foregroundColor: colors.onPrimary,
         padding: const EdgeInsets.symmetric(vertical: Spacing.sm),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(Rounded.md),
+          borderRadius: BorderRadius.circular(Rounded.pill),
         ),
-        textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+        textStyle: textTheme.labelLgStrong,
       ),
     );
   }

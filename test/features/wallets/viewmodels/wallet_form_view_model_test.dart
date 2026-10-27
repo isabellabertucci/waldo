@@ -65,7 +65,7 @@ void main() {
     notifier.updateName('Cash');
     notifier.updateBalance('10.50');
 
-    final success = await notifier.save(null);
+    final success = await notifier.save();
 
     expect(success, isTrue);
     final inserted =
@@ -89,12 +89,44 @@ void main() {
       notifier.updateType(WalletType.credit);
       notifier.updateBalance('-50.00');
 
-      final success = await notifier.save(null);
+      final success = await notifier.save();
 
       expect(success, isTrue);
       verify(() => mockRepo.insert(any())).called(1);
     },
   );
+
+  test('a second save while the first is still writing does nothing', () async {
+    when(() => mockRepo.insert(any())).thenAnswer(
+      (_) => Future.delayed(const Duration(milliseconds: 10), () => 1),
+    );
+    final provider = walletFormViewModelProvider(null);
+    container.listen(provider, (_, _) {});
+    final notifier = container.read(provider.notifier);
+    notifier.updateName('Cash');
+
+    final results = await Future.wait([notifier.save(), notifier.save()]);
+
+    expect(results, [true, false]);
+    verify(() => mockRepo.insert(any())).called(1);
+  });
+
+  test('a save that throws does not block the next one', () async {
+    var calls = 0;
+    when(() => mockRepo.insert(any())).thenAnswer((_) async {
+      calls++;
+      if (calls == 1) throw StateError('db');
+      return 1;
+    });
+    final provider = walletFormViewModelProvider(null);
+    container.listen(provider, (_, _) {});
+    final notifier = container.read(provider.notifier);
+    notifier.updateName('Cash');
+
+    await expectLater(notifier.save(), throwsA(isA<StateError>()));
+    expect(await notifier.save(), isTrue);
+    verify(() => mockRepo.insert(any())).called(2);
+  });
 
   test('save while editing calls update, not insert', () async {
     const existing = Wallet(
@@ -109,7 +141,7 @@ void main() {
     );
     notifier.updateName('New name');
 
-    final success = await notifier.save(existing);
+    final success = await notifier.save();
 
     expect(success, isTrue);
     verify(() => mockRepo.update(any())).called(1);

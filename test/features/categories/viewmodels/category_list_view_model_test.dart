@@ -53,6 +53,16 @@ void main() {
     expect(categories, [groceries, custom]);
   });
 
+  test('categoriesById is empty while loading, then keyed by id', () async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries, custom]);
+    // Kept listened, as a screen would, so it follows the list as it loads.
+    container.listen(categoriesByIdProvider, (_, _) {});
+
+    expect(container.read(categoriesByIdProvider), isEmpty);
+    await container.read(categoryListViewModelProvider.future);
+    expect(container.read(categoriesByIdProvider), {1: groceries, 2: custom});
+  });
+
   test('hideCategory removes the category from state optimistically', () async {
     when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries, custom]);
     await container.read(categoryListViewModelProvider.future);
@@ -117,6 +127,39 @@ void main() {
       verify(() => mockRepo.getAll()).called(2);
     },
   );
+
+  test('two adds fired together insert the category once', () async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries]);
+    when(() => mockRepo.insert(any())).thenAnswer(
+      (_) => Future.delayed(const Duration(milliseconds: 10), () => 3),
+    );
+    container.listen(categoryListViewModelProvider, (_, _) {});
+    await container.read(categoryListViewModelProvider.future);
+    final notifier = container.read(categoryListViewModelProvider.notifier);
+
+    // The + button and the keyboard's done key at the same moment.
+    await Future.wait([notifier.add('Gym'), notifier.add('Gym')]);
+
+    verify(() => mockRepo.insert(any())).called(1);
+  });
+
+  test('an add that throws does not block the next one', () async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries]);
+    var calls = 0;
+    when(() => mockRepo.insert(any())).thenAnswer((_) async {
+      // The first insert fails; the lock must still open for the retry.
+      if (calls++ == 0) throw StateError('db');
+      return 3;
+    });
+    container.listen(categoryListViewModelProvider, (_, _) {});
+    await container.read(categoryListViewModelProvider.future);
+    final notifier = container.read(categoryListViewModelProvider.notifier);
+
+    await expectLater(notifier.add('Gym'), throwsA(isA<StateError>()));
+    await notifier.add('Gym');
+
+    verify(() => mockRepo.insert(any())).called(2);
+  });
 
   test('add lets a duplicate-name error reach the screen', () async {
     when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries]);

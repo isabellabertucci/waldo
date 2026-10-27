@@ -10,7 +10,9 @@ import 'package:waldo/core/widgets/pouch_shape.dart';
 import 'package:waldo/core/widgets/wallet_card_finish.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
+import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/eye_icon.dart';
+import 'package:waldo/core/widgets/min_tap_target.dart';
 
 /// How far the card behind peeks above the balance card; reserved here.
 const _cardPeek = 44.0;
@@ -79,10 +81,10 @@ class BalanceOverviewCard extends StatelessWidget {
                         height: _cardPeek + 24,
                         child: Stack(
                           children: [
-                            // The first wallet, which always gets the platinum finish.
-                            const Positioned.fill(
+                            // The first wallet's finish, as on the Wallets screen.
+                            Positioned.fill(
                               child: WalletCardBackground(
-                                finish: WalletCardFinish.platinum,
+                                finish: WalletCardFinish.fromIndex(0),
                               ),
                             ),
                             Padding(
@@ -181,41 +183,57 @@ class BalanceOverviewCard extends StatelessWidget {
                   ),
                 ] else ...[
                   const SizedBox(height: Spacing.md),
-                  Row(
-                    children: [
-                      TextButton.icon(
-                        onPressed: onAddPressed,
-                        style: TextButton.styleFrom(
-                          backgroundColor: colors.onLeather.withValues(
-                            alpha: 0.15,
+                  // One at each end; with large text the eye wraps below
+                  // instead of overflowing.
+                  SizedBox(
+                    width: double.infinity,
+                    child: Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      runSpacing: Spacing.xs,
+                      children: [
+                        TextButton.icon(
+                          onPressed: onAddPressed,
+                          style: TextButton.styleFrom(
+                            backgroundColor: colors.onLeather.withValues(
+                              alpha: 0.15,
+                            ),
+                            foregroundColor: colors.onLeather,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: Spacing.md,
+                              vertical: Spacing.xs,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(Rounded.pill),
+                            ),
                           ),
-                          foregroundColor: colors.onLeather,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: Spacing.md,
-                            vertical: Spacing.xs,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(Rounded.pill),
+                          icon: const Icon(AppIcons.add, size: IconSize.lg),
+                          label: Text(l10n.add),
+                        ),
+                        // Its own node (container, outside the tooltip): name,
+                        // role and tap together, apart from the card's text.
+                        Semantics(
+                          container: true,
+                          button: true,
+                          child: MinTapTarget(
+                            onTap: onToggleBalanceHidden,
+                            child: Tooltip(
+                              message: isBalanceHidden
+                                  ? l10n.showBalance
+                                  : l10n.hideBalance,
+                              child: _RoundIconButton(
+                                onPressed: onToggleBalanceHidden,
+                                child: EyeIcon(
+                                  color: colors.onLeather,
+                                  hidden: isBalanceHidden,
+                                  size: 17,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                        icon: const Icon(AppIcons.add, size: IconSize.lg),
-                        label: Text(l10n.add),
-                      ),
-                      const Spacer(),
-                      Tooltip(
-                        message: isBalanceHidden
-                            ? l10n.showBalance
-                            : l10n.hideBalance,
-                        child: _RoundIconButton(
-                          onPressed: onToggleBalanceHidden,
-                          child: EyeIcon(
-                            color: colors.onLeather,
-                            hidden: isBalanceHidden,
-                            size: 17,
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ],
@@ -262,63 +280,64 @@ class _EmptyPeekCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
 
-    return Material(
-      color: colors.surface,
-      borderRadius: BorderRadius.circular(Rounded.lg),
-      child: InkWell(
-        onTap: onTap,
+    // Its own button to screen readers (a bare InkWell is only read as its
+    // text), apart from the balance card in front.
+    return Semantics(
+      container: true,
+      button: true,
+      child: Material(
+        color: colors.surface,
         borderRadius: BorderRadius.circular(Rounded.lg),
-        child: Container(
-          height: _cardPeek + 24,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Rounded.lg),
-          ),
-          child: CustomPaint(
-            painter: _DashedRRectPainter(
-              color: colors.onSurface.withValues(alpha: 0.3),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(Rounded.lg),
+          child: SizedBox(
+            height: _cardPeek + 24,
+            child: DashedBorder(
               radius: Rounded.lg,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Spacing.md,
-                Spacing.sm,
-                Spacing.md,
-                0,
-              ),
-              // A Column, so the content sits at the top of the visible part of the card.
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 22,
-                        height: 22,
-                        decoration: BoxDecoration(
-                          color: colors.leather,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          AppIcons.add,
-                          size: IconSize.sm,
-                          color: colors.onLeather,
-                        ),
-                      ),
-                      const SizedBox(width: Spacing.xs),
-                      Flexible(
-                        child: Text(
-                          l10n.firstRunPeekCta,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.bodySmBold.copyWith(
-                            color: colors.onSurface,
+              color: colors.onSurface.withValues(alpha: 0.3),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  Spacing.md,
+                  Spacing.sm,
+                  Spacing.md,
+                  0,
+                ),
+                // A Column, so the content sits at the top of the visible part of the card.
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 22,
+                          height: 22,
+                          decoration: BoxDecoration(
+                            color: colors.leather,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            AppIcons.add,
+                            size: IconSize.sm,
+                            color: colors.onLeather,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: Spacing.xs),
+                        Flexible(
+                          child: Text(
+                            l10n.firstRunPeekCta,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.bodySmBold.copyWith(
+                              color: colors.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -326,39 +345,4 @@ class _EmptyPeekCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _DashedRRectPainter extends CustomPainter {
-  const _DashedRRectPainter({required this.color, required this.radius});
-
-  final Color color;
-  final double radius;
-
-  static const _dashLength = 4.0;
-  static const _gapLength = 3.0;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rrect = RRect.fromRectAndRadius(
-      Offset.zero & size,
-      Radius.circular(radius),
-    );
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4;
-
-    for (final metric in (Path()..addRRect(rrect)).computeMetrics()) {
-      var distance = 0.0;
-      while (distance < metric.length) {
-        final next = (distance + _dashLength).clamp(0.0, metric.length);
-        canvas.drawPath(metric.extractPath(distance, next), paint);
-        distance = next + _gapLength;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedRRectPainter oldDelegate) =>
-      color != oldDelegate.color || radius != oldDelegate.radius;
 }

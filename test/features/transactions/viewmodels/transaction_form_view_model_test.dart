@@ -100,7 +100,7 @@ void main() {
     notifier.updateAmount('10.00');
     notifier.updateDate(DateTime(2026, 8, 10));
 
-    final success = await notifier.save(null);
+    final success = await notifier.save();
 
     expect(success, isFalse);
     verifyNever(() => mockRepo.insert(any()));
@@ -112,7 +112,7 @@ void main() {
     );
     notifier.updateAmount('10.00');
 
-    final success = await notifier.save(null);
+    final success = await notifier.save();
 
     expect(success, isFalse);
     verifyNever(() => mockRepo.insert(any()));
@@ -125,7 +125,7 @@ void main() {
     notifier.updateAmount('0');
     notifier.updateDate(DateTime(2026, 8, 10));
 
-    final success = await notifier.save(null);
+    final success = await notifier.save();
 
     expect(success, isFalse);
     verifyNever(() => mockRepo.insert(any()));
@@ -141,7 +141,7 @@ void main() {
     notifier.updateDate(DateTime(2026, 8, 10));
     notifier.updateType(TransactionType.income);
 
-    final success = await notifier.save(null);
+    final success = await notifier.save();
 
     expect(success, isTrue);
     verify(() => mockRepo.insert(any())).called(1);
@@ -155,7 +155,7 @@ void main() {
     notifier.updateAmount('5.00');
     notifier.updateDate(DateTime(2026, 8, 10));
 
-    await notifier.save(null);
+    await notifier.save();
 
     final saved =
         verify(() => mockRepo.insert(captureAny())).captured.single
@@ -177,13 +177,49 @@ void main() {
     notifier.updateDate(DateTime(2026, 8, 10));
     notifier.updateCategoryId(2);
 
-    await notifier.save(null);
+    await notifier.save();
 
     final saved =
         verify(() => mockRepo.insert(captureAny())).captured.single
             as Transaction;
     expect(saved.categoryId, 2);
     verifyNever(() => mockCategoryRepo.getOthers());
+  });
+
+  test('a second save while the first is still writing does nothing', () async {
+    // A double tap on Save: both calls land before the first insert returns.
+    when(() => mockRepo.insert(any())).thenAnswer(
+      (_) => Future.delayed(const Duration(milliseconds: 10), () => 1),
+    );
+    final provider = transactionFormViewModelProvider(null, initialWalletId: 1);
+    // Kept alive like the open sheet keeps it.
+    container.listen(provider, (_, _) {});
+    final notifier = container.read(provider.notifier);
+    notifier.updateAmount('5.00');
+    notifier.updateDate(DateTime(2026, 8, 10));
+
+    final results = await Future.wait([notifier.save(), notifier.save()]);
+
+    expect(results, [true, false]);
+    verify(() => mockRepo.insert(any())).called(1);
+  });
+
+  test('a save that throws does not block the next one', () async {
+    var calls = 0;
+    when(() => mockRepo.insert(any())).thenAnswer((_) async {
+      calls++;
+      if (calls == 1) throw StateError('db');
+      return 1;
+    });
+    final provider = transactionFormViewModelProvider(null, initialWalletId: 1);
+    container.listen(provider, (_, _) {});
+    final notifier = container.read(provider.notifier);
+    notifier.updateAmount('5.00');
+    notifier.updateDate(DateTime(2026, 8, 10));
+
+    await expectLater(notifier.save(), throwsA(isA<StateError>()));
+    expect(await notifier.save(), isTrue);
+    verify(() => mockRepo.insert(any())).called(2);
   });
 
   test('save while editing calls update, not insert', () async {
@@ -202,10 +238,66 @@ void main() {
     );
     notifier.updateAmount('7.00');
 
-    final success = await notifier.save(existing);
+    final success = await notifier.save();
 
     expect(success, isTrue);
     verify(() => mockRepo.update(any())).called(1);
     verifyNever(() => mockRepo.insert(any()));
+  });
+
+  test('build(transaction) pre-fills the note', () {
+    const transaction = Transaction(
+      id: 1,
+      walletId: 5,
+      amount: 1050,
+      type: TransactionType.expense,
+      date: '2026-08-10',
+      note: 'Split the bill',
+      createdAt: '2026-08-10T12:00:00.000',
+    );
+
+    final state = container.read(transactionFormViewModelProvider(transaction));
+
+    expect(state.note, 'Split the bill');
+  });
+
+  test('save trims the note, and saves a blank one as none', () async {
+    when(() => mockRepo.insert(any())).thenAnswer((_) async => 1);
+    final notifier = container.read(
+      transactionFormViewModelProvider(null, initialWalletId: 1).notifier,
+    );
+    notifier.updateAmount('5.00');
+    notifier.updateDate(DateTime(2026, 8, 10));
+
+    notifier.updateNote('  Split the bill  ');
+    await notifier.save();
+    notifier.updateNote('   ');
+    await notifier.save();
+
+    final saved = verify(
+      () => mockRepo.insert(captureAny()),
+    ).captured.cast<Transaction>();
+    expect(saved.map((t) => t.note), ['Split the bill', null]);
+  });
+
+  test('restore puts back a captured state, as Cancel does', () {
+    final notifier = container.read(
+      transactionFormViewModelProvider(null, initialWalletId: 1).notifier,
+    );
+    notifier.updateAmount('5.00');
+    notifier.updateNote('Before');
+    final snapshot = container.read(
+      transactionFormViewModelProvider(null, initialWalletId: 1),
+    );
+
+    notifier.updateAmount('99.00');
+    notifier.updateNote('After');
+    notifier.restore(snapshot);
+
+    final state = container.read(
+      transactionFormViewModelProvider(null, initialWalletId: 1),
+    );
+    expect(state.amount, '5.00');
+    expect(state.note, 'Before');
   });
 }

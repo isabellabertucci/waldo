@@ -135,7 +135,7 @@ void main() {
         transactionFormViewModelProvider(existing).notifier,
       );
       form.updateAmount('7.00');
-      await form.save(existing);
+      await form.save();
 
       final all = await real.read(transactionListViewModelProvider().future);
       expect(all.single.amount, 700);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/rounded.dart';
+import 'package:waldo/core/utils/dash_path.dart';
 
 /// A subtle diagonal lightening, so the pouch fill looks slightly 3D.
 LinearGradient pouchGradient(Color base) {
@@ -93,17 +94,10 @@ class PouchBorder extends ShapeBorder {
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
 
-    for (final metric in path.computeMetrics()) {
-      var distance = 0.0;
-      while (distance < metric.length) {
-        final next = distance + dashLength;
-        canvas.drawPath(
-          metric.extractPath(distance, next.clamp(0, metric.length)),
-          paint,
-        );
-        distance = next + gapLength;
-      }
-    }
+    canvas.drawPath(
+      dashPath(path, dashLength: dashLength, gapLength: gapLength),
+      paint,
+    );
   }
 
   @override

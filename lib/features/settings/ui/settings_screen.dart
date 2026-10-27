@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:waldo/core/database/save_failure.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -17,6 +18,7 @@ import 'package:waldo/features/settings/ui/widgets/settings_option_sheet.dart';
 import 'package:waldo/features/settings/ui/widgets/settings_row.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -39,7 +41,9 @@ class SettingsScreen extends ConsumerWidget {
                 Spacing.pageMargin,
                 0,
               ),
-              child: Text(l10n.settings, style: context.headlineSmBold),
+              child: Heading(
+                child: Text(l10n.settings, style: context.headlineSmBold),
+              ),
             ),
             Expanded(
               child: switch (preferencesAsync) {
@@ -162,10 +166,13 @@ class _SettingsBody extends ConsumerWidget {
     final messenger = ScaffoldMessenger.of(context);
     try {
       await save();
-    } catch (_) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.preferencesSaveError)),
+    } catch (e) {
+      final message = failureMessage(
+        l10n,
+        e,
+        unknown: l10n.preferencesSaveError,
       );
+      messenger.showSnackBar(SnackBar(content: Text(message)));
     }
   }
 

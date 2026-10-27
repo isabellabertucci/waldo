@@ -30,13 +30,21 @@ void main() {
     );
   }
 
+  /// The header's "+", which opens the new-category sheet.
+  Future<void> openNewCategory(WidgetTester tester) async {
+    await tester.tap(find.byTooltip('New category'));
+    await tester.pumpAndSettle();
+  }
+
+  /// Opens the sheet and types [name] into it.
   Future<void> typeName(WidgetTester tester, String name) async {
+    await openNewCategory(tester);
     await tester.enterText(find.byKey(const Key('categoryNameField')), name);
     await tester.pump();
   }
 
   Future<void> tapAdd(WidgetTester tester) async {
-    await tester.tap(find.byTooltip('Add category'));
+    await tester.tap(find.text('Create category'));
     await tester.pumpAndSettle();
   }
 
@@ -77,7 +85,21 @@ void main() {
     expect(find.byTooltip('Back'), findsOneWidget);
   });
 
-  testWidgets('Adding a category lists it and empties the field', (
+  testWidgets('A failed add says nothing was changed', (tester) async {
+    await pumpCategoriesScreen(tester);
+    // No table to write to, so the insert throws.
+    await currentDb!.execute('DROP TABLE ${CategoriesTable.table}');
+
+    await typeName(tester, 'Gym');
+    await tapAdd(tester);
+
+    expect(
+      find.text("Couldn't save the category. Nothing was changed."),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('Adding a category closes the sheet and lists it', (
     tester,
   ) async {
     await pumpCategoriesScreen(tester);
@@ -85,20 +107,9 @@ void main() {
     await typeName(tester, 'Gym');
     await tapAdd(tester);
 
+    expect(find.text('Create category'), findsNothing, reason: 'sheet closed');
     expect(find.text('Gym'), findsOneWidget);
     expect(find.byTooltip('Delete Gym'), findsOneWidget);
-    expect(
-      tester
-          .widget<EditableText>(
-            find.descendant(
-              of: find.byKey(const Key('categoryNameField')),
-              matching: find.byType(EditableText),
-            ),
-          )
-          .controller
-          .text,
-      isEmpty,
-    );
   });
 
   testWidgets('The keyboard done key adds the category too', (tester) async {
@@ -114,10 +125,12 @@ void main() {
   testWidgets('An empty name shows an error and adds nothing', (tester) async {
     await pumpCategoriesScreen(tester);
 
+    await openNewCategory(tester);
     await tapAdd(tester);
 
     expect(find.text('Name is required'), findsOneWidget);
-    expect(find.byIcon(AppIcons.close), findsNWidgets(5));
+    expect(find.text('Create category'), findsOneWidget, reason: 'still open');
+    expect(find.byTooltip(RegExp('^Delete ')), findsNWidgets(5));
   });
 
   testWidgets('A name matching a listed category warns, ignoring case', (
@@ -126,6 +139,16 @@ void main() {
     await pumpCategoriesScreen(tester);
 
     await typeName(tester, 'groceries');
+    await tapAdd(tester);
+
+    expect(find.text('A category with this name already exists'), findsOne);
+  });
+
+  testWidgets('A built-in name in another language warns too', (tester) async {
+    await pumpCategoriesScreen(tester);
+
+    // "Groceries" in Portuguese, typed while the app is in English.
+    await typeName(tester, 'supermercado');
     await tapAdd(tester);
 
     expect(find.text('A category with this name already exists'), findsOne);
@@ -187,6 +210,39 @@ void main() {
     expect(rows, isEmpty);
   });
 
+  testWidgets('When the count before deleting fails, the tap still gets an '
+      'answer', (tester) async {
+    await pumpCategoriesScreen(tester);
+    // The X first counts the category's transactions; with no table, it fails.
+    await currentDb!.execute('DROP TABLE ${TransactionsTable.table}');
+
+    await tester.tap(find.byTooltip('Delete Education'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text("Couldn't delete the category. Nothing was changed."),
+      findsOneWidget,
+    );
+    expect(find.text('Delete category?'), findsNothing);
+  });
+
+  testWidgets('A failed delete brings the category back and says nothing '
+      'was changed', (tester) async {
+    await pumpCategoriesScreen(tester);
+    await deleteCategory(tester, 'Education');
+    // Deleting moves the category's transactions first; with no table, that
+    // fails once the Undo window ends.
+    await currentDb!.execute('DROP TABLE ${TransactionsTable.table}');
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text("Couldn't delete the category. Nothing was changed."),
+      findsOneWidget,
+    );
+    expect(find.text('Education'), findsOneWidget);
+  });
+
   testWidgets('Deleting a used category says how many transactions move to '
       'Others, and moves them', (tester) async {
     final db = await createTestDatabase();
@@ -196,6 +252,7 @@ void main() {
     );
     final walletId = await db.insert(WalletsTable.table, {
       WalletsTable.name: 'Cash',
+      WalletsTable.nameKey: 'cash',
       WalletsTable.createdAt: '2026-08-10T12:00:00.000',
     });
     for (var i = 0; i < 2; i++) {

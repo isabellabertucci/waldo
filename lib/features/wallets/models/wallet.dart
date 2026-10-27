@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/utils/utils.dart';
 
 part 'wallet.freezed.dart';
 
@@ -18,12 +20,13 @@ abstract class Wallet with _$Wallet {
 
   Map<String, Object?> toMap() {
     return {
-      'id': id,
-      'name': name,
-      'type': type.name,
-      'starting_balance': startingBalance,
-      'current_balance': currentBalance,
-      'created_at': createdAt,
+      WalletsTable.id: id,
+      WalletsTable.name: name,
+      WalletsTable.nameKey: nameKey(name),
+      WalletsTable.type: type.name,
+      WalletsTable.startingBalance: startingBalance,
+      WalletsTable.currentBalance: currentBalance,
+      WalletsTable.createdAt: createdAt,
     };
   }
 

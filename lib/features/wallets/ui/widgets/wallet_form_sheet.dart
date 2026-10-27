@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/database/save_failure.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/amount_input_formatter.dart';
@@ -22,6 +23,7 @@ import 'package:waldo/features/wallets/viewmodels/wallet_form_view_model.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/features/wallets/wallets_x.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 final _log = Logger('waldo.ui.wallet_form');
 
@@ -61,6 +63,19 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // The locked balance reads like every other amount: "500,00" on a
+    // Portuguese phone. Only now is the phone's region readable.
+    if (_isEditing) {
+      _balanceController.text = _balanceController.text.replaceFirst(
+        '.',
+        decimalSeparator(moneyLocale(context)),
+      );
+    }
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _balanceController.dispose();
@@ -79,9 +94,9 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
       return l10n.nameTooLong;
     }
     // When editing, the wallet's own name doesn't count as taken.
-    final lower = value.trim().toLowerCase();
+    final key = nameKey(value);
     final taken = wallets.any(
-      (w) => w.id != widget.wallet?.id && w.name.toLowerCase() == lower,
+      (w) => w.id != widget.wallet?.id && nameKey(w.name) == key,
     );
     return taken ? l10n.walletNameTaken : null;
   }
@@ -102,6 +117,9 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     return null;
   }
 
+  /// Shown above the button: a SnackBar would land behind the sheet.
+  String? _saveError;
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) {
       _log.fine('Wallet form validation failed');
@@ -111,24 +129,18 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
     final viewModel = ref.read(
       walletFormViewModelProvider(widget.wallet).notifier,
     );
+    setState(() => _saveError = null);
     try {
-      final success = await viewModel.save(widget.wallet);
+      final success = await viewModel.save();
       if (success && mounted) Navigator.of(context).pop();
-    } on DuplicateWalletNameException {
-      // The list on screen was stale; the database still caught it.
-      if (mounted) {
-        final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.walletNameTaken)));
-      }
-    } catch (_) {
-      if (mounted) {
-        final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.saveError)));
-      }
+    } catch (e) {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      final message = e is DuplicateWalletNameException
+          // The list on screen was stale; the database still caught it.
+          ? l10n.walletNameTaken
+          : failureMessage(l10n, e, unknown: l10n.saveError);
+      setState(() => _saveError = message);
     }
   }
 
@@ -169,9 +181,11 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
               Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      _isEditing ? l10n.editWallet : l10n.newWallet,
-                      style: context.headlineLgStrong,
+                    child: Heading(
+                      child: Text(
+                        _isEditing ? l10n.editWallet : l10n.newWallet,
+                        style: context.headlineLgStrong,
+                      ),
                     ),
                   ),
                   const SheetCloseButton(),
@@ -185,16 +199,19 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                 maxLength: maxWalletNameLength,
                 controller: _nameController,
                 label: l10n.name,
+                required: true,
                 hint: l10n.walletNameHint,
                 onChanged: viewModel.updateName,
                 validator: (value) => _validateName(l10n, value, wallets),
               ),
               const SizedBox(height: Spacing.md),
-              Text(
-                l10n.type.toUpperCase(),
-                style: context.bodySmBold.copyWith(
-                  color: colors.onSurfaceVariant,
-                  letterSpacing: 0.4,
+              Heading(
+                child: Text(
+                  l10n.type.toUpperCase(),
+                  style: context.bodySmBold.copyWith(
+                    color: colors.onSurfaceVariant,
+                    letterSpacing: 0.4,
+                  ),
                 ),
               ),
               const SizedBox(height: Spacing.sm),
@@ -218,25 +235,27 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                 ],
               ),
               const SizedBox(height: Spacing.md),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      l10n.startingBalance.toUpperCase(),
-                      style: context.bodySmBold.copyWith(
-                        color: colors.onSurfaceVariant,
-                        letterSpacing: 0.4,
+              Heading(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        l10n.startingBalance.toUpperCase(),
+                        style: context.bodySmBold.copyWith(
+                          color: colors.onSurfaceVariant,
+                          letterSpacing: 0.4,
+                        ),
                       ),
                     ),
-                  ),
-                  if (!_isEditing)
-                    Text(
-                      l10n.optional,
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: colors.onSurfaceVariant,
+                    if (!_isEditing)
+                      Text(
+                        l10n.optional,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: Spacing.sm),
               FormPillField(
@@ -249,7 +268,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                 label: _isEditing
                     ? l10n.balanceLocked
                     : l10n.startingBalancePrompt,
-                hint: '0.00',
+                hint: zeroAmountHint(moneyLocale(context)),
                 onChanged: viewModel.updateBalance,
                 validator: (value) => _validateBalance(l10n, value),
                 keyboardType: const TextInputType.numberWithOptions(
@@ -261,6 +280,17 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                 ],
               ),
               const SizedBox(height: Spacing.md),
+              if (_saveError case final error?) ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    error,
+                    textAlign: TextAlign.center,
+                    style: context.bodyMdStrong.copyWith(color: colors.error),
+                  ),
+                ),
+                const SizedBox(height: Spacing.sm),
+              ],
               SizedBox(
                 width: double.infinity,
                 child: DashedStitchButton(

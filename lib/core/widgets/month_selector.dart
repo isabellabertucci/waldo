@@ -9,15 +9,21 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
-/// The smallest comfortable tap target (Material and Apple guidelines).
-const _minTapTarget = 48.0;
-const _chevronHitSize = _minTapTarget;
+const _chevronHitSize = kMinInteractiveDimension;
 const _chevronDiscSize = 22.0; // one-off: a small hint, not a main control
 const _chevronOverhang = (_chevronHitSize - _chevronDiscSize) / 2;
 
 /// The selected month is bolder and larger, so it gives back 2px a side to
 /// keep the chip from growing past its neighbours.
 const _selectedChipPadding = Spacing.sm - 2; // one-off
+
+/// The months a [MonthSelector] offers: the [count] months up to [now]'s,
+/// oldest first, plus next month (shown disabled) so the row doesn't end at
+/// the selected pill.
+List<DateTime> selectorMonths(DateTime now, {int count = 12}) => [
+  for (var i = count - 1; i >= 0; i--) DateTime(now.year, now.month - i),
+  DateTime(now.year, now.month + 1),
+];
 
 /// A horizontal row of month pills; the selected month is a filled pill.
 class MonthSelector extends StatefulWidget {
@@ -63,6 +69,23 @@ class _MonthSelectorState extends State<MonthSelector> {
       _scrollToSelected(animate: false);
       _updateScrollAffordances();
     });
+  }
+
+  TextScaler? _textScaler;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // A new text size in the phone's settings resizes every pill, so the
+    // selected month drifts off-centre; put it back.
+    final textScaler = MediaQuery.textScalerOf(context);
+    if (_textScaler != null && textScaler != _textScaler) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToSelected(animate: false);
+        _updateScrollAffordances();
+      });
+    }
+    _textScaler = textScaler;
   }
 
   @override
@@ -255,7 +278,6 @@ class _MonthSelectorState extends State<MonthSelector> {
           ),
         ),
         _ChevronButton(
-          direction: _ChevronDirection.right,
           enabled: _canScrollForward,
           onTap: () => _step(forward: true),
         ),
@@ -264,8 +286,6 @@ class _MonthSelectorState extends State<MonthSelector> {
     );
   }
 }
-
-enum _ChevronDirection { left, right }
 
 /// The left chevron: nudges once on first show to hint the row scrolls, then
 /// steps the row back on tap, dimming when there's nothing earlier.
@@ -359,29 +379,18 @@ class _ScrollHintChevronState extends State<_ScrollHintChevron>
 
 /// The right chevron: steps the row forward on tap, dimming at the end.
 class _ChevronButton extends StatelessWidget {
-  const _ChevronButton({
-    required this.direction,
-    required this.enabled,
-    required this.onTap,
-  });
+  const _ChevronButton({required this.enabled, required this.onTap});
 
-  final _ChevronDirection direction;
   final bool enabled;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final isLeft = direction == _ChevronDirection.left;
-
     return _ChevronTarget(
-      tooltip: isLeft ? l10n.earlierMonths : l10n.laterMonths,
+      tooltip: AppLocalizations.of(context).laterMonths,
       enabled: enabled,
       onTap: onTap,
-      child: _ChevronDisc(
-        icon: isLeft ? AppIcons.back : AppIcons.chevronRight,
-        enabled: enabled,
-      ),
+      child: _ChevronDisc(icon: AppIcons.chevronRight, enabled: enabled),
     );
   }
 }
@@ -464,34 +473,40 @@ class _MonthPill extends StatelessWidget {
     final colors = context.appColors;
     final disabled = onTap == null;
 
-    return Material(
-      color: colors.transparent,
-      borderRadius: BorderRadius.circular(Rounded.pill),
-      child: InkWell(
+    // Says which month is picked, like the wallet type tiles do.
+    return Semantics(
+      button: true,
+      selected: selected,
+      inMutuallyExclusiveGroup: true,
+      enabled: !disabled,
+      // The fill is the Material's, so the ripple draws over it.
+      child: Material(
+        color: selected ? colors.primary : colors.transparent,
         borderRadius: BorderRadius.circular(Rounded.pill),
-        onTap: onTap,
-        child: Container(
-          constraints: const BoxConstraints(minHeight: _minTapTarget),
-          padding: EdgeInsets.symmetric(
-            horizontal: selected ? _selectedChipPadding : Spacing.sm,
-          ),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: selected ? colors.primary : colors.transparent,
-            borderRadius: BorderRadius.circular(Rounded.pill),
-          ),
-          child: Text(
-            label,
-            // The selected chip's own size/weight bump - a dedicated
-            // selected-state treatment, not a named type-scale step.
-            style: context.textTheme.bodyMedium?.copyWith(
-              fontSize: selected ? 14 : 13,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-              color: selected
-                  ? colors.onPrimary
-                  : colors.onSurfaceVariant.withValues(
-                      alpha: disabled ? 0.4 : 1,
-                    ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(Rounded.pill),
+          onTap: onTap,
+          child: Container(
+            constraints: const BoxConstraints(
+              minHeight: kMinInteractiveDimension,
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: selected ? _selectedChipPadding : Spacing.sm,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              // The selected chip's own size/weight bump - a dedicated
+              // selected-state treatment, not a named type-scale step.
+              style: context.textTheme.bodyMedium?.copyWith(
+                fontSize: selected ? 14 : 13,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected
+                    ? colors.onPrimary
+                    : colors.onSurfaceVariant.withValues(
+                        alpha: disabled ? 0.4 : 1,
+                      ),
+              ),
             ),
           ),
         ),

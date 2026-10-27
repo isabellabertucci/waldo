@@ -98,12 +98,6 @@ abstract class AppLocalizations {
     Locale('pt'),
   ];
 
-  /// The title of the application
-  ///
-  /// In en, this message translates to:
-  /// **'Waldo'**
-  String get appTitle;
-
   /// Dashboard tab label
   ///
   /// In en, this message translates to:
@@ -143,13 +137,13 @@ abstract class AppLocalizations {
   /// Title of the create wallet form
   ///
   /// In en, this message translates to:
-  /// **'New Wallet'**
+  /// **'New wallet'**
   String get newWallet;
 
   /// Title of the edit wallet form
   ///
   /// In en, this message translates to:
-  /// **'Edit Wallet'**
+  /// **'Edit wallet'**
   String get editWallet;
 
   /// Name field label
@@ -182,6 +176,12 @@ abstract class AppLocalizations {
   /// **'Optional'**
   String get optional;
 
+  /// Read by screen readers after a field label marked with *
+  ///
+  /// In en, this message translates to:
+  /// **'required'**
+  String get requiredField;
+
   /// Helper text for locked balance field
   ///
   /// In en, this message translates to:
@@ -199,6 +199,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create wallet'**
   String get createWallet;
+
+  /// Button that saves the new category in the new-category sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Create category'**
+  String get createCategory;
 
   /// Save button label
   ///
@@ -230,16 +236,16 @@ abstract class AppLocalizations {
   /// **'There was a problem loading your wallets. Please try again.'**
   String get walletsError;
 
-  /// Generic error message shown when saving a wallet fails
+  /// Shown when saving a wallet fails for a reason the user can't fix; nothing was written
   ///
   /// In en, this message translates to:
-  /// **'There was a problem saving the wallet. Please try again.'**
+  /// **'Couldn\'t save the wallet. Nothing was changed.'**
   String get saveError;
 
   /// Generic error message shown when deleting a wallet fails
   ///
   /// In en, this message translates to:
-  /// **'There was a problem deleting the wallet. Please try again.'**
+  /// **'Couldn\'t delete the wallet. Nothing was changed.'**
   String get deleteError;
 
   /// Delete confirmation dialog title
@@ -289,6 +295,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show balance'**
   String get showBalance;
+
+  /// Screen reader hint on the dashboard's month receipt, which opens the transaction list when tapped
+  ///
+  /// In en, this message translates to:
+  /// **'Opens all transactions'**
+  String get receiptHint;
 
   /// Edit action label
   ///
@@ -347,7 +359,7 @@ abstract class AppLocalizations {
   /// Credit card wallet type
   ///
   /// In en, this message translates to:
-  /// **'Credit Card'**
+  /// **'Credit card'**
   String get walletTypeCredit;
 
   /// Investment wallet type
@@ -371,7 +383,7 @@ abstract class AppLocalizations {
   /// Title of the create transaction form
   ///
   /// In en, this message translates to:
-  /// **'New Transaction'**
+  /// **'New transaction'**
   String get newTransaction;
 
   /// Fallback label when a transaction has no description
@@ -379,6 +391,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Transaction'**
   String get transactionDefaultDescription;
+
+  /// Screen reader name of the ⋮ menu on a wallet card or transaction row; names the item so each one is told apart
+  ///
+  /// In en, this message translates to:
+  /// **'{name} options'**
+  String optionsFor(String name);
 
   /// Amount field label
   ///
@@ -404,11 +422,11 @@ abstract class AppLocalizations {
   /// **'Category'**
   String get category;
 
-  /// Transaction description field label
+  /// Transaction title field label: the name shown on the list and the detail
   ///
   /// In en, this message translates to:
-  /// **'Description'**
-  String get transactionDescription;
+  /// **'Title'**
+  String get transactionTitle;
 
   /// Placeholder text for the new transaction's description field
   ///
@@ -428,11 +446,17 @@ abstract class AppLocalizations {
   /// **'Add income'**
   String get addIncome;
 
-  /// Transaction note field label - a free-text note separate from its name
+  /// Transaction note field label - a free-text note separate from its title
   ///
   /// In en, this message translates to:
   /// **'Note'**
   String get transactionNote;
+
+  /// Placeholder for the transaction's note field
+  ///
+  /// In en, this message translates to:
+  /// **'Anything to remember?'**
+  String get noteHint;
 
   /// Caption above the amount keypad, e.g. 'Expense · editing amount'
   ///
@@ -452,7 +476,7 @@ abstract class AppLocalizations {
   /// **'You have unsaved changes to this field.'**
   String get discardChangesMessage;
 
-  /// Discard button label, paired with Save on the unsaved-changes dialog
+  /// Discard button label, paired with Cancel on the unsaved-changes dialog
   ///
   /// In en, this message translates to:
   /// **'Discard'**
@@ -500,16 +524,28 @@ abstract class AppLocalizations {
   /// **'There was a problem loading your transactions. Please try again.'**
   String get transactionsError;
 
-  /// Generic error message shown when saving a transaction fails
+  /// Shown when saving a transaction fails for a reason the user can't fix; the write was rolled back
   ///
   /// In en, this message translates to:
-  /// **'There was a problem saving the transaction. Please try again.'**
+  /// **'Couldn\'t save the transaction. Nothing was changed.'**
   String get transactionSaveError;
+
+  /// Shown when a save fails because the device storage is full
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone is out of space. Free some up and try again.'**
+  String get saveErrorStorageFull;
+
+  /// Shown when a save fails because the database was briefly busy or closed
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save right now. Please try again.'**
+  String get saveErrorTemporary;
 
   /// Generic error message shown when deleting a transaction fails
   ///
   /// In en, this message translates to:
-  /// **'There was a problem deleting the transaction. Please try again.'**
+  /// **'Couldn\'t delete the transaction. Nothing was changed.'**
   String get transactionDeleteError;
 
   /// Validation error for empty amount
@@ -548,18 +584,6 @@ abstract class AppLocalizations {
   /// **'Categories'**
   String get categories;
 
-  /// Empty state title for categories list
-  ///
-  /// In en, this message translates to:
-  /// **'No categories yet'**
-  String get noCategoriesYet;
-
-  /// Empty state subtitle for categories list
-  ///
-  /// In en, this message translates to:
-  /// **'Tap + to add your first category'**
-  String get addFirstCategory;
-
   /// Title of the create category form
   ///
   /// In en, this message translates to:
@@ -596,12 +620,6 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 transaction uses \"{name}\"} other{{count} transactions use \"{name}\"}}. If you delete it, {count, plural, =1{it moves} other{they move}} to {others}.'**
   String deleteCategoryMovesTransactions(int count, String name, String others);
 
-  /// Tooltip for the button that adds the typed category name
-  ///
-  /// In en, this message translates to:
-  /// **'Add category'**
-  String get addCategory;
-
   /// Tooltip for the delete (X) button on a category row
   ///
   /// In en, this message translates to:
@@ -629,7 +647,7 @@ abstract class AppLocalizations {
   /// Generic error message shown when saving a category fails
   ///
   /// In en, this message translates to:
-  /// **'There was a problem saving the category. Please try again.'**
+  /// **'Couldn\'t save the category. Nothing was changed.'**
   String get categorySaveError;
 
   /// Validation error when the user types a category name that is already shown in the list
@@ -647,7 +665,7 @@ abstract class AppLocalizations {
   /// Generic error message shown when deleting a category fails
   ///
   /// In en, this message translates to:
-  /// **'There was a problem deleting the category. Please try again.'**
+  /// **'Couldn\'t delete the category. Nothing was changed.'**
   String get categoryDeleteError;
 
   /// Groceries category type
@@ -749,7 +767,7 @@ abstract class AppLocalizations {
   /// Subtitle under the Date format row in settings
   ///
   /// In en, this message translates to:
-  /// **'Used in lists and details'**
+  /// **'Used for a transaction\'s date'**
   String get dateFormatRowSubtitle;
 
   /// Notice shown at the bottom of the currency picker sheet
@@ -767,7 +785,7 @@ abstract class AppLocalizations {
   /// Error message shown when a preference fails to save
   ///
   /// In en, this message translates to:
-  /// **'There was a problem saving your preference. Please try again.'**
+  /// **'Couldn\'t save your preference. Nothing was changed.'**
   String get preferencesSaveError;
 
   /// US Dollar full name in the currency picker
@@ -791,7 +809,7 @@ abstract class AppLocalizations {
   /// Label above the total balance amount on the dashboard
   ///
   /// In en, this message translates to:
-  /// **'Total Balance'**
+  /// **'Total balance'**
   String get totalBalance;
 
   /// Short label for the quick-add button on the balance card
@@ -851,13 +869,31 @@ abstract class AppLocalizations {
   /// Dashboard cash flow chart card title
   ///
   /// In en, this message translates to:
-  /// **'Cash Flow'**
+  /// **'Cash flow'**
   String get cashFlow;
+
+  /// Screen reader name of the cash flow chart showing expenses; from/to are the first and last months, e.g. Nov 2025
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses by month, {from} to {to}'**
+  String cashFlowChartExpense(String from, String to);
+
+  /// Screen reader name of the cash flow chart showing income; from/to are the first and last months, e.g. Nov 2025
+  ///
+  /// In en, this message translates to:
+  /// **'Income by month, {from} to {to}'**
+  String cashFlowChartIncome(String from, String to);
+
+  /// Screen reader value of the cash flow chart while the balance is hidden
+  ///
+  /// In en, this message translates to:
+  /// **'Amounts hidden'**
+  String get amountsHidden;
 
   /// Dashboard section header for the recent transactions list
   ///
   /// In en, this message translates to:
-  /// **'Recent Transactions'**
+  /// **'Recent transactions'**
   String get recentTransactions;
 
   /// Label on the dashed placeholder card peeking behind the balance card when there are no wallets yet
@@ -883,6 +919,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Filter'**
   String get filterTitle;
+
+  /// Screen reader hint on the button that shows the current month and type filter and opens the filter sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Opens the filter'**
+  String get filterHint;
 
   /// Link that clears the filter bottom sheet back to its defaults
   ///

@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waldo/core/database/save_failure.dart';
 import 'package:waldo/core/theme/badge_size.dart';
-import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/page_width.dart';
 import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
-import 'package:waldo/core/widgets/form_pill_field.dart';
 import 'package:waldo/core/widgets/surface_card.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+import 'package:waldo/core/widgets/heading.dart';
 
 import '../categories_x.dart';
 import '../models/category.dart';
-import '../repositories/category_repository.dart';
 import '../viewmodels/category_list_view_model.dart';
+import 'widgets/category_form_sheet.dart';
 
 /// A field to add a category over the list of existing ones, each with an X.
 /// "Others" has no X: deleted categories' transactions move there.
@@ -32,43 +33,63 @@ class CategoriesScreen extends ConsumerWidget {
     final categoriesAsync = ref.watch(categoryListViewModelProvider);
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Spacing.pageMargin,
-                Spacing.xs,
-                Spacing.pageMargin,
-                0,
-              ),
-              child: CircleIconButton(
-                tooltip: l10n.back,
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Icon(AppIcons.back),
-              ),
-            ),
-            const SizedBox(height: Spacing.md),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: Spacing.pageMargin,
-              ),
-              child: Text(
-                l10n.categories,
-                style: context.headlineSmBold.copyWith(color: colors.onSurface),
-              ),
-            ),
-            Expanded(
-              child: switch (categoriesAsync) {
-                AsyncValue(:final value?) => _CategoriesBody(categories: value),
-                AsyncValue(hasError: true) => Center(
-                  child: Text(l10n.categoriesError),
+      body: PageWidth(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  Spacing.pageMargin,
+                  Spacing.xs,
+                  Spacing.pageMargin,
+                  0,
                 ),
-                _ => const Center(child: CircularProgressIndicator()),
-              },
-            ),
-          ],
+                child: CircleIconButton(
+                  tooltip: l10n.back,
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Icon(AppIcons.back),
+                ),
+              ),
+              const SizedBox(height: Spacing.md),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Spacing.pageMargin,
+                ),
+                // Title and "+" as on the Wallets screen; "+" opens a sheet.
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Heading(
+                        child: Text(
+                          l10n.categories,
+                          style: context.headlineSmBold.copyWith(
+                            color: colors.onSurface,
+                          ),
+                        ),
+                      ),
+                    ),
+                    DashedStitchButton(
+                      icon: const Icon(AppIcons.add),
+                      tooltip: l10n.newCategory,
+                      onPressed: () => showCategoryFormSheet(context),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: switch (categoriesAsync) {
+                  AsyncValue(:final value?) => _CategoriesBody(
+                    categories: value,
+                  ),
+                  AsyncValue(hasError: true) => Center(
+                    child: Text(l10n.categoriesError),
+                  ),
+                  _ => const Center(child: CircularProgressIndicator()),
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -85,48 +106,8 @@ class _CategoriesBody extends ConsumerStatefulWidget {
 }
 
 class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
-
   bool _isOthers(Category category) =>
       category.isDefault && category.type == CategoryType.others;
-
-  String? _validateName(AppLocalizations l10n, String? value) {
-    final name = value?.trim() ?? '';
-    if (name.isEmpty) return l10n.nameRequired;
-    if (name.length > maxCategoryNameLength) return l10n.nameTooLong;
-
-    // Compare with what's on screen, so built-ins match in the current language.
-    final lower = name.toLowerCase();
-    final taken = widget.categories.any(
-      (c) => c.displayName(l10n).toLowerCase() == lower,
-    );
-    return taken ? l10n.categoryNameTaken : null;
-  }
-
-  Future<void> _add() async {
-    if (!_formKey.currentState!.validate()) return;
-    final l10n = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-
-    try {
-      await ref
-          .read(categoryListViewModelProvider.notifier)
-          .add(_nameController.text);
-      // Empty again, ready for the next one.
-      _nameController.clear();
-    } on DuplicateCategoryNameException {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.categoryNameTaken)));
-    } catch (_) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.categorySaveError)));
-    }
-  }
 
   Future<void> _confirmDelete(Category category) async {
     final l10n = AppLocalizations.of(context);
@@ -135,7 +116,19 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
     final name = category.displayName(l10n);
 
     // Say how many transactions move to "Others" before anything happens.
-    final count = await viewModel.transactionCount(category.id!);
+    final int count;
+    try {
+      count = await viewModel.transactionCount(category.id!);
+    } catch (e) {
+      // Nothing is deleted, but the tap still gets an answer.
+      final message = failureMessage(
+        l10n,
+        e,
+        unknown: l10n.categoryDeleteError,
+      );
+      messenger.showSnackBar(SnackBar(content: Text(message)));
+      return;
+    }
     if (!mounted) return;
 
     final confirmed = await ConfirmationDialog.show(
@@ -167,16 +160,20 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
 
     try {
       await viewModel.confirmDelete(category.id!);
-    } catch (_) {
+    } catch (e) {
       viewModel.restoreCategory();
-      messenger.showSnackBar(SnackBar(content: Text(l10n.categoryDeleteError)));
+      final message = failureMessage(
+        l10n,
+        e,
+        unknown: l10n.categoryDeleteError,
+      );
+      messenger.showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final colors = context.appColors;
     // A-Z by the name on screen, with the undeletable "Others" last.
     final categories = [...widget.categories]
       ..sort((a, b) {
@@ -195,35 +192,6 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
         Spacing.lg,
       ),
       children: [
-        Form(
-          key: _formKey,
-          child: Row(
-            children: [
-              Expanded(
-                child: FormPillField(
-                  fieldKey: const Key('categoryNameField'),
-                  leading: const Icon(AppIcons.name),
-                  textCapitalization: TextCapitalization.sentences,
-                  maxLength: maxCategoryNameLength,
-                  onPage: true,
-                  controller: _nameController,
-                  label: l10n.newCategory,
-                  hint: l10n.categoryNameHint,
-                  onChanged: (_) {},
-                  onSubmitted: (_) => _add(),
-                  validator: (value) => _validateName(l10n, value),
-                ),
-              ),
-              const SizedBox(width: Spacing.xs),
-              DashedStitchButton(
-                icon: const Icon(AppIcons.add),
-                tooltip: l10n.addCategory,
-                onPressed: _add,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: Spacing.md),
         SurfaceCard(
           child: Column(
             children: [
@@ -235,11 +203,7 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
                       : () => _confirmDelete(categories[i]),
                 ),
                 if (i != categories.length - 1)
-                  Container(
-                    height: 1,
-                    margin: const EdgeInsets.symmetric(horizontal: Spacing.md),
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.1),
-                  ),
+                  const Divider(indent: Spacing.md, endIndent: Spacing.md),
               ],
             ],
           ),
@@ -263,53 +227,59 @@ class _CategoryRow extends StatelessWidget {
     final name = category.displayName(l10n);
     final onDelete = this.onDelete;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        Spacing.md,
-        Spacing.xxs,
-        Spacing.xxs,
-        Spacing.xxs,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: BadgeSize.md,
-            height: BadgeSize.md,
-            decoration: BoxDecoration(
-              color: colors.onSurface.withValues(alpha: 0.06),
-              shape: BoxShape.circle,
+    // Its own node, so each name is read apart rather than all in one; its
+    // delete button stays separate, so a tap on the row can't delete.
+    return Semantics(
+      container: true,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          Spacing.md,
+          Spacing.xxs,
+          Spacing.xxs,
+          Spacing.xxs,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: BadgeSize.md,
+              height: BadgeSize.md,
+              decoration: BoxDecoration(
+                // The page behind the card, as if the disc were cut out of it.
+                color: colors.surfaceContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                category.icon,
+                size: IconSize.md,
+                color: colors.onSurface,
+              ),
             ),
-            child: Icon(
-              category.icon,
-              size: IconSize.md,
-              color: colors.onSurface,
+            const SizedBox(width: Spacing.sm),
+            Expanded(
+              child: Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.bodyMdBold,
+              ),
             ),
-          ),
-          const SizedBox(width: Spacing.sm),
-          Expanded(
-            child: Text(
-              name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.bodyMdBold,
-            ),
-          ),
-          // A fixed-size slot, so rows line up whether or not they have an X.
-          SizedBox.square(
-            dimension: 48,
-            child: onDelete == null
-                ? null
-                : IconButton(
-                    tooltip: l10n.deleteCategoryNamed(name),
-                    onPressed: onDelete,
-                    icon: Icon(
-                      AppIcons.close,
-                      size: IconSize.lg,
-                      color: colors.onSurfaceVariant,
+            // A fixed-size slot, so rows line up whether or not they have an X.
+            SizedBox.square(
+              dimension: 48,
+              child: onDelete == null
+                  ? null
+                  : IconButton(
+                      tooltip: l10n.deleteCategoryNamed(name),
+                      onPressed: onDelete,
+                      icon: Icon(
+                        AppIcons.close,
+                        size: IconSize.lg,
+                        color: colors.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

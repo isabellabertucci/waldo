@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/database/db_providers.dart';
+import 'package:waldo/core/utils/utils.dart';
 import '../models/wallet.dart';
 
 part 'wallet_repository.g.dart';
@@ -94,37 +95,18 @@ class WalletRepositoryImpl implements IWalletRepository {
     }
   }
 
-  /// Whether a wallet other than [exceptId] already uses [name], ignoring case.
-  Future<bool> _nameTaken(
-    DatabaseExecutor db,
-    String name, {
-    int? exceptId,
-  }) async {
-    final rows = await db.query(
-      WalletsTable.table,
-      columns: [WalletsTable.id],
-      where:
-          '${WalletsTable.name} = ? COLLATE NOCASE AND ${WalletsTable.id} != ?',
-      whereArgs: [name.trim(), exceptId ?? -1],
-      limit: 1,
-    );
-    return rows.isNotEmpty;
-  }
-
   @override
   Future<int> insert(Wallet wallet) async {
     try {
-      // Check and write together, so two saves can't both pass the check.
-      final id = await _db.transaction((txn) async {
-        if (await _nameTaken(txn, wallet.name)) {
-          _log.fine('insert: name already taken');
-          throw DuplicateWalletNameException();
-        }
-        return txn.insert(WalletsTable.table, wallet.toMap());
-      });
+      final id = await _db.insert(WalletsTable.table, wallet.toMap());
       _log.info('insert succeeded: id=$id');
       return id;
     } on DatabaseException catch (e) {
+      // The unique name_key index: another wallet has this name.
+      if (e.isUniqueConstraintError()) {
+        _log.warning('insert rejected: duplicate name');
+        throw DuplicateWalletNameException();
+      }
       _log.severe('insert failed', e);
       rethrow;
     }
@@ -137,24 +119,26 @@ class WalletRepositoryImpl implements IWalletRepository {
       throw ArgumentError('Cannot update a wallet without an id');
     }
     try {
-      final affectedRows = await _db.transaction((txn) async {
-        if (await _nameTaken(txn, wallet.name, exceptId: id)) {
-          _log.fine('update: name already taken, id=$id');
-          throw DuplicateWalletNameException();
-        }
-        return txn.update(
-          WalletsTable.table,
-          {WalletsTable.name: wallet.name, WalletsTable.type: wallet.type.name},
-          where: '${WalletsTable.id} = ?',
-          whereArgs: [id],
-        );
-      });
+      final affectedRows = await _db.update(
+        WalletsTable.table,
+        {
+          WalletsTable.name: wallet.name,
+          WalletsTable.nameKey: nameKey(wallet.name),
+          WalletsTable.type: wallet.type.name,
+        },
+        where: '${WalletsTable.id} = ?',
+        whereArgs: [id],
+      );
       if (affectedRows == 0) {
         _log.warning('update: no rows affected, id=$id');
         throw StateError('Cannot update a wallet with id $id: not found');
       }
       _log.info('update succeeded: id=$id, affectedRows=$affectedRows');
     } on DatabaseException catch (e) {
+      if (e.isUniqueConstraintError()) {
+        _log.warning('update rejected: duplicate name, id=$id');
+        throw DuplicateWalletNameException();
+      }
       _log.severe('update failed', e);
       rethrow;
     }

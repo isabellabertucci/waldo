@@ -5,7 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
+import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/transactions/ui/transactions_screen.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
@@ -96,6 +98,63 @@ void main() {
     expect(find.text(r'-$12.50'), findsOneWidget);
   });
 
+  testWidgets('A failed save shows its error on the sheet, not behind it', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    // No "Others" to file an uncategorized transaction under: save throws.
+    await currentDb!.delete('categories', where: "type = 'others'");
+
+    await createTransaction(tester, amount: '5.00');
+
+    const error = "Couldn't save the transaction. Nothing was changed.";
+    expect(find.text(error).hitTestable(), findsOneWidget);
+    // The sheet stays open, so nothing typed is lost.
+    expect(find.text('Add expense'), findsOneWidget);
+  });
+
+  testWidgets('Transactions that fail to load say so, not that the wallets '
+      'did', (tester) async {
+    final db = await createTestDatabase();
+    final walletId = await WalletRepositoryImpl(
+      db,
+    ).insert(const Wallet(name: 'Test Wallet', createdAt: '2026-08-10'));
+    await db.execute('DROP TABLE transactions');
+
+    currentDb = await pumpWidgetWithProviders(
+      tester,
+      TransactionsScreen(walletId: walletId),
+      db: db,
+    );
+
+    expect(
+      find.text(
+        'There was a problem loading your transactions. Please try again.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('A note typed when adding is saved with the transaction', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await tester.tap(find.byIcon(AppIcons.add));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('transactionAmountField')),
+      '5.00',
+    );
+    final note = find.byKey(const Key('transactionNoteField'));
+    await tester.ensureVisible(note);
+    await tester.enterText(note, 'Split the bill');
+    await setDate(tester);
+    await tapAddExpense(tester);
+
+    final saved = await TransactionRepositoryImpl(currentDb!).getAll();
+    expect(saved.single.note, 'Split the bill');
+  });
+
   testWidgets('A row shows its category, not a time of day', (tester) async {
     await pumpTransactionsScreen(tester);
     await createTransaction(tester, amount: '5.00', description: 'Coffee');
@@ -121,11 +180,29 @@ void main() {
     expect(find.text(hiddenAmount), findsWidgets);
   });
 
+  testWidgets('Hiding the balance also masks the amount in the open '
+      'transaction, read-only and editing', (tester) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '25.00', description: 'Coffee');
+    ProviderScope.containerOf(
+      tester.element(find.byType(TransactionsScreen)),
+    ).read(balanceHiddenProvider.notifier).toggle();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Coffee'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('25.00'), findsNothing);
+
+    await tester.tap(find.text('Edit transaction'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('25.00'), findsNothing);
+  });
+
   testWidgets('The header buttons have accessible names', (tester) async {
     await pumpTransactionsScreen(tester);
 
     expect(find.byTooltip('Back'), findsOneWidget);
-    expect(find.byTooltip('New Transaction'), findsOneWidget);
+    expect(find.byTooltip('New transaction'), findsOneWidget);
     expect(find.byTooltip('Hide balance'), findsOneWidget);
   });
 
@@ -261,6 +338,150 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(r'-$105.00'), findsOneWidget);
+  });
+
+  testWidgets('The amount keypad stops at nine whole digits and two decimals', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '10.00', description: 'Coffee');
+
+    await openEditFromRowMenu(tester);
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+    // "10" + eight taps: only seven fit before the nine-digit cap.
+    for (var i = 0; i < 8; i++) {
+      await tester.tap(find.text('5'));
+      await tester.pump();
+    }
+    await tester.tap(find.text('.'));
+    await tester.pump();
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(find.text('5'));
+      await tester.pump();
+    }
+    await tester.pumpAndSettle();
+
+    expect(find.text(r'-$105,555,555.55'), findsOneWidget);
+  });
+
+  testWidgets('The amount keypad uses a Portuguese phone\'s decimal comma', (
+    tester,
+  ) async {
+    tester.platformDispatcher.localeTestValue = const Locale('pt', 'PT');
+    addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '10.00', description: 'Coffee');
+
+    await openEditFromRowMenu(tester);
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+
+    expect(find.text(','), findsOneWidget);
+    expect(find.text('.'), findsNothing);
+
+    // A second comma is ignored, and only two decimals fit.
+    await tester.tap(find.text(','));
+    await tester.tap(find.text(','));
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(find.text('5'));
+    }
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('10,55'), findsOneWidget);
+  });
+
+  testWidgets('Saving an emptied amount says so on the edit sheet', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '10.00', description: 'Coffee');
+
+    await openEditFromRowMenu(tester);
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+    for (var i = 0; i < 2; i++) {
+      await tester.tap(find.byTooltip('Delete digit'));
+      await tester.pump();
+    }
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Amount is required').hitTestable(), findsOneWidget);
+  });
+
+  testWidgets('A failed edit shows its error on the sheet, not behind it', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '10.00', description: 'Coffee');
+
+    await openEditFromRowMenu(tester);
+    // Gone from the database, so the update throws.
+    await currentDb!.delete('transactions');
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find
+          .text("Couldn't save the transaction. Nothing was changed.")
+          .hitTestable(),
+      findsOneWidget,
+    );
+    expect(find.text('Save changes'), findsOneWidget);
+  });
+
+  testWidgets('Backing out of the amount keypad without typing asks nothing', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '10.50', description: 'Coffee');
+
+    await openEditFromRowMenu(tester);
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Back').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Discard changes?'), findsNothing);
+
+    // A real change still asks.
+    await tester.tap(find.byKey(const Key('txAmountField')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('5'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Back').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Discard changes?'), findsOneWidget);
+
+    // A tap outside keeps editing, with the typed amount.
+    await tester.tapAt(const Offset(5, 5));
+    await tester.pumpAndSettle();
+    expect(find.text('Discard changes?'), findsNothing);
+    expect(find.byIcon(AppIcons.backspace), findsOneWidget);
+
+    // Discard leaves the keypad.
+    await tester.tap(find.byTooltip('Back').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Discard'));
+    await tester.pumpAndSettle();
+    expect(find.byIcon(AppIcons.backspace), findsNothing);
+  });
+
+  testWidgets('Cancel and Save changes are the same size', (tester) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '25.00', description: 'Groceries');
+    await openEditFromRowMenu(tester);
+
+    Size sizeOf(String label) => tester.getSize(
+      find.ancestor(
+        of: find.text(label),
+        matching: find.byType(DashedStitchButton),
+      ),
+    );
+    expect(sizeOf('Cancel'), sizeOf('Save changes'));
+    expect(sizeOf('Cancel').height, greaterThanOrEqualTo(48));
   });
 
   testWidgets('Cancel puts the typed name back to what it was', (tester) async {
