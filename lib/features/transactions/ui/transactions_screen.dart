@@ -279,9 +279,8 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                                     locale: moneyLocale(context),
                                     currencyCode: currency.code,
                                   ),
-                            // one-off: bolds only the balance in the inherited line style.
-                            style: TextStyle(
-                              fontWeight: FontWeight.w800,
+                            // Only the balance is bold in the line.
+                            style: context.bodyMdExtraBold.copyWith(
                               color:
                                   !isBalanceHidden &&
                                       widget.wallet.currentBalance < 0

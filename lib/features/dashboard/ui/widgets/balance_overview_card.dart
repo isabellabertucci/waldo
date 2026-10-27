@@ -102,16 +102,14 @@ class BalanceOverviewCard extends StatelessWidget {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       // The wallet card's engraved ink style, not a type-scale step.
-                                      style: context.textTheme.bodySmall
-                                          ?.copyWith(
-                                            color: walletCardInkColor(
-                                              context,
-                                              alpha: 0.6,
-                                            ),
-                                            fontWeight: FontWeight.w600,
-                                            letterSpacing: 0.2,
-                                            shadows: walletCardTextShadow,
-                                          ),
+                                      style: context.bodySmStrong.copyWith(
+                                        color: walletCardInkColor(
+                                          context,
+                                          alpha: 0.6,
+                                        ),
+                                        letterSpacing: 0.2,
+                                        shadows: walletCardTextShadow,
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: Spacing.sm),

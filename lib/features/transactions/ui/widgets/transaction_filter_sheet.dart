@@ -230,13 +230,13 @@ class _TypeSegment extends StatelessWidget {
                   child: Text(
                     label,
                     textAlign: TextAlign.center,
-                    // one-off: the toggle's own selected/unselected weights.
-                    style: context.textTheme.bodySmall?.copyWith(
-                      fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                      color: selected
-                          ? colors.onSurface
-                          : colors.onSurfaceVariant,
-                    ),
+                    style:
+                        (selected ? context.bodySmBold : context.bodySmStrong)
+                            .copyWith(
+                              color: selected
+                                  ? colors.onSurface
+                                  : colors.onSurfaceVariant,
+                            ),
                   ),
                 ),
               ),

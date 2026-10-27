@@ -291,12 +291,10 @@ class _WalletCard extends StatelessWidget {
                             balanceText,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            // one-off: titleMedium + w800 for the card's balance figure.
-                            style: context.textTheme.titleMedium?.copyWith(
+                            style: context.walletCardBalance.copyWith(
                               color: isNegative && !isBalanceHidden
                                   ? walletCardNegativeColor(context)
                                   : walletCardInkColor(context, alpha: 1),
-                              fontWeight: FontWeight.w800,
                               shadows: walletCardTextShadow,
                             ),
                           ),

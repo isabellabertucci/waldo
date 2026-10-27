@@ -113,15 +113,17 @@ class ReceiptRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // one-off: the receipt's own print hierarchy, not the app's type scale.
-    final style = context.textTheme.bodyMedium?.copyWith(
-      fontSize: large ? 15 : 12.5,
-      fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
-      color: color,
-    );
+    // The receipt's own print scale: lines, bold lines, the total.
+    final style =
+        (large
+                ? context.receiptTotal
+                : bold
+                ? context.receiptLineBold
+                : context.receiptLine)
+            .copyWith(color: color);
 
     // Nudged down by the text's descent, so the dots sit on the baseline.
-    final descent = (style?.fontSize ?? 12.5) * 0.22;
+    final descent = style.fontSize! * 0.22;
 
     // The dots run under the label, which covers them in the paper's colour:
     // a long label is cut with "…" and the value always shows whole.

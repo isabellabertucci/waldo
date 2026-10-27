@@ -159,6 +159,43 @@ extension AppTextStyles on TextTheme {
   /// A small uppercase eyebrow label. Callers upper-case the text themselves.
   TextStyle get labelXs =>
       labelSmall!.copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.4);
+
+  /// `body-sm`, semibold - an unselected choice beside a bold selected one,
+  /// and the name on the wallet card peeking behind the balance.
+  TextStyle get bodySmStrong =>
+      bodySmall!.copyWith(fontWeight: FontWeight.w600);
+
+  /// `body-md`, extra-bold - a figure that must win its line, e.g. the
+  /// balance after a wallet's type.
+  TextStyle get bodyMdExtraBold =>
+      bodyMedium!.copyWith(fontWeight: FontWeight.w800);
+
+  /// The balance figure on a wallet card.
+  TextStyle get walletCardBalance =>
+      titleMedium!.copyWith(fontWeight: FontWeight.w800);
+
+  /// An unselected month pill: a step under `body-md`, so the selected
+  /// month ([bodyMdBold]) reads larger.
+  TextStyle get monthPill =>
+      bodyMedium!.copyWith(fontSize: 13, fontWeight: FontWeight.w500);
+
+  /// A line printed on the month receipt; [receiptLineBold] for totals.
+  TextStyle get receiptLine =>
+      bodyMedium!.copyWith(fontSize: 12.5, fontWeight: FontWeight.w400);
+  TextStyle get receiptLineBold =>
+      receiptLine.copyWith(fontWeight: FontWeight.w700);
+
+  /// The receipt's bottom line (the net), larger than the rest.
+  TextStyle get receiptTotal =>
+      bodyMedium!.copyWith(fontSize: 15, fontWeight: FontWeight.w700);
+
+  /// The receipt's small, widely tracked header ("WALDO · OCTOBER 2026").
+  TextStyle get receiptHeader =>
+      bodySmall!.copyWith(fontSize: 11, letterSpacing: 0.8);
+
+  /// The cash flow chart's month labels: `body-md`, the default text style,
+  /// a size smaller.
+  TextStyle get chartAxis => bodyMedium!.copyWith(fontSize: 11);
 }
 
 extension ThemeContext on BuildContext {
@@ -177,4 +214,13 @@ extension ThemeContext on BuildContext {
   TextStyle get amountDisplayBold => textTheme.amountDisplayBold;
   TextStyle get headlineDisplayStrong => textTheme.headlineDisplayStrong;
   TextStyle get labelXs => textTheme.labelXs;
+  TextStyle get bodySmStrong => textTheme.bodySmStrong;
+  TextStyle get bodyMdExtraBold => textTheme.bodyMdExtraBold;
+  TextStyle get walletCardBalance => textTheme.walletCardBalance;
+  TextStyle get monthPill => textTheme.monthPill;
+  TextStyle get receiptLine => textTheme.receiptLine;
+  TextStyle get receiptLineBold => textTheme.receiptLineBold;
+  TextStyle get receiptTotal => textTheme.receiptTotal;
+  TextStyle get receiptHeader => textTheme.receiptHeader;
+  TextStyle get chartAxis => textTheme.chartAxis;
 }

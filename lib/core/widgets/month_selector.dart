@@ -496,17 +496,15 @@ class _MonthPill extends StatelessWidget {
             alignment: Alignment.center,
             child: Text(
               label,
-              // The selected chip's own size/weight bump - a dedicated
-              // selected-state treatment, not a named type-scale step.
-              style: context.textTheme.bodyMedium?.copyWith(
-                fontSize: selected ? 14 : 13,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                color: selected
-                    ? colors.onPrimary
-                    : colors.onSurfaceVariant.withValues(
-                        alpha: disabled ? 0.4 : 1,
-                      ),
-              ),
+              // The selected month is a step larger and bold.
+              style: (selected ? context.bodyMdBold : context.monthPill)
+                  .copyWith(
+                    color: selected
+                        ? colors.onPrimary
+                        : colors.onSurfaceVariant.withValues(
+                            alpha: disabled ? 0.4 : 1,
+                          ),
+                  ),
             ),
           ),
         ),

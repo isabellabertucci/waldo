@@ -80,7 +80,6 @@ class DashboardReceipt extends StatelessWidget {
     final saved = monthlyIncome - monthlyExpense;
     String amount(String formatted) =>
         isBalanceHidden ? hiddenAmount : formatted;
-    final textStyles = context.textTheme;
     final visibleCategories = spendingByCategory
         .take(_maxCategoryRows)
         .toList();
@@ -111,10 +110,7 @@ class DashboardReceipt extends StatelessWidget {
                             '$year',
                           ),
                           textAlign: TextAlign.center,
-                          // The receipt header's own size and tracking.
-                          style: textStyles.bodySmall?.copyWith(
-                            fontSize: 11, // one-off
-                            letterSpacing: 0.8,
+                          style: context.receiptHeader.copyWith(
                             color: colors.onSurfaceVariant,
                           ),
                         ),
@@ -257,10 +253,7 @@ class _NoWalletReceipt extends StatelessWidget {
                         '$year',
                       ),
                       textAlign: TextAlign.center,
-                      // Same receipt-print header treatment as above.
-                      style: context.textTheme.bodySmall?.copyWith(
-                        fontSize: 11, // one-off
-                        letterSpacing: 0.8,
+                      style: context.receiptHeader.copyWith(
                         color: colors.onSurfaceVariant,
                       ),
                     ),

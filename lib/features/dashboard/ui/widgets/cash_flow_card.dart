@@ -224,9 +224,7 @@ class _CashFlowChart extends StatelessWidget {
         FlSpot(i.toDouble(), _valueFor(monthlyCashFlow[i]) / 100),
     ];
 
-    // Chart axis label - fl_chart's own small-print scale, not the app's
-    // type system.
-    final labelStyle = TextStyle(fontSize: 11, color: labelColor); // one-off
+    final labelStyle = context.chartAxis.copyWith(color: labelColor);
     final labels = [
       for (final month in monthlyCashFlow) monthFormat.format(month.month),
     ];
@@ -351,12 +349,7 @@ class _CashFlowChart extends StatelessWidget {
                     return LineTooltipItem(
                       '${monthFormat.format(month)} · '
                       '${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currencyCode)}',
-                      // Tooltip text drawn by fl_chart on the canvas, not a UI text style.
-                      TextStyle(
-                        color: colors.onPrimary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12, // one-off
-                      ),
+                      context.bodySmBold.copyWith(color: colors.onPrimary),
                     );
                   }).toList(),
                 ),
