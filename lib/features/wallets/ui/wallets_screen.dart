@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
@@ -44,26 +45,16 @@ class WalletsScreen extends ConsumerWidget {
 
     if (!viewModel.hideWallet(wallet.id!)) return;
 
-    var undone = false;
-
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(l10n.walletDeleted),
-        duration: const Duration(seconds: 5),
-        persist: false,
-        action: SnackBarAction(
-          label: l10n.undo,
-          onPressed: () {
-            undone = true;
-            viewModel.restoreWallet();
-          },
-        ),
-      ),
+    final undone = await showUndoSnackBar(
+      messenger,
+      title: l10n.walletDeleted,
+      subtitle: wallet.name,
+      restoredLabel: l10n.walletRestored,
     );
-
-    await Future.delayed(const Duration(seconds: 5));
-
-    if (undone) return;
+    if (undone) {
+      viewModel.restoreWallet();
+      return;
+    }
 
     try {
       await viewModel.confirmDelete(wallet.id!);
@@ -74,12 +65,7 @@ class WalletsScreen extends ConsumerWidget {
   }
 
   void _editWallet(BuildContext context, Wallet wallet) {
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      builder: (_) => WalletFormSheet(wallet: wallet),
-    );
+    showWalletFormSheet(context, wallet: wallet);
   }
 
   void _openWallet(BuildContext context, Wallet wallet) {
@@ -87,12 +73,7 @@ class WalletsScreen extends ConsumerWidget {
   }
 
   void _addWallet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      builder: (_) => const WalletFormSheet(),
-    );
+    showWalletFormSheet(context);
   }
 
   @override
@@ -107,8 +88,8 @@ class WalletsScreen extends ConsumerWidget {
       _ => Currency.usd,
     };
     final summaryAsync = ref.watch(walletsSummaryViewModelProvider);
-    final savedPercent = switch (summaryAsync) {
-      AsyncValue(:final value?) => value.savedPercent,
+    final keptPercent = switch (summaryAsync) {
+      AsyncValue(:final value?) => value.keptPercent,
       _ => null,
     };
 
@@ -116,9 +97,6 @@ class WalletsScreen extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Same header pattern as the per-wallet transactions screen:
-            // a dashed-stitch pill for the primary "add" action and a
-            // plain circular button for the balance-hidden toggle.
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 Spacing.pageMargin,
@@ -163,7 +141,7 @@ class WalletsScreen extends ConsumerWidget {
             Expanded(
               child: switch (walletsAsync) {
                 AsyncValue(:final value?) when value.isEmpty => EmptyState(
-                  icon: Icons.account_balance_wallet_outlined,
+                  icon: AppIcons.wallets,
                   title: l10n.noWalletsYet,
                   subtitle: l10n.addFirstWallet,
                 ),
@@ -171,7 +149,7 @@ class WalletsScreen extends ConsumerWidget {
                   wallets: value,
                   currency: currency,
                   isBalanceHidden: isBalanceHidden,
-                  savedPercent: savedPercent,
+                  keptPercent: keptPercent,
                   onTapWallet: (wallet) => _openWallet(context, wallet),
                   onEditWallet: (wallet) => _editWallet(context, wallet),
                   onDeleteWallet: (wallet) =>

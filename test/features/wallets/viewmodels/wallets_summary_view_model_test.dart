@@ -49,7 +49,7 @@ void main() {
   }
 
   test(
-    'sums only this month: saved = income - expense, as a % of income',
+    'sums only this month: net = income - expense, kept as a % of income',
     () async {
       await addTransaction(100000, TransactionType.income, '2026-10-02');
       await addTransaction(25000, TransactionType.expense, '2026-10-10');
@@ -60,20 +60,20 @@ void main() {
         walletsSummaryViewModelProvider.future,
       );
 
-      expect(summary.savedThisMonth, 75000);
-      expect(summary.savedPercent, 75);
+      expect(summary.netThisMonth, 75000);
+      expect(summary.keptPercent, 75);
     },
   );
 
-  test('savedPercent is null when there is no income this month', () async {
+  test('keptPercent is null when there is no income this month', () async {
     await addTransaction(25000, TransactionType.expense, '2026-10-10');
 
     final summary = await container.read(
       walletsSummaryViewModelProvider.future,
     );
 
-    expect(summary.savedThisMonth, -25000);
-    expect(summary.savedPercent, isNull);
+    expect(summary.netThisMonth, -25000);
+    expect(summary.keptPercent, isNull);
   });
 
   test('deleting a transaction refreshes the summary', () async {
@@ -90,7 +90,7 @@ void main() {
     expect(
       (await container.read(
         walletsSummaryViewModelProvider.future,
-      )).savedThisMonth,
+      )).netThisMonth,
       75000,
     );
 
@@ -99,7 +99,7 @@ void main() {
     expect(
       (await container.read(
         walletsSummaryViewModelProvider.future,
-      )).savedThisMonth,
+      )).netThisMonth,
       100000,
     );
   });

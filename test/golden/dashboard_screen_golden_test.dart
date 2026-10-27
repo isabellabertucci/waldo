@@ -40,4 +40,28 @@ void main() {
       brightness: Brightness.dark,
     ),
   );
+
+  goldenTest(
+    'Dashboard screen, balance hidden - light',
+    fileName: 'dashboard_screen_hidden_light',
+    constraints: BoxConstraints.tight(const Size(460, 2400)),
+    builder: () => wrapForGolden(
+      child: const DashboardScreen(),
+      db: db,
+      brightness: Brightness.light,
+      isBalanceHidden: true,
+    ),
+  );
+
+  goldenTest(
+    'Dashboard screen, balance hidden - dark',
+    fileName: 'dashboard_screen_hidden_dark',
+    constraints: BoxConstraints.tight(const Size(460, 2400)),
+    builder: () => wrapForGolden(
+      child: const DashboardScreen(),
+      db: db,
+      brightness: Brightness.dark,
+      isBalanceHidden: true,
+    ),
+  );
 }

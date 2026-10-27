@@ -1,13 +1,12 @@
-import 'package:intl/intl.dart' show NumberFormat;
+import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart' show Intl, NumberFormat;
 
 /// Shown in place of every money figure while the balance-hidden toggle
 /// (the eye button) is on.
 const hiddenAmount = '••••••';
 
-/// Parses a plain amount such as "10", "10.5", "10,5", or "10.50"
-/// into cents without using floating-point arithmetic. Accepts both
-/// '.' and ',' as the decimal separator, since the app supports
-/// English (10.50) and Portuguese (10,50) input conventions.
+/// Parses an amount like "10", "10.5" or "10,50" into cents, with no floating
+/// point. Accepts '.' and ',' as the decimal separator.
 int? parseToCents(String input, {required bool allowNegative}) {
   final value = input.trim();
   if (value.isEmpty) return null;
@@ -26,9 +25,17 @@ String formatCentsForInput(int cents) {
   return formatter.format(cents / 100);
 }
 
+/// The device's region (pt_PT, en_GB) for money, so a Portuguese phone
+/// shows "1,00 €" and an American one "€1.00". Unknown regions fall back.
+String moneyLocale(BuildContext context) => Intl.verifiedLocale(
+  View.of(context).platformDispatcher.locale.toString(),
+  NumberFormat.localeExists,
+  onFailure: (_) => 'en_US',
+)!;
+
 String formatCents(
   int cents, {
-  String locale = 'en_US',
+  required String locale,
   String currencyCode = 'USD',
 }) {
   final formatter = NumberFormat.simpleCurrency(

@@ -8,24 +8,15 @@ part of 'balance_hidden_view_model.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Whether balance figures are masked app-wide. The eye toggle on the
-/// dashboard, wallets and per-wallet transactions screens all read and
-/// flip this same value, so hiding the balance on one screen hides it
-/// on all of them.
+/// Whether amounts are masked app-wide (the eye toggle).
 
 @ProviderFor(BalanceHidden)
 const balanceHiddenProvider = BalanceHiddenProvider._();
 
-/// Whether balance figures are masked app-wide. The eye toggle on the
-/// dashboard, wallets and per-wallet transactions screens all read and
-/// flip this same value, so hiding the balance on one screen hides it
-/// on all of them.
+/// Whether amounts are masked app-wide (the eye toggle).
 final class BalanceHiddenProvider
     extends $NotifierProvider<BalanceHidden, bool> {
-  /// Whether balance figures are masked app-wide. The eye toggle on the
-  /// dashboard, wallets and per-wallet transactions screens all read and
-  /// flip this same value, so hiding the balance on one screen hides it
-  /// on all of them.
+  /// Whether amounts are masked app-wide (the eye toggle).
   const BalanceHiddenProvider._()
     : super(
         from: null,
@@ -55,10 +46,7 @@ final class BalanceHiddenProvider
 
 String _$balanceHiddenHash() => r'8e6999447b921190807ba6236001004fbbcc427e';
 
-/// Whether balance figures are masked app-wide. The eye toggle on the
-/// dashboard, wallets and per-wallet transactions screens all read and
-/// flip this same value, so hiding the balance on one screen hides it
-/// on all of them.
+/// Whether amounts are masked app-wide (the eye toggle).
 
 abstract class _$BalanceHidden extends $Notifier<bool> {
   bool build();

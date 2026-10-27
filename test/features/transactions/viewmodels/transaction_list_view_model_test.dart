@@ -4,8 +4,10 @@ import 'package:mocktail/mocktail.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/database/db_providers.dart';
+import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
+import 'package:waldo/features/transactions/viewmodels/pending_transaction_deletes.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_form_view_model.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_list_view_model.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
@@ -146,6 +148,74 @@ void main() {
 
       final all = await real.read(transactionListViewModelProvider().future);
       expect(all, isEmpty);
+    });
+
+    test('hiding it in the wallet\'s list hides it from "All" and the '
+        'dashboard too', () async {
+      real
+          .read(selectedDashboardMonthProvider.notifier)
+          .select(DateTime(2026, 8));
+      real
+          .read(transactionListViewModelProvider(walletId: walletId).notifier)
+          .hideTransaction(transactionId);
+
+      expect(
+        await real.read(transactionListViewModelProvider().future),
+        isEmpty,
+      );
+      final dashboard = await real.read(dashboardViewModelProvider.future);
+      expect(dashboard.recentTransactions, isEmpty);
+      expect(dashboard.monthlyExpense, 0);
+    });
+
+    test('a refetch inside the Undo window does not bring it back', () async {
+      real
+          .read(transactionListViewModelProvider(walletId: walletId).notifier)
+          .hideTransaction(transactionId);
+      // What another delete or a save does to every list.
+      real.invalidate(transactionListViewModelProvider);
+
+      expect(
+        await real.read(transactionListViewModelProvider().future),
+        isEmpty,
+      );
+      expect(
+        await real.read(
+          transactionListViewModelProvider(walletId: walletId).future,
+        ),
+        isEmpty,
+      );
+    });
+
+    test('restoring puts it back in every list', () async {
+      final notifier = real.read(
+        transactionListViewModelProvider(walletId: walletId).notifier,
+      );
+      notifier.hideTransaction(transactionId);
+      notifier.restoreTransaction(transactionId);
+
+      final all = await real.read(transactionListViewModelProvider().future);
+      expect(all.single.id, transactionId);
+      expect(
+        (await real.read(
+          transactionListViewModelProvider(walletId: walletId).future,
+        )).single.id,
+        transactionId,
+      );
+    });
+
+    test('confirming clears it from the pending set', () async {
+      final notifier = real.read(
+        transactionListViewModelProvider(walletId: walletId).notifier,
+      );
+      notifier.hideTransaction(transactionId);
+      await notifier.confirmDelete(transactionId);
+
+      expect(real.read(pendingTransactionDeletesProvider), isEmpty);
+      expect(
+        await real.read(transactionListViewModelProvider().future),
+        isEmpty,
+      );
     });
   });
 }

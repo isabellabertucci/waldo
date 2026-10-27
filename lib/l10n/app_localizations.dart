@@ -170,11 +170,17 @@ abstract class AppLocalizations {
   /// **'Starting balance'**
   String get startingBalance;
 
-  /// Helper text under the starting balance field when creating a new wallet
+  /// Label inside the starting balance field of the new-wallet form
   ///
   /// In en, this message translates to:
-  /// **'You can change this later'**
-  String get startingBalanceHint;
+  /// **'How much is in it today?'**
+  String get startingBalancePrompt;
+
+  /// Tag beside a form section title that doesn't need filling in
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get optional;
 
   /// Helper text for locked balance field
   ///
@@ -302,6 +308,12 @@ abstract class AppLocalizations {
   /// **'Wallet deleted'**
   String get walletDeleted;
 
+  /// Short confirmation after tapping Undo on a deleted wallet
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet restored'**
+  String get walletRestored;
+
   /// Undo button label in snackbar
   ///
   /// In en, this message translates to:
@@ -416,12 +428,6 @@ abstract class AppLocalizations {
   /// **'Add income'**
   String get addIncome;
 
-  /// Short label for the chip that opens the new-category form from the transaction form
-  ///
-  /// In en, this message translates to:
-  /// **'New'**
-  String get addNewCategory;
-
   /// Transaction note field label - a free-text note separate from its name
   ///
   /// In en, this message translates to:
@@ -481,6 +487,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Transaction deleted'**
   String get transactionDeleted;
+
+  /// Short confirmation after tapping Undo on a deleted transaction
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction restored'**
+  String get transactionRestored;
 
   /// Generic error message shown when transactions fail to load
   ///
@@ -551,38 +563,14 @@ abstract class AppLocalizations {
   /// Title of the create category form
   ///
   /// In en, this message translates to:
-  /// **'New Category'**
+  /// **'New category'**
   String get newCategory;
-
-  /// Section header on the categories screen for the categories that ship with the app and can't be edited
-  ///
-  /// In en, this message translates to:
-  /// **'Built-in'**
-  String get categoriesDefaultSection;
-
-  /// Section header on the categories screen for the categories the user created
-  ///
-  /// In en, this message translates to:
-  /// **'Custom'**
-  String get categoriesCustomSection;
-
-  /// Confirm button on the new-category sheet
-  ///
-  /// In en, this message translates to:
-  /// **'Create category'**
-  String get createCategory;
 
   /// Placeholder in the category name field
   ///
   /// In en, this message translates to:
   /// **'e.g. Coffee, Gym'**
   String get categoryNameHint;
-
-  /// Title of the edit category form
-  ///
-  /// In en, this message translates to:
-  /// **'Edit Category'**
-  String get editCategory;
 
   /// Link from the transaction form to manage categories
   ///
@@ -599,14 +587,38 @@ abstract class AppLocalizations {
   /// Delete confirmation dialog message
   ///
   /// In en, this message translates to:
-  /// **'This will permanently delete \"{name}\". Any transactions using it will keep their data but lose this category.'**
+  /// **'This will delete \"{name}\".'**
   String deleteCategoryConfirm(String name);
+
+  /// Delete confirmation when transactions use the category; they are reassigned to the Others category
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 transaction uses \"{name}\"} other{{count} transactions use \"{name}\"}}. If you delete it, {count, plural, =1{it moves} other{they move}} to {others}.'**
+  String deleteCategoryMovesTransactions(int count, String name, String others);
+
+  /// Tooltip for the button that adds the typed category name
+  ///
+  /// In en, this message translates to:
+  /// **'Add category'**
+  String get addCategory;
+
+  /// Tooltip for the delete (X) button on a category row
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}'**
+  String deleteCategoryNamed(String name);
 
   /// Snackbar message after deleting a category
   ///
   /// In en, this message translates to:
   /// **'Category deleted'**
   String get categoryDeleted;
+
+  /// Short confirmation after tapping Undo on a deleted category
+  ///
+  /// In en, this message translates to:
+  /// **'Category restored'**
+  String get categoryRestored;
 
   /// Generic error message shown when categories fail to load
   ///
@@ -619,6 +631,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'There was a problem saving the category. Please try again.'**
   String get categorySaveError;
+
+  /// Validation error when the user types a category name that is already shown in the list
+  ///
+  /// In en, this message translates to:
+  /// **'A category with this name already exists'**
+  String get categoryNameTaken;
+
+  /// Validation error when the user types a wallet name another wallet already uses, ignoring case
+  ///
+  /// In en, this message translates to:
+  /// **'A wallet with this name already exists'**
+  String get walletNameTaken;
 
   /// Generic error message shown when deleting a category fails
   ///
@@ -655,6 +679,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Investments'**
   String get categoryTypeInvestments;
+
+  /// Label for the catch-all category type, for anything that fits none of the others
+  ///
+  /// In en, this message translates to:
+  /// **'Others'**
+  String get categoryTypeOthers;
 
   /// Label for selecting no category on a transaction
   ///
@@ -788,11 +818,11 @@ abstract class AppLocalizations {
   /// **'Uncategorized'**
   String get uncategorized;
 
-  /// Label for the net amount saved this month, shown (uppercased) as the total row in the dashboard's receipt summary
+  /// Label for this month's income minus expenses (can be negative), shown (uppercased) as the total row of the dashboard's receipt. Deliberately not 'saved', which reads as money put into savings
   ///
   /// In en, this message translates to:
-  /// **'Saved'**
-  String get savedLabel;
+  /// **'Net'**
+  String get monthNetLabel;
 
   /// Rollup row label on the dashboard's receipt summary for categories past the first few, e.g. 'Other (3)' summing their combined amount
   ///
@@ -830,12 +860,6 @@ abstract class AppLocalizations {
   /// **'Recent Transactions'**
   String get recentTransactions;
 
-  /// Empty state title for the dashboard's recent transactions section
-  ///
-  /// In en, this message translates to:
-  /// **'No transactions yet'**
-  String get noRecentTransactions;
-
   /// Label on the dashed placeholder card peeking behind the balance card when there are no wallets yet
   ///
   /// In en, this message translates to:
@@ -871,6 +895,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Month'**
   String get filterSectionMonth;
+
+  /// Name of the month selector's left chevron, which scrolls to earlier months
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier months'**
+  String get earlierMonths;
+
+  /// Name of the month selector's right chevron, which scrolls to later months
+  ///
+  /// In en, this message translates to:
+  /// **'Later months'**
+  String get laterMonths;
 
   /// Section label (shown uppercased) above the income/expense toggle in the filter sheet
   ///
@@ -914,11 +950,11 @@ abstract class AppLocalizations {
   /// **'Yesterday'**
   String get transactionsGroupYesterday;
 
-  /// Caption on the wallets screen's fixed total balance bar showing this month's savings rate, e.g. 'Saved 60% this month' - percent is pre-formatted
+  /// Caption on the wallets screen: the share of this month's income not spent, e.g. 'Kept 60% of what you received' - percent is pre-formatted
   ///
   /// In en, this message translates to:
-  /// **'Saved {percent} this month'**
-  String savedPercentThisMonth(String percent);
+  /// **'Kept {percent} of what you received'**
+  String keptPercentThisMonth(String percent);
 
   /// Caption on the wallets screen when this month's expenses exceed its income, e.g. 'Spent 50% more than you received' - percent is pre-formatted and positive
   ///

@@ -12,7 +12,6 @@ import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/wallet_card_finish.dart';
-import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
@@ -27,9 +26,15 @@ import 'package:waldo/core/widgets/eye_icon.dart';
 import '../models/transaction.dart';
 import '../models/transaction_filter.dart';
 import '../viewmodels/transaction_list_view_model.dart';
-import 'widgets/transaction_edit_sheet.dart';
+import 'widgets/day_grouped_transaction_list.dart';
 import 'widgets/transaction_form_sheet.dart';
 import 'widgets/transaction_filter_sheet.dart';
+
+/// Room under the list so the last row scrolls clear of the floating nav.
+const _navBarClearance = 72.0; // one-off: the nav pill's height plus its gap
+
+/// The wallet's finish beside its name: a small card, not a round badge.
+const _thumbnailSize = Size(52, 40); // one-off
 
 class TransactionsScreen extends ConsumerWidget {
   const TransactionsScreen({super.key, required this.walletId});
@@ -39,12 +44,8 @@ class TransactionsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    // Reuses the Wallets screen's own (already-loaded) list instead of a
-    // fresh per-id fetch - that fetch's own loading frame was the header
-    // (and its Hero thumbnail) not existing yet on the very first frame
-    // after the push, which made Flutter skip the push's Hero flight
-    // entirely and only ever fly it on the pop back to a fully-settled
-    // Wallets screen.
+    // Uses the already-loaded wallets list (not a per-id fetch), so the header
+    // exists on the first frame and the Hero flight runs.
     final walletsAsync = ref.watch(walletListViewModelProvider());
     final transactionsAsync = ref.watch(
       transactionListViewModelProvider(walletId: walletId),
@@ -97,10 +98,8 @@ class _TransactionsBody extends ConsumerStatefulWidget {
 class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
   late TransactionFilter _filter;
 
-  // The Hero only needs to exist for the push's own flight - once that
-  // finishes, it's dropped, so a later pop back to the Wallets screen finds
-  // no matching Hero here and just does a plain page transition instead of
-  // flying the thumbnail back into the card.
+  // The Hero is only kept for the push; once it lands it's dropped, so popping
+  // back is a plain transition.
   bool _showHero = true;
   Animation<double>? _routeAnimation;
 
@@ -213,7 +212,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
               CircleIconButton(
                 tooltip: l10n.back,
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Icon(Icons.chevron_left_rounded),
+                child: const Icon(AppIcons.back),
               ),
               Row(
                 children: [
@@ -250,12 +249,9 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(Rounded.sm),
                 child: SizedBox(
-                  width: 52,
-                  height: 40,
-                  // Same finish as the wallet's own card on the Wallets
-                  // screen, and a Hero flight back to it on the way in -
-                  // dropped once that flight finishes (see `_showHero`), so
-                  // popping back doesn't fly it a second time in reverse.
+                  width: _thumbnailSize.width,
+                  height: _thumbnailSize.height,
+                  // The wallet's own finish, with a Hero from its card (see `_showHero`).
                   child: _showHero
                       ? Hero(
                           tag: 'walletCardBg_${widget.walletId}',
@@ -269,9 +265,6 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // The name leads as a real headline now; type and
-                    // balance share one caption line below it, with the
-                    // balance in bold so it still reads as the key number.
                     Text(
                       widget.wallet.name,
                       maxLines: 1,
@@ -289,11 +282,10 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                                 ? hiddenAmount
                                 : formatCents(
                                     widget.wallet.currentBalance,
+                                    locale: moneyLocale(context),
                                     currencyCode: currency.code,
                                   ),
-                            // one-off: inherits the surrounding line's style
-                            // and only bolds the balance figure - not a base
-                            // type-scale role, so no named getter fits.
+                            // one-off: bolds only the balance in the inherited line style.
                             style: TextStyle(
                               fontWeight: FontWeight.w800,
                               color:
@@ -336,7 +328,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.filter_list_rounded,
+                        AppIcons.filter,
                         size: IconSize.lg,
                         color: colors.onSurfaceVariant,
                       ),
@@ -354,7 +346,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                         ),
                       ),
                       Icon(
-                        Icons.keyboard_arrow_down_rounded,
+                        AppIcons.chevronDown,
                         color: colors.onSurfaceVariant,
                       ),
                     ],
@@ -369,263 +361,30 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
               ? const Center(child: CircularProgressIndicator())
               : widget.transactions!.isEmpty
               ? EmptyState(
-                  icon: Icons.receipt_long_outlined,
+                  icon: AppIcons.receipt,
                   title: l10n.noTransactionsYet,
                   subtitle: l10n.addFirstTransaction,
                 )
               : filtered.isEmpty
               ? EmptyState(
-                  icon: Icons.receipt_long_outlined,
+                  icon: AppIcons.receipt,
                   title: l10n.noTransactionsForFilter,
                 )
-              : _GroupedList(
+              : DayGroupedTransactionList(
                   transactions: filtered,
                   categoriesById: categoriesById,
                   currency: currency,
-                  locale: locale,
                   now: now,
                   isAmountHidden: isBalanceHidden,
+                  padding: const EdgeInsets.fromLTRB(
+                    Spacing.pageMargin,
+                    Spacing.md,
+                    Spacing.pageMargin,
+                    Spacing.lg + _navBarClearance,
+                  ),
                 ),
         ),
       ],
     );
   }
 }
-
-class _GroupedList extends StatelessWidget {
-  const _GroupedList({
-    required this.transactions,
-    required this.categoriesById,
-    required this.currency,
-    required this.locale,
-    required this.now,
-    required this.isAmountHidden,
-  });
-
-  final List<Transaction> transactions;
-  final Map<int, Category> categoriesById;
-  final Currency currency;
-  final String locale;
-  final DateTime now;
-  final bool isAmountHidden;
-
-  Map<DateTime, List<Transaction>> _groupByDay() {
-    final groups = <DateTime, List<Transaction>>{};
-    for (final t in transactions) {
-      final date = DateTime.parse(t.date);
-      final day = DateTime(date.year, date.month, date.day);
-      groups.putIfAbsent(day, () => []).add(t);
-    }
-    return groups;
-  }
-
-  String _dayLabel(AppLocalizations l10n, DateTime day) {
-    final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-    if (day == today) return l10n.transactionsGroupToday.toUpperCase();
-    if (day == yesterday) return l10n.transactionsGroupYesterday.toUpperCase();
-    return DateFormat('EEE d MMM', locale).format(day).toUpperCase();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final colors = context.appColors;
-    final groups = _groupByDay();
-    final days = groups.keys.toList();
-
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(
-        Spacing.pageMargin,
-        Spacing.md,
-        Spacing.pageMargin,
-        Spacing.lg + 72,
-      ),
-      itemCount: days.length,
-      itemBuilder: (context, index) {
-        final day = days[index];
-        final dayTransactions = groups[day]!;
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: Spacing.lg - 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: Text(
-                  _dayLabel(l10n, day),
-                  style: context.labelSmBold.copyWith(
-                    color: colors.onSurfaceVariant,
-                    letterSpacing: 0.4,
-                  ),
-                ),
-              ),
-              const SizedBox(height: Spacing.xs),
-              Container(
-                decoration: BoxDecoration(
-                  color: colors.surface,
-                  borderRadius: BorderRadius.circular(Rounded.md),
-                ),
-                child: Column(
-                  children: [
-                    for (var i = 0; i < dayTransactions.length; i++) ...[
-                      _TransactionRow(
-                        transaction: dayTransactions[i],
-                        category: categoriesById[dayTransactions[i].categoryId],
-                        currency: currency,
-                        isAmountHidden: isAmountHidden,
-                      ),
-                      if (i < dayTransactions.length - 1)
-                        Divider(
-                          height: 1,
-                          indent: Spacing.sm + 36 + Spacing.sm,
-                          endIndent: Spacing.sm,
-                          color: colors.onSurfaceVariant.withValues(alpha: 0.1),
-                        ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _TransactionRow extends StatelessWidget {
-  const _TransactionRow({
-    required this.transaction,
-    required this.category,
-    required this.currency,
-    required this.isAmountHidden,
-  });
-
-  final Transaction transaction;
-  final Category? category;
-  final Currency currency;
-  final bool isAmountHidden;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final colors = context.appColors;
-    final isIncome = transaction.type == TransactionType.income;
-    final amountColor = isIncome ? colors.primaryStrong : colors.error;
-    final sign = isIncome ? '+' : '-';
-    final description = transaction.description?.trim();
-    final categoryLabel = category == null
-        ? null
-        : (category!.isDefault ? category!.type.label(l10n) : category!.name);
-
-    return InkWell(
-      // A plain tap opens a read-only view - only the "⋯" menu's Edit
-      // action opens it editable, so chevrons never appear by accident.
-      onTap: () => showTransactionEditSheet(context, transaction: transaction),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Spacing.sm,
-          vertical: Spacing.sm,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: colors.onSurface.withValues(alpha: 0.06),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                category?.type.icon ?? AppIcons.receipt,
-                size: IconSize.md,
-                color: colors.onSurface,
-              ),
-            ),
-            const SizedBox(width: Spacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    description == null || description.isEmpty
-                        ? l10n.transactionDefaultDescription
-                        : description,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.bodyMdBold,
-                  ),
-                  Text(
-                    categoryLabel ?? l10n.uncategorized,
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              isAmountHidden
-                  ? hiddenAmount
-                  : '$sign${formatCents(transaction.amount, currencyCode: currency.code)}',
-              style: context.bodyMdBold.copyWith(color: amountColor),
-            ),
-            PopupMenuButton<_RowAction>(
-              padding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(Rounded.md),
-              ),
-              icon: Icon(
-                AppIcons.more,
-                size: IconSize.lg,
-                color: colors.onSurfaceVariant,
-              ),
-              onSelected: (action) {
-                switch (action) {
-                  case _RowAction.edit:
-                    showTransactionEditSheet(
-                      context,
-                      transaction: transaction,
-                      startInEditMode: true,
-                    );
-                  case _RowAction.delete:
-                    deleteTransactionWithUndo(context, transaction);
-                }
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: _RowAction.edit,
-                  child: Row(
-                    children: [
-                      const Icon(AppIcons.edit, size: IconSize.lg),
-                      const SizedBox(width: Spacing.xs),
-                      Text(l10n.edit),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: _RowAction.delete,
-                  child: Row(
-                    children: [
-                      Icon(
-                        AppIcons.delete,
-                        size: IconSize.lg,
-                        color: colors.error,
-                      ),
-                      const SizedBox(width: Spacing.xs),
-                      Text(l10n.delete, style: TextStyle(color: colors.error)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-enum _RowAction { edit, delete }

@@ -6,8 +6,11 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/core/widgets/pouch_shape.dart';
 import 'package:waldo/l10n/app_localizations.dart';
+
+/// The selected pill's label is shorter than the icon-only buttons are tall,
+/// so it takes one more pixel each side to keep every button the same height.
+const _selectedVerticalPadding = 13.0; // one-off
 
 class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.navigationShell});
@@ -39,12 +42,7 @@ class AppShell extends StatelessWidget {
     ];
 
     return Scaffold(
-      // Not a ShaderMask/fade on `body` - each branch keeps its own nested
-      // Navigator inside `navigationShell`, so anything rendered through it
-      // (modal bottom sheets, a screen's own FloatingActionButton) is a
-      // descendant of this subtree too. Fading `body` faded those out near
-      // the bottom edge as well, hiding real buttons - not worth it just to
-      // soften where a scrolled card's edge meets the navbar.
+      // No fade on `body`: sheets and buttons rendered inside it would fade too.
       body: navigationShell,
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(
@@ -90,10 +88,8 @@ class AppShell extends StatelessWidget {
   }
 }
 
-/// One destination in [AppShell]'s bottom pill navbar: the selected tab is a
-/// dark filled pill with its icon and label side by side, unselected tabs
-/// are icon-only circular targets - only the active tab needs its name
-/// spelled out, so the bar stays compact.
+/// One navbar destination: the selected tab is a filled pill with its label,
+/// the others are icon-only circles.
 class AppNavButton extends StatelessWidget {
   const AppNavButton({
     super.key,
@@ -130,11 +126,7 @@ class AppNavButton extends StatelessWidget {
               color: selected ? colors.primary : colors.transparent,
               borderRadius: BorderRadius.circular(Rounded.pill),
             ),
-            // The stitch has to trace the pill's own outer edge, not the
-            // text's box - so it paints here, over the *whole* container,
-            // with the padded content as a sibling rather than going
-            // through the container's own `padding` (which would shrink
-            // the painter's canvas down to the text's bounds instead).
+            // The stitch is painted over the whole pill, not inside its padding.
             child: Stack(
               alignment: Alignment.center,
               children: [
@@ -148,7 +140,7 @@ class AppNavButton extends StatelessWidget {
                   padding: selected
                       ? const EdgeInsets.symmetric(
                           horizontal: Spacing.sm,
-                          vertical: 13,
+                          vertical: _selectedVerticalPadding,
                         )
                       : const EdgeInsets.all(Spacing.component),
                   child: Row(
@@ -182,18 +174,13 @@ class AppNavButton extends StatelessWidget {
   }
 }
 
-/// Dashed stitch traced just inside a pill's own rounded edge - the same
-/// stitch idea as [PouchBorder], simplified to a plain stadium shape since
-/// the nav pill has no pouch notch to follow.
+/// A dashed stitch just inside a pill's rounded edge.
 class _DashedPillPainter extends CustomPainter {
   const _DashedPillPainter({required this.color});
 
   final Color color;
 
-  // Denser and fainter than [PouchBorder]'s own stitch (6/5 dashes at 0.3
-  // alpha) - this pill is much smaller than the wallet card, so a tighter
-  // dash rhythm is what reads as "many small stitches" at this size instead
-  // of a handful of long dashes.
+  // Denser and fainter than [PouchBorder]'s stitch, to suit the smaller pill.
   static const _inset = 5.0;
   static const _dashLength = 3.0;
   static const _gapLength = 2.5;

@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:intl/intl.dart';
@@ -7,10 +9,17 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
-/// Horizontal strip of month pills - the selected month sits in a filled
-/// pill, the rest read as plain text that fades out toward the edges to
-/// hint that more months are a swipe away. Replaces the old "October ▾"
-/// header button + bottom sheet list with direct, one-tap selection.
+/// The smallest comfortable tap target (Material and Apple guidelines).
+const _minTapTarget = 48.0;
+const _chevronHitSize = _minTapTarget;
+const _chevronDiscSize = 22.0; // one-off: a small hint, not a main control
+const _chevronOverhang = (_chevronHitSize - _chevronDiscSize) / 2;
+
+/// The selected month is bolder and larger, so it gives back 2px a side to
+/// keep the chip from growing past its neighbours.
+const _selectedChipPadding = Spacing.sm - 2; // one-off
+
+/// A horizontal row of month pills; the selected month is a filled pill.
 class MonthSelector extends StatefulWidget {
   const MonthSelector({
     super.key,
@@ -40,13 +49,18 @@ class _MonthSelectorState extends State<MonthSelector> {
   bool _canScrollBack = false;
   bool _canScrollForward = false;
 
+  /// True when every month fits on screen, so there's nothing to drag to.
+  bool _fits = false;
+
   @override
   void initState() {
     super.initState();
     _itemKeys = {for (final month in widget.months) month: GlobalKey()};
     _scrollController.addListener(_updateScrollAffordances);
+    // Jump, not animate: the selected month is known up front, so the row
+    // opens already on it instead of sliding there while a sheet rises.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToSelected();
+      _scrollToSelected(animate: false);
       _updateScrollAffordances();
     });
   }
@@ -62,49 +76,106 @@ class _MonthSelectorState extends State<MonthSelector> {
       };
     }
     if (monthsChanged || oldWidget.selectedMonth != widget.selectedMonth) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelected());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToSelected();
+        _updateScrollAffordances();
+      });
     }
   }
 
-  void _scrollToSelected() {
-    if (!mounted) return;
-    final itemContext = _itemKeys[widget.selectedMonth]?.currentContext;
-    if (itemContext == null) return;
-    Scrollable.ensureVisible(
-      itemContext,
-      alignment: 0.5,
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOut,
-    );
+  void _scrollToSelected({bool animate = true}) {
+    if (!mounted || !_scrollController.hasClients) return;
+    final box = _itemKeys[widget.selectedMonth]?.currentContext
+        ?.findRenderObject();
+    if (box == null) return;
+    final position = _scrollController.position;
+    final target = RenderAbstractViewport.of(box)
+        .getOffsetToReveal(box, 0.5)
+        .offset
+        .clamp(position.minScrollExtent, position.maxScrollExtent);
+    if (animate) {
+      _animateTo(target);
+    } else {
+      _scrollController.jumpTo(target);
+    }
   }
 
   void _updateScrollAffordances() {
     if (!mounted || !_scrollController.hasClients) return;
     final position = _scrollController.position;
-    final canScrollBack = position.pixels > position.minScrollExtent + 1;
-    final canScrollForward = position.pixels < position.maxScrollExtent - 1;
-    if (canScrollBack == _canScrollBack &&
+    // The scroll extent equals the months' width, since each edge pads half the viewport.
+    final fits = position.maxScrollExtent <= position.viewportDimension;
+    // Chevrons only light up when there's a pickable month that way.
+    final offsets = _pickableOffsets();
+    final canScrollBack = !fits && offsets.any((o) => o < position.pixels - 1);
+    final canScrollForward =
+        !fits && offsets.any((o) => o > position.pixels + 1);
+    if (fits == _fits &&
+        canScrollBack == _canScrollBack &&
         canScrollForward == _canScrollForward) {
       return;
     }
     setState(() {
+      _fits = fits;
       _canScrollBack = canScrollBack;
       _canScrollForward = canScrollForward;
     });
   }
 
-  void _scrollBy(double delta) {
-    if (!_scrollController.hasClients) return;
-    final position = _scrollController.position;
-    final target = (position.pixels + delta).clamp(
-      position.minScrollExtent,
-      position.maxScrollExtent,
-    );
+  /// The selected month is spelled out and the rest are short, so neighbours
+  /// fit whole. Months from another year show the year.
+  String _labelFor(DateTime month) {
+    final locale = widget.locale;
+    final isSelected = month == widget.selectedMonth;
+    final isThisYear = month.year == widget.currentMonth.year;
+    return switch ((isSelected, isThisYear)) {
+      (true, true) => DateFormat.MMMM(locale).format(month),
+      (true, false) => DateFormat.yMMMM(locale).format(month),
+      (false, true) => DateFormat.MMM(locale).format(month),
+      (false, false) => DateFormat.yMMM(locale).format(month),
+    };
+  }
+
+  /// The scroll offsets that centre each month you can pick (not future ones).
+  List<double> _pickableOffsets() {
+    return [
+      for (final month in widget.months)
+        if (!month.isAfter(widget.currentMonth))
+          if (_itemKeys[month]?.currentContext?.findRenderObject()
+              case final RenderObject box)
+            RenderAbstractViewport.of(box).getOffsetToReveal(box, 0.5).offset,
+    ];
+  }
+
+  void _animateTo(double offset) {
     _scrollController.animateTo(
-      target,
+      offset,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOut,
     );
+  }
+
+  /// After a drag, settle on the nearest pickable month so none sits half-cut.
+  void _snapToNearest() {
+    if (!mounted || !_scrollController.hasClients) return;
+    final offsets = _pickableOffsets();
+    if (offsets.isEmpty) return;
+    final pixels = _scrollController.position.pixels;
+    final nearest = offsets.reduce(
+      (a, b) => (a - pixels).abs() <= (b - pixels).abs() ? a : b,
+    );
+    if ((nearest - pixels).abs() > 1) _animateTo(nearest);
+  }
+
+  /// Chevron tap: centre the next pickable month that way.
+  void _step({required bool forward}) {
+    if (!_scrollController.hasClients) return;
+    final pixels = _scrollController.position.pixels;
+    final candidates = _pickableOffsets().where(
+      (o) => forward ? o > pixels + 1 : o < pixels - 1,
+    );
+    if (candidates.isEmpty) return;
+    _animateTo(forward ? candidates.first : candidates.last);
   }
 
   @override
@@ -118,25 +189,20 @@ class _MonthSelectorState extends State<MonthSelector> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const SizedBox(width: Spacing.lg),
+        // The 48dp hit box overhangs the disc, so the disc stays where it was.
+        const SizedBox(width: Spacing.lg - _chevronOverhang),
         _ScrollHintChevron(
           enabled: _canScrollBack,
-          onTap: () => _scrollBy(-160),
+          onTap: () => _step(forward: false),
         ),
-        const SizedBox(width: Spacing.xs),
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              // Half the viewport as leading/trailing padding - without
-              // this, the first or last month (often the selected one,
-              // since "today" is always the last entry) can't actually
-              // reach the center: there's no scroll extent left to push it
-              // there, so it stays pinned to the edge instead.
+              // Half the viewport as padding, so the first and last months can scroll
+              // to the center.
               final edgePadding = constraints.maxWidth / 2;
 
-              // one-off: Colors.transparent/black below are an alpha mask
-              // (BlendMode.dstIn only reads opacity) that fades the month
-              // row out at both edges - never painted, so no theme color.
+              // one-off: an alpha mask (dstIn only reads opacity), never painted.
               return ShaderMask(
                 shaderCallback: (bounds) => const LinearGradient(
                   begin: Alignment.centerLeft,
@@ -150,46 +216,50 @@ class _MonthSelectorState extends State<MonthSelector> {
                   stops: [0, 0.04, 0.92, 1],
                 ).createShader(bounds),
                 blendMode: BlendMode.dstIn,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: edgePadding),
-                  child: Row(
-                    children: [
-                      for (final month in widget.months) ...[
-                        _MonthPill(
-                          key: _itemKeys[month],
-                          // A month from another year carries its year, so
-                          // e.g. last November and next November never read
-                          // as the same pill.
-                          label: month.year == widget.currentMonth.year
-                              ? DateFormat.MMMM(widget.locale).format(month)
-                              : DateFormat.yMMM(widget.locale).format(month),
-                          selected: month == widget.selectedMonth,
-                          // Defensive, not just decorative - nothing past
-                          // the real current month is a month that could
-                          // have any transactions yet.
-                          onTap: month.isAfter(widget.currentMonth)
-                              ? null
-                              : () => widget.onSelect(month),
-                        ),
-                        if (month != widget.months.last)
-                          const SizedBox(width: Spacing.md),
+                child: NotificationListener<ScrollEndNotification>(
+                  onNotification: (_) {
+                    WidgetsBinding.instance.addPostFrameCallback(
+                      (_) => _snapToNearest(),
+                    );
+                    return false;
+                  },
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    // The selected month still scrolls to the centre; only dragging stops.
+                    physics: _fits
+                        ? const NeverScrollableScrollPhysics()
+                        : null,
+                    padding: EdgeInsets.symmetric(horizontal: edgePadding),
+                    child: Row(
+                      children: [
+                        for (final month in widget.months) ...[
+                          _MonthPill(
+                            key: _itemKeys[month],
+                            label: _labelFor(month),
+                            selected: month == widget.selectedMonth,
+                            // Months after the current one can't have transactions yet.
+                            onTap: month.isAfter(widget.currentMonth)
+                                ? null
+                                : () => widget.onSelect(month),
+                          ),
+                          if (month != widget.months.last)
+                            const SizedBox(width: Spacing.md),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               );
             },
           ),
         ),
-        const SizedBox(width: Spacing.xs),
         _ChevronButton(
           direction: _ChevronDirection.right,
           enabled: _canScrollForward,
-          onTap: () => _scrollBy(160),
+          onTap: () => _step(forward: true),
         ),
-        const SizedBox(width: Spacing.lg),
+        const SizedBox(width: Spacing.lg - _chevronOverhang),
       ],
     );
   }
@@ -197,13 +267,8 @@ class _MonthSelectorState extends State<MonthSelector> {
 
 enum _ChevronDirection { left, right }
 
-/// A small chevron that nudges left twice, once, right after the dashboard
-/// first appears - a one-time hint that the month row scrolls, instead of
-/// a gradient or clipped edge alone (neither read as "scrollable" on their
-/// own in testing). Settles back to a static resting chevron afterward. Also
-/// a real scroll-back control - tapping it steps the row backward, and it
-/// dims (without disappearing, to avoid shifting the layout) once there is
-/// nothing earlier left to scroll to.
+/// The left chevron: nudges once on first show to hint the row scrolls, then
+/// steps the row back on tap, dimming when there's nothing earlier.
 class _ScrollHintChevron extends StatefulWidget {
   const _ScrollHintChevron({required this.enabled, required this.onTap});
 
@@ -278,37 +343,21 @@ class _ScrollHintChevronState extends State<_ScrollHintChevron>
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return GestureDetector(
-      onTap: widget.enabled ? widget.onTap : null,
+    return _ChevronTarget(
+      tooltip: AppLocalizations.of(context).earlierMonths,
+      enabled: widget.enabled,
+      onTap: widget.onTap,
       child: AnimatedBuilder(
         animation: _offset,
         builder: (context, child) =>
             Transform.translate(offset: Offset(_offset.value, 0), child: child),
-        child: Container(
-          width: 22,
-          height: 22,
-          decoration: BoxDecoration(
-            color: colors.onSurface.withValues(alpha: 0.06),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.chevron_left_rounded,
-            size: IconSize.md,
-            color: widget.enabled ? colors.onSurface : colors.onSurfaceVariant,
-          ),
-        ),
+        child: _ChevronDisc(icon: AppIcons.back, enabled: widget.enabled),
       ),
     );
   }
 }
 
-/// The right-side mirror of [_ScrollHintChevron], without the one-time nudge
-/// animation (that hint only needs to play once, pointing the direction the
-/// row scrolls by default) but with the same tap-to-scroll and dim-when-idle
-/// behavior - so going far back in time doesn't strand the user without an
-/// easy way to scroll forward again.
+/// The right chevron: steps the row forward on tap, dimming at the end.
 class _ChevronButton extends StatelessWidget {
   const _ChevronButton({
     required this.direction,
@@ -322,24 +371,77 @@ class _ChevronButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final isLeft = direction == _ChevronDirection.left;
+
+    return _ChevronTarget(
+      tooltip: isLeft ? l10n.earlierMonths : l10n.laterMonths,
+      enabled: enabled,
+      onTap: onTap,
+      child: _ChevronDisc(
+        icon: isLeft ? AppIcons.back : AppIcons.chevronRight,
+        enabled: enabled,
+      ),
+    );
+  }
+}
+
+/// A named 48dp button around a small chevron disc, so it's easy to hit and
+/// a screen reader can say what it does.
+class _ChevronTarget extends StatelessWidget {
+  const _ChevronTarget({
+    required this.tooltip,
+    required this.enabled,
+    required this.onTap,
+    required this.child,
+  });
+
+  final String tooltip;
+  final bool enabled;
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      child: Tooltip(
+        message: tooltip,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: enabled ? onTap : null,
+          child: SizedBox.square(
+            dimension: _chevronHitSize,
+            child: Center(child: child),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChevronDisc extends StatelessWidget {
+  const _ChevronDisc({required this.icon, required this.enabled});
+
+  final IconData icon;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.appColors;
 
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      child: Container(
-        width: 22,
-        height: 22,
-        decoration: BoxDecoration(
-          color: colors.onSurface.withValues(alpha: 0.06),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          direction == _ChevronDirection.left
-              ? Icons.chevron_left_rounded
-              : AppIcons.chevronRight,
-          size: IconSize.md,
-          color: enabled ? colors.onSurface : colors.onSurfaceVariant,
-        ),
+    return Container(
+      width: _chevronDiscSize,
+      height: _chevronDiscSize,
+      decoration: BoxDecoration(
+        color: colors.onSurface.withValues(alpha: 0.06),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        icon,
+        size: IconSize.md,
+        color: enabled ? colors.onSurface : colors.onSurfaceVariant,
       ),
     );
   }
@@ -369,9 +471,9 @@ class _MonthPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(Rounded.pill),
         onTap: onTap,
         child: Container(
-          constraints: const BoxConstraints(minHeight: 44),
+          constraints: const BoxConstraints(minHeight: _minTapTarget),
           padding: EdgeInsets.symmetric(
-            horizontal: selected ? Spacing.sm - 2 : Spacing.sm,
+            horizontal: selected ? _selectedChipPadding : Spacing.sm,
           ),
           alignment: Alignment.center,
           decoration: BoxDecoration(

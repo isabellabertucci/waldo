@@ -24,10 +24,13 @@ void main() {
     await db.close();
   });
 
-  Future<int> createWallet({int startingBalance = 0}) {
+  Future<int> createWallet({
+    String name = 'Test Wallet',
+    int startingBalance = 0,
+  }) {
     return walletRepo.insert(
       Wallet(
-        name: 'Test Wallet',
+        name: name,
         startingBalance: startingBalance,
         currentBalance: startingBalance,
         createdAt: '2026-08-10T12:00:00.000',
@@ -74,7 +77,7 @@ void main() {
 
     test('getByWallet only returns transactions for that wallet', () async {
       final walletA = await createWallet();
-      final walletB = await createWallet();
+      final walletB = await createWallet(name: 'Second Wallet');
       await repo.insert(
         Transaction(
           walletId: walletA,
@@ -102,7 +105,10 @@ void main() {
       'update reverses the old effect and applies the new one, even across wallets',
       () async {
         final walletA = await createWallet(startingBalance: 1000);
-        final walletB = await createWallet(startingBalance: 1000);
+        final walletB = await createWallet(
+          name: 'Second Wallet',
+          startingBalance: 1000,
+        );
         final id = await repo.insert(
           Transaction(
             walletId: walletA,
@@ -233,7 +239,7 @@ void main() {
     });
 
     test(
-      'deleting a category sets categoryId to null on its transactions, without deleting them',
+      'deleting a category moves its transactions to Others, without deleting them',
       () async {
         final categoryRepo = CategoryRepositoryImpl(db);
         final categoryId = await categoryRepo.insert(
@@ -259,7 +265,7 @@ void main() {
 
         final transaction = await repo.getById(transactionId);
         expect(transaction, isNotNull);
-        expect(transaction!.categoryId, isNull);
+        expect(transaction!.categoryId, (await categoryRepo.getOthers()).id);
       },
     );
 

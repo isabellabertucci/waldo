@@ -21,9 +21,7 @@ void main() {
   });
 
   Future<int> pumpTransactionsScreen(WidgetTester tester) async {
-    // The default test surface (800x600, landscape) is too short for the
-    // amount sheet's numpad to fit without scrolling; use a portrait phone
-    // size so every row is reachable by a direct tap, like on a real device.
+    // A portrait phone size, so the whole amount sheet fits.
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -102,7 +100,8 @@ void main() {
     await pumpTransactionsScreen(tester);
     await createTransaction(tester, amount: '5.00', description: 'Coffee');
 
-    expect(find.text('Uncategorized'), findsOneWidget);
+    // No category picked lands in Others.
+    expect(find.text('Others'), findsOneWidget);
     expect(find.textContaining('00:00'), findsNothing);
   });
 
@@ -321,7 +320,7 @@ void main() {
 
       await deleteFromRowMenu(tester);
 
-      expect(find.text('Groceries'), findsNothing);
+      expect(textOutsideSnackBar('Groceries'), findsNothing);
       expect(find.text('Transaction deleted'), findsOneWidget);
       expect(find.text('Undo'), findsOneWidget);
 
@@ -334,7 +333,7 @@ void main() {
     await createTransaction(tester, amount: '25.00', description: 'Groceries');
 
     await deleteFromRowMenu(tester);
-    expect(find.text('Groceries'), findsNothing);
+    expect(textOutsideSnackBar('Groceries'), findsNothing);
 
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
@@ -358,7 +357,7 @@ void main() {
       await tester.pump(const Duration(seconds: 6));
       await tester.pumpAndSettle();
 
-      expect(find.text('Groceries'), findsNothing);
+      expect(textOutsideSnackBar('Groceries'), findsNothing);
       expect(find.text('No transactions yet'), findsOneWidget);
     },
   );

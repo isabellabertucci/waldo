@@ -6,32 +6,29 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/receipt_shell.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../models/dashboard_data.dart';
 
-/// Width of the receipt's paper strip - narrower than the wallet above it
-/// (like a real receipt sticking out of a pocket), so it reads as one
-/// continuous object with the balance card rather than a separate section.
+/// The receipt is narrower than the wallet card above it.
 const _receiptWidth = 300.0;
 
-/// How many category rows the receipt lists individually before collapsing
-/// the rest into one "Other" line - a heavy user with dozens of categories
-/// in a month would otherwise turn this into an endlessly scrolling slip.
-/// [spendingByCategory] already arrives sorted by amount descending, so
-/// this keeps the biggest, most useful lines and rolls the long tail into
-/// one total that still reconciles with EXPENSE above it; the whole receipt
-/// is already a tap-through to the full list for anyone who wants the rest.
+// The receipt keeps its own tighter, printed-paper rhythm instead of the
+// page scale: these are tuned to look like a till slip.
+const _receiptPadding = EdgeInsets.fromLTRB(22, 20, 22, 18); // one-off
+const _noWalletReceiptPadding = EdgeInsets.fromLTRB(22, 20, 22, 24); // one-off
+const _lineGap = Spacing.xs + 1; // one-off: between printed lines
+const _totalGap = Spacing.sm + 2; // one-off: above the thick rule
+const _barcodeGap = Spacing.md - 4; // one-off: above the barcode
+
+/// Category rows shown before the rest collapse into one "Other" line.
 const _maxCategoryRows = 5;
 
-/// This month's income, expense and category breakdown, drawn as a
-/// receipt attached directly under the balance card instead of as
-/// separate stat cards - replaces [MonthlySummaryRow] and
-/// [CategorySpendingList]. The whole receipt is one tap target through to
-/// the full transaction list, since that's what a real receipt is a
-/// shorthand for.
+/// This month's income, expense and categories, drawn as a receipt under the
+/// balance card. Tapping it opens the full transaction list.
 class DashboardReceipt extends StatelessWidget {
   const DashboardReceipt({
     super.key,
@@ -59,10 +56,7 @@ class DashboardReceipt extends StatelessWidget {
   final bool isBalanceHidden;
   final Currency currency;
 
-  /// Whether at least one wallet exists yet - with none, there is nothing
-  /// to tap through to and no transaction to add, so the receipt shows a
-  /// simple "comes later" message instead of the dashed hint-box CTA used
-  /// when a wallet exists but this month has no transactions yet.
+  /// With no wallet yet, the receipt shows a "comes later" message instead.
   final bool hasWallets;
   final VoidCallback onTap;
   final VoidCallback onAddTransaction;
@@ -101,7 +95,7 @@ class DashboardReceipt extends StatelessWidget {
               child: InkWell(
                 onTap: onTap,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
+                  padding: _receiptPadding,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -111,9 +105,7 @@ class DashboardReceipt extends StatelessWidget {
                           '$year',
                         ),
                         textAlign: TextAlign.center,
-                        // Receipt-print header: its own fixed small-caps
-                        // size + wide tracking, distinct from the app's
-                        // label-xs (which uses a tighter 0.4 tracking).
+                        // The receipt header's own size and tracking.
                         style: textStyles.bodySmall?.copyWith(
                           fontSize: 11, // one-off
                           letterSpacing: 0.8,
@@ -127,7 +119,7 @@ class DashboardReceipt extends StatelessWidget {
                         textStyles: textStyles,
                         label: l10n.transactionTypeIncome.toUpperCase(),
                         value: amount(
-                          '+${formatCents(monthlyIncome, currencyCode: currencyCode)}',
+                          '+${formatCents(monthlyIncome, locale: moneyLocale(context), currencyCode: currencyCode)}',
                         ),
                         color: colors.primaryStrong,
                         bold: true,
@@ -137,7 +129,7 @@ class DashboardReceipt extends StatelessWidget {
                         textStyles: textStyles,
                         label: l10n.transactionTypeExpense.toUpperCase(),
                         value: amount(
-                          '-${formatCents(monthlyExpense, currencyCode: currencyCode)}',
+                          '-${formatCents(monthlyExpense, locale: moneyLocale(context), currencyCode: currencyCode)}',
                         ),
                         color: colors.error,
                         bold: true,
@@ -148,12 +140,13 @@ class DashboardReceipt extends StatelessWidget {
                       for (var i = 0; i < visibleCategories.length; i++) ...[
                         ReceiptRow(
                           textStyles: textStyles,
-                          label: visibleCategories[i].category.isDefault
-                              ? visibleCategories[i].category.type.label(l10n)
-                              : visibleCategories[i].category.name,
+                          label: visibleCategories[i].category.displayName(
+                            l10n,
+                          ),
                           value: amount(
                             formatCents(
                               visibleCategories[i].amount,
+                              locale: moneyLocale(context),
                               currencyCode: currencyCode,
                             ),
                           ),
@@ -161,7 +154,7 @@ class DashboardReceipt extends StatelessWidget {
                         ),
                         if (i < visibleCategories.length - 1 ||
                             otherCategories.isNotEmpty)
-                          const SizedBox(height: Spacing.xs + 1),
+                          const SizedBox(height: _lineGap),
                       ],
                       if (otherCategories.isNotEmpty)
                         ReceiptRow(
@@ -172,6 +165,7 @@ class DashboardReceipt extends StatelessWidget {
                           value: amount(
                             formatCents(
                               otherAmount,
+                              locale: moneyLocale(context),
                               currencyCode: currencyCode,
                             ),
                           ),
@@ -179,33 +173,38 @@ class DashboardReceipt extends StatelessWidget {
                         ),
                       if (uncategorizedSpending > 0) ...[
                         if (visibleCategories.isNotEmpty)
-                          const SizedBox(height: Spacing.xs + 1),
+                          const SizedBox(height: _lineGap),
                         ReceiptRow(
                           textStyles: textStyles,
                           label: l10n.uncategorized,
                           value: amount(
                             formatCents(
                               uncategorizedSpending,
+                              locale: moneyLocale(context),
                               currencyCode: currencyCode,
                             ),
                           ),
                           color: colors.onSurface.withValues(alpha: 0.8),
                         ),
                       ],
-                      const SizedBox(height: Spacing.sm + 2),
+                      const SizedBox(height: _totalGap),
                       DashedDivider(color: colors.onSurface, thick: true),
                       const SizedBox(height: Spacing.sm),
                       ReceiptRow(
                         textStyles: textStyles,
-                        label: l10n.savedLabel.toUpperCase(),
+                        label: l10n.monthNetLabel.toUpperCase(),
                         value: amount(
-                          formatCents(saved, currencyCode: currencyCode),
+                          formatCents(
+                            saved,
+                            locale: moneyLocale(context),
+                            currencyCode: currencyCode,
+                          ),
                         ),
                         color: saved < 0 ? colors.error : colors.onSurface,
                         bold: true,
                         large: true,
                       ),
-                      const SizedBox(height: Spacing.md - 4),
+                      const SizedBox(height: _barcodeGap),
                       Barcode(color: colors.onSurface),
                     ],
                   ),
@@ -223,9 +222,7 @@ class DashboardReceipt extends StatelessWidget {
   }
 }
 
-/// The receipt's shell (header, dashed divider, zigzag paper edge) with no
-/// wallets to report on yet - same object as the filled-in receipt, just
-/// with nothing printed on it yet.
+/// An empty receipt, for when there are no wallets yet.
 class _NoWalletReceipt extends StatelessWidget {
   const _NoWalletReceipt({required this.monthLabel, required this.year});
 
@@ -245,7 +242,7 @@ class _NoWalletReceipt extends StatelessWidget {
             Material(
               color: colors.surface,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(22, 20, 22, 24),
+                padding: _noWalletReceiptPadding,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -287,9 +284,7 @@ class _NoWalletReceipt extends StatelessWidget {
   }
 }
 
-/// Shown instead of the receipt when there's no income, expense or category
-/// spending yet this month - matches the old [CategorySpendingList] empty
-/// state so the "nothing here yet" call to action survives the redesign.
+/// Shown instead of the receipt when this month has no transactions yet.
 class _EmptyReceipt extends StatelessWidget {
   const _EmptyReceipt({required this.onAddTransaction});
 
@@ -300,44 +295,42 @@ class _EmptyReceipt extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
 
+    // Unlike the receipt, this box doesn't tuck under the card, so it needs a gap.
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Spacing.lg),
-      child: Container(
-        padding: const EdgeInsets.all(Spacing.md),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: colors.onSurfaceVariant.withValues(alpha: 0.4),
-            width: 1.5,
+      padding: const EdgeInsets.fromLTRB(Spacing.lg, Spacing.md, Spacing.lg, 0),
+      child: DashedBorder(
+        radius: Rounded.lg,
+        color: colors.onSurfaceVariant.withValues(alpha: 0.4),
+        child: Container(
+          padding: const EdgeInsets.all(Spacing.md),
+          child: Column(
+            children: [
+              Text(
+                l10n.categorySpendingEmptyHint,
+                textAlign: TextAlign.center,
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: Spacing.sm),
+              TextButton.icon(
+                onPressed: onAddTransaction,
+                style: TextButton.styleFrom(
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.onPrimary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.md,
+                    vertical: Spacing.sm,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(Rounded.pill),
+                  ),
+                ),
+                icon: const Icon(AppIcons.add, size: IconSize.lg),
+                label: Text(l10n.addFirstTransactionButton),
+              ),
+            ],
           ),
-          borderRadius: BorderRadius.circular(Rounded.lg),
-        ),
-        child: Column(
-          children: [
-            Text(
-              l10n.categorySpendingEmptyHint,
-              textAlign: TextAlign.center,
-              style: context.textTheme.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: Spacing.sm),
-            TextButton.icon(
-              onPressed: onAddTransaction,
-              style: TextButton.styleFrom(
-                backgroundColor: colors.primary,
-                foregroundColor: colors.onPrimary,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.md,
-                  vertical: Spacing.sm,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(Rounded.pill),
-                ),
-              ),
-              icon: const Icon(AppIcons.add, size: IconSize.lg),
-              label: Text(l10n.addFirstTransactionButton),
-            ),
-          ],
         ),
       ),
     );

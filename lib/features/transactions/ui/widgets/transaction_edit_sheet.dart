@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/dashed_circle_badge.dart';
+import 'package:waldo/core/widgets/circle_icon_button.dart';
+import 'package:waldo/core/widgets/undo_snack_bar.dart';
+import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/near_limit_counter.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/models/category.dart';
@@ -28,15 +35,8 @@ import '../../viewmodels/transaction_list_view_model.dart';
 import 'transaction_field_row.dart';
 import 'transaction_type_toggle.dart';
 
-/// Opens a transaction as a bottom sheet - tapping a row anywhere in the
-/// app (the wallet's own list, the dashboard's recent list, "all
-/// transactions") lands here instead of a separate pushed page, with every
-/// field editable in place rather than through a generic add/edit form.
-///
-/// It opens read-only unless [startInEditMode] is set - a plain tap shows
-/// the transaction with no edit affordances at all, and only an explicit
-/// "Edit" action (the wallet screen's row menu) opens it editable. New
-/// transactions are added through [showTransactionFormSheet] instead.
+/// Opens a transaction in a bottom sheet, read-only unless [startInEditMode].
+/// New transactions use [showTransactionFormSheet].
 Future<void> showTransactionEditSheet(
   BuildContext context, {
   required Transaction transaction,
@@ -54,15 +54,8 @@ Future<void> showTransactionEditSheet(
   );
 }
 
-/// Deletes [transaction] the same way every delete in the app works:
-/// confirm, hide it from the wallet's list straight away, show a 5 s
-/// snackbar with Undo, and only then delete it from the database.
-///
-/// Uses the app's [ProviderContainer] rather than a widget's `ref`, because
-/// the edit sheet closes before the 5 s are up and a closed sheet's `ref`
-/// can no longer be used. The `listen` keeps the wallet's list provider
-/// alive (and loaded) for the whole flow, even when no screen is showing
-/// it - e.g. a delete started from the dashboard.
+/// Confirm, hide the transaction, show a 5 s Undo snackbar, then delete.
+/// Uses the [ProviderContainer] because the sheet closes before the 5 s are up.
 Future<void> deleteTransactionWithUndo(
   BuildContext context,
   Transaction transaction, {
@@ -90,29 +83,21 @@ Future<void> deleteTransactionWithUndo(
     if (!viewModel.hideTransaction(transaction.id!)) return;
     onConfirmed?.call();
 
-    var undone = false;
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(l10n.transactionDeleted),
-        duration: const Duration(seconds: 5),
-        persist: false,
-        action: SnackBarAction(
-          label: l10n.undo,
-          onPressed: () {
-            undone = true;
-            viewModel.restoreTransaction();
-          },
-        ),
-      ),
+    final undone = await showUndoSnackBar(
+      messenger,
+      title: l10n.transactionDeleted,
+      subtitle: transaction.description,
+      restoredLabel: l10n.transactionRestored,
     );
-
-    await Future.delayed(const Duration(seconds: 5));
-    if (undone) return;
+    if (undone) {
+      viewModel.restoreTransaction(transaction.id!);
+      return;
+    }
 
     try {
       await viewModel.confirmDelete(transaction.id!);
     } catch (_) {
-      viewModel.restoreTransaction();
+      viewModel.restoreTransaction(transaction.id!);
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.transactionDeleteError)),
       );
@@ -122,12 +107,8 @@ Future<void> deleteTransactionWithUndo(
   }
 }
 
-/// Which field (if any) is currently being edited in place. Editing never
-/// opens a second bottom sheet stacked on top of this one - the sheet's own
-/// content swaps to the field's editor, with a back chevron to return, like
-/// a tab rather than a stack of modals. Date keeps the platform's native
-/// date/time pickers, which are a different (and already modal) paradigm.
-enum _EditField { amount, name, type, category, note }
+/// The field being edited in place - the sheet's content swaps to its editor.
+enum _EditField { amount, category }
 
 class TransactionEditSheet extends ConsumerStatefulWidget {
   const TransactionEditSheet({
@@ -145,9 +126,7 @@ class TransactionEditSheet extends ConsumerStatefulWidget {
 }
 
 class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
-  /// Starts wherever [widget.startInEditMode] says, but - unlike before -
-  /// can now flip on in-sheet: the view screen's "Edit transaction" button
-  /// switches into the edit screen without closing and reopening the sheet.
+  /// Starts as [widget.startInEditMode] says; "Edit transaction" flips it on.
   late bool _editable = widget.startInEditMode;
 
   _EditField? _activeField;
@@ -192,11 +171,6 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     switch (field) {
       case _EditField.amount:
         _amountController.text = _trimTrailingZeros(formState.amount);
-      case _EditField.name:
-        _nameController.text = formState.description;
-      case _EditField.note:
-        _noteController.text = formState.note;
-      case _EditField.type:
       case _EditField.category:
         break;
     }
@@ -209,16 +183,11 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final formState = _formState;
     return switch (field) {
       _EditField.amount => _amountController.text != formState.amount,
-      _EditField.name => _nameController.text != formState.description,
-      _EditField.note => _noteController.text != formState.note,
-      _EditField.type || _EditField.category => false,
+      _EditField.category => false,
     };
   }
 
-  /// Leaving a text-entry field editor (Amount/Name/Note) via the back
-  /// chevron - rather than its own "Done" button - would otherwise silently
-  /// drop whatever was typed. Type/Category commit the instant an option is
-  /// tapped, so there is never anything unsaved to ask about for those.
+  /// Asks before the back chevron drops an unsaved amount.
   Future<void> _handleFieldBack(_EditField field) async {
     if (!_isFieldDirty(field)) {
       _closeField();
@@ -249,11 +218,6 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
       switch (field) {
         case _EditField.amount:
           _confirmAmount();
-        case _EditField.name:
-          _confirmName();
-        case _EditField.note:
-          _confirmNote();
-        case _EditField.type:
         case _EditField.category:
           break;
       }
@@ -262,27 +226,9 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     }
   }
 
-  // Every field just stages its change on the form view-model - nothing
-  // reaches the database until "Save changes" is pressed, matching the new
-  // edit screen's own Cancel/Save pair instead of the old commit-per-field
-  // behavior (which had no way to back out of an in-progress edit).
+  // Fields only stage changes on the view model; "Save changes" writes them.
   void _confirmAmount() {
     _viewModel(ref).updateAmount(_amountController.text);
-    _closeField();
-  }
-
-  void _confirmName() {
-    _viewModel(ref).updateDescription(_nameController.text);
-    _closeField();
-  }
-
-  void _confirmNote() {
-    _viewModel(ref).updateNote(_noteController.text);
-    _closeField();
-  }
-
-  void _selectType(TransactionType value) {
-    _viewModel(ref).updateType(value);
     _closeField();
   }
 
@@ -295,6 +241,8 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final value = _amountController.text;
     final decimalIndex = value.indexOf('.');
     if (decimalIndex != -1 && value.length - decimalIndex > 2) return;
+    // Same cap as the typed amount fields: no digit past 999 999 999.
+    if (decimalIndex == -1 && value.length >= maxAmountWholeDigits) return;
     setState(() => _amountController.text = '$value$digit');
   }
 
@@ -315,7 +263,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   /// Date only - the app doesn't track a time of day. Whatever time the
   /// transaction already had is kept as-is, just never shown.
   Future<void> _editDate(TransactionFormState formState) async {
-    final current = formState.date ?? DateTime.now();
+    final current = formState.date ?? ref.read(clockProvider)();
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: current,
@@ -387,10 +335,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   String _fieldTitle(_EditField field, AppLocalizations l10n) {
     return switch (field) {
       _EditField.amount => l10n.amount,
-      _EditField.name => l10n.name,
-      _EditField.type => l10n.type,
       _EditField.category => l10n.category,
-      _EditField.note => l10n.transactionNote,
     };
   }
 
@@ -443,10 +388,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     );
   }
 
-  /// Read-only: a category badge + name/category/type header, the amount
-  /// in its own card, a grouped card for Date/Wallet/Note, and Delete +
-  /// "Edit transaction" actions at the bottom - tapping Edit switches this
-  /// same sheet into [_buildEditList] rather than opening anything new.
+  /// Read-only view, with Delete and "Edit transaction" at the bottom.
   Widget _buildViewList(
     BuildContext context,
     TransactionFormState formState,
@@ -463,16 +405,16 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final amountCents = parseToCents(formState.amount, allowNegative: false);
     final amountText = amountCents == null
         ? '—'
-        : '${isIncome ? '+' : '-'}${formatCents(amountCents, currencyCode: currency.code)}';
+        : '${isIncome ? '+' : '-'}${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currency.code)}';
     final category = categories
         .where((c) => c.id == formState.categoryId)
         .firstOrNull;
     final categoryIcon = category == null
         ? AppIcons.categoryGeneric
-        : category.type.icon;
+        : category.icon;
     final categoryLabel = category == null
         ? l10n.none
-        : (category.isDefault ? category.type.label(l10n) : category.name);
+        : category.displayName(l10n);
     final name = formState.description.trim().isEmpty
         ? l10n.transactionDefaultDescription
         : formState.description.trim();
@@ -502,7 +444,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _DashedCircleBadge(icon: categoryIcon, color: amountColor),
+              DashedCircleBadge(icon: categoryIcon, color: amountColor),
               const SizedBox(width: Spacing.sm),
               Expanded(
                 child: Column(
@@ -568,17 +510,17 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             child: Column(
               children: [
                 _ViewInfoRow(
-                  icon: Icons.calendar_today_outlined,
+                  icon: AppIcons.calendar,
                   label: l10n.date,
                   value: dateLabel,
                 ),
                 _ViewInfoRow(
-                  icon: Icons.account_balance_wallet_outlined,
+                  icon: AppIcons.wallets,
                   label: l10n.wallet,
                   value: walletLabel,
                 ),
                 _ViewInfoRow(
-                  icon: Icons.notes_outlined,
+                  icon: AppIcons.note,
                   label: l10n.transactionNote,
                   value: noteLabel,
                   showDivider: false,
@@ -618,7 +560,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                   onPressed: _enterEditMode,
                   padding: const EdgeInsets.symmetric(
                     horizontal: Spacing.xs,
-                    vertical: 14,
+                    vertical: Spacing.sm,
                   ),
                 ),
               ),
@@ -629,11 +571,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     );
   }
 
-  /// Editable: a Type toggle + Amount in one card, Name directly editable
-  /// in place (the dashed accent border marks it as "already open for
-  /// typing"), Category/Date drilling into their own pickers same as
-  /// before, Note directly editable too, then Cancel/Save changes. Nothing
-  /// here reaches the database until Save is pressed.
+  /// Edit view; nothing is saved until "Save changes".
   Widget _buildEditList(
     BuildContext context,
     TransactionFormState formState,
@@ -649,16 +587,16 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final amountCents = parseToCents(formState.amount, allowNegative: false);
     final amountText = amountCents == null
         ? '—'
-        : '${isIncome ? '+' : '-'}${formatCents(amountCents, currencyCode: currency.code)}';
+        : '${isIncome ? '+' : '-'}${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currency.code)}';
     final category = categories
         .where((c) => c.id == formState.categoryId)
         .firstOrNull;
     final categoryIcon = category == null
         ? AppIcons.categoryGeneric
-        : category.type.icon;
+        : category.icon;
     final categoryLabel = category == null
         ? l10n.none
-        : (category.isDefault ? category.type.label(l10n) : category.name);
+        : category.displayName(l10n);
     final dateLabel = formState.date == null
         ? '—'
         : DateFormat('EEE d MMM', locale).format(formState.date!);
@@ -674,19 +612,16 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // No grabber here - the back chevron already signals how to leave
-          // this screen, so a second "drag me" affordance above it is just
-          // visual noise.
+          // No grabber - the back chevron already says how to leave.
           Row(
             children: [
-              IconButton(
+              // A 48dp disc, so the back target is big enough to hit.
+              CircleIconButton(
                 tooltip: l10n.back,
                 onPressed: _cancelEdit,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: const Icon(Icons.chevron_left_rounded),
+                child: const Icon(AppIcons.back),
               ),
-              const SizedBox(width: Spacing.xs),
+              const SizedBox(width: Spacing.component),
               Expanded(
                 child: Text(
                   l10n.editTransactionAction,
@@ -718,7 +653,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                   borderRadius: BorderRadius.circular(Rounded.md),
                   onTap: () => _openField(_EditField.amount),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    padding: const EdgeInsets.symmetric(vertical: Spacing.xxs),
                     child: Text(
                       amountText,
                       textAlign: TextAlign.center,
@@ -734,20 +669,23 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           const SizedBox(height: Spacing.sm),
           ListenableBuilder(
             listenable: _nameFocusNode,
-            builder: (context, child) => Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                horizontal: Spacing.md,
-                vertical: Spacing.sm,
+            builder: (context, child) => DashedBorder(
+              radius: Rounded.lg,
+              color: _nameFocusNode.hasFocus
+                  ? colors.primary
+                  : colors.transparent,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Spacing.md,
+                  vertical: Spacing.sm,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainer,
+                  borderRadius: BorderRadius.circular(Rounded.lg),
+                ),
+                child: child,
               ),
-              decoration: BoxDecoration(
-                color: colors.surfaceContainer,
-                borderRadius: BorderRadius.circular(Rounded.lg),
-                border: _nameFocusNode.hasFocus
-                    ? Border.all(color: colors.primary, width: 2)
-                    : null,
-              ),
-              child: child,
             ),
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -774,6 +712,8 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                           key: const Key('txNameField'),
                           controller: _nameController,
                           focusNode: _nameFocusNode,
+                          maxLength: maxTransactionDescriptionLength,
+                          buildCounter: nearLimitCounter,
                           textCapitalization: TextCapitalization.sentences,
                           onChanged: (value) =>
                               _viewModel(ref).updateDescription(value),
@@ -802,7 +742,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           ),
           const SizedBox(height: Spacing.sm),
           EditFieldRow(
-            icon: Icons.calendar_today_outlined,
+            icon: AppIcons.calendar,
             label: l10n.date,
             value: dateLabel,
             onTap: () => _editDate(formState),
@@ -824,7 +764,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               child: Row(
                 children: [
                   FieldBadge(
-                    icon: Icons.notes_outlined,
+                    icon: AppIcons.note,
                     color: colors.onSurfaceVariant,
                   ),
                   const SizedBox(width: Spacing.sm),
@@ -842,6 +782,8 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                         TextField(
                           controller: _noteController,
                           focusNode: _noteFocusNode,
+                          maxLength: maxTransactionNoteLength,
+                          buildCounter: nearLimitCounter,
                           textCapitalization: TextCapitalization.sentences,
                           onChanged: (value) =>
                               _viewModel(ref).updateNote(value),
@@ -865,9 +807,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           const SizedBox(height: Spacing.md),
           Row(
             children: [
-              // As close to equal width as "Save changes" (the longer
-              // label) allows without wrapping - Cancel and Save carry the
-              // same hierarchy, so neither should dominate the other.
+              // Cancel and Save get (nearly) equal widths.
               Expanded(
                 flex: 5,
                 child: TextButton(
@@ -896,8 +836,8 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                   onPressed: _saveChanges,
                   compact: true,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 14,
+                    horizontal: Spacing.xxs,
+                    vertical: Spacing.sm,
                   ),
                 ),
               ),
@@ -930,14 +870,13 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
         children: [
           Row(
             children: [
-              IconButton(
+              // A 48dp disc, so the back target is big enough to hit.
+              CircleIconButton(
                 tooltip: l10n.back,
                 onPressed: () => _handleFieldBack(field),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: const Icon(Icons.chevron_left_rounded),
+                child: const Icon(AppIcons.back),
               ),
-              const SizedBox(width: Spacing.xs),
+              const SizedBox(width: Spacing.component),
               Text(_fieldTitle(field, l10n), style: context.headlineLgStrong),
             ],
           ),
@@ -948,9 +887,6 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               formState,
               currency.code,
             ),
-            _EditField.name => _buildTextEditor(_nameController, _confirmName),
-            _EditField.note => _buildTextEditor(_noteController, _confirmNote),
-            _EditField.type => _buildTypeEditor(context, formState),
             _EditField.category => _buildCategoryEditor(
               context,
               formState,
@@ -979,7 +915,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final sign = isIncome ? '+' : '-';
     final displayValue = cents == null
         ? '$sign${_amountController.text}'
-        : '$sign${formatCents(cents, currencyCode: currencyCode)}';
+        : '$sign${formatCents(cents, locale: moneyLocale(context), currencyCode: currencyCode)}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1024,53 +960,6 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     );
   }
 
-  Widget _buildTextEditor(
-    TextEditingController controller,
-    VoidCallback onConfirm,
-  ) {
-    final l10n = AppLocalizations.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextField(
-          controller: controller,
-          autofocus: true,
-          textCapitalization: TextCapitalization.sentences,
-          onSubmitted: (_) => onConfirm(),
-        ),
-        const SizedBox(height: Spacing.md),
-        DashedStitchButton(label: l10n.done, onPressed: onConfirm),
-      ],
-    );
-  }
-
-  Widget _buildTypeEditor(
-    BuildContext context,
-    TransactionFormState formState,
-  ) {
-    final l10n = AppLocalizations.of(context);
-
-    return RadioGroup<TransactionType>(
-      groupValue: formState.type,
-      onChanged: (value) {
-        if (value != null) _selectType(value);
-      },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: TransactionType.values
-            .map(
-              (t) => RadioListTile<TransactionType>(
-                title: Text(t.label(l10n)),
-                value: t,
-                contentPadding: EdgeInsets.zero,
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-
   Widget _buildCategoryEditor(
     BuildContext context,
     TransactionFormState formState,
@@ -1091,7 +980,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           ),
           ...categories.map(
             (c) => RadioListTile<int?>(
-              title: Text(c.isDefault ? c.type.label(l10n) : c.name),
+              title: Text(c.displayName(l10n)),
               value: c.id,
               contentPadding: EdgeInsets.zero,
             ),
@@ -1100,70 +989,6 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
       ),
     );
   }
-}
-
-/// The category-icon badge leading the view screen's header - a dashed
-/// ring around a tinted circle, the same "physical token" language as the
-/// app's other dashed-stitch accents, colored by income/expense like the
-/// amount itself.
-class _DashedCircleBadge extends StatelessWidget {
-  const _DashedCircleBadge({required this.icon, required this.color});
-
-  final IconData icon;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 56,
-      height: 56,
-      child: CustomPaint(
-        painter: _DashedCirclePainter(color: color),
-        child: Center(
-          child: Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: IconSize.xl, color: color),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _DashedCirclePainter extends CustomPainter {
-  const _DashedCirclePainter({required this.color});
-
-  final Color color;
-
-  static const _dashLength = 4.0;
-  static const _gapLength = 3.0;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final path = Path()..addOval(Rect.fromLTWH(0, 0, size.width, size.height));
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.6)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5;
-
-    for (final metric in path.computeMetrics()) {
-      var distance = 0.0;
-      while (distance < metric.length) {
-        final next = (distance + _dashLength).clamp(0.0, metric.length);
-        canvas.drawPath(metric.extractPath(distance, next), paint);
-        distance = next + _gapLength;
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DashedCirclePainter oldDelegate) =>
-      color != oldDelegate.color;
 }
 
 /// One icon-badge row inside the view screen's grouped Date/Wallet/Note
@@ -1314,9 +1139,7 @@ class _NumpadKey extends StatelessWidget {
   }
 }
 
-/// "10.00" -> "10", "10.50" -> "10.5", "10.25" -> "10.25" - so the amount
-/// keypad (max two decimals) has room to keep typing straight away. The
-/// value is the same either way.
+/// "10.00" -> "10", "10.50" -> "10.5", so the keypad can keep typing.
 String _trimTrailingZeros(String amount) {
   if (!amount.contains('.')) return amount;
   final trimmed = amount.replaceFirst(RegExp(r'0+$'), '');

@@ -1,5 +1,7 @@
 import 'package:logging/logging.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:waldo/core/utils/clock.dart';
+import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
@@ -68,6 +70,11 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
     state = snapshot;
   }
 
+  Future<int?> _othersCategoryId() async {
+    final categories = await ref.read(categoryRepositoryProvider.future);
+    return (await categories.getOthers()).id;
+  }
+
   Future<bool> save(Transaction? existingTransaction) async {
     final walletId = state.walletId;
     final date = state.date;
@@ -77,6 +84,8 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
     if (amountInCents == null || amountInCents <= 0) return false;
 
     final repo = await ref.read(transactionRepositoryProvider.future);
+    // No category picked lands in "Others", the one home for the uncategorized.
+    final categoryId = state.categoryId ?? await _othersCategoryId();
     final description = state.description.trim();
     final note = state.note.trim();
 
@@ -84,7 +93,7 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
       await repo.update(
         existingTransaction.copyWith(
           walletId: walletId,
-          categoryId: state.categoryId,
+          categoryId: categoryId,
           amount: amountInCents,
           type: state.type,
           date: date.toIso8601String(),
@@ -96,13 +105,13 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
       await repo.insert(
         Transaction(
           walletId: walletId,
-          categoryId: state.categoryId,
+          categoryId: categoryId,
           amount: amountInCents,
           type: state.type,
           date: date.toIso8601String(),
           description: description.isEmpty ? null : description,
           note: note.isEmpty ? null : note,
-          createdAt: DateTime.now().toIso8601String(),
+          createdAt: ref.read(clockProvider)().toIso8601String(),
         ),
       );
     }

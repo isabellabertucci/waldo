@@ -7,8 +7,8 @@ description: >
   all. The only hue in the system is a single burnt orange, reserved
   exclusively for errors and negative/expense amounts, so it reads as a true
   signal rather than decoration. Shapes lean soft and pill-like (stadium
-  buttons, large-radius cards), type is Inter with tight negative tracking on
-  display text, and the one piece of "material" flourish - a leather wallet
+  buttons, large-radius cards), type is the platform's system font (SF Pro
+  on iOS, Roboto on Android) with tight negative tracking on display text, and the one piece of "material" flourish - a leather wallet
   card with a metallic finish - is deliberately fixed (dark ink + cream)
   across both themes, because a physical wallet doesn't change color when
   the room lights dim.
@@ -41,121 +41,121 @@ colors:
   field-border-dark: "#353330"
 typography:
   headline-display:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 32px
     fontWeight: 500
     lineHeight: 1.15
     letterSpacing: -0.64px
   headline-lg:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 22px
     fontWeight: 500
     lineHeight: 1.2
     letterSpacing: -0.44px
   headline-md:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 16px
     fontWeight: 500
     lineHeight: 1.2
     letterSpacing: -0.32px
   body-lg:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 16px
     fontWeight: 400
     lineHeight: 1.4
     letterSpacing: -0.08px
   body-md:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 14px
     fontWeight: 400
     lineHeight: 1.4
     letterSpacing: -0.07px
   body-sm:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 12px
     fontWeight: 400
     lineHeight: 1.4
     letterSpacing: -0.06px
   label-lg:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 14px
     fontWeight: 500
     lineHeight: 1.1
     letterSpacing: -0.42px
   label-md:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 12px
     fontWeight: 500
     lineHeight: 1.1
     letterSpacing: -0.36px
   label-sm:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 11px
     fontWeight: 500
     lineHeight: 1.1
     letterSpacing: -0.33px
   label-xs:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 11px
     fontWeight: 600
     lineHeight: 1.1
     letterSpacing: 0.4px
   body-md-strong:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 14px
     fontWeight: 600
     lineHeight: 1.4
     letterSpacing: -0.07px
   body-md-bold:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 14px
     fontWeight: 700
     lineHeight: 1.4
     letterSpacing: -0.07px
   body-sm-bold:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 12px
     fontWeight: 700
     lineHeight: 1.4
     letterSpacing: -0.06px
   label-lg-strong:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 14px
     fontWeight: 700
     lineHeight: 1.1
     letterSpacing: -0.42px
   label-sm-bold:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 11px
     fontWeight: 700
     lineHeight: 1.1
     letterSpacing: -0.33px
   headline-md-strong:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 16px
     fontWeight: 600
     lineHeight: 1.2
     letterSpacing: -0.32px
   headline-lg-strong:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 22px
     fontWeight: 800
     lineHeight: 1.2
     letterSpacing: -0.44px
   headline-sm-bold:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 24px
     fontWeight: 800
     lineHeight: 1.2
     letterSpacing: -0.48px
   amount-display-bold:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 28px
     fontWeight: 800
     lineHeight: 1.2
     letterSpacing: -0.56px
   headline-display-strong:
-    fontFamily: Inter
+    fontFamily: system-ui
     fontSize: 28px
     fontWeight: 900
     lineHeight: 1.1
@@ -280,8 +280,7 @@ leather wallet doesn't change color because the room got darker.
 - **Primary Strong (`#000000` light / `#FFFFFF` dark):** A punchier tonal
   step beyond `primary` for the few places that need to read as the single
   most emphasized thing on a plain surface - income amounts, the chart's
-  income series, the dashboard's "see all" link, and the date picker's
-  "today" marker. It's the same ink/cream hue family as `primary`, just
+  income series, and the date picker's "today" marker. It's the same ink/cream hue family as `primary`, just
   pushed to the far end (pure black / pure white) rather than a new color,
   which keeps Waldo's "almost no color" rule intact while still giving these
   specific moments real visual weight. It's a token for *emphasis on a plain
@@ -301,7 +300,8 @@ leather wallet doesn't change color because the room got darker.
 
 ## Typography
 
-Everything is set in **Inter**. The base system has two weights - `500` for
+Everything is set in the **platform's system font** - SF Pro on iOS, Roboto
+on Android - so nothing is bundled or downloaded. The base system has two weights - `500` for
 anything that reads as a heading/label (with tight, slightly negative
 tracking), and `400` for body copy (with a touch of negative tracking to
 compensate for the lack of a true 450 weight) - plus four heavier "strong"
@@ -362,6 +362,13 @@ as too loose. `page-margin` (24px) is the fixed side margin on every screen.
 Every screen uses the same 24px outer gutter; nothing goes full-bleed except
 photographic wallet-card textures and chart canvases.
 
+Round icon discs (badges) beside a label come in three sizes, `BadgeSize`
+in `core/theme/badge_size.dart`: `sm` 28 (category chips in the
+transaction form), `md` 36 (form fields, option tiles, category and list
+rows) and `lg` 40 (settings rows, option-sheet rows, transaction rows).
+A divider that starts under a row's title indents by row padding +
+badge + gap, so it moves with the badge.
+
 ## Elevation & Depth
 
 Waldo is almost entirely flat - most surfaces sit directly on the page with
@@ -394,12 +401,32 @@ small and large tiers so the UI reads as either "a small control" or
 
 The middle ground most systems have (8-16px) is intentionally absent.
 
+## Borders
+
+**Stitch, never solid.** Waldo draws borders as a dashed stitch, the leather
+wallet motif, with `DashedBorder` (`core/widgets/dashed_border.dart`).
+
+- **Selected and focused** states use an ink stitch (`primary`).
+- **Outlines and placeholders** use a faint stitch (`on-surface-variant` at low
+  alpha).
+- Nothing has a border at rest unless it is a placeholder.
+- **Sheets and dialogs have no frame stitch.** The stitch marks what's selected
+  inside them, so a stitched frame would compete with it.
+- **Errors are the one solid border** (`error`), so a broken field differs from a
+  selected one by line as well as color.
+
 ## Components
 
 - **Buttons (primary):** `primary`-filled pill, `on-primary` text, `label-lg-strong`
   typography, `rounded.md`, 16px padding.
+- **Buttons (secondary):** `SecondaryButton` - no fill, on the page and on
+  sheets alike; `on-surface` text in `body-md-strong`, 12px x 4px padding that
+  keeps the tap target and the `rounded.pill` press ripple. For
+  low-emphasis actions beside a section title ("See all", "Manage categories").
 - **Cards:** `surface`-filled, `rounded.lg`, no elevation unless grouping
   list rows (see Elevation: Low).
+- **Sheets:** every bottom sheet keeps a 24px (`md`) side margin, form or
+  list alike, so content never runs to the sheet's edge.
 - **Input fields:** `field-fill` background (never tinted toward the cream
   palette), `field-border` outline, `rounded.md`, `body-md` typography,
   2px `primary` border when focused, `error` border (1.5-2px) in an error
@@ -494,13 +521,12 @@ The middle ground most systems have (8-16px) is intentionally absent.
   `Spacing.xxs`/`.component` happened for the clearest cases but not
   exhaustively, so turning that
   check on now would fail on real, not-yet-reconciled call sites.
-- **`_DashedCircleBadge` (confirmation_dialog.dart) vs. `PouchBorder`
-  (pouch_shape.dart) vs. `transaction_edit_sheet.dart`'s own dashed
-  painter.** Found via code-review during Phase 2, not in the original
-  audit. All three paint a dashed stroke along a path, but for visually
-  different shapes (a stitched pill border vs. a circular badge ring) -
-  merging them risks a real visual regression without case-by-case
-  verification, so this was logged rather than merged. A shared
+- **`DashedCircleBadge` (dashed_circle_badge.dart) vs. `PouchBorder`
+  (pouch_shape.dart) vs. `DashedBorder` (dashed_border.dart).** The
+  confirm dialog and the transaction view now share one
+  `DashedCircleBadge`, but the three widgets still each carry their own
+  dash-along-path loop, for visually different shapes (a circular badge
+  ring, the pouch outline, a stitched rounded rect). A shared
   "dash-along-path" math helper (not a shared widget) is the likely right
   shape for a future fix.
 - **Figma:** no Figma file yet (Phase 4 of the design-system spec).

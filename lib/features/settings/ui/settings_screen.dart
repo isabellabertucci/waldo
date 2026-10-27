@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
 import 'package:waldo/features/preferences/currency_x.dart';
 import 'package:waldo/features/preferences/models/preferences.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
@@ -23,15 +26,33 @@ class SettingsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
 
+    // Same header as Wallets, so the title shares the page gutter.
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.settings)),
-      body: switch (preferencesAsync) {
-        AsyncValue(:final value?) => _SettingsBody(preferences: value),
-        AsyncValue(hasError: true) => Center(
-          child: Text(l10n.preferencesError),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                Spacing.pageMargin,
+                Spacing.xs,
+                Spacing.pageMargin,
+                0,
+              ),
+              child: Text(l10n.settings, style: context.headlineSmBold),
+            ),
+            Expanded(
+              child: switch (preferencesAsync) {
+                AsyncValue(:final value?) => _SettingsBody(preferences: value),
+                AsyncValue(hasError: true) => Center(
+                  child: Text(l10n.preferencesError),
+                ),
+                _ => const Center(child: CircularProgressIndicator()),
+              },
+            ),
+          ],
         ),
-        _ => const Center(child: CircularProgressIndicator()),
-      },
+      ),
     );
   }
 }
@@ -55,6 +76,10 @@ class _SettingsBody extends ConsumerWidget {
     final viewModel = ref.read(preferencesViewModelProvider.notifier);
     final walletsAsync = ref.watch(walletListViewModelProvider());
     final isBalanceHidden = ref.watch(balanceHiddenProvider);
+    final categoryCount = switch (ref.watch(categoryListViewModelProvider)) {
+      AsyncValue(:final value?) => '${value.length}',
+      _ => '',
+    };
     final totalBalance = switch (walletsAsync) {
       AsyncValue(:final value?) => value.fold<int>(
         0,
@@ -73,7 +98,7 @@ class _SettingsBody extends ConsumerWidget {
         SettingsCard(
           children: [
             SettingsRow(
-              icon: Icons.attach_money,
+              icon: AppIcons.currency,
               title: l10n.currency,
               subtitle: l10n.currencyRowSubtitle,
               value: preferences.currency.code,
@@ -87,14 +112,26 @@ class _SettingsBody extends ConsumerWidget {
               ),
             ),
             SettingsRow(
-              icon: Icons.calendar_today_outlined,
+              icon: AppIcons.calendar,
               title: l10n.dateFormat,
               subtitle: l10n.dateFormatRowSubtitle,
               value: DateFormat(
                 preferences.dateFormat,
               ).format(ref.watch(clockProvider)()),
-              onTap: () =>
-                  _showDateFormatSheet(context, l10n, viewModel, preferences),
+              onTap: () => _showDateFormatSheet(
+                context,
+                l10n,
+                viewModel,
+                preferences,
+                ref.read(clockProvider)(),
+              ),
+            ),
+            // Categories also live here, not only behind the transaction form.
+            SettingsRow(
+              icon: AppIcons.categoryGeneric,
+              title: l10n.categories,
+              value: categoryCount,
+              onTap: () => const CategoriesRoute().push(context),
             ),
           ],
         ),
@@ -105,7 +142,7 @@ class _SettingsBody extends ConsumerWidget {
         SettingsCard(
           children: [
             SettingsRow(
-              icon: Icons.dark_mode_outlined,
+              icon: AppIcons.theme,
               title: l10n.theme,
               value: _themeLabel(l10n, preferences.isDarkMode),
               onTap: () =>
@@ -150,17 +187,17 @@ class _SettingsBody extends ConsumerWidget {
           SettingsOption(
             label: l10n.themeSystem,
             value: null,
-            icon: Icons.brightness_auto_outlined,
+            icon: AppIcons.themeSystem,
           ),
           SettingsOption(
             label: l10n.themeLight,
             value: false,
-            icon: Icons.light_mode_outlined,
+            icon: AppIcons.themeLight,
           ),
           SettingsOption(
             label: l10n.themeDark,
             value: true,
-            icon: Icons.dark_mode_outlined,
+            icon: AppIcons.themeDark,
           ),
         ],
         onConfirm: (value) =>
@@ -190,12 +227,10 @@ class _SettingsBody extends ConsumerWidget {
             .map(
               (currency) => SettingsOption(
                 label: currency.fullName(l10n),
-                // Same actual balance under every option, just reformatted
-                // with that currency's own symbol - proof, not just a
-                // claim, that picking one here doesn't convert anything.
+                // The same balance in each currency - showing nothing gets converted.
                 subtitle:
                     '${currency.code} · '
-                    '${isBalanceHidden ? hiddenAmount : formatCents(totalBalance, currencyCode: currency.code)}',
+                    '${isBalanceHidden ? hiddenAmount : formatCents(totalBalance, locale: moneyLocale(context), currencyCode: currency.code)}',
                 value: currency,
                 symbolText: currency.symbol,
               ),
@@ -212,8 +247,8 @@ class _SettingsBody extends ConsumerWidget {
     AppLocalizations l10n,
     PreferencesViewModel viewModel,
     Preferences preferences,
+    DateTime now,
   ) {
-    final now = DateTime.now();
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
@@ -226,17 +261,17 @@ class _SettingsBody extends ConsumerWidget {
           SettingsOption(
             label: DateFormat('dd/MM/yyyy').format(now),
             value: 'dd/MM/yyyy',
-            icon: Icons.calendar_today_outlined,
+            icon: AppIcons.calendar,
           ),
           SettingsOption(
             label: DateFormat('MM/dd/yyyy').format(now),
             value: 'MM/dd/yyyy',
-            icon: Icons.calendar_today_outlined,
+            icon: AppIcons.calendar,
           ),
           SettingsOption(
             label: DateFormat('yyyy-MM-dd').format(now),
             value: 'yyyy-MM-dd',
-            icon: Icons.calendar_today_outlined,
+            icon: AppIcons.calendar,
           ),
         ],
         onConfirm: (value) => _savePreference(

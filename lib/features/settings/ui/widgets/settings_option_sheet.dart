@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/sheet_grabber.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
-/// One choice in a [SettingsOptionSheet] - either [icon] or [symbolText] is
-/// given, never both: an [IconData] for most pickers (theme, date format),
-/// or a currency symbol ("$", "€"...) where a generic icon wouldn't tell
-/// the options apart.
+/// One choice in a [SettingsOptionSheet]: either an [icon] or a [symbolText].
 class SettingsOption<T> {
   const SettingsOption({
     required this.value,
@@ -31,13 +30,7 @@ class SettingsOption<T> {
   final String? symbolText;
 }
 
-/// Floating bottom sheet shared by every settings picker (theme, currency,
-/// date format) - a dashed-stitch card in the app's own surface/on-surface
-/// tokens, so it reads as a light card in light mode and a dark one in
-/// dark mode, same as every other sheet - only the orange accent (used for
-/// the selected option and the Done button) stays constant across both. A
-/// choice only takes effect when "Done" is pressed, not the instant a row
-/// is tapped, so picking the wrong row by accident is still recoverable.
+/// The bottom sheet for every settings picker. A choice only applies on "Done".
 class SettingsOptionSheet<T> extends StatefulWidget {
   const SettingsOptionSheet({
     required this.title,
@@ -74,94 +67,68 @@ class _SettingsOptionSheetState<T> extends State<SettingsOptionSheet<T>> {
         ),
         child: DecoratedBox(
           decoration: BoxDecoration(color: colors.surface),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: CustomPaint(
-                    painter: _DashedBorderPainter(
-                      color: colors.onSurface,
-                      radius: Rounded.lg,
-                    ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: Spacing.sm),
+                const SheetGrabber(),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    Spacing.md,
+                    Spacing.md,
+                    Spacing.md,
+                    Spacing.lg,
                   ),
-                ),
-              ),
-              SafeArea(
-                top: false,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: Spacing.sm),
-                    Container(
-                      width: 36,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: colors.onSurfaceVariant.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(Rounded.pill),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        Spacing.lg,
-                        Spacing.md,
-                        Spacing.lg,
-                        Spacing.lg,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  widget.title,
-                                  style: context.headlineSmBold.copyWith(
-                                    color: colors.onSurface,
-                                  ),
-                                ),
-                              ),
-                              const SheetCloseButton(),
-                            ],
-                          ),
-                          const SizedBox(height: Spacing.md),
-                          for (var i = 0; i < widget.options.length; i++) ...[
-                            if (i > 0) const SizedBox(height: Spacing.sm),
-                            _OptionRow<T>(
-                              option: widget.options[i],
-                              selected: widget.options[i].value == _selected,
-                              onTap: () => setState(
-                                () => _selected = widget.options[i].value,
+                          Expanded(
+                            child: Text(
+                              widget.title,
+                              style: context.headlineSmBold.copyWith(
+                                color: colors.onSurface,
                               ),
                             ),
-                          ],
-                          if (widget.notice != null) ...[
-                            const SizedBox(height: Spacing.md),
-                            _NoticeBox(text: widget.notice!),
-                          ],
-                          const SizedBox(height: Spacing.lg),
-                          // The app's own "main action" pill - solid
-                          // `primary` (ink black in light mode, cream in
-                          // dark) with the same dashed stitch as the
-                          // navbar's active tab and the wallet card's own
-                          // border, not a one-off orange fill.
-                          SizedBox(
-                            width: double.infinity,
-                            child: DashedStitchButton(
-                              label: l10n.done,
-                              onPressed: () {
-                                widget.onConfirm(_selected);
-                                Navigator.of(context).pop();
-                              },
-                            ),
                           ),
+                          const SheetCloseButton(),
                         ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: Spacing.md),
+                      for (var i = 0; i < widget.options.length; i++) ...[
+                        if (i > 0) const SizedBox(height: Spacing.sm),
+                        _OptionRow<T>(
+                          option: widget.options[i],
+                          selected: widget.options[i].value == _selected,
+                          onTap: () => setState(
+                            () => _selected = widget.options[i].value,
+                          ),
+                        ),
+                      ],
+                      if (widget.notice != null) ...[
+                        const SizedBox(height: Spacing.md),
+                        _NoticeBox(text: widget.notice!),
+                      ],
+                      const SizedBox(height: Spacing.lg),
+                      SizedBox(
+                        width: double.infinity,
+                        child: DashedStitchButton(
+                          label: l10n.done,
+                          onPressed: () {
+                            widget.onConfirm(_selected);
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -214,18 +181,14 @@ class _OptionRow<T> extends StatelessWidget {
                 child: Row(
                   children: [
                     Container(
-                      width: 40,
-                      height: 40,
+                      width: BadgeSize.lg,
+                      height: BadgeSize.lg,
                       decoration: BoxDecoration(
                         color: badgeColor,
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
-                      // Selected: `onPrimary` on the solid `primary` fill - the
-                      // same ink/cream pair as the Done button.
-                      // Unselected: the adaptive muted text color, since the
-                      // badge itself is a neutral, theme-aware fill
-                      // (`fieldFill`).
+                      // Selected: `onPrimary` on `primary`; unselected: muted on a neutral fill.
                       child: option.symbolText != null
                           ? Text(
                               option.symbolText!,
@@ -335,11 +298,8 @@ class _NoticeBox extends StatelessWidget {
   }
 }
 
-/// Dashed stitch border, matching the balance card's own [PouchBorder] -
-/// the same visual family, just a plain rounded rect instead of the pouch
-/// silhouette (a sheet has no dip notch to trace). `opaque` draws a
-/// brighter, more solid-reading stitch for a selected option row, where it
-/// needs to read as an active highlight rather than decoration.
+/// A dashed stitch around a rounded rect; [opaque] makes it stronger, for the
+/// selected row.
 class _DashedBorderPainter extends CustomPainter {
   const _DashedBorderPainter({
     required this.color,

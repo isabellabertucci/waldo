@@ -24,7 +24,7 @@ class WalletsCardStack extends StatelessWidget {
     required this.wallets,
     required this.currency,
     required this.isBalanceHidden,
-    required this.savedPercent,
+    required this.keptPercent,
     required this.onTapWallet,
     required this.onEditWallet,
     required this.onDeleteWallet,
@@ -33,7 +33,7 @@ class WalletsCardStack extends StatelessWidget {
   final List<Wallet> wallets;
   final Currency currency;
   final bool isBalanceHidden;
-  final double? savedPercent;
+  final double? keptPercent;
   final ValueChanged<Wallet> onTapWallet;
   final ValueChanged<Wallet> onEditWallet;
   final ValueChanged<Wallet> onDeleteWallet;
@@ -49,19 +49,19 @@ class WalletsCardStack extends StatelessWidget {
     );
     final totalText = isBalanceHidden
         ? hiddenAmount
-        : formatCents(totalBalance, currencyCode: currency.code);
-    final roundedPercent = savedPercent?.round();
+        : formatCents(
+            totalBalance,
+            locale: moneyLocale(context),
+            currencyCode: currency.code,
+          );
+    final roundedPercent = keptPercent?.round();
     final isOverspent = roundedPercent != null && roundedPercent < 0;
     final captionText = switch (roundedPercent) {
       null => l10n.walletsCountLabel(n),
       final p when p < 0 => l10n.overspentPercentThisMonth('${-p}%'),
-      final p => l10n.savedPercentThisMonth('$p%'),
+      final p => l10n.keptPercentThisMonth('$p%'),
     };
 
-    // Not reversed, and not pinned outside the scroll either - Total
-    // Balance is just the first thing in normal top-to-bottom order, so
-    // it's visible immediately on load without needing any fixed/sticky
-    // treatment, and still scrolls away naturally like everything else.
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(
         Spacing.pageMargin,
@@ -154,7 +154,11 @@ class _WalletCard extends StatelessWidget {
     final isNegative = wallet.currentBalance < 0;
     final balanceText = isBalanceHidden
         ? hiddenAmount
-        : formatCents(wallet.currentBalance, currencyCode: currency.code);
+        : formatCents(
+            wallet.currentBalance,
+            locale: moneyLocale(context),
+            currencyCode: currency.code,
+          );
 
     return Material(
       borderRadius: BorderRadius.circular(Rounded.lg),
@@ -170,11 +174,7 @@ class _WalletCard extends StatelessWidget {
             ),
           ),
 
-          // A soft shadow along the top edge - every card here sits in
-          // front of the one before it, so this reads as depth at the
-          // seam instead of each card looking like a flat layer pasted
-          // on top of the last. Lighter than on the old dark cards - the
-          // same strength would read as a smudge on these light metals.
+          // A soft shadow along the top edge, for depth where the cards overlap.
           Positioned(
             top: 0,
             left: 0,
@@ -216,76 +216,74 @@ class _WalletCard extends StatelessWidget {
                 ),
               ),
             ),
-          InkWell(
-            onTap: onTap,
-            splashColor: walletCardInkColor(context, alpha: 0.12),
-            highlightColor: walletCardInkColor(context, alpha: 0.08),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Spacing.sm,
-                Spacing.md,
-                Spacing.sm,
-                Spacing.sm,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    // Clears the kebab button overlaid in the corner, so a
-                    // long name ellipsizes before running under it instead
-                    // of behind it.
-                    padding: const EdgeInsets.only(right: 36),
-                    child: Text(
-                      wallet.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.headlineLgStrong.copyWith(
-                        color: walletCardInkColor(context, alpha: 1),
-                        shadows: walletCardTextShadow,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: Spacing.xs),
-                  Row(
-                    children: [
-                      Icon(
-                        wallet.type.icon,
-                        size: IconSize.sm,
-                        color: walletCardInkColor(context, alpha: 0.6),
-                      ),
-                      const SizedBox(width: Spacing.xs),
-                      Expanded(
-                        child: Text(
-                          wallet.type.label(l10n),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: walletCardInkColor(context, alpha: 0.6),
-                            shadows: walletCardTextShadow,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: Spacing.sm),
-                      Text(
-                        balanceText,
+          // Fill the card, so a tap anywhere on it opens the wallet, not just on the text.
+          Positioned.fill(
+            child: InkWell(
+              onTap: onTap,
+              splashColor: walletCardInkColor(context, alpha: 0.12),
+              highlightColor: walletCardInkColor(context, alpha: 0.08),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  Spacing.sm,
+                  Spacing.md,
+                  Spacing.sm,
+                  Spacing.sm,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      // Leaves room for the menu button, so long names ellipsize before it.
+                      padding: const EdgeInsets.only(right: 36),
+                      child: Text(
+                        wallet.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        // titleMedium+w800 is a one-off here, not
-                        // headline-md-strong (titleMedium+w600) - this is
-                        // the wallet card's own balance figure, a step
-                        // heavier than the section-header use of titleMedium.
-                        style: context.textTheme.titleMedium?.copyWith(
-                          color: isNegative && !isBalanceHidden
-                              ? walletCardNegativeColor(context)
-                              : walletCardInkColor(context, alpha: 1),
-                          fontWeight: FontWeight.w800,
+                        style: context.headlineLgStrong.copyWith(
+                          color: walletCardInkColor(context, alpha: 1),
                           shadows: walletCardTextShadow,
                         ),
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: Spacing.xs),
+                    Row(
+                      children: [
+                        Icon(
+                          wallet.type.icon,
+                          size: IconSize.sm,
+                          color: walletCardInkColor(context, alpha: 0.6),
+                        ),
+                        const SizedBox(width: Spacing.xs),
+                        Expanded(
+                          child: Text(
+                            wallet.type.label(l10n),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.textTheme.bodySmall?.copyWith(
+                              color: walletCardInkColor(context, alpha: 0.6),
+                              shadows: walletCardTextShadow,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: Spacing.sm),
+                        Text(
+                          balanceText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          // one-off: titleMedium + w800 for the card's balance figure.
+                          style: context.textTheme.titleMedium?.copyWith(
+                            color: isNegative && !isBalanceHidden
+                                ? walletCardNegativeColor(context)
+                                : walletCardInkColor(context, alpha: 1),
+                            fontWeight: FontWeight.w800,
+                            shadows: walletCardTextShadow,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -300,9 +298,7 @@ class _WalletCard extends StatelessWidget {
   }
 }
 
-/// The edit/delete overflow menu, now a real sibling in the top Row
-/// instead of an absolutely-`Positioned` overlay guessed into alignment
-/// with it.
+/// The card's edit/delete menu.
 class _CardMenuButton extends StatelessWidget {
   const _CardMenuButton({required this.onEdit, required this.onDelete});
 

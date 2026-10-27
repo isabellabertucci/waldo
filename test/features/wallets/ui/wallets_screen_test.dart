@@ -135,7 +135,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 250));
 
-      expect(find.text('Test Wallet'), findsNothing);
+      expect(textOutsideSnackBar('Test Wallet'), findsNothing);
       expect(find.text('Wallet deleted'), findsOneWidget);
       expect(find.text('Undo'), findsOneWidget);
 
@@ -152,7 +152,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 250));
 
-    expect(find.text('Test Wallet'), findsNothing);
+    expect(textOutsideSnackBar('Test Wallet'), findsNothing);
 
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
@@ -174,13 +174,13 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 250));
 
-      expect(find.text('Test Wallet'), findsNothing);
+      expect(textOutsideSnackBar('Test Wallet'), findsNothing);
 
       await tester.pump(const Duration(seconds: 6));
 
       await pumpWalletsScreen(tester, db: currentDb);
 
-      expect(find.text('Test Wallet'), findsNothing);
+      expect(textOutsideSnackBar('Test Wallet'), findsNothing);
       expect(find.text('No wallets yet'), findsOneWidget);
     },
   );
@@ -195,9 +195,7 @@ void main() {
     await createWallet(tester, 'Fourth');
     await createWallet(tester, 'Fifth');
 
-    // All 5 wallet names exist in the widget tree (the stack lays every
-    // card out, even the ones scrolled out of the visible viewport) -
-    // this is the "more than 3 cards disappear" regression check.
+    // Every card is built, even off-screen ones (the "cards past 3 vanish" bug).
     expect(find.text('First'), findsOneWidget);
     expect(find.text('Second'), findsOneWidget);
     expect(find.text('Third'), findsOneWidget);
