@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/stitch.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/utils/dash_path.dart';
@@ -14,14 +16,15 @@ class DashedCircleBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 56,
-      height: 56,
+      // The ring sits a component gap outside the disc.
+      width: BadgeSize.xl + Spacing.component,
+      height: BadgeSize.xl + Spacing.component,
       child: CustomPaint(
         painter: _DashedCirclePainter(color: color),
         child: Center(
           child: Container(
-            width: 44,
-            height: 44,
+            width: BadgeSize.xl,
+            height: BadgeSize.xl,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,

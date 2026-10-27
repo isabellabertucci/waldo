@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/constants/enums.dart';
@@ -14,9 +15,6 @@ import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/features/transactions/transactions_x.dart';
 
 import '../../models/dashboard_data.dart';
-
-/// The receipt is narrower than the wallet card above it.
-const _receiptWidth = 300.0;
 
 // The receipt keeps its own tighter, printed-paper rhythm instead of the
 // page scale: these are tuned to look like a till slip.
@@ -88,7 +86,7 @@ class DashboardReceipt extends StatelessWidget {
 
     return Center(
       child: SizedBox(
-        width: _receiptWidth,
+        width: ComponentSize.receiptWidth,
         child: Column(
           children: [
             Material(
@@ -214,7 +212,10 @@ class DashboardReceipt extends StatelessWidget {
             ),
             ClipPath(
               clipper: const ReceiptZigzagClipper(),
-              child: Container(height: 16, color: colors.surface),
+              child: Container(
+                height: ComponentSize.receiptTear,
+                color: colors.surface,
+              ),
             ),
           ],
         ),
@@ -237,7 +238,7 @@ class _NoWalletReceipt extends StatelessWidget {
 
     return Center(
       child: SizedBox(
-        width: _receiptWidth,
+        width: ComponentSize.receiptWidth,
         child: Column(
           children: [
             Material(
@@ -273,7 +274,10 @@ class _NoWalletReceipt extends StatelessWidget {
             ),
             ClipPath(
               clipper: const ReceiptZigzagClipper(),
-              child: Container(height: 16, color: colors.surface),
+              child: Container(
+                height: ComponentSize.receiptTear,
+                color: colors.surface,
+              ),
             ),
           ],
         ),

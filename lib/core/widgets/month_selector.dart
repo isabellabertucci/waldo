@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:waldo/core/theme/badge_size.dart';
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/motion.dart';
 import 'package:flutter/rendering.dart';
@@ -11,8 +12,7 @@ import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
 const _chevronHitSize = kMinInteractiveDimension;
-const _chevronDiscSize = 22.0; // one-off: a small hint, not a main control
-const _chevronOverhang = (_chevronHitSize - _chevronDiscSize) / 2;
+const _chevronOverhang = (_chevronHitSize - BadgeSize.xs) / 2;
 
 /// The selected month is bolder and larger, so it gives back 2px a side to
 /// keep the chip from growing past its neighbours.
@@ -439,8 +439,8 @@ class _ChevronDisc extends StatelessWidget {
     final colors = context.appColors;
 
     return Container(
-      width: _chevronDiscSize,
-      height: _chevronDiscSize,
+      width: BadgeSize.xs,
+      height: BadgeSize.xs,
       decoration: BoxDecoration(
         color: colors.onSurface.withValues(alpha: 0.06),
         shape: BoxShape.circle,

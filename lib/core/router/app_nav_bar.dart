@@ -1,6 +1,7 @@
 import 'dart:ui' show SemanticsRole;
 
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -10,10 +11,6 @@ import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/pill_stitch_painter.dart';
 import 'package:waldo/l10n/app_localizations.dart';
-
-/// The selected pill's label is shorter than the icon-only buttons are tall,
-/// so it takes one more pixel each side to keep every button the same height.
-const _selectedVerticalPadding = 13.0; // one-off
 
 /// The floating pill navbar. Item order must match the router's branch order.
 class AppNavBar extends StatelessWidget {
@@ -155,7 +152,7 @@ class AppNavButton extends StatelessWidget {
                   padding: selected
                       ? const EdgeInsets.symmetric(
                           horizontal: Spacing.sm,
-                          vertical: _selectedVerticalPadding,
+                          vertical: ComponentSize.navSelectedPadding,
                         )
                       : const EdgeInsets.all(Spacing.component),
                   child: Row(

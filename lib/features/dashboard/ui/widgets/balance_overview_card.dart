@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/badge_size.dart';
+import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/constants/enums.dart';
@@ -13,9 +15,6 @@ import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/eye_icon.dart';
 import 'package:waldo/core/widgets/min_tap_target.dart';
-
-/// How far the card behind peeks above the balance card; reserved here.
-const _cardPeek = 44.0;
 
 class BalanceOverviewCard extends StatelessWidget {
   const BalanceOverviewCard({
@@ -78,7 +77,9 @@ class BalanceOverviewCard extends StatelessWidget {
                   : ClipRRect(
                       borderRadius: BorderRadius.circular(Rounded.lg),
                       child: SizedBox(
-                        height: _cardPeek + 24,
+                        height:
+                            ComponentSize.balancePeek +
+                            ComponentSize.balancePeekTuck,
                         child: Stack(
                           children: [
                             // The first wallet's finish, as on the Wallets screen.
@@ -136,7 +137,7 @@ class BalanceOverviewCard extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: _cardPeek),
+          padding: const EdgeInsets.only(top: ComponentSize.balancePeek),
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(
@@ -224,7 +225,7 @@ class BalanceOverviewCard extends StatelessWidget {
                                 child: EyeIcon(
                                   color: colors.onLeather,
                                   hidden: isBalanceHidden,
-                                  size: 17,
+                                  size: IconSize.lg,
                                 ),
                               ),
                             ),
@@ -290,7 +291,7 @@ class _EmptyPeekCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(Rounded.lg),
           child: SizedBox(
-            height: _cardPeek + 24,
+            height: ComponentSize.balancePeek + ComponentSize.balancePeekTuck,
             child: DashedBorder(
               radius: Rounded.lg,
               color: colors.onSurface.withValues(alpha: 0.3),
@@ -309,8 +310,8 @@ class _EmptyPeekCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          width: 22,
-                          height: 22,
+                          width: BadgeSize.xs,
+                          height: BadgeSize.xs,
                           decoration: BoxDecoration(
                             color: colors.leather,
                             shape: BoxShape.circle,

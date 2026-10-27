@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/app_icons.dart';
@@ -15,10 +16,8 @@ import 'package:waldo/l10n/app_localizations.dart';
 /// How long a deleted item can still be brought back.
 const undoWindow = Duration(seconds: 5);
 
-const _barHeight = 64.0; // one-off: two text lines plus the 48dp Undo button
-const _buttonHeight = 48.0;
-const _ringSize = 32.0;
-const _enterOffset = 18.0;
+/// The 48dp Undo button with the bar's padding above and below it.
+const _barHeight = kMinInteractiveDimension + Spacing.xs * 2;
 const _restoredDuration = Duration(seconds: 2);
 
 /// Shows the undo bar for an item that was just hidden. Completes with true
@@ -110,7 +109,7 @@ class _BarShell extends StatelessWidget {
       duration: Motion.enter,
       curve: Motion.enterCurve,
       builder: (context, t, child) => Transform.translate(
-        offset: Offset(0, _enterOffset * t),
+        offset: Offset(0, Motion.enterRise * t),
         child: Opacity(opacity: 1 - t, child: child),
       ),
       // At least 64 tall, and taller with large text, so it never clips.
@@ -266,7 +265,7 @@ class _CountdownRing extends StatelessWidget {
 
     return ExcludeSemantics(
       child: SizedBox.square(
-        dimension: _ringSize,
+        dimension: ComponentSize.undoRing,
         child: AnimatedBuilder(
           animation: progress,
           builder: (context, _) {
@@ -364,7 +363,7 @@ class _UndoButton extends StatelessWidget {
         child: InkWell(
           onTap: onPressed,
           child: SizedBox(
-            height: _buttonHeight,
+            height: kMinInteractiveDimension,
             child: Padding(
               padding: const EdgeInsets.all(Spacing.xxs),
               child: DashedBorder(
@@ -412,8 +411,8 @@ class _IconDisc extends StatelessWidget {
     final colors = context.appColors;
 
     return Container(
-      width: _ringSize,
-      height: _ringSize,
+      width: ComponentSize.undoRing,
+      height: ComponentSize.undoRing,
       decoration: BoxDecoration(
         color: colors.onLeather,
         shape: BoxShape.circle,

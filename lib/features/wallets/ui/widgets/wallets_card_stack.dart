@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/constants/enums.dart';
@@ -13,10 +14,6 @@ import 'package:waldo/core/widgets/min_tap_target.dart';
 
 import '../../models/wallet.dart';
 import '../../wallets_x.dart';
-
-const _cardHeight = 187.0;
-
-const _overlapHeightFactor = 124 / 170;
 
 class WalletsCardStack extends StatelessWidget {
   const WalletsCardStack({
@@ -119,9 +116,11 @@ class WalletsCardStack extends StatelessWidget {
               final isLastCard = index == n - 1;
               return Align(
                 alignment: Alignment.topCenter,
-                heightFactor: isLastCard ? 1.0 : _overlapHeightFactor,
+                heightFactor: isLastCard
+                    ? 1.0
+                    : ComponentSize.walletCardStackOverlap,
                 child: SizedBox(
-                  height: _cardHeight,
+                  height: ComponentSize.walletCard,
                   width: double.infinity,
                   child: _WalletCard(
                     key: Key('walletCard_${wallet.id}'),
@@ -197,7 +196,7 @@ class _WalletCard extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            height: 28,
+            height: ComponentSize.walletCardTopShade,
             child: IgnorePointer(
               child: DecoratedBox(
                 decoration: BoxDecoration(
@@ -224,8 +223,8 @@ class _WalletCard extends StatelessWidget {
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  width: 36,
-                  height: 5,
+                  width: ComponentSize.walletCardSeam.width,
+                  height: ComponentSize.walletCardSeam.height,
                   margin: const EdgeInsets.only(bottom: Spacing.xs),
                   decoration: BoxDecoration(
                     color: walletCardInkColor(context, alpha: 0.3),
@@ -255,7 +254,9 @@ class _WalletCard extends StatelessWidget {
                     children: [
                       Padding(
                         // Leaves room for the menu button, so long names ellipsize before it.
-                        padding: const EdgeInsets.only(right: 36),
+                        padding: const EdgeInsets.only(
+                          right: ComponentSize.walletCardMenuRoom,
+                        ),
                         child: Text(
                           wallet.name,
                           maxLines: 1,

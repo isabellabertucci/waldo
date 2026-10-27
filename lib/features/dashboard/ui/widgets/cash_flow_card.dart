@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:waldo/core/theme/component_size.dart';
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/motion.dart';
 import 'package:intl/intl.dart';
@@ -80,7 +81,7 @@ class _CashFlowCardState extends State<CashFlowCard> {
           ),
           const SizedBox(height: Spacing.lg),
           SizedBox(
-            height: 160,
+            height: ComponentSize.chartHeight,
             child: _CashFlowChart(
               monthlyCashFlow: widget.monthlyCashFlow,
               currencyCode: currencyCode,
@@ -323,15 +324,18 @@ class _CashFlowChart extends StatelessWidget {
                       return TouchedSpotIndicatorData(
                         FlLine(
                           color: seriesColor.withValues(alpha: 0.4),
-                          strokeWidth: 1.5,
-                          dashArray: const [4, 4],
+                          strokeWidth: ComponentSize.chartGuide,
+                          dashArray: const [
+                            ComponentSize.chartGuideDash,
+                            ComponentSize.chartGuideDash,
+                          ],
                         ),
                         FlDotData(
                           getDotPainter: (spot, percent, bar, index) =>
                               FlDotCirclePainter(
-                                radius: 4,
+                                radius: ComponentSize.chartDotRadius,
                                 color: seriesColor,
-                                strokeWidth: 2,
+                                strokeWidth: ComponentSize.chartDotRing,
                                 strokeColor: colors.surface,
                               ),
                         ),
@@ -360,7 +364,7 @@ class _CashFlowChart extends StatelessWidget {
                   spots: spots,
                   isCurved: true,
                   color: seriesColor,
-                  barWidth: 2.5,
+                  barWidth: ComponentSize.chartLine,
                   dotData: const FlDotData(show: false),
                   belowBarData: BarAreaData(
                     show: true,

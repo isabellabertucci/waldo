@@ -64,7 +64,7 @@ class _RowDivider extends StatelessWidget {
 
 /// From this text size up, the value moves under the title so the title
 /// keeps the row's width.
-const _stackValueTextScale = 1.5; // one-off
+const _stackValueTextScale = 1.5;
 
 class SettingsRow extends StatelessWidget {
   const SettingsRow({

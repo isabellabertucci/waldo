@@ -21,6 +21,9 @@ class Motion {
   static const enter = Durations.medium3;
   static const enterCurve = Cubic(0.2, 0.8, 0.2, 1);
 
+  /// How far below its place an arriving bar starts.
+  static const enterRise = 18.0;
+
   /// A gentle two-tap nudge hinting that a row scrolls; long, so it reads
   /// as a hint rather than a reaction.
   static const hint = Duration(milliseconds: 1400);

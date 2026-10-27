@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
@@ -28,7 +29,7 @@ class SecondaryButton extends StatelessWidget {
           horizontal: Spacing.component,
           vertical: Spacing.xxs,
         ),
-        minimumSize: const Size(0, 32),
+        minimumSize: const Size(0, ComponentSize.compactButton),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Rounded.pill),
         ),

@@ -265,7 +265,7 @@ class _CategoryRow extends StatelessWidget {
             ),
             // A fixed-size slot, so rows line up whether or not they have an X.
             SizedBox.square(
-              dimension: 48,
+              dimension: kMinInteractiveDimension,
               child: onDelete == null
                   ? null
                   : IconButton(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/stitch.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 
@@ -64,7 +65,7 @@ class DottedLeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 1.5,
+      height: ComponentSize.receiptLeader,
       child: CustomPaint(painter: _DottedLinePainter(color: color)),
     );
   }
@@ -153,7 +154,9 @@ class ReceiptRow extends StatelessWidget {
               ColoredBox(
                 color: context.appColors.surface,
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 6),
+                  padding: const EdgeInsets.only(
+                    right: ComponentSize.receiptLeaderGap,
+                  ),
                   child: Text(
                     label,
                     maxLines: 1,
@@ -165,7 +168,7 @@ class ReceiptRow extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: ComponentSize.receiptLeaderGap),
         Text(value, maxLines: 1, style: style),
       ],
     );
@@ -187,14 +190,14 @@ class Barcode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 32,
+      height: ComponentSize.barcodeHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (final width in _widths) ...[
             Container(width: width.toDouble(), color: color),
-            const SizedBox(width: 2),
+            const SizedBox(width: ComponentSize.barcodeBarGap),
           ],
         ],
       ),
