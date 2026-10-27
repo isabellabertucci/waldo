@@ -4,22 +4,17 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/sheet_grabber.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/month_selector.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../models/transaction_filter.dart';
 
-/// How many months back the filter's month row scrolls - matches the
-/// dashboard's own trailing window, since this reuses that same
-/// [MonthSelector] component rather than a separate picker.
+/// How many months back the filter's month row goes.
 const _monthRange = 12;
 
-/// Month-chips + income/expense bottom sheet for the wallet transactions
-/// screen - the month row reuses the dashboard's own [MonthSelector]
-/// verbatim, and the dashed stitch on "Show transactions" mirrors the
-/// wallet card and navbar, so every solid-black control in the app reads
-/// as the same material instead of a one-off.
+/// Bottom sheet to filter a wallet's transactions by month and type.
 class TransactionFilterSheet extends StatefulWidget {
   const TransactionFilterSheet({
     super.key,
@@ -88,14 +83,7 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: colors.onSurface.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(Rounded.pill),
-              ),
-            ),
+            const SheetGrabber(),
             const SizedBox(height: Spacing.sm),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
@@ -223,13 +211,11 @@ class _TypeSegment extends StatelessWidget {
           borderRadius: BorderRadius.circular(Rounded.pill),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: Spacing.xs + 2),
+            padding: const EdgeInsets.symmetric(vertical: Spacing.component),
             child: Text(
               label,
               textAlign: TextAlign.center,
-              // one-off: the selected/unselected weight pair is this toggle's
-              // own selected-state treatment (same as the month chips), not a
-              // named type-scale step.
+              // one-off: the toggle's own selected/unselected weights.
               style: context.textTheme.bodySmall?.copyWith(
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
                 color: selected ? colors.onSurface : colors.onSurfaceVariant,

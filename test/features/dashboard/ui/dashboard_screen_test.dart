@@ -8,6 +8,7 @@ import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/database/db_providers.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/month_selector.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
 import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
@@ -29,10 +30,7 @@ void main() {
   });
 
   Future<void> pumpDashboardScreen(WidgetTester tester, {Database? db}) async {
-    // The dashboard's content is taller than the default 800x600 test
-    // surface, so a ListView further down (e.g. RecentTransactionsList)
-    // never gets built by the lazy sliver unless the viewport is tall
-    // enough to fit everything without scrolling.
+    // Tall enough to build the whole dashboard without scrolling.
     tester.view.physicalSize = const Size(400, 2400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -49,10 +47,7 @@ void main() {
     (tester) async {
       await pumpDashboardScreen(tester);
 
-      // The normal dashboard shell (balance card, receipt) renders even
-      // with zero wallets now - no separate first-run screen. The month
-      // selector itself stays hidden, though: there's nothing to filter by
-      // month yet with no wallets.
+      // With no wallets the dashboard still renders, but without the month row.
       final currentMonth = DateFormat.MMMM('en').format(DateTime.now());
       expect(find.text(currentMonth), findsNothing);
       expect(find.text('Slide in your first wallet'), findsOneWidget);
@@ -65,6 +60,21 @@ void main() {
       );
     },
   );
+
+  testWidgets('Tapping the first-wallet prompt opens the wallet form', (
+    tester,
+  ) async {
+    await pumpDashboardScreen(tester);
+
+    // Fatal, so a tap that lands on nothing fails instead of just warning.
+    WidgetController.hitTestWarningShouldBeFatal = true;
+    addTearDown(() => WidgetController.hitTestWarningShouldBeFatal = false);
+
+    await tester.tap(find.text('Slide in your first wallet'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('New Wallet'), findsOneWidget);
+  });
 
   testWidgets(
     'Shows per-section empty states when there is a wallet but no transactions',
@@ -85,7 +95,9 @@ void main() {
       final currentMonth = DateFormat.MMMM('en').format(DateTime.now());
       expect(find.text(currentMonth), findsOneWidget);
       expect(find.text('Add first transaction'), findsOneWidget);
-      expect(find.text('No transactions yet'), findsOneWidget);
+      // No ghost rows: the section stays hidden until the first transaction.
+      expect(find.text('Recent Transactions'), findsNothing);
+      expect(find.text('See all'), findsNothing);
     },
   );
 
@@ -127,7 +139,8 @@ void main() {
     expect(find.text('Total Balance'), findsOneWidget);
     expect(find.text('\$75.00'), findsOneWidget); // 10000 - 2500 cents
     expect(find.text('Weekly shop'), findsOneWidget);
-    expect(find.text(groceriesCategory.name), findsOneWidget);
+    // On the receipt, and under the transaction's name in the recent list.
+    expect(find.text(groceriesCategory.name), findsNWidgets(2));
   });
 
   testWidgets('Hiding the balance masks every amount on the dashboard', (
@@ -188,9 +201,7 @@ void main() {
         ProviderScope(
           overrides: [
             appDatabaseProvider.overrideWith((ref) async => db),
-            // On a device, sqflite answers over a platform channel and takes
-            // a few frames; the in-memory test DB answers instantly, which
-            // would hide the reload state this test is about.
+            // The in-memory DB answers instantly; this slows it down like a real device.
             transactionRepositoryProvider.overrideWith(
               (ref) async => _SlowTransactionRepository(db),
             ),
@@ -207,7 +218,6 @@ void main() {
       await tester.pumpAndSettle();
 
       final now = DateTime.now();
-      final currentMonth = DateFormat.MMMM('en').format(now);
       final container = ProviderScope.containerOf(
         tester.element(find.byType(DashboardScreen)),
       );
@@ -220,7 +230,8 @@ void main() {
       await tester.pump();
 
       expect(find.byType(CircularProgressIndicator), findsNothing);
-      expect(find.text(currentMonth), findsOneWidget);
+      // The month row (and the rest of the dashboard) is still on screen.
+      expect(find.byType(MonthSelector), findsOneWidget);
 
       await tester.pumpAndSettle();
     },

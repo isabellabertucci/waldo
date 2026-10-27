@@ -46,7 +46,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get startingBalance => 'Saldo inicial';
 
   @override
-  String get startingBalanceHint => 'Podes alterar isto depois';
+  String get startingBalancePrompt => 'Quanto tem hoje?';
+
+  @override
+  String get optional => 'Opcional';
 
   @override
   String get balanceLocked => 'Não pode ser alterado após a criação';
@@ -117,6 +120,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get walletDeleted => 'Carteira apagada';
 
   @override
+  String get walletRestored => 'Carteira reposta';
+
+  @override
   String get undo => 'Desfazer';
 
   @override
@@ -175,9 +181,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get addIncome => 'Adicionar receita';
 
   @override
-  String get addNewCategory => 'Nova';
-
-  @override
   String get transactionNote => 'Nota';
 
   @override
@@ -210,6 +213,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get transactionDeleted => 'Transação apagada';
+
+  @override
+  String get transactionRestored => 'Transação reposta';
 
   @override
   String get transactionsError =>
@@ -252,19 +258,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get newCategory => 'Nova categoria';
 
   @override
-  String get categoriesDefaultSection => 'Padrão';
-
-  @override
-  String get categoriesCustomSection => 'Personalizadas';
-
-  @override
-  String get createCategory => 'Criar categoria';
-
-  @override
   String get categoryNameHint => 'ex: Café, Ginásio';
-
-  @override
-  String get editCategory => 'Editar categoria';
 
   @override
   String get manageCategories => 'Gerir categorias';
@@ -274,11 +268,43 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String deleteCategoryConfirm(String name) {
-    return 'Isto vai apagar permanentemente \"$name\". As transações que a usam mantêm os seus dados, mas perdem a categoria.';
+    return 'Isto vai apagar \"$name\".';
+  }
+
+  @override
+  String deleteCategoryMovesTransactions(
+    int count,
+    String name,
+    String others,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transações usam \"$name\"',
+      one: '1 transação usa \"$name\"',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'passam',
+      one: 'passa',
+    );
+    return '$_temp0. Se a apagares, $_temp1 para $others.';
+  }
+
+  @override
+  String get addCategory => 'Adicionar categoria';
+
+  @override
+  String deleteCategoryNamed(String name) {
+    return 'Apagar $name';
   }
 
   @override
   String get categoryDeleted => 'Categoria apagada';
+
+  @override
+  String get categoryRestored => 'Categoria reposta';
 
   @override
   String get categoriesError =>
@@ -287,6 +313,12 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get categorySaveError =>
       'Ocorreu um problema ao guardar a categoria. Tenta novamente.';
+
+  @override
+  String get categoryNameTaken => 'Já existe uma categoria com esse nome';
+
+  @override
+  String get walletNameTaken => 'Já existe uma carteira com esse nome';
 
   @override
   String get categoryDeleteError =>
@@ -306,6 +338,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get categoryTypeInvestments => 'Investimentos';
+
+  @override
+  String get categoryTypeOthers => 'Outros';
 
   @override
   String get none => 'Nenhuma';
@@ -380,7 +415,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get uncategorized => 'Sem categoria';
 
   @override
-  String get savedLabel => 'Poupado';
+  String get monthNetLabel => 'Balanço';
 
   @override
   String dashboardReceiptOtherCategories(int count) {
@@ -410,9 +445,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get recentTransactions => 'Transações Recentes';
 
   @override
-  String get noRecentTransactions => 'Ainda não há transações';
-
-  @override
   String get firstRunPeekCta => 'Desliza a tua primeira carteira';
 
   @override
@@ -430,6 +462,12 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get filterSectionMonth => 'Mês';
+
+  @override
+  String get earlierMonths => 'Meses anteriores';
+
+  @override
+  String get laterMonths => 'Meses seguintes';
 
   @override
   String get filterSectionType => 'Tipo';
@@ -464,8 +502,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get transactionsGroupYesterday => 'Ontem';
 
   @override
-  String savedPercentThisMonth(String percent) {
-    return 'Poupaste $percent este mês';
+  String keptPercentThisMonth(String percent) {
+    return 'Ficaste com $percent do que recebeste';
   }
 
   @override

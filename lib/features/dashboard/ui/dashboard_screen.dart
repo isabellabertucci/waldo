@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/router/app_router.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
@@ -58,10 +59,6 @@ class _DashboardBody extends ConsumerWidget {
       AsyncValue(:final value?) => value.currency,
       _ => Currency.usd,
     };
-    final dateFormatPattern = switch (preferencesAsync) {
-      AsyncValue(:final value?) => value.dateFormat,
-      _ => 'yyyy-MM-dd',
-    };
     final selectedMonth = ref.watch(selectedDashboardMonthProvider);
     final isBalanceHidden = ref.watch(balanceHiddenProvider);
     final walletsAsync = ref.watch(walletListViewModelProvider());
@@ -76,9 +73,7 @@ class _DashboardBody extends ConsumerWidget {
         _monthPickerRange,
         (i) => DateTime(now.year, now.month - i),
       ).reversed,
-      // One month past "today", shown (but disabled) so the row doesn't
-      // dead-end right at the selected pill - same reasoning as keeping a
-      // calendar's "next month" arrow visible even with nothing on it yet.
+      // Next month too, shown disabled, so the row doesn't end at the selected pill.
       DateTime(now.year, now.month + 1),
     ];
     final hasCashFlowData = data.monthlyCashFlow.any(
@@ -88,9 +83,7 @@ class _DashboardBody extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: Spacing.lg),
       children: [
-        // Nothing to filter by month yet with zero wallets - the selector
-        // only makes sense once there's at least one wallet's worth of
-        // transactions it could actually narrow down.
+        // No month row until there's a wallet.
         if (data.walletCount > 0) ...[
           MonthSelector(
             months: months,
@@ -114,12 +107,7 @@ class _DashboardBody extends ConsumerWidget {
             ).format(selectedMonth),
             peekWalletName: peekWalletName,
             walletCount: data.walletCount,
-            onCreateWallet: () => showModalBottomSheet(
-              context: context,
-              useRootNavigator: true,
-              isScrollControlled: true,
-              builder: (_) => const WalletFormSheet(),
-            ),
+            onCreateWallet: () => showWalletFormSheet(context),
             onAddPressed: () => _showQuickAddSheet(context),
             onToggleBalanceHidden: () =>
                 ref.read(balanceHiddenProvider.notifier).toggle(),
@@ -149,13 +137,15 @@ class _DashboardBody extends ConsumerWidget {
             ),
           ),
         ],
-        const SizedBox(height: Spacing.xl),
-        RecentTransactionsList(
-          transactions: data.recentTransactions,
-          currency: currency,
-          dateFormat: DateFormat(dateFormatPattern),
-          isBalanceHidden: isBalanceHidden,
-        ),
+        // Hidden until the first transaction; the receipt already says so.
+        if (data.recentTransactions.isNotEmpty) ...[
+          const SizedBox(height: Spacing.xl),
+          RecentTransactionsList(
+            transactions: data.recentTransactions,
+            currency: currency,
+            isBalanceHidden: isBalanceHidden,
+          ),
+        ],
       ],
     );
   }
@@ -170,15 +160,16 @@ void _showQuickAddSheet(BuildContext context) {
     isScrollControlled: true,
     builder: (sheetContext) => SafeArea(
       child: Padding(
+        // Same side margin as every other sheet.
         padding: const EdgeInsets.symmetric(
-          horizontal: Spacing.sm,
-          vertical: Spacing.xs,
+          horizontal: Spacing.md,
+          vertical: Spacing.sm,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.receipt_long_outlined),
+              leading: const Icon(AppIcons.receipt),
               title: Text(l10n.newTransaction),
               onTap: () {
                 Navigator.of(sheetContext).pop();
@@ -186,16 +177,11 @@ void _showQuickAddSheet(BuildContext context) {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.account_balance_wallet_outlined),
+              leading: const Icon(AppIcons.wallets),
               title: Text(l10n.newWallet),
               onTap: () {
                 Navigator.of(sheetContext).pop();
-                showModalBottomSheet(
-                  context: context,
-                  useRootNavigator: true,
-                  isScrollControlled: true,
-                  builder: (_) => const WalletFormSheet(),
-                );
+                showWalletFormSheet(context);
               },
             ),
           ],

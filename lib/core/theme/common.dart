@@ -44,17 +44,10 @@ class Common {
   }
 
   static SnackBarThemeData getSnackBarTheme(AppColors colors) {
-    // `onSurface` + a hardcoded white content color used to pair up by
-    // coincidence in light mode (onSurface is dark there), but `onSurface`
-    // flips to a light cream in dark mode - which left white-on-white text
-    // and an invisible "Undo" action. A snackbar reads as a solid dark
-    // pill either way, so it uses the theme-constant leather pair instead
-    // of a token that was only ever dark by accident.
+    // The leather pair, so the snackbar is a dark pill with readable text in
+    // both themes (`onSurface` turns light in dark mode).
     return SnackBarThemeData(
-      // A touch lighter than pure `leather`, not the flat color itself -
-      // in dark mode the page behind it is the same near-black as
-      // `leather`, so the pill had no visible edge to lift off the page
-      // with (same issue as the dashboard's peek card).
+      // Slightly lighter than `leather`, so it shows against the dark-mode page.
       backgroundColor: Color.lerp(
         colors.leather,
         colors.onSurfaceVariant,
@@ -118,9 +111,10 @@ class Common {
   }
 
   static DatePickerThemeData getDatePickerTheme(AppColors colors) {
-    Color onColor(Color background) {
-      return background.computeLuminance() > 0.5 ? Colors.black : Colors.white;
-    }
+    // The selected day (today included) is an ink disc with on-primary text,
+    // like every other selected pill in the app.
+    Color? selectedFill(Set<WidgetState> states) =>
+        states.contains(WidgetState.selected) ? colors.primary : null;
 
     return DatePickerThemeData(
       backgroundColor: colors.surface,
@@ -130,16 +124,26 @@ class Common {
         borderRadius: BorderRadius.circular(Rounded.lg),
       ),
 
+      dayBackgroundColor: WidgetStateProperty.resolveWith(selectedFill),
       dayForegroundColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) {
-          return onColor(colors.primaryStrong);
-        }
+        if (states.contains(WidgetState.selected)) return colors.onPrimary;
         if (states.contains(WidgetState.disabled)) {
           return colors.onSurfaceVariant.withValues(alpha: 0.4);
         }
         return colors.onSurface;
       }),
-      todayForegroundColor: WidgetStateProperty.all(colors.primaryStrong),
+      todayBackgroundColor: WidgetStateProperty.resolveWith(selectedFill),
+      todayForegroundColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? colors.onPrimary
+            : colors.primaryStrong,
+      ),
+      yearBackgroundColor: WidgetStateProperty.resolveWith(selectedFill),
+      yearForegroundColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? colors.onPrimary
+            : colors.onSurface,
+      ),
 
       dividerColor: colors.onSurfaceVariant.withValues(alpha: 0.12),
       cancelButtonStyle: TextButton.styleFrom(

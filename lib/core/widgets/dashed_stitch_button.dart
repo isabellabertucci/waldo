@@ -4,11 +4,8 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
-/// A solid [AppColors.primary] pill with a dashed stitch traced just inside
-/// its own edge - the same identity as the wallet card's own border and the
-/// navbar's active tab, reused anywhere else a "primary action" pill shows
-/// up (filter sheet's selected month, "Save"/"Show" buttons, a round icon
-/// button) so none of them read as a one-off.
+/// A `primary` pill with a dashed stitch just inside its edge - the app's
+/// primary-action button.
 class DashedStitchButton extends StatelessWidget {
   const DashedStitchButton({
     super.key,
@@ -68,7 +65,7 @@ class DashedStitchButton extends StatelessWidget {
                       ? const EdgeInsets.all(Spacing.component)
                       : EdgeInsets.symmetric(
                           horizontal: compact ? Spacing.sm : Spacing.md,
-                          vertical: compact ? Spacing.xs : Spacing.sm + 2,
+                          vertical: compact ? Spacing.xs : Spacing.sm,
                         )),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -83,16 +80,21 @@ class DashedStitchButton extends StatelessWidget {
                     ),
                   if (icon != null && label != null)
                     const SizedBox(width: Spacing.xs),
+                  // Flexible so a narrow button (or large text) ellipsizes instead of overflowing.
                   if (label != null)
-                    Text(
-                      label!,
-                      textAlign: TextAlign.center,
-                      style:
-                          (labelStyle ??
-                                  (compact
-                                      ? context.bodySmBold
-                                      : context.labelLgStrong))
-                              .copyWith(color: colors.onPrimary),
+                    Flexible(
+                      child: Text(
+                        label!,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style:
+                            (labelStyle ??
+                                    (compact
+                                        ? context.bodySmBold
+                                        : context.labelLgStrong))
+                                .copyWith(color: colors.onPrimary),
+                      ),
                     ),
                 ],
               ),

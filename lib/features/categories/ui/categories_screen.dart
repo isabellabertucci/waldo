@@ -1,34 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waldo/core/theme/badge_size.dart';
+import 'package:waldo/core/constants/app_constants.dart';
+import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
-import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/form_pill_field.dart';
 import 'package:waldo/core/widgets/surface_card.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 import '../categories_x.dart';
 import '../models/category.dart';
+import '../repositories/category_repository.dart';
 import '../viewmodels/category_list_view_model.dart';
-import 'widgets/category_form_sheet.dart';
 
-enum _CategoryAction { edit, delete }
-
+/// A field to add a category over the list of existing ones, each with an X.
+/// "Others" has no X: deleted categories' transactions move there.
 class CategoriesScreen extends ConsumerWidget {
   const CategoriesScreen({super.key});
-
-  void _openForm(BuildContext context, {Category? category}) {
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      builder: (_) => CategoryFormSheet(category: category),
-    );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -41,8 +36,6 @@ class CategoriesScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Same header pattern as the per-wallet transactions screen: a
-            // plain circle to go back, the dashed-stitch pill for "add".
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 Spacing.pageMargin,
@@ -50,20 +43,10 @@ class CategoriesScreen extends ConsumerWidget {
                 Spacing.pageMargin,
                 0,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  CircleIconButton(
-                    tooltip: l10n.back,
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Icon(AppIcons.back),
-                  ),
-                  DashedStitchButton(
-                    icon: const Icon(AppIcons.add),
-                    tooltip: l10n.newCategory,
-                    onPressed: () => _openForm(context),
-                  ),
-                ],
+              child: CircleIconButton(
+                tooltip: l10n.back,
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Icon(AppIcons.back),
               ),
             ),
             const SizedBox(height: Spacing.md),
@@ -78,10 +61,7 @@ class CategoriesScreen extends ConsumerWidget {
             ),
             Expanded(
               child: switch (categoriesAsync) {
-                AsyncValue(:final value?) => _CategoriesBody(
-                  categories: value,
-                  onEdit: (category) => _openForm(context, category: category),
-                ),
+                AsyncValue(:final value?) => _CategoriesBody(categories: value),
                 AsyncValue(hasError: true) => Center(
                   child: Text(l10n.categoriesError),
                 ),
@@ -95,53 +75,95 @@ class CategoriesScreen extends ConsumerWidget {
   }
 }
 
-class _CategoriesBody extends ConsumerWidget {
-  const _CategoriesBody({required this.categories, required this.onEdit});
+class _CategoriesBody extends ConsumerStatefulWidget {
+  const _CategoriesBody({required this.categories});
 
   final List<Category> categories;
-  final ValueChanged<Category> onEdit;
 
-  Future<void> _confirmDelete(
-    BuildContext context,
-    WidgetRef ref,
-    Category category,
-  ) async {
+  @override
+  ConsumerState<_CategoriesBody> createState() => _CategoriesBodyState();
+}
+
+class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  bool _isOthers(Category category) =>
+      category.isDefault && category.type == CategoryType.others;
+
+  String? _validateName(AppLocalizations l10n, String? value) {
+    final name = value?.trim() ?? '';
+    if (name.isEmpty) return l10n.nameRequired;
+    if (name.length > maxCategoryNameLength) return l10n.nameTooLong;
+
+    // Compare with what's on screen, so built-ins match in the current language.
+    final lower = name.toLowerCase();
+    final taken = widget.categories.any(
+      (c) => c.displayName(l10n).toLowerCase() == lower,
+    );
+    return taken ? l10n.categoryNameTaken : null;
+  }
+
+  Future<void> _add() async {
+    if (!_formKey.currentState!.validate()) return;
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      await ref
+          .read(categoryListViewModelProvider.notifier)
+          .add(_nameController.text);
+      // Empty again, ready for the next one.
+      _nameController.clear();
+    } on DuplicateCategoryNameException {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.categoryNameTaken)));
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.categorySaveError)));
+    }
+  }
+
+  Future<void> _confirmDelete(Category category) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final viewModel = ref.read(categoryListViewModelProvider.notifier);
+    final name = category.displayName(l10n);
+
+    // Say how many transactions move to "Others" before anything happens.
+    final count = await viewModel.transactionCount(category.id!);
+    if (!mounted) return;
 
     final confirmed = await ConfirmationDialog.show(
       context,
       title: l10n.deleteCategory,
-      content: l10n.deleteCategoryConfirm(category.name),
+      content: count > 0
+          ? l10n.deleteCategoryMovesTransactions(
+              count,
+              name,
+              l10n.categoryTypeOthers,
+            )
+          : l10n.deleteCategoryConfirm(name),
       confirmLabel: l10n.delete,
     );
-
     if (!confirmed) return;
-
-    final viewModel = ref.read(categoryListViewModelProvider.notifier);
 
     if (!viewModel.hideCategory(category.id!)) return;
 
-    var undone = false;
-
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(l10n.categoryDeleted),
-        duration: const Duration(seconds: 5),
-        persist: false,
-        action: SnackBarAction(
-          label: l10n.undo,
-          onPressed: () {
-            undone = true;
-            viewModel.restoreCategory();
-          },
-        ),
-      ),
+    final undone = await showUndoSnackBar(
+      messenger,
+      title: l10n.categoryDeleted,
+      subtitle: name,
+      restoredLabel: l10n.categoryRestored,
     );
-
-    await Future.delayed(const Duration(seconds: 5));
-
-    if (undone) return;
+    if (undone) {
+      viewModel.restoreCategory();
+      return;
+    }
 
     try {
       await viewModel.confirmDelete(category.id!);
@@ -152,10 +174,18 @@ class _CategoriesBody extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final builtIn = categories.where((c) => c.isDefault).toList();
-    final custom = categories.where((c) => !c.isDefault).toList();
+    final colors = context.appColors;
+    // A-Z by the name on screen, with the undeletable "Others" last.
+    final categories = [...widget.categories]
+      ..sort((a, b) {
+        if (_isOthers(a) != _isOthers(b)) return _isOthers(a) ? 1 : -1;
+        return a
+            .displayName(l10n)
+            .toLowerCase()
+            .compareTo(b.displayName(l10n).toLowerCase());
+      });
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -165,178 +195,120 @@ class _CategoriesBody extends ConsumerWidget {
         Spacing.lg,
       ),
       children: [
-        _SectionLabel(title: l10n.categoriesDefaultSection),
-        _CategoryGroup(categories: builtIn),
-        if (custom.isNotEmpty) ...[
-          const SizedBox(height: Spacing.lg),
-          _SectionLabel(title: l10n.categoriesCustomSection),
-          _CategoryGroup(
-            categories: custom,
-            onEdit: onEdit,
-            onDelete: (category) => _confirmDelete(context, ref, category),
+        Form(
+          key: _formKey,
+          child: Row(
+            children: [
+              Expanded(
+                child: FormPillField(
+                  fieldKey: const Key('categoryNameField'),
+                  leading: const Icon(AppIcons.name),
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLength: maxCategoryNameLength,
+                  onPage: true,
+                  controller: _nameController,
+                  label: l10n.newCategory,
+                  hint: l10n.categoryNameHint,
+                  onChanged: (_) {},
+                  onSubmitted: (_) => _add(),
+                  validator: (value) => _validateName(l10n, value),
+                ),
+              ),
+              const SizedBox(width: Spacing.xs),
+              DashedStitchButton(
+                icon: const Icon(AppIcons.add),
+                tooltip: l10n.addCategory,
+                onPressed: _add,
+              ),
+            ],
           ),
-        ],
+        ),
+        const SizedBox(height: Spacing.md),
+        SurfaceCard(
+          child: Column(
+            children: [
+              for (var i = 0; i < categories.length; i++) ...[
+                _CategoryRow(
+                  category: categories[i],
+                  onDelete: _isOthers(categories[i])
+                      ? null
+                      : () => _confirmDelete(categories[i]),
+                ),
+                if (i != categories.length - 1)
+                  Container(
+                    height: 1,
+                    margin: const EdgeInsets.symmetric(horizontal: Spacing.md),
+                    color: colors.onSurfaceVariant.withValues(alpha: 0.1),
+                  ),
+              ],
+            ],
+          ),
+        ),
       ],
     );
   }
 }
 
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: Spacing.sm, left: Spacing.xxs),
-      child: Text(
-        title.toUpperCase(),
-        style: context.labelXs.copyWith(
-          color: context.appColors.onSurfaceVariant,
-          letterSpacing: 1.0,
-        ),
-      ),
-    );
-  }
-}
-
-/// A [SurfaceCard] of category rows with a hairline divider between each -
-/// the same statement-card look as the transaction lists. Rows only get the
-/// edit/delete menu when [onEdit]/[onDelete] are given (custom categories).
-class _CategoryGroup extends StatelessWidget {
-  const _CategoryGroup({required this.categories, this.onEdit, this.onDelete});
-
-  final List<Category> categories;
-  final ValueChanged<Category>? onEdit;
-  final ValueChanged<Category>? onDelete;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return SurfaceCard(
-      child: Column(
-        children: [
-          for (var i = 0; i < categories.length; i++) ...[
-            _CategoryRow(
-              category: categories[i],
-              onEdit: onEdit == null ? null : () => onEdit!(categories[i]),
-              onDelete: onDelete == null
-                  ? null
-                  : () => onDelete!(categories[i]),
-            ),
-            if (i != categories.length - 1)
-              Container(
-                height: 1,
-                margin: const EdgeInsets.symmetric(horizontal: Spacing.md),
-                color: colors.onSurfaceVariant.withValues(alpha: 0.1),
-              ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
+/// One category: its icon, its name and, unless it's "Others", an X.
 class _CategoryRow extends StatelessWidget {
-  const _CategoryRow({required this.category, this.onEdit, this.onDelete});
+  const _CategoryRow({required this.category, this.onDelete});
 
   final Category category;
-  final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
-    final isCustom = !category.isDefault;
+    final name = category.displayName(l10n);
+    final onDelete = this.onDelete;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(
+      padding: const EdgeInsets.fromLTRB(
         Spacing.md,
-        Spacing.sm,
-        isCustom ? Spacing.xs : Spacing.md,
-        Spacing.sm,
+        Spacing.xxs,
+        Spacing.xxs,
+        Spacing.xxs,
       ),
       child: Row(
         children: [
           Container(
-            width: 36,
-            height: 36,
+            width: BadgeSize.md,
+            height: BadgeSize.md,
             decoration: BoxDecoration(
               color: colors.onSurface.withValues(alpha: 0.06),
               shape: BoxShape.circle,
             ),
             child: Icon(
-              category.type.icon,
+              category.icon,
               size: IconSize.md,
               color: colors.onSurface,
             ),
           ),
           const SizedBox(width: Spacing.sm),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isCustom ? category.name : category.type.label(l10n),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.bodyMdBold,
-                ),
-                if (isCustom)
-                  Text(
-                    category.type.label(l10n),
-                    style: context.textTheme.bodySmall?.copyWith(
+            child: Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.bodyMdBold,
+            ),
+          ),
+          // A fixed-size slot, so rows line up whether or not they have an X.
+          SizedBox.square(
+            dimension: 48,
+            child: onDelete == null
+                ? null
+                : IconButton(
+                    tooltip: l10n.deleteCategoryNamed(name),
+                    onPressed: onDelete,
+                    icon: Icon(
+                      AppIcons.close,
+                      size: IconSize.lg,
                       color: colors.onSurfaceVariant,
                     ),
                   ),
-              ],
-            ),
           ),
-          if (isCustom)
-            PopupMenuButton<_CategoryAction>(
-              padding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(Rounded.md),
-              ),
-              icon: Icon(
-                AppIcons.more,
-                size: IconSize.lg,
-                color: colors.onSurfaceVariant,
-              ),
-              onSelected: (action) => switch (action) {
-                _CategoryAction.edit => onEdit?.call(),
-                _CategoryAction.delete => onDelete?.call(),
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: _CategoryAction.edit,
-                  child: Row(
-                    children: [
-                      const Icon(AppIcons.edit, size: IconSize.lg),
-                      const SizedBox(width: Spacing.xs),
-                      Text(l10n.edit),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: _CategoryAction.delete,
-                  child: Row(
-                    children: [
-                      Icon(
-                        AppIcons.delete,
-                        size: IconSize.lg,
-                        color: colors.error,
-                      ),
-                      const SizedBox(width: Spacing.xs),
-                      Text(l10n.delete, style: TextStyle(color: colors.error)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
         ],
       ),
     );
