@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
@@ -192,7 +193,7 @@ class _WalletCard extends StatelessWidget {
           ),
 
           // A soft shadow along the top edge, for depth where the cards overlap.
-          Positioned(
+          const Positioned(
             top: 0,
             left: 0,
             right: 0,
@@ -203,12 +204,7 @@ class _WalletCard extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    // one-off: a shadow cast over the card stack - shadows
-                    // stay black in both themes, like Elevation's.
-                    colors: [
-                      Colors.black.withValues(alpha: 0.16),
-                      Colors.black.withValues(alpha: 0),
-                    ],
+                    colors: Elevation.stackShade,
                   ),
                 ),
               ),

@@ -43,7 +43,7 @@ class DashedStitchButton extends StatelessWidget {
   /// Tighter padding for small contexts (e.g. a month grid cell).
   final bool compact;
 
-  /// Overrides the compact/non-compact padding for a one-off size (e.g. a
+  /// Overrides the compact/non-compact padding for a specific size (e.g. a
   /// primary CTA that needs to stand out more than either preset allows).
   final EdgeInsetsGeometry? padding;
 

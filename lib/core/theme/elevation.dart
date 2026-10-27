@@ -23,4 +23,11 @@ class Elevation {
 
   /// [high] as a single `shadowColor`, for widgets that take `elevation`.
   static const highShadowColor = Color(0x1F000000);
+
+  /// The shade one stacked wallet card casts on the card below it, fading
+  /// out downwards. Shadows stay black in both themes.
+  static const stackShade = [
+    Color.from(alpha: 0.16, red: 0, green: 0, blue: 0),
+    Color.from(alpha: 0, red: 0, green: 0, blue: 0),
+  ];
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/finish_colors.dart';
 import 'package:waldo/core/theme/stitch.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/utils/dash_path.dart';
@@ -8,9 +9,14 @@ LinearGradient pouchGradient(Color base) {
   return LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    // one-off: white light falling across the leather, which is the same
-    // color in both themes on purpose, so the highlight is fixed too.
-    colors: [Color.lerp(base, Colors.white, 0.1)!, base],
+    colors: [
+      Color.lerp(
+        base,
+        FinishColors.leatherSheen,
+        FinishColors.leatherSheenAmount,
+      )!,
+      base,
+    ],
   );
 }
 

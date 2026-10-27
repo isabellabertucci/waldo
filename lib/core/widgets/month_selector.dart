@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:waldo/core/theme/fades.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:flutter/material.dart';
@@ -223,19 +224,8 @@ class _MonthSelectorState extends State<MonthSelector> {
               // to the center.
               final edgePadding = constraints.maxWidth / 2;
 
-              // one-off: an alpha mask (dstIn only reads opacity), never painted.
               return ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black,
-                    Colors.black,
-                    Colors.transparent,
-                  ],
-                  stops: [0, 0.04, 0.92, 1],
-                ).createShader(bounds),
+                shaderCallback: Fades.rowEdges.createShader,
                 blendMode: BlendMode.dstIn,
                 child: NotificationListener<ScrollEndNotification>(
                   onNotification: (_) {
