@@ -205,6 +205,15 @@ extension ThemeContext on BuildContext {
 
   TextTheme get textTheme => Theme.of(this).textTheme;
 
+  /// The style a [Text] with [style] draws in: the inherited default plus
+  /// [style], bold when the user turns on Bold Text, as [Text] does.
+  TextStyle effectiveTextStyle(TextStyle? style) {
+    final resolved = DefaultTextStyle.of(this).style.merge(style);
+    return MediaQuery.boldTextOf(this)
+        ? resolved.merge(const TextStyle(fontWeight: FontWeight.bold))
+        : resolved;
+  }
+
   TextStyle get bodyMdStrong => textTheme.bodyMdStrong;
   TextStyle get bodyMdBold => textTheme.bodyMdBold;
   TextStyle get bodySmBold => textTheme.bodySmBold;
