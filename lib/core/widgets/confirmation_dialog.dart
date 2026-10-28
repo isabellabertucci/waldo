@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
@@ -58,6 +60,20 @@ class ConfirmationDialog extends StatelessWidget {
     final accent = colors.error;
     // As Flutter's AlertDialog: Android announces it as an alert; iOS lands
     // on the title.
+    final cancel = DashedStitchButton(
+      variant: StitchVariant.secondary,
+      label: l10n.cancel,
+      labelStyle: context.bodyMdBold,
+      padding: _buttonPadding,
+      onPressed: () => Navigator.of(context).pop(false),
+    );
+    final confirm = DashedStitchButton(
+      variant: StitchVariant.destructive,
+      label: confirmLabel,
+      labelStyle: context.bodyMdBold,
+      padding: _buttonPadding,
+      onPressed: () => Navigator.of(context).pop(true),
+    );
     final routeLabel = switch (defaultTargetPlatform) {
       TargetPlatform.iOS || TargetPlatform.macOS => null,
       _ => MaterialLocalizations.of(context).alertDialogLabel,
@@ -84,7 +100,7 @@ class ConfirmationDialog extends StatelessWidget {
               const SizedBox(height: Spacing.sm),
               Semantics(
                 container: true,
-                child: Text(
+                child: WholeWordsText(
                   title,
                   textAlign: TextAlign.center,
                   style: context.headlineSmExtraBold.copyWith(
@@ -93,7 +109,7 @@ class ConfirmationDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: Spacing.xs),
-              Text(
+              WholeWordsText(
                 content,
                 textAlign: TextAlign.center,
                 style: context.textTheme.bodyMedium?.copyWith(
@@ -101,30 +117,23 @@ class ConfirmationDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: Spacing.lg),
-              // One button in two variants, so they match in size.
-              Row(
-                children: [
-                  Expanded(
-                    child: DashedStitchButton(
-                      variant: StitchVariant.secondary,
-                      label: l10n.cancel,
-                      labelStyle: context.bodyMdBold,
-                      padding: _buttonPadding,
-                      onPressed: () => Navigator.of(context).pop(false),
-                    ),
-                  ),
-                  const SizedBox(width: Spacing.sm),
-                  Expanded(
-                    child: DashedStitchButton(
-                      variant: StitchVariant.destructive,
-                      label: confirmLabel,
-                      labelStyle: context.bodyMdBold,
-                      padding: _buttonPadding,
-                      onPressed: () => Navigator.of(context).pop(true),
-                    ),
-                  ),
-                ],
-              ),
+              // One button in two variants, so they match in size. At
+              // accessibility sizes they stack, confirm first, as iOS
+              // alerts do.
+              if (DynamicTypeScaler.isAccessibilitySize(context))
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: Spacing.sm,
+                  children: [confirm, cancel],
+                )
+              else
+                Row(
+                  children: [
+                    Expanded(child: cancel),
+                    const SizedBox(width: Spacing.sm),
+                    Expanded(child: confirm),
+                  ],
+                ),
             ],
           ),
         ),

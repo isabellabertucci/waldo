@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -155,6 +156,30 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
       walletFormViewModelProvider(widget.wallet).notifier,
     );
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
+    final balanceHeading = Text(
+      l10n.startingBalance.toUpperCase(),
+      style: context.bodySmBold.copyWith(
+        color: colors.onSurfaceVariant,
+        letterSpacing: 0.4,
+      ),
+    );
+    final balanceOptional = _isEditing
+        ? null
+        : Text(
+            l10n.optional,
+            style: context.textTheme.bodySmall?.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
+          );
+    final typeTiles = [
+      for (final type in WalletType.values)
+        OptionTile(
+          icon: type.icon,
+          label: type.label(l10n),
+          selected: type == formState.type,
+          onTap: () => viewModel.updateType(type),
+        ),
+    ];
     final currency = switch (preferencesAsync) {
       AsyncValue(:final value?) => value.currency,
       _ => Currency.usd,
@@ -215,47 +240,35 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                 ),
               ),
               const SizedBox(height: Spacing.sm),
-              GridView.count(
-                // Scroll views add the screen's safe-area inset by default; this grid sits mid-sheet.
-                padding: EdgeInsets.zero,
-                crossAxisCount: 3,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: Spacing.sm,
-                crossAxisSpacing: Spacing.sm,
-                childAspectRatio: 1.05,
-                children: [
-                  for (final type in WalletType.values)
-                    OptionTile(
-                      icon: type.icon,
-                      label: type.label(l10n),
-                      selected: type == formState.type,
-                      onTap: () => viewModel.updateType(type),
-                    ),
-                ],
-              ),
-              const SizedBox(height: Spacing.md),
-              Heading(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        l10n.startingBalance.toUpperCase(),
-                        style: context.bodySmBold.copyWith(
-                          color: colors.onSurfaceVariant,
-                          letterSpacing: 0.4,
-                        ),
-                      ),
-                    ),
-                    if (!_isEditing)
-                      Text(
-                        l10n.optional,
-                        style: context.textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                  ],
+              // One column at accessibility sizes, so every label shows whole.
+              if (DynamicTypeScaler.isAccessibilitySize(context))
+                Column(spacing: Spacing.sm, children: typeTiles)
+              else
+                GridView.count(
+                  // Scroll views add the screen's safe-area inset by default; this grid sits mid-sheet.
+                  padding: EdgeInsets.zero,
+                  crossAxisCount: 3,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: Spacing.sm,
+                  crossAxisSpacing: Spacing.sm,
+                  childAspectRatio: 1.05,
+                  children: typeTiles,
                 ),
+              const SizedBox(height: Spacing.md),
+              // At accessibility sizes "Optional" moves under the heading.
+              Heading(
+                child: DynamicTypeScaler.isAccessibilitySize(context)
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [balanceHeading, ?balanceOptional],
+                      )
+                    : Row(
+                        children: [
+                          Expanded(child: balanceHeading),
+                          ?balanceOptional,
+                        ],
+                      ),
               ),
               const SizedBox(height: Spacing.sm),
               FormPillField(

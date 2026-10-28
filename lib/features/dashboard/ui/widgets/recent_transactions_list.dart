@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -27,32 +29,48 @@ class RecentTransactionsList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final categoriesById = ref.watch(categoriesByIdProvider);
+    final seeAll = SecondaryButton(
+      label: l10n.seeAll,
+      onPressed: () => const AllTransactionsRoute().push(context),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: Spacing.pageMargin),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Heading(
-                  child: Text(
-                    l10n.recentTransactions,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.headlineMdStrong,
-                  ),
+          // At accessibility sizes the button moves under the title, so the
+          // title isn't cut.
+          child: DynamicTypeScaler.isAccessibilitySize(context)
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Heading(
+                      child: WholeWordsText(
+                        l10n.recentTransactions,
+                        style: context.headlineMdStrong,
+                      ),
+                    ),
+                    seeAll,
+                  ],
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Heading(
+                        child: Text(
+                          l10n.recentTransactions,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.headlineMdStrong,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: Spacing.sm),
+                    seeAll,
+                  ],
                 ),
-              ),
-              const SizedBox(width: Spacing.sm),
-              SecondaryButton(
-                label: l10n.seeAll,
-                onPressed: () => const AllTransactionsRoute().push(context),
-              ),
-            ],
-          ),
         ),
         const SizedBox(height: Spacing.sm),
         Padding(

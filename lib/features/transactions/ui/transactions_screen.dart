@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/badge_row.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -156,6 +159,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
+    final accessibilitySize = DynamicTypeScaler.isAccessibilitySize(context);
     final locale = Localizations.localeOf(context).toString();
     final now = ref.watch(clockProvider)();
     final filterMonthLabel = _filter.month.year == now.year
@@ -168,6 +172,21 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
     };
     final categoriesById = ref.watch(categoriesByIdProvider);
     final isBalanceHidden = ref.watch(balanceHiddenProvider);
+    final balanceText = isBalanceHidden
+        ? hiddenAmount
+        : formatCents(
+            widget.wallet.currentBalance,
+            locale: moneyLocale(context),
+            currencyCode: currency.code,
+          );
+    final balanceStyle = context.bodyMdExtraBold.copyWith(
+      color: !isBalanceHidden && widget.wallet.currentBalance < 0
+          ? colors.error
+          : colors.onSurface,
+    );
+    final typeStyle = context.textTheme.bodyMedium?.copyWith(
+      color: colors.onSurfaceVariant,
+    );
     final filtered = _applyFilter(_filter);
     // Same order the Wallets stack lists them in, so the same wallet always
     // gets the same finish here as it does on its own card there.
@@ -184,117 +203,103 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
 
     final typeLabel = _filter.type?.label(l10n) ?? l10n.filterTypeAll;
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            Spacing.pageMargin,
-            Spacing.xs,
-            Spacing.pageMargin,
-            0,
+    final topBar = Padding(
+      padding: const EdgeInsets.fromLTRB(
+        Spacing.pageMargin,
+        Spacing.xs,
+        Spacing.pageMargin,
+        0,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          CircleIconButton(
+            tooltip: l10n.back,
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Icon(AppIcons.back),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Row(
             children: [
-              CircleIconButton(
-                tooltip: l10n.back,
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Icon(AppIcons.back),
+              DashedStitchButton(
+                icon: const Icon(AppIcons.add),
+                tooltip: l10n.newTransaction,
+                onPressed: () => showTransactionFormSheet(
+                  context,
+                  initialWalletId: widget.walletId,
+                ),
               ),
-              Row(
-                children: [
-                  DashedStitchButton(
-                    icon: const Icon(AppIcons.add),
-                    tooltip: l10n.newTransaction,
-                    onPressed: () => showTransactionFormSheet(
-                      context,
-                      initialWalletId: widget.walletId,
-                    ),
-                  ),
-                  const SizedBox(width: Spacing.xs),
-                  CircleIconButton(
-                    tooltip: isBalanceHidden
-                        ? l10n.showBalance
-                        : l10n.hideBalance,
-                    onPressed: () =>
-                        ref.read(balanceHiddenProvider.notifier).toggle(),
-                    child: EyeIcon(
-                      color: colors.onSurface,
-                      hidden: isBalanceHidden,
-                    ),
-                  ),
-                ],
+              const SizedBox(width: Spacing.xs),
+              CircleIconButton(
+                tooltip: isBalanceHidden ? l10n.showBalance : l10n.hideBalance,
+                onPressed: () =>
+                    ref.read(balanceHiddenProvider.notifier).toggle(),
+                child: EyeIcon(
+                  color: colors.onSurface,
+                  hidden: isBalanceHidden,
+                ),
               ),
             ],
           ),
-        ),
+        ],
+      ),
+    );
+    final header = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
         const SizedBox(height: Spacing.md),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: Spacing.pageMargin),
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(Rounded.sm),
-                child: SizedBox(
-                  width: ComponentSize.walletThumbnail.width,
-                  height: ComponentSize.walletThumbnail.height,
-                  // The wallet's own finish, with a Hero from its card (see `_showHero`).
-                  child: _showHero
-                      ? Hero(
-                          tag: 'walletCardBg_${widget.walletId}',
-                          child: WalletCardBackground(finish: finish),
-                        )
-                      : WalletCardBackground(finish: finish),
-                ),
+          child: BadgeRow(
+            badge: ClipRRect(
+              borderRadius: BorderRadius.circular(Rounded.sm),
+              child: SizedBox(
+                width: ComponentSize.walletThumbnail.width,
+                height: ComponentSize.walletThumbnail.height,
+                // The wallet's own finish, with a Hero from its card (see `_showHero`).
+                child: _showHero
+                    ? Hero(
+                        tag: 'walletCardBg_${widget.walletId}',
+                        child: WalletCardBackground(finish: finish),
+                      )
+                    : WalletCardBackground(finish: finish),
               ),
-              const SizedBox(width: Spacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Heading(
-                      child: Text(
-                        widget.wallet.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.headlineLgExtraBold,
-                      ),
-                    ),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '${widget.wallet.type.label(l10n)} · ',
-                          ),
-                          TextSpan(
-                            text: isBalanceHidden
-                                ? hiddenAmount
-                                : formatCents(
-                                    widget.wallet.currentBalance,
-                                    locale: moneyLocale(context),
-                                    currencyCode: currency.code,
-                                  ),
-                            // Only the balance is bold in the line.
-                            style: context.bodyMdExtraBold.copyWith(
-                              color:
-                                  !isBalanceHidden &&
-                                      widget.wallet.currentBalance < 0
-                                  ? colors.error
-                                  : colors.onSurface,
-                            ),
-                          ),
-                        ],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Heading(
+                  child: WholeWordsText.singleLine(
+                    widget.wallet.name,
+                    style: context.headlineLgExtraBold,
+                  ),
                 ),
-              ),
-            ],
+                // At accessibility sizes the balance gets its own line and
+                // shrinks rather than breaking.
+                if (accessibilitySize) ...[
+                  WholeWordsText(
+                    widget.wallet.type.label(l10n),
+                    style: typeStyle,
+                  ),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(balanceText, style: balanceStyle),
+                  ),
+                ] else
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(text: '${widget.wallet.type.label(l10n)} · '),
+                        // Only the balance is bold in the line.
+                        TextSpan(text: balanceText, style: balanceStyle),
+                      ],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: typeStyle,
+                  ),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: Spacing.md),
@@ -326,18 +331,41 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                         color: colors.onSurfaceVariant,
                       ),
                       const SizedBox(width: Spacing.xs),
-                      Text(filterMonthLabel, style: context.bodyMdBold),
-                      const SizedBox(width: Spacing.xxs),
-                      Expanded(
-                        child: Text(
-                          '· ${l10n.filterChipLabel(typeLabel)}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.textTheme.bodyMedium?.copyWith(
-                            color: colors.onSurfaceVariant,
+                      // At accessibility sizes month and type wrap as one
+                      // text, so neither is cut.
+                      if (accessibilitySize)
+                        Expanded(
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: filterMonthLabel,
+                                  style: context.bodyMdBold,
+                                ),
+                                TextSpan(
+                                  text: ' · ${l10n.filterChipLabel(typeLabel)}',
+                                ),
+                              ],
+                            ),
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                        )
+                      else ...[
+                        Text(filterMonthLabel, style: context.bodyMdBold),
+                        const SizedBox(width: Spacing.xxs),
+                        Expanded(
+                          child: Text(
+                            '· ${l10n.filterChipLabel(typeLabel)}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              color: colors.onSurfaceVariant,
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                       Icon(
                         AppIcons.chevronDown,
                         color: colors.onSurfaceVariant,
@@ -349,21 +377,43 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
             ),
           ),
         ),
+      ],
+    );
+    // At accessibility sizes the header scrolls with the list, so the
+    // transactions get more than a sliver of the screen.
+    Widget withHeader(Widget child) => accessibilitySize
+        ? ListView(padding: EdgeInsets.zero, children: [header, child])
+        : child;
+
+    return Column(
+      children: [
+        topBar,
+        if (!accessibilitySize) header,
         Expanded(
           child: widget.transactions == null
-              ? const Center(child: CircularProgressIndicator())
+              ? withHeader(
+                  const Padding(
+                    padding: EdgeInsets.all(Spacing.lg),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                )
               : widget.transactions!.isEmpty
-              ? EmptyState(
-                  icon: AppIcons.receipt,
-                  title: l10n.noTransactionsYet,
-                  subtitle: l10n.addFirstTransaction,
+              ? withHeader(
+                  EmptyState(
+                    icon: AppIcons.receipt,
+                    title: l10n.noTransactionsYet,
+                    subtitle: l10n.addFirstTransaction,
+                  ),
                 )
               : filtered.isEmpty
-              ? EmptyState(
-                  icon: AppIcons.receipt,
-                  title: l10n.noTransactionsForFilter,
+              ? withHeader(
+                  EmptyState(
+                    icon: AppIcons.receipt,
+                    title: l10n.noTransactionsForFilter,
+                  ),
                 )
               : DayGroupedTransactionList(
+                  header: accessibilitySize ? header : null,
                   transactions: filtered,
                   categoriesById: categoriesById,
                   currency: currency,

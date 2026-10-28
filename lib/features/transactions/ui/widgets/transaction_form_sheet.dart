@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/theme/icon_size.dart';
@@ -178,6 +179,38 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
       _ => null,
     };
 
+    final accessibilitySize = DynamicTypeScaler.isAccessibilitySize(context);
+    // Says up front that skipping a category is fine; one text, so it
+    // ellipsizes before pushing the button off a narrow row.
+    final categoryHeading = Heading(
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: l10n.category.toUpperCase(),
+              style: context.bodySmBold.copyWith(
+                color: colors.onSurfaceVariant,
+                letterSpacing: 0.4,
+              ),
+            ),
+            const TextSpan(text: '  '),
+            TextSpan(
+              text: l10n.optional,
+              style: context.textTheme.bodySmall?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+        maxLines: accessibilitySize ? null : 1,
+        overflow: accessibilitySize ? null : TextOverflow.ellipsis,
+      ),
+    );
+    final manageCategories = SecondaryButton(
+      label: l10n.manageCategories,
+      onPressed: () => const CategoriesRoute().push(context),
+    );
+
     return Padding(
       padding: EdgeInsets.fromLTRB(
         Spacing.md,
@@ -335,42 +368,17 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                 onChanged: viewModel.updateDescription,
               ),
               const SizedBox(height: Spacing.md),
-              Row(
-                children: [
-                  // Says up front that skipping a category is fine; one text,
-                  // so it ellipsizes before pushing the button off a narrow row.
-                  Expanded(
-                    child: Heading(
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: l10n.category.toUpperCase(),
-                              style: context.bodySmBold.copyWith(
-                                color: colors.onSurfaceVariant,
-                                letterSpacing: 0.4,
-                              ),
-                            ),
-                            const TextSpan(text: '  '),
-                            TextSpan(
-                              text: l10n.optional,
-                              style: context.textTheme.bodySmall?.copyWith(
-                                color: colors.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                  SecondaryButton(
-                    label: l10n.manageCategories,
-                    onPressed: () => const CategoriesRoute().push(context),
-                  ),
-                ],
-              ),
+              // At accessibility sizes the button moves under the heading.
+              if (accessibilitySize) ...[
+                categoryHeading,
+                manageCategories,
+              ] else
+                Row(
+                  children: [
+                    Expanded(child: categoryHeading),
+                    manageCategories,
+                  ],
+                ),
               const SizedBox(height: Spacing.sm),
               switch (categoriesAsync) {
                 // One row that scrolls sideways, so more categories never make

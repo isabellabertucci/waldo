@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
+import 'package:waldo/core/widgets/badge_row.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
@@ -178,79 +180,79 @@ class _OptionRow<T> extends StatelessWidget {
             color: selected ? colors.primary : colors.transparent,
             child: Padding(
               padding: const EdgeInsets.all(Spacing.sm),
-              child: Row(
-                children: [
-                  Container(
-                    width: BadgeSize.lg,
-                    height: BadgeSize.lg,
-                    decoration: BoxDecoration(
-                      color: badgeColor,
-                      shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    // Selected: `onPrimary` on `primary`; unselected: muted on a neutral fill.
-                    child: option.symbolText != null
-                        ? Text(
+              child: BadgeRow(
+                badge: Container(
+                  width: BadgeSize.lg,
+                  height: BadgeSize.lg,
+                  decoration: BoxDecoration(
+                    color: badgeColor,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  // Selected: `onPrimary` on `primary`; unselected: muted on a neutral fill.
+                  // A symbol shrinks to stay inside the disc with large text.
+                  child: option.symbolText != null
+                      ? FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
                             option.symbolText!,
                             style: context.headlineMdStrong.copyWith(
                               color: selected
                                   ? colors.onPrimary
                                   : colors.onSurfaceVariant,
                             ),
-                          )
-                        : Icon(
-                            option.icon,
-                            size: IconSize.lg,
-                            color: selected
-                                ? colors.onPrimary
-                                : colors.onSurfaceVariant,
                           ),
-                  ),
-                  const SizedBox(width: Spacing.sm),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          option.label,
-                          style: context.bodyMdBold.copyWith(
-                            color: colors.onSurface,
-                          ),
+                        )
+                      : Icon(
+                          option.icon,
+                          size: IconSize.lg,
+                          color: selected
+                              ? colors.onPrimary
+                              : colors.onSurfaceVariant,
                         ),
-                        if (option.subtitle != null)
-                          Text(
-                            option.subtitle!,
-                            style: context.textTheme.bodySmall?.copyWith(
-                              color: colors.onSurfaceVariant,
-                            ),
+                ),
+                trailing: Padding(
+                  padding: const EdgeInsets.only(left: Spacing.sm),
+                  child: selected
+                      ? Container(
+                          width: BadgeSize.xs,
+                          height: BadgeSize.xs,
+                          decoration: BoxDecoration(
+                            color: colors.primary,
+                            shape: BoxShape.circle,
                           ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: Spacing.sm),
-                  if (selected)
-                    Container(
-                      width: BadgeSize.xs,
-                      height: BadgeSize.xs,
-                      decoration: BoxDecoration(
-                        color: colors.primary,
-                        shape: BoxShape.circle,
+                          child: Icon(
+                            AppIcons.check,
+                            size: IconSize.sm,
+                            color: colors.onPrimary,
+                          ),
+                        )
+                      : Icon(
+                          AppIcons.radioUnselected,
+                          size: BadgeSize.xs,
+                          // An unpicked option's ring: 3:1 for a state (WCAG 1.4.11).
+                          color: colors.onSurfaceVariant,
+                        ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    WholeWordsText(
+                      option.label,
+                      style: context.bodyMdBold.copyWith(
+                        color: colors.onSurface,
                       ),
-                      child: Icon(
-                        AppIcons.check,
-                        size: IconSize.sm,
-                        color: colors.onPrimary,
-                      ),
-                    )
-                  else
-                    Icon(
-                      AppIcons.radioUnselected,
-                      size: BadgeSize.xs,
-                      // An unpicked option's ring: 3:1 for a state (WCAG 1.4.11).
-                      color: colors.onSurfaceVariant,
                     ),
-                ],
+                    if (option.subtitle != null)
+                      Text(
+                        option.subtitle!,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),

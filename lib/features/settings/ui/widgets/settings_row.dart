@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/theme/badge_size.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -55,9 +57,12 @@ class _RowDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(
-      // Starts under the title: row padding + badge + title gap.
-      indent: Spacing.sm + BadgeSize.lg + Spacing.component,
+    // Starts under the title: row padding, plus the disc and its gap when
+    // the disc sits beside the title.
+    return Divider(
+      indent: DynamicTypeScaler.isAccessibilitySize(context)
+          ? Spacing.sm
+          : Spacing.sm + BadgeSize.lg + Spacing.component,
     );
   }
 }
@@ -89,12 +94,28 @@ class SettingsRow extends StatelessWidget {
     final colors = context.appColors;
     final stacked =
         MediaQuery.textScalerOf(context).scale(1) >= _stackValueTextScale;
-    final valueText = Text(
+    // At accessibility sizes the disc moves above the title, so long words
+    // get the row's full width instead of breaking.
+    final discAbove = DynamicTypeScaler.isAccessibilitySize(context);
+    final valueText = WholeWordsText(
       value,
       style: context.textTheme.bodyMedium?.copyWith(
         color: colors.onSurfaceVariant,
       ),
     );
+
+    // Same disc as the option sheet's, so both screens match.
+    final disc = Container(
+      width: BadgeSize.lg,
+      height: BadgeSize.lg,
+      decoration: BoxDecoration(
+        // The page behind the card, as if the disc were cut out of it.
+        color: colors.surfaceContainer,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, size: IconSize.lg, color: colors.onSurfaceVariant),
+    );
+    final titleText = WholeWordsText(title, style: context.bodyMdBold);
 
     return ListTile(
       onTap: onTap,
@@ -103,25 +124,24 @@ class SettingsRow extends StatelessWidget {
         vertical: Spacing.xxs,
       ),
       horizontalTitleGap: Spacing.component,
-      // Same disc as the option sheet's, so both screens match.
-      leading: Container(
-        width: BadgeSize.lg,
-        height: BadgeSize.lg,
-        decoration: BoxDecoration(
-          // The page behind the card, as if the disc were cut out of it.
-          color: colors.surfaceContainer,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, size: IconSize.lg, color: colors.onSurfaceVariant),
-      ),
-      title: Text(title, style: context.bodyMdBold),
+      leading: discAbove ? null : disc,
+      title: discAbove
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                disc,
+                const SizedBox(height: Spacing.xs),
+                titleText,
+              ],
+            )
+          : titleText,
       subtitle: subtitle == null && !stacked
           ? null
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (subtitle != null)
-                  Text(
+                  WholeWordsText(
                     subtitle!,
                     style: context.textTheme.bodySmall?.copyWith(
                       color: colors.onSurfaceVariant,

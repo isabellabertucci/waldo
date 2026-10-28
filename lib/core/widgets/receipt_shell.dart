@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/component_size.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/stitch.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 
@@ -126,6 +128,41 @@ class ReceiptRow extends StatelessWidget {
     // Nudged down by the text's descent, so the dots sit on the baseline.
     final descent = style.fontSize! * 0.22;
 
+    final leader = Padding(
+      padding: EdgeInsets.only(top: descent),
+      child: DottedLeader(color: color.withValues(alpha: Alpha.stitch)),
+    );
+
+    // At accessibility sizes the label gets its own line and the dots lead
+    // to the value under it, so no category is cut.
+    if (DynamicTypeScaler.isAccessibilitySize(context)) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          WholeWordsText(label, style: style),
+          LayoutBuilder(
+            builder: (context, constraints) => Row(
+              children: [
+                Expanded(child: leader),
+                const SizedBox(width: ComponentSize.receiptLeaderGap),
+                // A whole value shrinks rather than overflowing the line.
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth:
+                        constraints.maxWidth - ComponentSize.receiptLeaderGap,
+                  ),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(value, maxLines: 1, style: style),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
+
     // The dots run under the label, which covers them in the paper's colour:
     // a long label is cut with "…" and the value always shows whole.
     return Row(
@@ -138,17 +175,9 @@ class ReceiptRow extends StatelessWidget {
               Positioned.fill(
                 // Clipped, so the first dot's edge can't peek out before the label.
                 child: ClipRect(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: descent),
-                    // Full width: Center alone would let the dots shrink to nothing.
-                    child: Center(
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: DottedLeader(
-                          color: color.withValues(alpha: Alpha.stitch),
-                        ),
-                      ),
-                    ),
+                  // Full width: Center alone would let the dots shrink to nothing.
+                  child: Center(
+                    child: SizedBox(width: double.infinity, child: leader),
                   ),
                 ),
               ),

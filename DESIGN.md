@@ -425,6 +425,28 @@ balance figure on the dashboard.
   `error` negative) so weight and color are never both doing the same job on
   the same piece of text.
 
+### Large text
+
+Waldo follows the phone's text size up to iOS's largest (AX5), the way
+Apple's own apps do: everything gets big, but stays in order.
+
+- **Titles grow less than body text.** iOS gives Flutter one factor for
+  every size; `DynamicTypeScaler` applies Apple's per-style table instead,
+  so at AX5 a title is only a little bigger than the text under it. Android
+  14+ already scales this way itself.
+- **Bars and segmented controls stop at xxxLarge** (`barMaxScale`), as
+  iOS's tab bar and segmented control do: the navbar, the Expense/Income
+  toggles, the undo countdown.
+- **At the accessibility sizes (AX1 and up) layouts stack.** A badge moves
+  above its text (`BadgeRow`), a value or button moves under its label,
+  the wallet type tiles become one column, dialog buttons stack, and the
+  wallet cards grow while the part under the next card stays the same.
+- **No word is ever broken or cut.** One-line text wraps at accessibility
+  sizes (`WholeWordsText.singleLine`), and a word wider than its line
+  shrinks just enough to fit, like UIKit's `adjustsFontSizeToFitWidth`.
+- **Amounts are never cut.** A balance or amount shrinks to fit its line
+  instead.
+
 ## Layout
 
 Two spacing systems, intentionally: a **page scale**

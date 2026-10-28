@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:waldo/core/theme/badge_size.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/badge_row.dart';
 import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/field_label.dart';
 
@@ -68,6 +70,9 @@ class FormPillField extends StatefulWidget {
   State<FormPillField> createState() => _FormPillFieldState();
 }
 
+/// How many lines a hint may take at accessibility sizes.
+const _largeTextHintLines = 3;
+
 class _FormPillFieldState extends State<FormPillField> {
   final _focusNode = FocusNode();
 
@@ -80,7 +85,47 @@ class _FormPillFieldState extends State<FormPillField> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final largeText = DynamicTypeScaler.isAccessibilitySize(context);
     final trailing = widget.trailing;
+    final tag = trailing == null
+        ? null
+        : Text(
+            trailing,
+            style: context.bodyMdBold.copyWith(color: colors.onSurfaceVariant),
+          );
+    final input = TextFormField(
+      key: widget.fieldKey,
+      controller: widget.controller,
+      focusNode: _focusNode,
+      enabled: widget.enabled,
+      onChanged: widget.onChanged,
+      validator: widget.validator,
+      keyboardType: widget.keyboardType,
+      inputFormatters: widget.inputFormatters,
+      textCapitalization: widget.textCapitalization,
+      maxLength: widget.maxLength,
+      onFieldSubmitted: widget.onSubmitted,
+      textInputAction: widget.onSubmitted == null ? null : TextInputAction.done,
+      buildCounter: _nearLimitCounter,
+      decoration: InputDecoration(
+        isCollapsed: true,
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        focusedErrorBorder: InputBorder.none,
+        filled: false,
+        contentPadding: const EdgeInsets.symmetric(vertical: Spacing.xs),
+        hintText: widget.hint,
+        // At accessibility sizes the hint wraps rather than being cut.
+        hintMaxLines: largeText ? _largeTextHintLines : null,
+        // Full strength: placeholder text is still text
+        // (WCAG 1.4.3); the bold ink value reads apart.
+        hintStyle: context.bodyMdBold.copyWith(color: colors.onSurfaceVariant),
+      ),
+      style: context.bodyMdBold,
+    );
 
     // A tap anywhere on the pill, the disc included, goes to the field.
     return GestureDetector(
@@ -110,91 +155,59 @@ class _FormPillFieldState extends State<FormPillField> {
               // One node, so screen readers name the field by its label (a
               // collapsed decoration can't take a labelText) and hear its unit.
               child: MergeSemantics(
-                child: Row(
-                  children: [
-                    // Decorative: an icon, or a symbol the unit after repeats.
-                    ExcludeSemantics(
-                      child: Container(
-                        width: BadgeSize.md,
-                        height: BadgeSize.md,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: focused
-                              ? colors.primary
-                              : (widget.onPage
-                                    ? colors.surfaceContainer
-                                    : colors.surface),
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconTheme(
-                          data: IconThemeData(
-                            color: discInk,
-                            size: IconSize.md,
-                          ),
-                          child: DefaultTextStyle(
-                            style: context.bodyMdBold.copyWith(color: discInk),
+                child: BadgeRow(
+                  // Decorative: an icon, or a symbol the unit after repeats.
+                  badge: ExcludeSemantics(
+                    child: Container(
+                      width: BadgeSize.md,
+                      height: BadgeSize.md,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: focused
+                            ? colors.primary
+                            : (widget.onPage
+                                  ? colors.surfaceContainer
+                                  : colors.surface),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconTheme(
+                        data: IconThemeData(color: discInk, size: IconSize.md),
+                        child: DefaultTextStyle(
+                          style: context.bodyMdBold.copyWith(color: discInk),
+                          // A symbol shrinks to stay inside the disc with large text.
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
                             child: widget.leading,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: Spacing.sm),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          FieldLabel(widget.label, required: widget.required),
-                          TextFormField(
-                            key: widget.fieldKey,
-                            controller: widget.controller,
-                            focusNode: _focusNode,
-                            enabled: widget.enabled,
-                            onChanged: widget.onChanged,
-                            validator: widget.validator,
-                            keyboardType: widget.keyboardType,
-                            inputFormatters: widget.inputFormatters,
-                            textCapitalization: widget.textCapitalization,
-                            maxLength: widget.maxLength,
-                            onFieldSubmitted: widget.onSubmitted,
-                            textInputAction: widget.onSubmitted == null
-                                ? null
-                                : TextInputAction.done,
-                            buildCounter: _nearLimitCounter,
-                            decoration: InputDecoration(
-                              isCollapsed: true,
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              focusedErrorBorder: InputBorder.none,
-                              filled: false,
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: Spacing.xs,
-                              ),
-                              hintText: widget.hint,
-                              // Full strength: placeholder text is still text
-                              // (WCAG 1.4.3); the bold ink value reads apart.
-                              hintStyle: context.bodyMdBold.copyWith(
-                                color: colors.onSurfaceVariant,
-                              ),
-                            ),
-                            style: context.bodyMdBold,
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (trailing != null) ...[
-                      const SizedBox(width: Spacing.sm),
-                      Text(
-                        trailing,
-                        style: context.bodyMdBold.copyWith(
-                          color: colors.onSurfaceVariant,
+                  ),
+                  // At accessibility sizes the tag moves down beside the
+                  // input, so the label keeps the whole width.
+                  trailing: tag == null || largeText
+                      ? null
+                      : Padding(
+                          padding: const EdgeInsets.only(left: Spacing.sm),
+                          child: tag,
                         ),
-                      ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FieldLabel(widget.label, required: widget.required),
+                      if (tag != null && largeText)
+                        Row(
+                          children: [
+                            Expanded(child: input),
+                            const SizedBox(width: Spacing.sm),
+                            tag,
+                          ],
+                        )
+                      else
+                        input,
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),

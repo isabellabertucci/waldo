@@ -82,4 +82,27 @@ void main() {
       });
     });
   }
+
+  testWidgets('With Bold Text on, text measures in bold, as Text draws it', (
+    tester,
+  ) async {
+    late TextStyle normal;
+    late TextStyle bold;
+    Widget probe(bool boldText, void Function(TextStyle) report) => MediaQuery(
+      data: MediaQueryData(boldText: boldText),
+      child: Builder(
+        builder: (context) {
+          report(context.effectiveTextStyle(const TextStyle(fontSize: 14)));
+          return const SizedBox();
+        },
+      ),
+    );
+
+    await tester.pumpWidget(probe(false, (s) => normal = s));
+    await tester.pumpWidget(probe(true, (s) => bold = s));
+
+    expect(normal.fontWeight, isNot(FontWeight.bold));
+    expect(bold.fontWeight, FontWeight.bold);
+    expect(bold.fontSize, 14);
+  });
 }

@@ -11,6 +11,7 @@ import 'core/logging/app_logger.dart';
 import 'core/logging/provider_observer.dart';
 import 'core/router/app_router_provider.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/dynamic_type_scaler.dart';
 import 'l10n/app_localizations.dart';
 
 final _log = Logger('waldo');
@@ -54,6 +55,17 @@ SystemUiOverlayStyle _systemBarsStyle(BuildContext context) {
   );
 }
 
+/// On iOS, titles grow less than body text, as in Apple's apps. Android 14+
+/// already scales that way itself.
+Widget _withDynamicType(BuildContext context, Widget child) {
+  if (defaultTargetPlatform != TargetPlatform.iOS) return child;
+  final media = MediaQuery.of(context);
+  return MediaQuery(
+    data: media.copyWith(textScaler: DynamicTypeScaler.from(media.textScaler)),
+    child: child,
+  );
+}
+
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
@@ -80,7 +92,7 @@ class MyApp extends ConsumerWidget {
       themeMode: themeMode,
       builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
         value: _systemBarsStyle(context),
-        child: child!,
+        child: _withDynamicType(context, child!),
       ),
     );
   }

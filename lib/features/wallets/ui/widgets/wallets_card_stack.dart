@@ -1,5 +1,10 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:waldo/core/theme/alpha.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
@@ -42,6 +47,7 @@ class WalletsCardStack extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
     final n = wallets.length;
+    final accessibilitySize = DynamicTypeScaler.isAccessibilitySize(context);
     final totalBalance = wallets.fold<int>(
       0,
       (sum, w) => sum + w.currentBalance,
@@ -102,10 +108,15 @@ class WalletsCardStack extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: Spacing.xs),
-                Text(
-                  totalText,
-                  style: context.headlineSmExtraBold.copyWith(
-                    color: colors.onSurface,
+                // A whole total shrinks rather than breaking or being cut.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    totalText,
+                    style: context.headlineSmExtraBold.copyWith(
+                      color: colors.onSurface,
+                    ),
                   ),
                 ),
               ],
@@ -116,14 +127,19 @@ class WalletsCardStack extends StatelessWidget {
             children: List.generate(n, (index) {
               final wallet = wallets[index];
               final isLastCard = index == n - 1;
-              return Align(
-                alignment: Alignment.topCenter,
-                heightFactor: isLastCard
-                    ? 1.0
-                    : ComponentSize.walletCardStackOverlap,
-                child: SizedBox(
-                  height: ComponentSize.walletCard,
-                  width: double.infinity,
+              return _TuckedUnder(
+                hidden: isLastCard ? 0 : ComponentSize.walletCardTuck,
+                // At accessibility sizes the card grows with its text.
+                child: ConstrainedBox(
+                  constraints: accessibilitySize
+                      ? const BoxConstraints(
+                          minHeight: ComponentSize.walletCard,
+                          minWidth: double.infinity,
+                        )
+                      : const BoxConstraints.tightFor(
+                          height: ComponentSize.walletCard,
+                          width: double.infinity,
+                        ),
                   child: _WalletCard(
                     key: Key('walletCard_${wallet.id}'),
                     wallet: wallet,
@@ -131,6 +147,7 @@ class WalletsCardStack extends StatelessWidget {
                     isBalanceHidden: isBalanceHidden,
                     finish: WalletCardFinish.fromIndex(index),
                     showSeamTab: !isLastCard,
+                    accessibilitySize: accessibilitySize,
                     onTap: () => onTapWallet(wallet),
                     onEdit: () => onEditWallet(wallet),
                     onDelete: () => onDeleteWallet(wallet),
@@ -153,6 +170,7 @@ class _WalletCard extends StatelessWidget {
     required this.isBalanceHidden,
     required this.finish,
     required this.showSeamTab,
+    required this.accessibilitySize,
     required this.onTap,
     required this.onEdit,
     required this.onDelete,
@@ -163,6 +181,9 @@ class _WalletCard extends StatelessWidget {
   final bool isBalanceHidden;
   final WalletCardFinish finish;
   final bool showSeamTab;
+
+  /// Grows with its text and puts type and balance on their own lines.
+  final bool accessibilitySize;
   final VoidCallback onTap;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -179,12 +200,42 @@ class _WalletCard extends StatelessWidget {
             currencyCode: currency.code,
           );
 
+    final inkMuted = walletCardInkColor(context, alpha: Alpha.muted);
+    final typeRow = Row(
+      children: [
+        Icon(wallet.type.icon, size: IconSize.sm, color: inkMuted),
+        const SizedBox(width: Spacing.xs),
+        Expanded(
+          child: WholeWordsText.singleLine(
+            wallet.type.label(l10n),
+            style: context.textTheme.bodySmall?.copyWith(
+              color: inkMuted,
+              shadows: walletCardTextShadow,
+            ),
+          ),
+        ),
+      ],
+    );
+    final balance = Text(
+      balanceText,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: context.walletCardBalance.copyWith(
+        color: isNegative && !isBalanceHidden
+            ? walletCardNegativeColor(context)
+            : walletCardInkColor(context, alpha: 1),
+        shadows: walletCardTextShadow,
+      ),
+    );
+
     return Material(
       borderRadius: BorderRadius.circular(Rounded.lg),
       clipBehavior: Clip.antiAlias,
       elevation: 3,
 
       child: Stack(
+        // The text decides the card's height when it isn't fixed.
+        fit: StackFit.passthrough,
         children: [
           Positioned.fill(
             child: Hero(
@@ -230,82 +281,60 @@ class _WalletCard extends StatelessWidget {
                 ),
               ),
             ),
-          // Fill the card, so a tap anywhere on it opens the wallet, not just on the text.
-          Positioned.fill(
-            child: Semantics(
-              button: true,
-              child: InkWell(
-                onTap: onTap,
-                splashColor: walletCardInkColor(context, alpha: Alpha.soft),
-                highlightColor: walletCardInkColor(context, alpha: Alpha.tint),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    Spacing.sm,
-                    Spacing.md,
-                    Spacing.sm,
-                    Spacing.sm,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        // Leaves room for the menu button, so long names ellipsize before it.
-                        padding: const EdgeInsets.only(
-                          right: ComponentSize.walletCardMenuRoom,
-                        ),
-                        child: Text(
-                          wallet.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.headlineLgExtraBold.copyWith(
-                            color: walletCardInkColor(context, alpha: 1),
-                            shadows: walletCardTextShadow,
-                          ),
+          // Fills the card, so a tap anywhere on it opens the wallet, not just on the text.
+          Semantics(
+            button: true,
+            child: InkWell(
+              onTap: onTap,
+              splashColor: walletCardInkColor(context, alpha: Alpha.soft),
+              highlightColor: walletCardInkColor(context, alpha: Alpha.tint),
+              child: Padding(
+                // A growing card keeps its text above the part the next
+                // card covers.
+                padding: EdgeInsets.fromLTRB(
+                  Spacing.sm,
+                  Spacing.md,
+                  Spacing.sm,
+                  Spacing.sm +
+                      (accessibilitySize && showSeamTab
+                          ? ComponentSize.walletCardTuck
+                          : 0),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      // Leaves room for the menu button, so long names ellipsize before it.
+                      padding: const EdgeInsets.only(
+                        right: ComponentSize.walletCardMenuRoom,
+                      ),
+                      child: WholeWordsText.singleLine(
+                        wallet.name,
+                        style: context.headlineLgExtraBold.copyWith(
+                          color: walletCardInkColor(context, alpha: 1),
+                          shadows: walletCardTextShadow,
                         ),
                       ),
-                      const SizedBox(height: Spacing.xs),
+                    ),
+                    const SizedBox(height: Spacing.xs),
+                    if (accessibilitySize) ...[
+                      typeRow,
+                      // A whole balance shrinks rather than being cut.
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: balance,
+                      ),
+                    ] else
                       Row(
                         children: [
-                          Icon(
-                            wallet.type.icon,
-                            size: IconSize.sm,
-                            color: walletCardInkColor(
-                              context,
-                              alpha: Alpha.muted,
-                            ),
-                          ),
-                          const SizedBox(width: Spacing.xs),
-                          Expanded(
-                            child: Text(
-                              wallet.type.label(l10n),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: context.textTheme.bodySmall?.copyWith(
-                                color: walletCardInkColor(
-                                  context,
-                                  alpha: Alpha.muted,
-                                ),
-                                shadows: walletCardTextShadow,
-                              ),
-                            ),
-                          ),
+                          Expanded(child: typeRow),
                           const SizedBox(width: Spacing.sm),
-                          Text(
-                            balanceText,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.walletCardBalance.copyWith(
-                              color: isNegative && !isBalanceHidden
-                                  ? walletCardNegativeColor(context)
-                                  : walletCardInkColor(context, alpha: 1),
-                              shadows: walletCardTextShadow,
-                            ),
-                          ),
+                          balance,
                         ],
                       ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -386,6 +415,47 @@ class _CardMenuButtonState extends State<_CardMenuButton> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Lays its child out at full height but takes [hidden] less, so the next
+/// card in the stack covers the child's bottom.
+class _TuckedUnder extends SingleChildRenderObjectWidget {
+  const _TuckedUnder({required this.hidden, required super.child});
+
+  final double hidden;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderTuckedUnder(hidden);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderTuckedUnder renderObject,
+  ) => renderObject.hidden = hidden;
+}
+
+class _RenderTuckedUnder extends RenderProxyBox {
+  _RenderTuckedUnder(this._hidden);
+
+  double _hidden;
+  set hidden(double value) {
+    if (value == _hidden) return;
+    _hidden = value;
+    markNeedsLayout();
+  }
+
+  @override
+  void performLayout() {
+    final child = this.child!;
+    child.layout(
+      constraints.copyWith(minHeight: 0, maxHeight: double.infinity),
+      parentUsesSize: true,
+    );
+    size = constraints.constrain(
+      Size(child.size.width, math.max(0, child.size.height - _hidden)),
     );
   }
 }

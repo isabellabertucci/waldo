@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:flutter/material.dart';
@@ -118,24 +119,28 @@ class _SeriesToggle extends StatelessWidget {
         color: colors.surfaceContainer,
         borderRadius: BorderRadius.circular(Rounded.pill),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-            child: _SeriesToggleSegment(
-              label: TransactionType.expense.label(l10n),
-              selected: selected == TransactionType.expense,
-              onTap: () => onChanged(TransactionType.expense),
+      // Segmented controls stop growing where bars do, as on iOS.
+      child: MediaQuery.withClampedTextScaling(
+        maxScaleFactor: DynamicTypeScaler.barMaxScale,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: _SeriesToggleSegment(
+                label: TransactionType.expense.label(l10n),
+                selected: selected == TransactionType.expense,
+                onTap: () => onChanged(TransactionType.expense),
+              ),
             ),
-          ),
-          Flexible(
-            child: _SeriesToggleSegment(
-              label: TransactionType.income.label(l10n),
-              selected: selected == TransactionType.income,
-              onTap: () => onChanged(TransactionType.income),
+            Flexible(
+              child: _SeriesToggleSegment(
+                label: TransactionType.income.label(l10n),
+                selected: selected == TransactionType.income,
+                onTap: () => onChanged(TransactionType.income),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

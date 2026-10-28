@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -124,24 +125,28 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
                   color: colors.onSurface.withValues(alpha: Alpha.faint),
                   borderRadius: BorderRadius.circular(Rounded.pill),
                 ),
-                child: Row(
-                  children: [
-                    _TypeSegment(
-                      label: l10n.filterTypeAll,
-                      selected: _filter.type == null,
-                      onTap: () => _selectType(null),
-                    ),
-                    _TypeSegment(
-                      label: TransactionType.income.label(l10n),
-                      selected: _filter.type == TransactionType.income,
-                      onTap: () => _selectType(TransactionType.income),
-                    ),
-                    _TypeSegment(
-                      label: TransactionType.expense.label(l10n),
-                      selected: _filter.type == TransactionType.expense,
-                      onTap: () => _selectType(TransactionType.expense),
-                    ),
-                  ],
+                // Segmented controls stop growing where bars do, as on iOS.
+                child: MediaQuery.withClampedTextScaling(
+                  maxScaleFactor: DynamicTypeScaler.barMaxScale,
+                  child: Row(
+                    children: [
+                      _TypeSegment(
+                        label: l10n.filterTypeAll,
+                        selected: _filter.type == null,
+                        onTap: () => _selectType(null),
+                      ),
+                      _TypeSegment(
+                        label: TransactionType.income.label(l10n),
+                        selected: _filter.type == TransactionType.income,
+                        onTap: () => _selectType(TransactionType.income),
+                      ),
+                      _TypeSegment(
+                        label: TransactionType.expense.label(l10n),
+                        selected: _filter.type == TransactionType.expense,
+                        onTap: () => _selectType(TransactionType.expense),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

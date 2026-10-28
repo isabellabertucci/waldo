@@ -167,10 +167,15 @@ class BalanceOverviewCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: Spacing.xs),
-                Text(
-                  balanceText,
-                  style: context.headlineDisplayBlack.copyWith(
-                    color: colors.onLeather,
+                // A whole balance shrinks rather than breaking or being cut.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    balanceText,
+                    style: context.headlineDisplayBlack.copyWith(
+                      color: colors.onLeather,
+                    ),
                   ),
                 ),
                 if (isEmpty) ...[

@@ -21,6 +21,7 @@ class DayGroupedTransactionList extends StatelessWidget {
     required this.now,
     this.isAmountHidden = false,
     this.padding = const EdgeInsets.all(Spacing.pageMargin),
+    this.header,
   });
 
   final List<Transaction> transactions;
@@ -31,6 +32,9 @@ class DayGroupedTransactionList extends StatelessWidget {
   final DateTime now;
   final bool isAmountHidden;
   final EdgeInsetsGeometry padding;
+
+  /// Scrolls with the days, above them and outside [padding].
+  final Widget? header;
 
   Map<DateTime, List<Transaction>> _groupByDay() {
     final groups = <DateTime, List<Transaction>>{};
@@ -58,8 +62,7 @@ class DayGroupedTransactionList extends StatelessWidget {
     final groups = _groupByDay();
     final days = groups.keys.toList();
 
-    return ListView.builder(
-      padding: padding,
+    final list = SliverList.builder(
       itemCount: days.length,
       itemBuilder: (context, index) {
         final day = days[index];
@@ -92,6 +95,15 @@ class DayGroupedTransactionList extends StatelessWidget {
           ),
         );
       },
+    );
+
+    // What ListView.builder builds, with room for a header above the padding.
+    return CustomScrollView(
+      semanticChildCount: days.length,
+      slivers: [
+        if (header case final header?) SliverToBoxAdapter(child: header),
+        SliverPadding(padding: padding, sliver: list),
+      ],
     );
   }
 }

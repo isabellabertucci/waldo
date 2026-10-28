@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
+import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 
 void main() {
@@ -120,5 +121,39 @@ void main() {
         tester.getSize(find.byKey(ValueKey(variant))),
     };
     expect(sizes, hasLength(1));
+  });
+
+  testWidgets('At accessibility sizes a labelled button is a rounded '
+      'rectangle, so a wrapped label stays clear of its ends', (tester) async {
+    BorderRadius? radius() =>
+        (tester.widget<Material>(
+              find.descendant(
+                of: find.byType(DashedStitchButton),
+                matching: find.byType(Material),
+              ),
+            )).borderRadius
+            as BorderRadius?;
+
+    Future<void> pumpAt(double scale) => tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: MediaQuery(
+          data: MediaQueryData(textScaler: TextScaler.linear(scale)),
+          child: Scaffold(
+            body: Center(
+              child: DashedStitchButton(
+                label: 'Save changes',
+                onPressed: () {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await pumpAt(1);
+    expect(radius(), BorderRadius.circular(Rounded.pill));
+    await pumpAt(28 / 17);
+    expect(radius(), BorderRadius.circular(Rounded.lg));
   });
 }
