@@ -24,8 +24,8 @@ class ComponentSize {
   /// A wallet card in the Wallets stack.
   static const walletCard = 187.0;
 
-  /// How much of each card shows above the next one in the stack.
-  static const walletCardStackOverlap = 124 / 170;
+  /// How much of each card hides under the next one in the stack.
+  static const walletCardTuck = walletCard * (1 - 124 / 170);
 
   /// Room the name leaves for the card's ⋮ button.
   static const walletCardMenuRoom = 36.0;
