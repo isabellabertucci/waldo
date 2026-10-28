@@ -5,6 +5,7 @@ import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
@@ -48,42 +49,45 @@ class AppNavBar extends StatelessWidget {
 
     return SafeArea(
       minimum: const EdgeInsets.fromLTRB(Spacing.sm, 0, Spacing.sm, Spacing.xs),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(Spacing.xs),
-            decoration: BoxDecoration(
-              color: colors.surface,
-              borderRadius: BorderRadius.circular(Rounded.pill),
-              boxShadow: Elevation.low,
-            ),
-            // A tab bar to screen readers, as Flutter's NavigationBar is.
-            child: Semantics(
-              role: SemanticsRole.tabBar,
-              explicitChildNodes: true,
-              container: true,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (var i = 0; i < items.length; i++) ...[
-                    if (i > 0) const SizedBox(width: Spacing.xs / 2),
-                    AppNavButton(
-                      key: ValueKey('nav-$i'),
-                      icon: items[i].icon,
-                      selectedIcon: items[i].selectedIcon,
-                      label: items[i].label,
-                      selected: i == currentIndex,
-                      tabIndex: i + 1,
-                      tabCount: items.length,
-                      onTap: () => onSelect(i),
-                    ),
+      child: MediaQuery.withClampedTextScaling(
+        maxScaleFactor: DynamicTypeScaler.barMaxScale,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(Spacing.xs),
+              decoration: BoxDecoration(
+                color: colors.surface,
+                borderRadius: BorderRadius.circular(Rounded.pill),
+                boxShadow: Elevation.low,
+              ),
+              // A tab bar to screen readers, as Flutter's NavigationBar is.
+              child: Semantics(
+                role: SemanticsRole.tabBar,
+                explicitChildNodes: true,
+                container: true,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < items.length; i++) ...[
+                      if (i > 0) const SizedBox(width: Spacing.xs / 2),
+                      AppNavButton(
+                        key: ValueKey('nav-$i'),
+                        icon: items[i].icon,
+                        selectedIcon: items[i].selectedIcon,
+                        label: items[i].label,
+                        selected: i == currentIndex,
+                        tabIndex: i + 1,
+                        tabCount: items.length,
+                        onTap: () => onSelect(i),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

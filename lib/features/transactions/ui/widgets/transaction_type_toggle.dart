@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -31,27 +32,31 @@ class TransactionTypeToggle extends StatelessWidget {
         color: colors.surface,
         borderRadius: BorderRadius.circular(Rounded.pill),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: _TypeToggleSegment(
-              label: TransactionType.expense.label(l10n),
-              selected: selected == TransactionType.expense,
-              color: colors.error,
-              onColor: colors.onPrimary,
-              onTap: () => onChanged(TransactionType.expense),
+      // Segmented controls stop growing where bars do, as on iOS.
+      child: MediaQuery.withClampedTextScaling(
+        maxScaleFactor: DynamicTypeScaler.barMaxScale,
+        child: Row(
+          children: [
+            Expanded(
+              child: _TypeToggleSegment(
+                label: TransactionType.expense.label(l10n),
+                selected: selected == TransactionType.expense,
+                color: colors.error,
+                onColor: colors.onPrimary,
+                onTap: () => onChanged(TransactionType.expense),
+              ),
             ),
-          ),
-          Expanded(
-            child: _TypeToggleSegment(
-              label: TransactionType.income.label(l10n),
-              selected: selected == TransactionType.income,
-              color: colors.primary,
-              onColor: colors.onPrimary,
-              onTap: () => onChanged(TransactionType.income),
+            Expanded(
+              child: _TypeToggleSegment(
+                label: TransactionType.income.label(l10n),
+                selected: selected == TransactionType.income,
+                color: colors.primary,
+                onColor: colors.onPrimary,
+                onTap: () => onChanged(TransactionType.income),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
