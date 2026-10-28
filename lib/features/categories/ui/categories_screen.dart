@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
+import 'package:waldo/core/widgets/badge_row.dart';
 import 'package:waldo/core/database/save_failure.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/constants/enums.dart';
@@ -238,47 +240,37 @@ class _CategoryRow extends StatelessWidget {
           Spacing.xxs,
           Spacing.xxs,
         ),
-        child: Row(
-          children: [
-            Container(
-              width: BadgeSize.md,
-              height: BadgeSize.md,
-              decoration: BoxDecoration(
-                // The page behind the card, as if the disc were cut out of it.
-                color: colors.surfaceContainer,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                category.icon,
-                size: IconSize.md,
-                color: colors.onSurface,
-              ),
+        child: BadgeRow(
+          badge: Container(
+            width: BadgeSize.md,
+            height: BadgeSize.md,
+            decoration: BoxDecoration(
+              // The page behind the card, as if the disc were cut out of it.
+              color: colors.surfaceContainer,
+              shape: BoxShape.circle,
             ),
-            const SizedBox(width: Spacing.sm),
-            Expanded(
-              child: Text(
-                name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.bodyMdBold,
-              ),
+            child: Icon(
+              category.icon,
+              size: IconSize.md,
+              color: colors.onSurface,
             ),
-            // A fixed-size slot, so rows line up whether or not they have an X.
-            SizedBox.square(
-              dimension: kMinInteractiveDimension,
-              child: onDelete == null
-                  ? null
-                  : IconButton(
-                      tooltip: l10n.deleteCategoryNamed(name),
-                      onPressed: onDelete,
-                      icon: Icon(
-                        AppIcons.close,
-                        size: IconSize.lg,
-                        color: colors.onSurfaceVariant,
-                      ),
+          ),
+          // A fixed-size slot, so rows line up whether or not they have an X.
+          trailing: SizedBox.square(
+            dimension: kMinInteractiveDimension,
+            child: onDelete == null
+                ? null
+                : IconButton(
+                    tooltip: l10n.deleteCategoryNamed(name),
+                    onPressed: onDelete,
+                    icon: Icon(
+                      AppIcons.close,
+                      size: IconSize.lg,
+                      color: colors.onSurfaceVariant,
                     ),
-            ),
-          ],
+                  ),
+          ),
+          child: WholeWordsText.singleLine(name, style: context.bodyMdBold),
         ),
       ),
     );

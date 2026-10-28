@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/badge_row.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -76,34 +78,27 @@ class EditFieldRow extends StatelessWidget {
               horizontal: Spacing.md,
               vertical: Spacing.sm,
             ),
-            child: Row(
-              children: [
-                FieldBadge(icon: icon, color: colors.onSurfaceVariant),
-                const SizedBox(width: Spacing.sm),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FieldLabel(label, required: required),
-                      Text(
-                        value,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: hasError && grouped
-                            ? context.bodyMdBold.copyWith(color: colors.error)
-                            : context.bodyMdBold,
-                      ),
-                    ],
+            child: BadgeRow(
+              badge: FieldBadge(icon: icon, color: colors.onSurfaceVariant),
+              trailing: Icon(
+                AppIcons.chevronRight,
+                size: IconSize.lg,
+                // Says the row opens a picker: 3:1 at least (WCAG 1.4.11).
+                color: colors.onSurfaceVariant,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FieldLabel(label, required: required),
+                  WholeWordsText.singleLine(
+                    value,
+                    style: hasError && grouped
+                        ? context.bodyMdBold.copyWith(color: colors.error)
+                        : context.bodyMdBold,
                   ),
-                ),
-                Icon(
-                  AppIcons.chevronRight,
-                  size: IconSize.lg,
-                  // Says the row opens a picker: 3:1 at least (WCAG 1.4.11).
-                  color: colors.onSurfaceVariant,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

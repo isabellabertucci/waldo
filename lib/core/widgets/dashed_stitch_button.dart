@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/min_tap_target.dart';
@@ -60,6 +62,11 @@ class DashedStitchButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final isIconOnly = label == null;
+    // A label that wraps at accessibility sizes would run into a pill's
+    // round ends, so the button becomes a rounded rectangle.
+    final radius = !isIconOnly && DynamicTypeScaler.isAccessibilitySize(context)
+        ? Rounded.lg
+        : Rounded.pill;
     // No `onError` token yet; a filled button's ink is `onPrimary`.
     final (fill, ink, hasStitch) = switch (variant) {
       StitchVariant.primary => (colors.primary, colors.onPrimary, true),
@@ -73,16 +80,18 @@ class DashedStitchButton extends StatelessWidget {
 
     final button = Material(
       color: fill,
-      borderRadius: BorderRadius.circular(Rounded.pill),
+      borderRadius: BorderRadius.circular(radius),
       child: InkWell(
-        borderRadius: BorderRadius.circular(Rounded.pill),
+        borderRadius: BorderRadius.circular(radius),
         onTap: onPressed,
         child: Stack(
           alignment: Alignment.center,
           children: [
             if (hasStitch)
               Positioned.fill(
-                child: CustomPaint(painter: PillStitchPainter(color: ink)),
+                child: CustomPaint(
+                  painter: PillStitchPainter(color: ink, radius: radius),
+                ),
               ),
             Padding(
               padding:
@@ -103,14 +112,13 @@ class DashedStitchButton extends StatelessWidget {
                     ),
                   if (icon != null && label != null)
                     const SizedBox(width: Spacing.xs),
-                  // Flexible so a narrow button (or large text) ellipsizes instead of overflowing.
+                  // Flexible so a narrow button ellipsizes instead of
+                  // overflowing; at accessibility sizes the label wraps.
                   if (label != null)
                     Flexible(
-                      child: Text(
+                      child: WholeWordsText.singleLine(
                         label!,
                         textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                         style:
                             (labelStyle ??
                                     (compact

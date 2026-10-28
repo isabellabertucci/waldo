@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/badge_size.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/badge_row.dart';
 import 'package:waldo/core/widgets/edit_delete_menu.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/models/category.dart';
@@ -51,6 +54,20 @@ class TransactionRow extends StatelessWidget {
     final amountStyle = context.bodyMdBold.copyWith(color: amountColor);
     final referenceAmount =
         '-${formatCents(_referenceAmountCents, locale: moneyLocale(context), currencyCode: currency.code)}';
+    final disc = Container(
+      width: BadgeSize.md,
+      height: BadgeSize.md,
+      decoration: BoxDecoration(
+        // The page behind the card, as if the disc were cut out of it.
+        color: colors.surfaceContainer,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        category?.icon ?? AppIcons.receipt,
+        size: IconSize.md,
+        color: colors.onSurface,
+      ),
+    );
 
     // A button to screen readers; a bare InkWell is read as plain text.
     return Semantics(
@@ -65,98 +82,83 @@ class TransactionRow extends StatelessWidget {
             horizontal: Spacing.sm,
             vertical: Spacing.sm,
           ),
-          child: Row(
-            children: [
-              Container(
-                width: BadgeSize.md,
-                height: BadgeSize.md,
-                decoration: BoxDecoration(
-                  // The page behind the card, as if the disc were cut out of it.
-                  color: colors.surfaceContainer,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  category?.icon ?? AppIcons.receipt,
-                  size: IconSize.md,
-                  color: colors.onSurface,
-                ),
+          child: BadgeRow(
+            badge: disc,
+            trailing: PopupMenuButton<EditDeleteAction>(
+              tooltip: l10n.optionsFor(title),
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(Rounded.md),
               ),
-              const SizedBox(width: Spacing.sm),
-              // The amount stays on the right while the description keeps at
-              // least as much room as a typical amount; with large text it moves
-              // under it. Measuring a fixed amount, not this row's, keeps every
-              // row in a list on the same layout.
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final amount = Text(
-                      amountText,
-                      maxLines: 1,
-                      style: amountStyle,
+              icon: Icon(
+                AppIcons.more,
+                size: IconSize.lg,
+                color: colors.onSurfaceVariant,
+              ),
+              onSelected: (action) {
+                switch (action) {
+                  case EditDeleteAction.edit:
+                    showTransactionEditSheet(
+                      context,
+                      transaction: transaction,
+                      startInEditMode: true,
                     );
-                    final painter = TextPainter(
-                      text: TextSpan(text: referenceAmount, style: amountStyle),
-                      textScaler: MediaQuery.textScalerOf(context),
-                      textDirection: Directionality.of(context),
-                      maxLines: 1,
-                    )..layout();
-                    final stacked = painter.width * 2 > constraints.maxWidth;
-                    painter.dispose();
+                  case EditDeleteAction.delete:
+                    deleteTransactionWithUndo(context, transaction);
+                }
+              },
+              itemBuilder: editDeleteMenuItems,
+            ),
+            // The amount stays on the right while the description keeps at
+            // least as much room as a typical amount; with large text it moves
+            // under it. Measuring a fixed amount, not this row's, keeps every
+            // row in a list on the same layout.
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final amount = Text(
+                  amountText,
+                  maxLines: 1,
+                  style: amountStyle,
+                );
+                final painter = TextPainter(
+                  text: TextSpan(text: referenceAmount, style: amountStyle),
+                  textScaler: MediaQuery.textScalerOf(context),
+                  textDirection: Directionality.of(context),
+                  maxLines: 1,
+                )..layout();
+                final stacked =
+                    DynamicTypeScaler.isAccessibilitySize(context) ||
+                    painter.width * 2 > constraints.maxWidth;
+                painter.dispose();
 
-                    final texts = Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.bodyMdBold,
-                        ),
-                        Text(
-                          categoryLabel ?? l10n.uncategorized,
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                        if (stacked) amount,
-                      ],
-                    );
-                    if (stacked) return texts;
-                    return Row(
-                      children: [
-                        Expanded(child: texts),
-                        amount,
-                      ],
-                    );
-                  },
-                ),
-              ),
-              PopupMenuButton<EditDeleteAction>(
-                tooltip: l10n.optionsFor(title),
-                padding: EdgeInsets.zero,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(Rounded.md),
-                ),
-                icon: Icon(
-                  AppIcons.more,
-                  size: IconSize.lg,
-                  color: colors.onSurfaceVariant,
-                ),
-                onSelected: (action) {
-                  switch (action) {
-                    case EditDeleteAction.edit:
-                      showTransactionEditSheet(
-                        context,
-                        transaction: transaction,
-                        startInEditMode: true,
-                      );
-                    case EditDeleteAction.delete:
-                      deleteTransactionWithUndo(context, transaction);
-                  }
-                },
-                itemBuilder: editDeleteMenuItems,
-              ),
-            ],
+                final texts = Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    WholeWordsText.singleLine(title, style: context.bodyMdBold),
+                    WholeWordsText(
+                      categoryLabel ?? l10n.uncategorized,
+                      style: context.textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                    // A whole amount shrinks rather than being cut.
+                    if (stacked)
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: amount,
+                      ),
+                  ],
+                );
+                if (stacked) return texts;
+                return Row(
+                  children: [
+                    Expanded(child: texts),
+                    amount,
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -201,8 +203,12 @@ class TransactionCard extends StatelessWidget {
               isAmountHidden: isAmountHidden,
             ),
             if (i < transactions.length - 1)
-              const Divider(
-                indent: Spacing.sm + BadgeSize.md + Spacing.sm,
+              Divider(
+                // Starts under the text, which is under the disc at
+                // accessibility sizes.
+                indent: DynamicTypeScaler.isAccessibilitySize(context)
+                    ? Spacing.sm
+                    : Spacing.sm + BadgeSize.md + Spacing.sm,
                 endIndent: Spacing.sm,
               ),
           ],

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
+import 'package:waldo/core/widgets/badge_row.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/theme/icon_size.dart';
@@ -501,43 +504,39 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // No grabber here either - the close button already says how to
-          // leave this screen.
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              DashedCircleBadge(icon: categoryIcon, color: amountColor),
-              const SizedBox(width: Spacing.sm),
-              Expanded(
-                child: MergeSemantics(
-                  child: Semantics(
-                    // The sheet's title, read with its category and type.
-                    header: true,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.headlineLgExtraBold,
-                        ),
-                        Text(
-                          '$categoryLabel · ${formState.type.label(l10n)}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
+          // leave this screen. At accessibility sizes the badge sits above
+          // the title and the close button stays at the top.
+          BadgeRow(
+            crossAxisAlignment: DynamicTypeScaler.isAccessibilitySize(context)
+                ? CrossAxisAlignment.start
+                : CrossAxisAlignment.center,
+            badge: DashedCircleBadge(icon: categoryIcon, color: amountColor),
+            trailing: const Padding(
+              padding: EdgeInsets.only(left: Spacing.sm),
+              child: SheetCloseButton(),
+            ),
+            child: MergeSemantics(
+              child: Semantics(
+                // The sheet's title, read with its category and type.
+                header: true,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    WholeWordsText.singleLine(
+                      name,
+                      style: context.headlineLgExtraBold,
                     ),
-                  ),
+                    WholeWordsText.singleLine(
+                      '$categoryLabel · ${formState.type.label(l10n)}',
+                      style: context.textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: Spacing.sm),
-              const SheetCloseButton(),
-            ],
+            ),
           ),
           const SizedBox(height: Spacing.md),
           Container(
@@ -651,6 +650,21 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
       :categoryLabel,
       :dateLabel,
     ) = summary;
+
+    final cancel = DashedStitchButton(
+      variant: StitchVariant.secondary,
+      label: l10n.cancel,
+      onPressed: _cancelEdit,
+      compact: true,
+      padding: _actionPadding,
+    );
+    final save = DashedStitchButton(
+      icon: const Icon(AppIcons.check, size: IconSize.sm),
+      label: l10n.saveChanges,
+      onPressed: _saveChanges,
+      compact: true,
+      padding: _actionPadding,
+    );
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(
@@ -775,30 +789,22 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             ),
             const SizedBox(height: Spacing.sm),
           ],
-          Row(
-            children: [
-              // One button in two variants, so they match in size.
-              Expanded(
-                child: DashedStitchButton(
-                  variant: StitchVariant.secondary,
-                  label: l10n.cancel,
-                  onPressed: _cancelEdit,
-                  compact: true,
-                  padding: _actionPadding,
-                ),
-              ),
-              const SizedBox(width: Spacing.xs),
-              Expanded(
-                child: DashedStitchButton(
-                  icon: const Icon(AppIcons.check, size: IconSize.sm),
-                  label: l10n.saveChanges,
-                  onPressed: _saveChanges,
-                  compact: true,
-                  padding: _actionPadding,
-                ),
-              ),
-            ],
-          ),
+          // One button in two variants, so they match in size. At
+          // accessibility sizes they stack, save first, as the dialog's do.
+          if (DynamicTypeScaler.isAccessibilitySize(context))
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: Spacing.xs,
+              children: [save, cancel],
+            )
+          else
+            Row(
+              children: [
+                Expanded(child: cancel),
+                const SizedBox(width: Spacing.xs),
+                Expanded(child: save),
+              ],
+            ),
         ],
       ),
     );
@@ -905,9 +911,15 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               Semantics(
                 container: true,
                 liveRegion: true,
-                child: Text(
-                  displayValue,
-                  style: context.amountDisplayExtraBold.copyWith(color: color),
+                // A whole amount shrinks rather than breaking or being cut.
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    displayValue,
+                    style: context.amountDisplayExtraBold.copyWith(
+                      color: color,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -982,31 +994,21 @@ class _ViewInfoRow extends StatelessWidget {
         MergeSemantics(
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: Spacing.sm),
-            child: Row(
-              children: [
-                FieldBadge(icon: icon, color: colors.onSurfaceVariant),
-                const SizedBox(width: Spacing.sm),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        label,
-                        style: context.textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                      Text(
-                        value,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.bodyMdBold,
-                      ),
-                    ],
+            child: BadgeRow(
+              badge: FieldBadge(icon: icon, color: colors.onSurfaceVariant),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
                   ),
-                ),
-              ],
+                  WholeWordsText.singleLine(value, style: context.bodyMdBold),
+                ],
+              ),
             ),
           ),
         ),
