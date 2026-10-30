@@ -572,7 +572,7 @@ undo window).
 - **Buttons (secondary):** `SecondaryButton` - no fill, on the page and on
   sheets alike; `on-surface` text in `body-md-strong`, 12px x 4px padding that
   keeps the tap target and the `rounded.pill` press ripple. For
-  low-emphasis actions beside a section title ("See all", "Manage categories").
+  low-emphasis actions beside a section title ("See all").
 - **Cards:** `surface`-filled, `rounded.lg`, no elevation unless grouping
   list rows (see Elevation: Low).
 - **Sheets:** every bottom sheet keeps a 24px (`md`) side margin, form or
@@ -604,6 +604,12 @@ undo window).
   both at `label-lg-bold`.
 - **App bar:** transparent background - it never visually separates from the
   page.
+- **One pattern per input:** the same field looks and works the same on
+  every screen. The amount is always `TransactionAmountCard`, typed with the
+  system keyboard; a choice from a list (wallet, category) is always an
+  `EditFieldRow` that opens `showOptionSheet` - the same tiles as the
+  Settings pickers, picked with one tap. A picker that can grow puts its
+  "New ..." tile first, so making one never means leaving the sheet.
 
 ## Do's and Don'ts
 
@@ -618,6 +624,8 @@ undo window).
 - Escalate text weight only along the named ladder (Strong, Bold,
   ExtraBold, Black), never with an inline `fontWeight`.
 - Keep the leather pouch and undo bar `leather`/`on-leather` in both themes.
+- Reuse the input a screen already has before building another: a new form
+  uses the same amount card and pickers as the existing ones.
 
 ### Don't
 - Don't add a second accent hue - orange stays the only color in the system.
