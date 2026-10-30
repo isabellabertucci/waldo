@@ -130,10 +130,6 @@
   "@back": {
     "description": "Accessibility label and tooltip for a back/chevron-left button"
   },
-  "deleteDigit": "Delete digit",
-  "@deleteDigit": {
-    "description": "Accessibility label and tooltip for the backspace key on the amount keypad"
-  },
   "hideBalance": "Hide balance",
   "@hideBalance": {
     "description": "Accessibility label and tooltip for the eye button when amounts are visible - tapping it masks them"
@@ -255,15 +251,6 @@
   "@noteHint": {
     "description": "Placeholder for the transaction's note field"
   },
-  "editingAmountLabel": "{type} · editing amount",
-  "@editingAmountLabel": {
-    "description": "Caption above the amount keypad, e.g. 'Expense · editing amount'",
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
   "discardChangesTitle": "Discard changes?",
   "@discardChangesTitle": {
     "description": "Title of the dialog shown when leaving a field editor with unsaved edits"
@@ -351,10 +338,6 @@
   "categoryNameHint": "e.g. Coffee, Gym",
   "@categoryNameHint": {
     "description": "Placeholder in the category name field"
-  },
-  "manageCategories": "Manage categories",
-  "@manageCategories": {
-    "description": "Link from the transaction form to manage categories"
   },
   "deleteCategory": "Delete category?",
   "@deleteCategory": {

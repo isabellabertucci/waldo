@@ -84,6 +84,17 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    testWidgets('amount field', (tester) async {
+      useSmallAndroidPhone(tester);
+      await openEditSheet(tester);
+      await expectSheetScrollsWithKeyboard(
+        tester,
+        field: find.byKey(const Key('txAmountField')),
+        sheet: find.byType(TransactionEditSheet),
+        lastButton: find.text('Save changes'),
+      );
+    });
+
     testWidgets('name field', (tester) async {
       useSmallAndroidPhone(tester);
       await openEditSheet(tester);
@@ -121,16 +132,10 @@ void main() {
       expect(tester.getBottomLeft(save).dy, lessThanOrEqualTo(640 - 48));
     });
 
-    testWidgets('both back buttons are at least 48dp to tap', (tester) async {
+    testWidgets('the back button is at least 48dp to tap', (tester) async {
       useSmallAndroidPhone(tester);
       await openEditSheet(tester);
 
-      // The edit screen's back...
-      expect(tester.getSize(find.byTooltip('Back')).shortestSide, 48);
-
-      // ...and a field editor's back.
-      await tester.tap(find.byKey(const Key('txAmountField')));
-      await tester.pumpAndSettle();
       expect(tester.getSize(find.byTooltip('Back')).shortestSide, 48);
     });
   });

@@ -14,7 +14,7 @@ import 'package:waldo/features/preferences/currency_x.dart';
 import 'package:waldo/features/preferences/models/preferences.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
-import 'package:waldo/features/settings/ui/widgets/settings_option_sheet.dart';
+import 'package:waldo/core/widgets/option_sheet.dart';
 import 'package:waldo/features/settings/ui/widgets/settings_row.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -182,34 +182,29 @@ class _SettingsBody extends ConsumerWidget {
     PreferencesViewModel viewModel,
     Preferences preferences,
   ) {
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      backgroundColor: context.appColors.transparent,
-      isScrollControlled: true,
-      builder: (context) => SettingsOptionSheet<bool?>(
-        title: l10n.theme,
-        initialValue: preferences.isDarkMode,
-        options: [
-          SettingsOption(
-            label: l10n.themeSystem,
-            value: null,
-            icon: AppIcons.themeSystem,
-          ),
-          SettingsOption(
-            label: l10n.themeLight,
-            value: false,
-            icon: AppIcons.themeLight,
-          ),
-          SettingsOption(
-            label: l10n.themeDark,
-            value: true,
-            icon: AppIcons.themeDark,
-          ),
-        ],
-        onConfirm: (value) =>
-            _savePreference(context, l10n, () => viewModel.setDarkMode(value)),
-      ),
+    showOptionSheet<bool?>(
+      context,
+      title: l10n.theme,
+      initialValue: preferences.isDarkMode,
+      options: [
+        SheetOption(
+          label: l10n.themeSystem,
+          value: null,
+          icon: AppIcons.themeSystem,
+        ),
+        SheetOption(
+          label: l10n.themeLight,
+          value: false,
+          icon: AppIcons.themeLight,
+        ),
+        SheetOption(
+          label: l10n.themeDark,
+          value: true,
+          icon: AppIcons.themeDark,
+        ),
+      ],
+      onConfirm: (value) =>
+          _savePreference(context, l10n, () => viewModel.setDarkMode(value)),
     );
   }
 
@@ -221,31 +216,26 @@ class _SettingsBody extends ConsumerWidget {
     int totalBalance,
     bool isBalanceHidden,
   ) {
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      backgroundColor: context.appColors.transparent,
-      isScrollControlled: true,
-      builder: (context) => SettingsOptionSheet<Currency>(
-        title: l10n.currency,
-        initialValue: preferences.currency,
-        notice: l10n.currencyChangeNotice,
-        options: Currency.values
-            .map(
-              (currency) => SettingsOption(
-                label: currency.fullName(l10n),
-                // The same balance in each currency - showing nothing gets converted.
-                subtitle:
-                    '${currency.code} · '
-                    '${isBalanceHidden ? hiddenAmount : formatCents(totalBalance, locale: moneyLocale(context), currencyCode: currency.code)}',
-                value: currency,
-                symbolText: currency.symbol,
-              ),
-            )
-            .toList(),
-        onConfirm: (value) =>
-            _savePreference(context, l10n, () => viewModel.setCurrency(value)),
-      ),
+    showOptionSheet<Currency>(
+      context,
+      title: l10n.currency,
+      initialValue: preferences.currency,
+      notice: l10n.currencyChangeNotice,
+      options: Currency.values
+          .map(
+            (currency) => SheetOption(
+              label: currency.fullName(l10n),
+              // The same balance in each currency - showing nothing gets converted.
+              subtitle:
+                  '${currency.code} · '
+                  '${isBalanceHidden ? hiddenAmount : formatCents(totalBalance, locale: moneyLocale(context), currencyCode: currency.code)}',
+              value: currency,
+              symbolText: currency.symbol,
+            ),
+          )
+          .toList(),
+      onConfirm: (value) =>
+          _savePreference(context, l10n, () => viewModel.setCurrency(value)),
     );
   }
 
@@ -256,37 +246,29 @@ class _SettingsBody extends ConsumerWidget {
     Preferences preferences,
     DateTime now,
   ) {
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      backgroundColor: context.appColors.transparent,
-      isScrollControlled: true,
-      builder: (context) => SettingsOptionSheet<String>(
-        title: l10n.dateFormat,
-        initialValue: preferences.dateFormat,
-        options: [
-          SettingsOption(
-            label: DateFormat('dd/MM/yyyy').format(now),
-            value: 'dd/MM/yyyy',
-            icon: AppIcons.calendar,
-          ),
-          SettingsOption(
-            label: DateFormat('MM/dd/yyyy').format(now),
-            value: 'MM/dd/yyyy',
-            icon: AppIcons.calendar,
-          ),
-          SettingsOption(
-            label: DateFormat('yyyy-MM-dd').format(now),
-            value: 'yyyy-MM-dd',
-            icon: AppIcons.calendar,
-          ),
-        ],
-        onConfirm: (value) => _savePreference(
-          context,
-          l10n,
-          () => viewModel.setDateFormat(value),
+    showOptionSheet<String>(
+      context,
+      title: l10n.dateFormat,
+      initialValue: preferences.dateFormat,
+      options: [
+        SheetOption(
+          label: DateFormat('dd/MM/yyyy').format(now),
+          value: 'dd/MM/yyyy',
+          icon: AppIcons.calendar,
         ),
-      ),
+        SheetOption(
+          label: DateFormat('MM/dd/yyyy').format(now),
+          value: 'MM/dd/yyyy',
+          icon: AppIcons.calendar,
+        ),
+        SheetOption(
+          label: DateFormat('yyyy-MM-dd').format(now),
+          value: 'yyyy-MM-dd',
+          icon: AppIcons.calendar,
+        ),
+      ],
+      onConfirm: (value) =>
+          _savePreference(context, l10n, () => viewModel.setDateFormat(value)),
     );
   }
 }

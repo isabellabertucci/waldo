@@ -284,12 +284,6 @@ abstract class AppLocalizations {
   /// **'Back'**
   String get back;
 
-  /// Accessibility label and tooltip for the backspace key on the amount keypad
-  ///
-  /// In en, this message translates to:
-  /// **'Delete digit'**
-  String get deleteDigit;
-
   /// Accessibility label and tooltip for the eye button when amounts are visible - tapping it masks them
   ///
   /// In en, this message translates to:
@@ -464,12 +458,6 @@ abstract class AppLocalizations {
   /// **'Anything to remember?'**
   String get noteHint;
 
-  /// Caption above the amount keypad, e.g. 'Expense · editing amount'
-  ///
-  /// In en, this message translates to:
-  /// **'{type} · editing amount'**
-  String editingAmountLabel(String type);
-
   /// Title of the dialog shown when leaving a field editor with unsaved edits
   ///
   /// In en, this message translates to:
@@ -601,12 +589,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'e.g. Coffee, Gym'**
   String get categoryNameHint;
-
-  /// Link from the transaction form to manage categories
-  ///
-  /// In en, this message translates to:
-  /// **'Manage categories'**
-  String get manageCategories;
 
   /// Delete confirmation dialog title
   ///

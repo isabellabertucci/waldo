@@ -1,10 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:waldo/core/constants/app_constants.dart';
+import 'package:waldo/core/database/db_providers.dart';
+import 'package:waldo/core/theme/app_theme.dart';
+import 'package:waldo/core/utils/localization_delegates.dart';
+import 'package:waldo/features/categories/models/category.dart';
+import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_form_sheet.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
+import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../../../helpers/test_app.dart';
 
@@ -26,9 +35,94 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('The category section says it is optional', (tester) async {
+  testWidgets('The category starts as None and is picked from a list', (
+    tester,
+  ) async {
     await openSheet(tester);
-    expect(find.textContaining('Optional', findRichText: true), findsOneWidget);
+    final row = find.byKey(const Key('transactionCategoryField'));
+    expect(
+      find.descendant(of: row, matching: find.text('None')),
+      findsOneWidget,
+    );
+
+    await tester.tap(row);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Groceries'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.descendant(of: row, matching: find.text('Groceries')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('A new category made from the picker is picked at once', (
+    tester,
+  ) async {
+    await openSheet(tester);
+    final row = find.byKey(const Key('transactionCategoryField'));
+
+    await tester.tap(row);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('New category'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('categoryNameField')), 'Gym');
+    await tester.tap(find.text('Create category'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.descendant(of: row, matching: find.text('Gym')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('A second tap on Create while the first saves still picks the '
+      'new category', (tester) async {
+    final db = await createTestDatabase();
+    addTearDown(db.close);
+    final repo = _GatedCategoryRepository(db);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appDatabaseProvider.overrideWith((ref) async => db),
+          categoryRepositoryProvider.overrideWith((ref) async => repo),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.light,
+          localizationsDelegates: appLocalizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => TextButton(
+                onPressed: () => showTransactionFormSheet(context),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    final row = find.byKey(const Key('transactionCategoryField'));
+    await tester.tap(row);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('New category'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('categoryNameField')), 'Gym');
+
+    // The first save waits at the gate while the second tap lands.
+    await tester.tap(find.text('Create category'));
+    await tester.pump();
+    await tester.tap(find.text('Create category'));
+    await tester.pump();
+    repo.gate.complete();
+    await tester.pumpAndSettle();
+
+    expect(
+      find.descendant(of: row, matching: find.text('Gym')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('The description stops at the limit and shows a counter near '
@@ -80,8 +174,9 @@ void main() {
     );
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('None'));
-    await tester.tap(find.text('None'));
+    final walletRow = find.byKey(const Key('transactionWalletField'));
+    await tester.ensureVisible(walletRow);
+    await tester.tap(walletRow);
     await tester.pumpAndSettle();
 
     // No overflow, and the last wallet can be reached and picked.
@@ -96,4 +191,17 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Wallet 0'), findsOneWidget);
   });
+}
+
+/// Holds every insert until [gate] opens, so a test can tap twice mid-save.
+class _GatedCategoryRepository extends CategoryRepositoryImpl {
+  _GatedCategoryRepository(super.db);
+
+  final gate = Completer<void>();
+
+  @override
+  Future<int> insert(Category category) async {
+    await gate.future;
+    return super.insert(category);
+  }
 }

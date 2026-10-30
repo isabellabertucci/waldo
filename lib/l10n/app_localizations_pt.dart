@@ -108,9 +108,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get back => 'Voltar';
 
   @override
-  String get deleteDigit => 'Apagar dígito';
-
-  @override
   String get hideBalance => 'Esconder saldo';
 
   @override
@@ -201,11 +198,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noteHint => 'Algo a lembrar?';
 
   @override
-  String editingAmountLabel(String type) {
-    return '$type · a editar valor';
-  }
-
-  @override
   String get discardChangesTitle => 'Descartar alterações?';
 
   @override
@@ -277,9 +269,6 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get categoryNameHint => 'ex: Café, Ginásio';
-
-  @override
-  String get manageCategories => 'Gerir categorias';
 
   @override
   String get deleteCategory => 'Apagar categoria?';

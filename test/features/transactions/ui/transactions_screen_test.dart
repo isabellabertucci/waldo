@@ -181,7 +181,7 @@ void main() {
   });
 
   testWidgets('Hiding the balance also masks the amount in the open '
-      'transaction, read-only and editing', (tester) async {
+      'transaction', (tester) async {
     await pumpTransactionsScreen(tester);
     await createTransaction(tester, amount: '25.00', description: 'Coffee');
     ProviderScope.containerOf(
@@ -190,10 +190,6 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Coffee'));
-    await tester.pumpAndSettle();
-    expect(find.textContaining('25.00'), findsNothing);
-
-    await tester.tap(find.text('Edit transaction'));
     await tester.pumpAndSettle();
     expect(find.textContaining('25.00'), findsNothing);
   });
@@ -325,47 +321,33 @@ void main() {
       .controller
       .text;
 
-  testWidgets('The amount keypad can keep typing after an existing amount', (
+  String amountFieldText(WidgetTester tester) => tester
+      .widget<TextField>(
+        find.descendant(
+          of: find.byKey(const Key('txAmountField')),
+          matching: find.byType(TextField),
+          matchRoot: true,
+        ),
+      )
+      .controller!
+      .text;
+
+  testWidgets('Editing types the amount with the keyboard, as adding does', (
     tester,
   ) async {
     await pumpTransactionsScreen(tester);
     await createTransaction(tester, amount: '10.00', description: 'Coffee');
 
     await openEditFromRowMenu(tester);
-    await tester.tap(find.byKey(const Key('txAmountField')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('5'));
+    expect(amountFieldText(tester), '10.00');
+    await tester.enterText(find.byKey(const Key('txAmountField')), '105.5');
+    await tester.tap(find.text('Save changes'));
     await tester.pumpAndSettle();
 
-    expect(find.text(r'-$105.00'), findsOneWidget);
+    expect(find.text(r'-$105.50'), findsWidgets);
   });
 
-  testWidgets('The amount keypad stops at nine whole digits and two decimals', (
-    tester,
-  ) async {
-    await pumpTransactionsScreen(tester);
-    await createTransaction(tester, amount: '10.00', description: 'Coffee');
-
-    await openEditFromRowMenu(tester);
-    await tester.tap(find.byKey(const Key('txAmountField')));
-    await tester.pumpAndSettle();
-    // "10" + eight taps: only seven fit before the nine-digit cap.
-    for (var i = 0; i < 8; i++) {
-      await tester.tap(find.text('5'));
-      await tester.pump();
-    }
-    await tester.tap(find.text('.'));
-    await tester.pump();
-    for (var i = 0; i < 3; i++) {
-      await tester.tap(find.text('5'));
-      await tester.pump();
-    }
-    await tester.pumpAndSettle();
-
-    expect(find.text(r'-$105,555,555.55'), findsOneWidget);
-  });
-
-  testWidgets('The amount keypad uses a Portuguese phone\'s decimal comma', (
+  testWidgets("Editing shows a Portuguese phone's decimal comma", (
     tester,
   ) async {
     tester.platformDispatcher.localeTestValue = const Locale('pt', 'PT');
@@ -374,21 +356,22 @@ void main() {
     await createTransaction(tester, amount: '10.00', description: 'Coffee');
 
     await openEditFromRowMenu(tester);
-    await tester.tap(find.byKey(const Key('txAmountField')));
+
+    expect(amountFieldText(tester), '10,00');
+  });
+
+  testWidgets('Cancel puts back the amount as it was', (tester) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '10.00', description: 'Coffee');
+
+    await openEditFromRowMenu(tester);
+    await tester.enterText(find.byKey(const Key('txAmountField')), '99');
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Edit transaction'));
     await tester.pumpAndSettle();
 
-    expect(find.text(','), findsOneWidget);
-    expect(find.text('.'), findsNothing);
-
-    // A second comma is ignored, and only two decimals fit.
-    await tester.tap(find.text(','));
-    await tester.tap(find.text(','));
-    for (var i = 0; i < 3; i++) {
-      await tester.tap(find.text('5'));
-    }
-    await tester.pumpAndSettle();
-
-    expect(find.textContaining('10,55'), findsOneWidget);
+    expect(amountFieldText(tester), '10.00');
   });
 
   testWidgets('Saving an emptied amount says so on the edit sheet', (
@@ -398,14 +381,7 @@ void main() {
     await createTransaction(tester, amount: '10.00', description: 'Coffee');
 
     await openEditFromRowMenu(tester);
-    await tester.tap(find.byKey(const Key('txAmountField')));
-    await tester.pumpAndSettle();
-    for (var i = 0; i < 2; i++) {
-      await tester.tap(find.byTooltip('Delete digit'));
-      await tester.pump();
-    }
-    await tester.tap(find.text('Done'));
-    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('txAmountField')), '');
     await tester.tap(find.text('Save changes'));
     await tester.pumpAndSettle();
 
@@ -431,42 +407,6 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Save changes'), findsOneWidget);
-  });
-
-  testWidgets('Backing out of the amount keypad without typing asks nothing', (
-    tester,
-  ) async {
-    await pumpTransactionsScreen(tester);
-    await createTransaction(tester, amount: '10.50', description: 'Coffee');
-
-    await openEditFromRowMenu(tester);
-    await tester.tap(find.byKey(const Key('txAmountField')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Back').last);
-    await tester.pumpAndSettle();
-    expect(find.text('Discard changes?'), findsNothing);
-
-    // A real change still asks.
-    await tester.tap(find.byKey(const Key('txAmountField')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('5'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Back').last);
-    await tester.pumpAndSettle();
-    expect(find.text('Discard changes?'), findsOneWidget);
-
-    // A tap outside keeps editing, with the typed amount.
-    await tester.tapAt(const Offset(5, 5));
-    await tester.pumpAndSettle();
-    expect(find.text('Discard changes?'), findsNothing);
-    expect(find.byIcon(AppIcons.backspace), findsOneWidget);
-
-    // Discard leaves the keypad.
-    await tester.tap(find.byTooltip('Back').last);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Discard'));
-    await tester.pumpAndSettle();
-    expect(find.byIcon(AppIcons.backspace), findsNothing);
   });
 
   testWidgets('Cancel and Save changes are the same size', (tester) async {

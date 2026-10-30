@@ -105,9 +105,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get back => 'Back';
 
   @override
-  String get deleteDigit => 'Delete digit';
-
-  @override
   String get hideBalance => 'Hide balance';
 
   @override
@@ -197,11 +194,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteHint => 'Anything to remember?';
 
   @override
-  String editingAmountLabel(String type) {
-    return '$type · editing amount';
-  }
-
-  @override
   String get discardChangesTitle => 'Discard changes?';
 
   @override
@@ -272,9 +264,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryNameHint => 'e.g. Coffee, Gym';
-
-  @override
-  String get manageCategories => 'Manage categories';
 
   @override
   String get deleteCategory => 'Delete category?';

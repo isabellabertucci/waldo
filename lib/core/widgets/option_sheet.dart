@@ -14,9 +14,9 @@ import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/widgets/heading.dart';
 
-/// One choice in a [SettingsOptionSheet]: either an [icon] or a [symbolText].
-class SettingsOption<T> {
-  const SettingsOption({
+/// One choice in an [OptionSheet]: either an [icon] or a [symbolText].
+class SheetOption<T> {
+  const SheetOption({
     required this.value,
     required this.label,
     this.subtitle,
@@ -34,29 +34,80 @@ class SettingsOption<T> {
   final String? symbolText;
 }
 
-/// The bottom sheet for every settings picker. A choice only applies on "Done".
-class SettingsOptionSheet<T> extends StatefulWidget {
-  const SettingsOptionSheet({
+/// A first row in an [OptionSheet] that does something instead of picking
+/// (e.g. "New category").
+typedef SheetAction = ({IconData icon, String label, VoidCallback onTap});
+
+/// Opens an [OptionSheet], as every picker in the app does.
+Future<void> showOptionSheet<T>(
+  BuildContext context, {
+  required String title,
+  required T initialValue,
+  required List<SheetOption<T>> options,
+  required ValueChanged<T> onConfirm,
+  bool pickOnTap = false,
+  SheetAction? action,
+  String? notice,
+}) {
+  return showModalBottomSheet(
+    context: context,
+    useRootNavigator: true,
+    backgroundColor: context.appColors.transparent,
+    // Grows with the options, then scrolls; never under the status bar.
+    isScrollControlled: true,
+    useSafeArea: true,
+    builder: (_) => OptionSheet<T>(
+      title: title,
+      initialValue: initialValue,
+      options: options,
+      onConfirm: onConfirm,
+      pickOnTap: pickOnTap,
+      action: action,
+      notice: notice,
+    ),
+  );
+}
+
+/// The bottom sheet for every picker: one tile per option, the chosen one
+/// stitched. In Settings a choice applies on "Done"; with [pickOnTap] (a
+/// form's field) a tap picks it and closes the sheet.
+class OptionSheet<T> extends StatefulWidget {
+  const OptionSheet({
     required this.title,
     required this.initialValue,
     required this.options,
     required this.onConfirm,
+    this.pickOnTap = false,
+    this.action,
     this.notice,
     super.key,
   });
 
   final String title;
   final T initialValue;
-  final List<SettingsOption<T>> options;
+  final List<SheetOption<T>> options;
   final String? notice;
   final ValueChanged<T> onConfirm;
+  final bool pickOnTap;
+
+  /// A first tile, always in sight, that closes the sheet and runs.
+  final SheetAction? action;
 
   @override
-  State<SettingsOptionSheet<T>> createState() => _SettingsOptionSheetState<T>();
+  State<OptionSheet<T>> createState() => _OptionSheetState<T>();
 }
 
-class _SettingsOptionSheetState<T> extends State<SettingsOptionSheet<T>> {
+class _OptionSheetState<T> extends State<OptionSheet<T>> {
   late T _selected = widget.initialValue;
+
+  void _pick(T value) {
+    if (!widget.pickOnTap) {
+      setState(() => _selected = value);
+      return;
+    }
+    Navigator.of(context).pop();
+    widget.onConfirm(value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,31 +159,46 @@ class _SettingsOptionSheetState<T> extends State<SettingsOptionSheet<T>> {
                             ],
                           ),
                           const SizedBox(height: Spacing.md),
+                          if (widget.action case final action?) ...[
+                            _OptionRow(
+                              label: action.label,
+                              icon: action.icon,
+                              isChoice: false,
+                              onTap: () {
+                                Navigator.of(context).pop();
+                                action.onTap();
+                              },
+                            ),
+                            const SizedBox(height: Spacing.sm),
+                          ],
                           for (var i = 0; i < widget.options.length; i++) ...[
                             if (i > 0) const SizedBox(height: Spacing.sm),
-                            _OptionRow<T>(
-                              option: widget.options[i],
+                            _OptionRow(
+                              label: widget.options[i].label,
+                              subtitle: widget.options[i].subtitle,
+                              icon: widget.options[i].icon,
+                              symbolText: widget.options[i].symbolText,
                               selected: widget.options[i].value == _selected,
-                              onTap: () => setState(
-                                () => _selected = widget.options[i].value,
-                              ),
+                              onTap: () => _pick(widget.options[i].value),
                             ),
                           ],
                           if (widget.notice != null) ...[
                             const SizedBox(height: Spacing.md),
                             _NoticeBox(text: widget.notice!),
                           ],
-                          const SizedBox(height: Spacing.lg),
-                          SizedBox(
-                            width: double.infinity,
-                            child: DashedStitchButton(
-                              label: l10n.done,
-                              onPressed: () {
-                                widget.onConfirm(_selected);
-                                Navigator.of(context).pop();
-                              },
+                          if (!widget.pickOnTap) ...[
+                            const SizedBox(height: Spacing.lg),
+                            SizedBox(
+                              width: double.infinity,
+                              child: DashedStitchButton(
+                                label: l10n.done,
+                                onPressed: () {
+                                  widget.onConfirm(_selected);
+                                  Navigator.of(context).pop();
+                                },
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
@@ -147,16 +213,26 @@ class _SettingsOptionSheetState<T> extends State<SettingsOptionSheet<T>> {
   }
 }
 
-class _OptionRow<T> extends StatelessWidget {
+class _OptionRow extends StatelessWidget {
   const _OptionRow({
-    required this.option,
-    required this.selected,
+    required this.label,
     required this.onTap,
+    this.subtitle,
+    this.icon,
+    this.symbolText,
+    this.selected = false,
+    this.isChoice = true,
   });
 
-  final SettingsOption<T> option;
+  final String label;
+  final String? subtitle;
+  final IconData? icon;
+  final String? symbolText;
   final bool selected;
   final VoidCallback onTap;
+
+  /// False for the sheet's action tile: no ring, not one of a group.
+  final bool isChoice;
 
   @override
   Widget build(BuildContext context) {
@@ -166,8 +242,8 @@ class _OptionRow<T> extends StatelessWidget {
 
     return Semantics(
       button: true,
-      selected: selected,
-      inMutuallyExclusiveGroup: true,
+      selected: isChoice ? selected : null,
+      inMutuallyExclusiveGroup: isChoice,
       child: Material(
         color: colors.surfaceContainer,
         borderRadius: BorderRadius.circular(Rounded.md),
@@ -191,11 +267,11 @@ class _OptionRow<T> extends StatelessWidget {
                   alignment: Alignment.center,
                   // Selected: `onPrimary` on `primary`; unselected: muted on a neutral fill.
                   // A symbol shrinks to stay inside the disc with large text.
-                  child: option.symbolText != null
+                  child: symbolText != null
                       ? FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
-                            option.symbolText!,
+                            symbolText!,
                             style: context.headlineMdStrong.copyWith(
                               color: selected
                                   ? colors.onPrimary
@@ -204,49 +280,51 @@ class _OptionRow<T> extends StatelessWidget {
                           ),
                         )
                       : Icon(
-                          option.icon,
+                          icon,
                           size: IconSize.lg,
                           color: selected
                               ? colors.onPrimary
                               : colors.onSurfaceVariant,
                         ),
                 ),
-                trailing: Padding(
-                  padding: const EdgeInsets.only(left: Spacing.sm),
-                  child: selected
-                      ? Container(
-                          width: BadgeSize.xs,
-                          height: BadgeSize.xs,
-                          decoration: BoxDecoration(
-                            color: colors.primary,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            AppIcons.check,
-                            size: IconSize.sm,
-                            color: colors.onPrimary,
-                          ),
-                        )
-                      : Icon(
-                          AppIcons.radioUnselected,
-                          size: BadgeSize.xs,
-                          // An unpicked option's ring: 3:1 for a state (WCAG 1.4.11).
-                          color: colors.onSurfaceVariant,
-                        ),
-                ),
+                trailing: !isChoice
+                    ? null
+                    : Padding(
+                        padding: const EdgeInsets.only(left: Spacing.sm),
+                        child: selected
+                            ? Container(
+                                width: BadgeSize.xs,
+                                height: BadgeSize.xs,
+                                decoration: BoxDecoration(
+                                  color: colors.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  AppIcons.check,
+                                  size: IconSize.sm,
+                                  color: colors.onPrimary,
+                                ),
+                              )
+                            : Icon(
+                                AppIcons.radioUnselected,
+                                size: BadgeSize.xs,
+                                // An unpicked option's ring: 3:1 for a state (WCAG 1.4.11).
+                                color: colors.onSurfaceVariant,
+                              ),
+                      ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     WholeWordsText(
-                      option.label,
+                      label,
                       style: context.bodyMdBold.copyWith(
                         color: colors.onSurface,
                       ),
                     ),
-                    if (option.subtitle != null)
+                    if (subtitle != null)
                       Text(
-                        option.subtitle!,
+                        subtitle!,
                         style: context.textTheme.bodySmall?.copyWith(
                           color: colors.onSurfaceVariant,
                         ),

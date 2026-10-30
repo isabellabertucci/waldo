@@ -112,15 +112,22 @@ void main() {
     });
   }
 
-  testWidgets('The selected category chip is read as selected', (tester) async {
+  testWidgets('The picked category is read as selected in its picker', (
+    tester,
+  ) async {
     final semantics = tester.ensureSemantics();
     await pumpSheet(tester, (context, _) => showTransactionFormSheet(context));
 
+    final row = find.byKey(const Key('transactionCategoryField'));
+    await tester.tap(row);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Groceries'));
+    await tester.pumpAndSettle();
+    await tester.tap(row);
     await tester.pumpAndSettle();
 
     expect(
-      tester.getSemantics(find.text('Groceries')),
+      tester.getSemantics(find.text('Groceries').last),
       isSemantics(isButton: true, isSelected: true),
     );
     expect(
@@ -180,6 +187,8 @@ void main() {
     final semantics = tester.ensureSemantics();
     await pumpSheet(tester, sheets['transaction edit sheet']!);
 
+    // As in the new-transaction sheet: the same card.
+    expectNamed(tester, 'txAmountField', 'Amount, required');
     expectNamed(tester, 'txNameField', 'Title');
     expectNamed(tester, 'txNoteField', 'Note');
     // An empty note gives an example, not its label again.
@@ -328,7 +337,7 @@ void main() {
       <String, (void Function(BuildContext, Transaction), List<String>)>{
         'new transaction sheet': (
           sheets['new transaction sheet']!,
-          ['New transaction', 'CATEGORY'],
+          ['New transaction'],
         ),
         'transaction edit sheet': (
           sheets['transaction edit sheet']!,
@@ -431,19 +440,6 @@ void main() {
     expect(
       tester.getSemantics(find.text('Theme').last),
       isSemantics(label: 'Theme', isHeader: true),
-    );
-    semantics.dispose();
-  });
-
-  testWidgets('The amount editor title is a heading', (tester) async {
-    final semantics = tester.ensureSemantics();
-    await pumpSheet(tester, sheets['transaction edit sheet']!);
-    await tester.tap(find.byKey(const Key('txAmountField')));
-    await tester.pumpAndSettle();
-
-    expect(
-      tester.getSemantics(find.text('Amount')),
-      isSemantics(label: 'Amount', isHeader: true),
     );
     semantics.dispose();
   });
@@ -783,22 +779,6 @@ void main() {
     expect(
       tester.getSemantics(find.text('Total balance')).label,
       matches(RegExp(r'^Total balance\nKept \d+% .*\n\$3,458\.00$')),
-    );
-    semantics.dispose();
-  });
-
-  testWidgets('The amount editor announces the amount as keys change it', (
-    tester,
-  ) async {
-    final semantics = tester.ensureSemantics();
-    await pumpSheet(tester, sheets['transaction edit sheet']!);
-    await tester.tap(find.byKey(const Key('txAmountField')));
-    await tester.pumpAndSettle();
-
-    final display = find.textContaining(RegExp(r'^[-+]\$'));
-    expect(
-      tester.getSemantics(display),
-      isSemantics(isLiveRegion: true, label: tester.widget<Text>(display).data),
     );
     semantics.dispose();
   });
