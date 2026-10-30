@@ -8,25 +8,25 @@ part of 'balance_hidden_view_model.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Whether amounts are masked app-wide (the eye toggle). Kept alive, so it
-/// can't reset while no screen happens to be watching it.
+/// Whether amounts are masked app-wide (the eye toggle), as saved in the
+/// preferences; rebuilt from them whenever a screen asks again.
 
 @ProviderFor(BalanceHidden)
 const balanceHiddenProvider = BalanceHiddenProvider._();
 
-/// Whether amounts are masked app-wide (the eye toggle). Kept alive, so it
-/// can't reset while no screen happens to be watching it.
+/// Whether amounts are masked app-wide (the eye toggle), as saved in the
+/// preferences; rebuilt from them whenever a screen asks again.
 final class BalanceHiddenProvider
     extends $NotifierProvider<BalanceHidden, bool> {
-  /// Whether amounts are masked app-wide (the eye toggle). Kept alive, so it
-  /// can't reset while no screen happens to be watching it.
+  /// Whether amounts are masked app-wide (the eye toggle), as saved in the
+  /// preferences; rebuilt from them whenever a screen asks again.
   const BalanceHiddenProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'balanceHiddenProvider',
-        isAutoDispose: false,
+        isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -47,10 +47,10 @@ final class BalanceHiddenProvider
   }
 }
 
-String _$balanceHiddenHash() => r'dcb990b7a8b6af95a2e36a26f4bbcb2b710acbba';
+String _$balanceHiddenHash() => r'3072bdb191ade55159ef2685b8207ab6a2e52c7b';
 
-/// Whether amounts are masked app-wide (the eye toggle). Kept alive, so it
-/// can't reset while no screen happens to be watching it.
+/// Whether amounts are masked app-wide (the eye toggle), as saved in the
+/// preferences; rebuilt from them whenever a screen asks again.
 
 abstract class _$BalanceHidden extends $Notifier<bool> {
   bool build();

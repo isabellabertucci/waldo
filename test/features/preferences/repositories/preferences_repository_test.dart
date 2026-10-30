@@ -45,6 +45,14 @@ void main() {
       expect(preferences.currency, Currency.gbp);
     });
 
+    test('setBalanceHidden saves the eye toggle', () async {
+      await repo.getPreferences();
+      await repo.setBalanceHidden(true);
+
+      final preferences = await repo.getPreferences();
+      expect(preferences.isBalanceHidden, isTrue);
+    });
+
     test('setDateFormat updates the date format', () async {
       await repo.getPreferences();
 

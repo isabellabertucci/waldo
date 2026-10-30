@@ -15,6 +15,7 @@ abstract class IPreferencesRepository {
   Future<void> setCurrency(Currency currency);
   Future<void> setDarkMode(bool? isDarkMode);
   Future<void> setDateFormat(String dateFormat);
+  Future<void> setBalanceHidden(bool isHidden);
 }
 
 class PreferencesRepositoryImpl implements IPreferencesRepository {
@@ -45,6 +46,7 @@ class PreferencesRepositoryImpl implements IPreferencesRepository {
         PreferencesTable.preferredCurrency: defaults.currency.name,
         PreferencesTable.themeDark: null,
         PreferencesTable.dateFormat: defaults.dateFormat,
+        PreferencesTable.balanceHidden: defaults.isBalanceHidden ? 1 : 0,
         PreferencesTable.updatedAt: DateTime.now().toIso8601String(),
       });
       return defaults;
@@ -70,6 +72,11 @@ class PreferencesRepositoryImpl implements IPreferencesRepository {
   @override
   Future<void> setDateFormat(String dateFormat) {
     return _updateColumn(PreferencesTable.dateFormat, dateFormat);
+  }
+
+  @override
+  Future<void> setBalanceHidden(bool isHidden) {
+    return _updateColumn(PreferencesTable.balanceHidden, isHidden ? 1 : 0);
   }
 
   Future<void> _updateColumn(String column, Object? value) async {

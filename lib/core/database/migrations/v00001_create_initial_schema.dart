@@ -104,6 +104,7 @@ Future<void> up(Database db) async {
       ${PreferencesTable.preferredCurrency} TEXT NOT NULL DEFAULT '${Currency.usd.name}',
       ${PreferencesTable.themeDark} INTEGER,
       ${PreferencesTable.dateFormat} TEXT NOT NULL DEFAULT 'yyyy-MM-dd',
+      ${PreferencesTable.balanceHidden} INTEGER NOT NULL DEFAULT 0,
       ${PreferencesTable.updatedAt} TEXT NOT NULL
     )
   ''');

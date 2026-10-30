@@ -34,7 +34,7 @@ final class PreferencesViewModelProvider
 }
 
 String _$preferencesViewModelHash() =>
-    r'7fd1df45573e9be177821dd6bb3b5fd4719399f8';
+    r'b8781d6c9a19cfd0877b1c7c5ffafbc25d13e101';
 
 abstract class _$PreferencesViewModel extends $AsyncNotifier<Preferences> {
   FutureOr<Preferences> build();

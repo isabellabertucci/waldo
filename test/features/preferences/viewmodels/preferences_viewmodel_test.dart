@@ -80,6 +80,26 @@ void main() {
     verify(() => mockRepo.setDarkMode(null)).called(1);
   });
 
+  test('setBalanceHidden saves and updates the loaded preferences', () async {
+    when(
+      () => mockRepo.getPreferences(),
+    ).thenAnswer((_) async => const Preferences());
+    when(() => mockRepo.setBalanceHidden(true)).thenAnswer((_) async {});
+
+    await container.read(preferencesViewModelProvider.future);
+    await container
+        .read(preferencesViewModelProvider.notifier)
+        .setBalanceHidden(true);
+
+    verify(() => mockRepo.setBalanceHidden(true)).called(1);
+    // Updated in place, not reloaded: getPreferences ran only once.
+    verify(() => mockRepo.getPreferences()).called(1);
+    expect(
+      container.read(preferencesViewModelProvider).value?.isBalanceHidden,
+      isTrue,
+    );
+  });
+
   test('setDateFormat calls the repository and invalidates', () async {
     when(
       () => mockRepo.getPreferences(),

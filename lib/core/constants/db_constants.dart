@@ -48,5 +48,6 @@ class PreferencesTable {
   static const preferredCurrency = 'preferred_currency';
   static const themeDark = 'theme_dark';
   static const dateFormat = 'date_format';
+  static const balanceHidden = 'balance_hidden';
   static const updatedAt = 'updated_at';
 }
