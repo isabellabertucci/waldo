@@ -41,12 +41,13 @@ class DashboardViewModel extends _$DashboardViewModel {
     final now = ref.watch(clockProvider)();
     final isCurrentMonth = anchor == DateTime(now.year, now.month);
 
-    final totalBalance = await walletRepo.getTotalBalance();
-    final walletCount = await walletRepo.getCount();
     final pending = ref.watch(pendingTransactionDeletesProvider);
-    // Deletes still inside their Undo window are already gone from the month.
+    // Deletes still inside their Undo window are already gone everywhere.
+    final totalBalance =
+        await walletRepo.getTotalBalance() - pendingBalanceChange(pending);
+    final walletCount = await walletRepo.getCount();
     final transactions = (await transactionRepo.getAll())
-        .where((t) => !pending.contains(t.id))
+        .where((t) => !pending.containsKey(t.id))
         .toList();
     final categories = await categoryRepo.getAll();
 

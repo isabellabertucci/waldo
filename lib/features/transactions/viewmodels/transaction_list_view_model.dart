@@ -22,15 +22,16 @@ class TransactionListViewModel extends _$TransactionListViewModel {
     final transactions = walletId == null
         ? await repo.getAll(sortOrder: sortOrder)
         : await repo.getByWallet(walletId, sortOrder: sortOrder);
-    return transactions.where((t) => !pending.contains(t.id)).toList();
+    return transactions.where((t) => !pending.containsKey(t.id)).toList();
   }
 
   bool hideTransaction(int id) {
     final current = state.value;
-    if (current == null) return false;
-    // Hidden here at once, and in every other list through the pending set.
+    final transaction = current?.where((t) => t.id == id).firstOrNull;
+    if (current == null || transaction == null) return false;
+    // Hidden here at once, and everywhere else through the pending set.
     state = AsyncData(current.where((t) => t.id != id).toList());
-    ref.read(pendingTransactionDeletesProvider.notifier).add(id);
+    ref.read(pendingTransactionDeletesProvider.notifier).add(transaction);
     return true;
   }
 

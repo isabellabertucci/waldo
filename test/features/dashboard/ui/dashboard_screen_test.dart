@@ -209,6 +209,48 @@ void main() {
     expect(textOutsideSnackBar('Weekly shop'), findsNothing);
   });
 
+  testWidgets('While Undo is on screen the total already leaves the deleted '
+      'transaction out, and Undo puts it back', (tester) async {
+    final db = await createTestDatabase();
+    final walletId = await WalletRepositoryImpl(db).insert(
+      const Wallet(
+        name: 'Test Wallet',
+        startingBalance: 10000,
+        currentBalance: 10000,
+        createdAt: '2026-08-10T12:00:00.000',
+      ),
+    );
+    final today = DateTime.now().toIso8601String();
+    await TransactionRepositoryImpl(db).insert(
+      Transaction(
+        walletId: walletId,
+        amount: 2500,
+        type: TransactionType.expense,
+        date: today,
+        description: 'Weekly shop',
+        createdAt: today,
+      ),
+    );
+    await pumpDashboardScreen(tester, db: db);
+    expect(find.text('\$75.00'), findsOneWidget);
+
+    await tester.tap(find.byIcon(AppIcons.more));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+
+    expect(find.text('Undo'), findsOneWidget);
+    expect(find.text('\$100.00'), findsOneWidget);
+
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(find.text('\$75.00'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 6));
+  });
+
   testWidgets('Hiding the balance masks every amount on the dashboard', (
     tester,
   ) async {

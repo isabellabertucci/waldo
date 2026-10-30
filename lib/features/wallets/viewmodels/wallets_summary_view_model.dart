@@ -1,6 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:waldo/core/utils/clock.dart';
+import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
+import 'package:waldo/features/transactions/viewmodels/pending_transaction_deletes.dart';
 
 part 'wallets_summary_view_model.g.dart';
 
@@ -21,7 +24,21 @@ Future<WalletsSummary> walletsSummaryViewModel(Ref ref) async {
   final transactionRepo = await ref.watch(transactionRepositoryProvider.future);
   final now = ref.watch(clockProvider)();
   // Summed in SQL, so it doesn't load every transaction ever saved.
-  final (:income, :expense) = await transactionRepo.monthTotals(now);
+  final totals = await transactionRepo.monthTotals(now);
+  // Deletes inside their Undo window are already gone from the month.
+  bool inThisMonth(Transaction t) {
+    final date = DateTime.parse(t.date);
+    return date.year == now.year && date.month == now.month;
+  }
+
+  final pending = ref
+      .watch(pendingTransactionDeletesProvider)
+      .values
+      .where(inThisMonth);
+  int pendingOf(TransactionType type) =>
+      pending.where((t) => t.type == type).fold(0, (sum, t) => sum + t.amount);
+  final income = totals.income - pendingOf(TransactionType.income);
+  final expense = totals.expense - pendingOf(TransactionType.expense);
 
   final net = income - expense;
   return WalletsSummary(

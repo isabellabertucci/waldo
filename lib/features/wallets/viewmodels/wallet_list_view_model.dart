@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
+import 'package:waldo/features/transactions/viewmodels/pending_transaction_deletes.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_list_view_model.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
@@ -14,7 +15,16 @@ class WalletListViewModel extends _$WalletListViewModel {
   @override
   Future<List<Wallet>> build({SortOrder sortOrder = SortOrder.desc}) async {
     final repo = await ref.watch(walletRepositoryProvider.future);
-    return repo.getAll(sortOrder: sortOrder);
+    final pending = ref.watch(pendingTransactionDeletesProvider);
+    final wallets = await repo.getAll(sortOrder: sortOrder);
+    // A delete inside its Undo window is already gone from the balance.
+    return [
+      for (final w in wallets)
+        w.copyWith(
+          currentBalance:
+              w.currentBalance - pendingBalanceChange(pending, walletId: w.id),
+        ),
+    ];
   }
 
   bool hideWallet(int id) {
