@@ -62,4 +62,44 @@ void main() {
 
     await tester.pump(const Duration(seconds: 6));
   });
+
+  testWidgets("Opened for a month, it lists only that month's transactions "
+      'from every wallet', (tester) async {
+    final db = await createTestDatabase();
+    final wallets = WalletRepositoryImpl(db);
+    final home = await wallets.insert(
+      const Wallet(name: 'Home', createdAt: '2026-08-01T12:00:00.000'),
+    );
+    final bank = await wallets.insert(
+      const Wallet(name: 'Bank', createdAt: '2026-08-01T12:00:00.000'),
+    );
+    final transactions = TransactionRepositoryImpl(db);
+    for (final (walletId, date, name) in [
+      (home, '2026-09-03T12:00:00.000', 'September rent'),
+      (bank, '2026-09-20T12:00:00.000', 'September salary'),
+      (home, '2026-10-02T12:00:00.000', 'October rent'),
+    ]) {
+      await transactions.insert(
+        Transaction(
+          walletId: walletId,
+          amount: 1000,
+          type: TransactionType.expense,
+          date: date,
+          description: name,
+          createdAt: date,
+        ),
+      );
+    }
+
+    currentDb = await pumpWidgetWithProviders(
+      tester,
+      AllTransactionsScreen(month: DateTime(2026, 9)),
+      db: db,
+    );
+
+    expect(find.text('Transactions in September 2026'), findsOneWidget);
+    expect(find.text('September rent'), findsOneWidget);
+    expect(find.text('September salary'), findsOneWidget);
+    expect(find.text('October rent'), findsNothing);
+  });
 }

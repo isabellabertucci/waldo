@@ -693,7 +693,7 @@ void main() {
 
     expect(
       tester.getSemantics(find.textContaining('WALDO')),
-      isSemantics(isButton: true, hint: 'Opens all transactions'),
+      isSemantics(isButton: true, hint: "Opens this month's transactions"),
     );
     semantics.dispose();
   });

@@ -114,7 +114,10 @@ class _DashboardBody extends ConsumerWidget {
           isBalanceHidden: isBalanceHidden,
           currency: currency,
           hasWallets: data.walletCount > 0,
-          onTap: () => const AllTransactionsRoute().push(context),
+          // The receipt's own month, not every transaction ever.
+          onTap: () => AllTransactionsRoute(
+            month: DateFormat('yyyy-MM').format(selectedMonth),
+          ).push(context),
           onAddTransaction: () => showTransactionFormSheet(context),
         ),
         if (hasCashFlowData) ...[

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/widgets/page_width.dart';
@@ -15,19 +16,38 @@ import '../viewmodels/transaction_list_view_model.dart';
 import 'widgets/day_grouped_transaction_list.dart';
 
 class AllTransactionsScreen extends ConsumerWidget {
-  const AllTransactionsScreen({super.key});
+  const AllTransactionsScreen({super.key, this.month});
+
+  /// Only this month's transactions, when set.
+  final DateTime? month;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final month = this.month;
     final transactionsAsync = ref.watch(transactionListViewModelProvider());
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.transactions)),
+      appBar: AppBar(
+        title: Text(
+          month == null
+              ? l10n.transactions
+              : l10n.transactionsInMonth(
+                  DateFormat.yMMMM(locale).format(month),
+                ),
+        ),
+      ),
       body: PageWidth(
         child: switch (transactionsAsync) {
           AsyncValue(:final value?) => _AllTransactionsBody(
-            transactions: value,
+            transactions: month == null
+                ? value
+                : [
+                    for (final t in value)
+                      if (_isIn(DateTime.parse(t.date), month)) t,
+                  ],
+            isFiltered: month != null,
           ),
           AsyncValue(hasError: true) => Center(
             child: Text(l10n.transactionsError),
@@ -39,10 +59,19 @@ class AllTransactionsScreen extends ConsumerWidget {
   }
 }
 
+bool _isIn(DateTime date, DateTime month) =>
+    date.year == month.year && date.month == month.month;
+
 class _AllTransactionsBody extends ConsumerWidget {
-  const _AllTransactionsBody({required this.transactions});
+  const _AllTransactionsBody({
+    required this.transactions,
+    required this.isFiltered,
+  });
 
   final List<Transaction> transactions;
+
+  /// Shown for one month, so an empty list means none that month.
+  final bool isFiltered;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,6 +84,12 @@ class _AllTransactionsBody extends ConsumerWidget {
     final categoriesById = ref.watch(categoriesByIdProvider);
     final isBalanceHidden = ref.watch(balanceHiddenProvider);
 
+    if (transactions.isEmpty && isFiltered) {
+      return EmptyState(
+        icon: AppIcons.receipt,
+        title: l10n.noTransactionsForFilter,
+      );
+    }
     if (transactions.isEmpty) {
       return EmptyState(
         icon: AppIcons.receipt,

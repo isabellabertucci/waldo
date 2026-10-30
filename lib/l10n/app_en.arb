@@ -138,9 +138,9 @@
   "@showBalance": {
     "description": "Accessibility label and tooltip for the eye button when amounts are masked - tapping it reveals them"
   },
-  "receiptHint": "Opens all transactions",
+  "receiptHint": "Opens this month's transactions",
   "@receiptHint": {
-    "description": "Screen reader hint on the dashboard's month receipt, which opens the transaction list when tapped"
+    "description": "Screen reader hint on the dashboard's month receipt, which opens that month's transactions when tapped"
   },
   "edit": "Edit",
   "@edit": {
@@ -658,6 +658,13 @@
       "type": {
         "type": "String"
       }
+    }
+  },
+  "transactionsInMonth": "Transactions in {month}",
+  "@transactionsInMonth": {
+    "description": "Title of the transactions list opened from the dashboard receipt, e.g. 'Transactions in October 2026'",
+    "placeholders": {
+      "month": {"type": "String", "example": "October 2026"}
     }
   },
   "noTransactionsForFilter": "No transactions match this filter.",

@@ -296,10 +296,10 @@ abstract class AppLocalizations {
   /// **'Show balance'**
   String get showBalance;
 
-  /// Screen reader hint on the dashboard's month receipt, which opens the transaction list when tapped
+  /// Screen reader hint on the dashboard's month receipt, which opens that month's transactions when tapped
   ///
   /// In en, this message translates to:
-  /// **'Opens all transactions'**
+  /// **'Opens this month\'s transactions'**
   String get receiptHint;
 
   /// Edit action label
@@ -973,6 +973,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{type} transactions'**
   String filterChipLabel(String type);
+
+  /// Title of the transactions list opened from the dashboard receipt, e.g. 'Transactions in October 2026'
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions in {month}'**
+  String transactionsInMonth(String month);
 
   /// Empty state shown on the wallet transactions screen when the active filter excludes every transaction
   ///

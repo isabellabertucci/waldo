@@ -114,7 +114,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get showBalance => 'Mostrar saldo';
 
   @override
-  String get receiptHint => 'Abre todas as transações';
+  String get receiptHint => 'Abre as transações deste mês';
 
   @override
   String get edit => 'Editar';
@@ -517,6 +517,11 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String filterChipLabel(String type) {
     return 'Tipo: $type';
+  }
+
+  @override
+  String transactionsInMonth(String month) {
+    return 'Transações de $month';
   }
 
   @override

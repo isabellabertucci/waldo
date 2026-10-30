@@ -47,10 +47,15 @@ RouteBase get $allTransactionsRoute => GoRouteData.$route(
 
 mixin $AllTransactionsRoute on GoRouteData {
   static AllTransactionsRoute _fromState(GoRouterState state) =>
-      const AllTransactionsRoute();
+      AllTransactionsRoute(month: state.uri.queryParameters['month']);
+
+  AllTransactionsRoute get _self => this as AllTransactionsRoute;
 
   @override
-  String get location => GoRouteData.$location('/transactions');
+  String get location => GoRouteData.$location(
+    '/transactions',
+    queryParams: {if (_self.month != null) 'month': _self.month},
+  );
 
   @override
   void go(BuildContext context) => context.go(location);
