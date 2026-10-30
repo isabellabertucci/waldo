@@ -85,6 +85,24 @@ void main() {
       expect(id, greaterThan(0));
     });
 
+    test('rename changes a custom category\'s name', () async {
+      final id = await repo.insert(_custom('Gym'));
+
+      await repo.rename(id, 'Sport');
+
+      expect((await repo.getById(id))!.name, 'Sport');
+    });
+
+    test('rename refuses a name another category has', () async {
+      await repo.insert(_custom('Gym'));
+      final id = await repo.insert(_custom('Sport'));
+
+      expect(
+        () => repo.rename(id, 'GYM'),
+        throwsA(isA<DuplicateCategoryNameException>()),
+      );
+    });
+
     test('delete removes a category with no transactions', () async {
       final id = await repo.insert(
         const Category(

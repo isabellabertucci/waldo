@@ -69,6 +69,10 @@
   "@createWallet": {
     "description": "Button label for creating a new wallet"
   },
+  "editCategory": "Edit category",
+  "@editCategory": {
+    "description": "Title of the category sheet when renaming a custom category"
+  },
   "createCategory": "Create category",
   "@createCategory": {
     "description": "Button that saves the new category in the new-category sheet"

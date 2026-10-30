@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/database/db_providers.dart';
+import 'package:waldo/core/utils/utils.dart';
 import '../models/category.dart';
 
 part 'category_repository.g.dart';
@@ -22,6 +23,9 @@ abstract class ICategoryRepository {
   /// The built-in "Others" category: the home of uncategorized transactions.
   Future<Category> getOthers();
   Future<int> insert(Category category);
+
+  /// Renames a custom category; throws [DuplicateCategoryNameException].
+  Future<void> rename(int id, String name);
   Future<int> countTransactions(int categoryId);
 
   /// Moves the category's transactions to "Others", then deletes it.
@@ -100,6 +104,26 @@ class CategoryRepositoryImpl implements ICategoryRepository {
         throw DuplicateCategoryNameException();
       }
       _log.severe('insert failed', e);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> rename(int id, String name) async {
+    try {
+      final updated = await _db.update(
+        CategoriesTable.table,
+        {CategoriesTable.name: name, CategoriesTable.nameKey: nameKey(name)},
+        where: '${CategoriesTable.id} = ?',
+        whereArgs: [id],
+      );
+      _log.info('rename succeeded: id=$id, updated=$updated');
+    } on DatabaseException catch (e) {
+      if (e.isUniqueConstraintError()) {
+        _log.warning('rename rejected: duplicate name, id=$id');
+        throw DuplicateCategoryNameException();
+      }
+      _log.severe('rename failed', e);
       rethrow;
     }
   }

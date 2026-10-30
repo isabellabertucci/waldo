@@ -18,31 +18,45 @@ class CategoryListViewModel extends _$CategoryListViewModel {
     return repo.getAll();
   }
 
-  /// True while an add is writing, so the button and the keyboard's done
-  /// key fired together add it once.
-  bool _adding = false;
+  /// True while a save is writing, so the button and the keyboard's done
+  /// key fired together save it once.
+  bool _saving = false;
 
-  /// Adds a custom category; throws [DuplicateCategoryNameException].
-  Future<void> add(String name) async {
-    if (_adding) return;
-    _adding = true;
-    try {
-      await _add(name);
-    } finally {
-      _adding = false;
-    }
-  }
-
-  Future<void> _add(String name) async {
+  /// Adds a custom category and returns its id, or null when a save was
+  /// already running; throws [DuplicateCategoryNameException].
+  Future<int?> add(String name) => _guarded(() async {
     final repo = await ref.read(categoryRepositoryProvider.future);
-    await repo.insert(
+    final id = await repo.insert(
       Category(
         name: name.trim(),
         createdAt: ref.read(clockProvider)().toIso8601String(),
       ),
     );
-    _log.info('Category added');
+    _log.info('Category added: id=$id');
     ref.invalidateSelf();
+    return id;
+  });
+
+  /// Renames custom category [id]; does nothing while a save is running;
+  /// throws [DuplicateCategoryNameException].
+  Future<void> rename(int id, String name) => _guarded(() async {
+    final repo = await ref.read(categoryRepositoryProvider.future);
+    await repo.rename(id, name.trim());
+    _log.info('Category renamed: id=$id');
+    ref.invalidateSelf();
+    // The receipt lists categories by name.
+    ref.invalidate(dashboardViewModelProvider);
+  });
+
+  /// Runs [save] unless one is already running, then returns null.
+  Future<T?> _guarded<T>(Future<T> Function() save) async {
+    if (_saving) return null;
+    _saving = true;
+    try {
+      return await save();
+    } finally {
+      _saving = false;
+    }
   }
 
   /// How many transactions would move to "Others" if [id] were deleted.

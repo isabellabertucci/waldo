@@ -19,19 +19,23 @@ import '../../models/category.dart';
 import '../../repositories/category_repository.dart';
 import '../../viewmodels/category_list_view_model.dart';
 
-/// Opens the new-category sheet, as the Wallets screen opens its own.
-Future<void> showCategoryFormSheet(BuildContext context) {
-  return showModalBottomSheet(
+/// Opens the category sheet, new or for renaming [category], as the
+/// Wallets screen opens its own. Returns the saved category's id, or null.
+Future<int?> showCategoryFormSheet(BuildContext context, {Category? category}) {
+  return showModalBottomSheet<int>(
     context: context,
     useRootNavigator: true,
     isScrollControlled: true,
     useSafeArea: true,
-    builder: (_) => const CategoryFormSheet(),
+    builder: (_) => CategoryFormSheet(category: category),
   );
 }
 
 class CategoryFormSheet extends ConsumerStatefulWidget {
-  const CategoryFormSheet({super.key});
+  const CategoryFormSheet({super.key, this.category});
+
+  /// The custom category being renamed; null for a new one.
+  final Category? category;
 
   @override
   ConsumerState<CategoryFormSheet> createState() => _CategoryFormSheetState();
@@ -39,7 +43,11 @@ class CategoryFormSheet extends ConsumerStatefulWidget {
 
 class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  late final _nameController = TextEditingController(
+    text: widget.category?.name,
+  );
+
+  bool get _isEditing => widget.category != null;
 
   /// Shown above the button: a SnackBar would land behind the sheet.
   String? _saveError;
@@ -61,8 +69,11 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
 
     // Built-ins match in every language, not just the one on screen.
     final key = nameKey(name);
+    // Its own name is fine: renaming "Gym" to "gym" changes only the case.
     final taken = categories.any(
-      (c) => c.namesInEveryLanguage.any((n) => nameKey(n) == key),
+      (c) =>
+          c.id != widget.category?.id &&
+          c.namesInEveryLanguage.any((n) => nameKey(n) == key),
     );
     return taken ? l10n.categoryNameTaken : null;
   }
@@ -73,10 +84,19 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
     setState(() => _saveError = null);
 
     try {
-      await ref
-          .read(categoryListViewModelProvider.notifier)
-          .add(_nameController.text);
-      if (mounted) Navigator.of(context).pop();
+      final viewModel = ref.read(categoryListViewModelProvider.notifier);
+      final editing = widget.category;
+      final int? id;
+      if (editing == null) {
+        id = await viewModel.add(_nameController.text);
+        // A second tap while the first saves: that one closes the sheet,
+        // with the id the picker selects.
+        if (id == null) return;
+      } else {
+        await viewModel.rename(editing.id!, _nameController.text);
+        id = editing.id;
+      }
+      if (mounted) Navigator.of(context).pop(id);
     } catch (e) {
       if (!mounted) return;
       final message = e is DuplicateCategoryNameException
@@ -118,7 +138,7 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
                   Expanded(
                     child: Heading(
                       child: Text(
-                        l10n.newCategory,
+                        _isEditing ? l10n.editCategory : l10n.newCategory,
                         style: context.headlineLgExtraBold,
                       ),
                     ),
@@ -155,7 +175,7 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
                 width: double.infinity,
                 child: DashedStitchButton(
                   icon: const Icon(AppIcons.check, size: IconSize.md),
-                  label: l10n.createCategory,
+                  label: _isEditing ? l10n.saveChanges : l10n.createCategory,
                   onPressed: _save,
                 ),
               ),

@@ -122,6 +122,49 @@ void main() {
     expect(find.byTooltip('Delete Gym'), findsOneWidget);
   });
 
+  testWidgets('Tapping your own category renames it', (tester) async {
+    await pumpCategoriesScreen(tester);
+    await typeName(tester, 'Gym');
+    await tapAdd(tester);
+
+    await tester.tap(find.text('Gym'));
+    await tester.pumpAndSettle();
+    expect(find.text('Edit category'), findsOneWidget);
+    await tester.enterText(find.byKey(const Key('categoryNameField')), 'Sport');
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sport'), findsOneWidget);
+    expect(find.text('Gym'), findsNothing);
+  });
+
+  testWidgets('Keeping the same name in another case is allowed', (
+    tester,
+  ) async {
+    await pumpCategoriesScreen(tester);
+    await typeName(tester, 'Gym');
+    await tapAdd(tester);
+
+    await tester.tap(find.text('Gym'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('categoryNameField')), 'GYM');
+    await tester.tap(find.text('Save changes'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('GYM'), findsOneWidget);
+  });
+
+  testWidgets('A built-in category, named by the app, opens nothing', (
+    tester,
+  ) async {
+    await pumpCategoriesScreen(tester);
+
+    await tester.tap(find.text('Groceries'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Edit category'), findsNothing);
+  });
+
   testWidgets('An empty name shows an error and adds nothing', (tester) async {
     await pumpCategoriesScreen(tester);
 

@@ -61,6 +61,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get createWallet => 'Criar carteira';
 
   @override
+  String get editCategory => 'Editar categoria';
+
+  @override
   String get createCategory => 'Criar categoria';
 
   @override

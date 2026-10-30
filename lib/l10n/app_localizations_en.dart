@@ -60,6 +60,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createWallet => 'Create wallet';
 
   @override
+  String get editCategory => 'Edit category';
+
+  @override
   String get createCategory => 'Create category';
 
   @override

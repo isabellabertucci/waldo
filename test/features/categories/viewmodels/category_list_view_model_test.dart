@@ -174,6 +174,48 @@ void main() {
     );
   });
 
+  test('add returns the new category\'s id', () async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries]);
+    when(() => mockRepo.insert(any())).thenAnswer((_) async => 7);
+    await container.read(categoryListViewModelProvider.future);
+
+    final id = await container
+        .read(categoryListViewModelProvider.notifier)
+        .add('Gym');
+
+    expect(id, 7);
+  });
+
+  test('rename saves the new name and fetches the list again', () async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries, custom]);
+    when(() => mockRepo.rename(custom.id!, 'Gym')).thenAnswer((_) async {});
+    container.listen(categoryListViewModelProvider, (_, _) {});
+    await container.read(categoryListViewModelProvider.future);
+
+    await container
+        .read(categoryListViewModelProvider.notifier)
+        .rename(custom.id!, '  Gym ');
+
+    verify(() => mockRepo.rename(custom.id!, 'Gym')).called(1);
+    await container.read(categoryListViewModelProvider.future);
+    verify(() => mockRepo.getAll()).called(2);
+  });
+
+  test('rename lets a duplicate-name error reach the screen', () async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries, custom]);
+    when(
+      () => mockRepo.rename(custom.id!, 'Groceries'),
+    ).thenThrow(DuplicateCategoryNameException());
+    await container.read(categoryListViewModelProvider.future);
+
+    expect(
+      () => container
+          .read(categoryListViewModelProvider.notifier)
+          .rename(custom.id!, 'Groceries'),
+      throwsA(isA<DuplicateCategoryNameException>()),
+    );
+  });
+
   test('transactionCount asks the repository', () async {
     when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries, custom]);
     when(

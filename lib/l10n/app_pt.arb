@@ -18,6 +18,7 @@
   "balanceLocked": "Não pode ser alterado após a criação",
   "walletNameHint": "ex: Casa, Viagem",
   "createWallet": "Criar carteira",
+  "editCategory": "Editar categoria",
   "createCategory": "Criar categoria",
   "save": "Guardar",
   "done": "Concluído",

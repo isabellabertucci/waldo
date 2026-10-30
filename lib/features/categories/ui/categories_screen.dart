@@ -4,7 +4,6 @@ import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/widgets/badge_row.dart';
 import 'package:waldo/core/database/save_failure.dart';
 import 'package:waldo/core/theme/badge_size.dart';
-import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
@@ -108,9 +107,6 @@ class _CategoriesBody extends ConsumerStatefulWidget {
 }
 
 class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
-  bool _isOthers(Category category) =>
-      category.isDefault && category.type == CategoryType.others;
-
   Future<void> _confirmDelete(Category category) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -176,15 +172,7 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    // A-Z by the name on screen, with the undeletable "Others" last.
-    final categories = [...widget.categories]
-      ..sort((a, b) {
-        if (_isOthers(a) != _isOthers(b)) return _isOthers(a) ? 1 : -1;
-        return a
-            .displayName(l10n)
-            .toLowerCase()
-            .compareTo(b.displayName(l10n).toLowerCase());
-      });
+    final categories = widget.categories.inDisplayOrder(l10n);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -200,7 +188,15 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
               for (var i = 0; i < categories.length; i++) ...[
                 _CategoryRow(
                   category: categories[i],
-                  onDelete: _isOthers(categories[i])
+                  // Built-ins follow the app's language, so only the user's
+                  // own categories can be renamed.
+                  onTap: categories[i].isDefault
+                      ? null
+                      : () => showCategoryFormSheet(
+                          context,
+                          category: categories[i],
+                        ),
+                  onDelete: categories[i].isOthers
                       ? null
                       : () => _confirmDelete(categories[i]),
                 ),
@@ -215,11 +211,13 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
   }
 }
 
-/// One category: its icon, its name and, unless it's "Others", an X.
+/// One category: its icon, its name and, unless it's "Others", an X. A tap
+/// on one of the user's own opens it for renaming.
 class _CategoryRow extends StatelessWidget {
-  const _CategoryRow({required this.category, this.onDelete});
+  const _CategoryRow({required this.category, this.onTap, this.onDelete});
 
   final Category category;
+  final VoidCallback? onTap;
   final VoidCallback? onDelete;
 
   @override
@@ -233,44 +231,52 @@ class _CategoryRow extends StatelessWidget {
     // delete button stays separate, so a tap on the row can't delete.
     return Semantics(
       container: true,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          Spacing.md,
-          Spacing.xxs,
-          Spacing.xxs,
-          Spacing.xxs,
-        ),
-        child: BadgeRow(
-          badge: Container(
-            width: BadgeSize.md,
-            height: BadgeSize.md,
-            decoration: BoxDecoration(
-              // The page behind the card, as if the disc were cut out of it.
-              color: colors.surfaceContainer,
-              shape: BoxShape.circle,
+      button: onTap != null,
+      // Its own ink layer: the card's colour would paint over the ripple.
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              Spacing.md,
+              Spacing.xxs,
+              Spacing.xxs,
+              Spacing.xxs,
             ),
-            child: Icon(
-              category.icon,
-              size: IconSize.md,
-              color: colors.onSurface,
+            child: BadgeRow(
+              badge: Container(
+                width: BadgeSize.md,
+                height: BadgeSize.md,
+                decoration: BoxDecoration(
+                  // The page behind the card, as if the disc were cut out of it.
+                  color: colors.surfaceContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  category.icon,
+                  size: IconSize.md,
+                  color: colors.onSurface,
+                ),
+              ),
+              // A fixed-size slot, so rows line up whether or not they have an X.
+              trailing: SizedBox.square(
+                dimension: kMinInteractiveDimension,
+                child: onDelete == null
+                    ? null
+                    : IconButton(
+                        tooltip: l10n.deleteCategoryNamed(name),
+                        onPressed: onDelete,
+                        icon: Icon(
+                          AppIcons.close,
+                          size: IconSize.lg,
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+              ),
+              child: WholeWordsText.singleLine(name, style: context.bodyMdBold),
             ),
           ),
-          // A fixed-size slot, so rows line up whether or not they have an X.
-          trailing: SizedBox.square(
-            dimension: kMinInteractiveDimension,
-            child: onDelete == null
-                ? null
-                : IconButton(
-                    tooltip: l10n.deleteCategoryNamed(name),
-                    onPressed: onDelete,
-                    icon: Icon(
-                      AppIcons.close,
-                      size: IconSize.lg,
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-          ),
-          child: WholeWordsText.singleLine(name, style: context.bodyMdBold),
         ),
       ),
     );

@@ -200,6 +200,12 @@ abstract class AppLocalizations {
   /// **'Create wallet'**
   String get createWallet;
 
+  /// Title of the category sheet when renaming a custom category
+  ///
+  /// In en, this message translates to:
+  /// **'Edit category'**
+  String get editCategory;
+
   /// Button that saves the new category in the new-category sheet
   ///
   /// In en, this message translates to:
