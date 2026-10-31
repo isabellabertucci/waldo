@@ -7,6 +7,7 @@ import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/transactions/viewmodels/pending_transaction_deletes.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
+import 'package:waldo/features/wallets/viewmodels/pending_wallet_deletes.dart';
 
 import '../models/dashboard_data.dart';
 
@@ -42,12 +43,24 @@ class DashboardViewModel extends _$DashboardViewModel {
     final isCurrentMonth = anchor == DateTime(now.year, now.month);
 
     final pending = ref.watch(pendingTransactionDeletesProvider);
+    final pendingWallets = ref.watch(pendingWalletDeletesProvider);
     // Deletes still inside their Undo window are already gone everywhere.
-    final totalBalance =
-        await walletRepo.getTotalBalance() - pendingBalanceChange(pending);
-    final walletCount = await walletRepo.getCount();
+    final wallets = (await walletRepo.getAll())
+        .where((w) => !pendingWallets.contains(w.id))
+        .toList();
+    final totalBalance = wallets.fold<int>(
+      0,
+      (sum, w) =>
+          sum +
+          w.currentBalance -
+          pendingBalanceChange(pending, walletId: w.id),
+    );
     final transactions = (await transactionRepo.getAll())
-        .where((t) => !pending.containsKey(t.id))
+        .where(
+          (t) =>
+              !pending.containsKey(t.id) &&
+              !pendingWallets.contains(t.walletId),
+        )
         .toList();
     final categories = await categoryRepo.getAll();
 
@@ -77,7 +90,7 @@ class DashboardViewModel extends _$DashboardViewModel {
 
     return DashboardData(
       totalBalance: totalBalance,
-      walletCount: walletCount,
+      walletCount: wallets.length,
       monthlyIncome: monthlyIncome,
       monthlyExpense: monthlyExpense,
       spendingByCategory: spendingByCategory,

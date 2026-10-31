@@ -5,6 +5,8 @@ import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/transactions/viewmodels/pending_transaction_deletes.dart';
 
+import 'pending_wallet_deletes.dart';
+
 part 'wallets_summary_view_model.g.dart';
 
 /// This calendar month's income/expense across all wallets, independent of
@@ -23,18 +25,24 @@ class WalletsSummary {
 Future<WalletsSummary> walletsSummaryViewModel(Ref ref) async {
   final transactionRepo = await ref.watch(transactionRepositoryProvider.future);
   final now = ref.watch(clockProvider)();
+  final pendingWallets = ref.watch(pendingWalletDeletesProvider);
   // Summed in SQL, so it doesn't load every transaction ever saved.
-  final totals = await transactionRepo.monthTotals(now);
+  final totals = await transactionRepo.monthTotals(
+    now,
+    exceptWallets: pendingWallets,
+  );
   // Deletes inside their Undo window are already gone from the month.
-  bool inThisMonth(Transaction t) {
+  bool countsThisMonth(Transaction t) {
     final date = DateTime.parse(t.date);
-    return date.year == now.year && date.month == now.month;
+    return date.year == now.year &&
+        date.month == now.month &&
+        !pendingWallets.contains(t.walletId);
   }
 
   final pending = ref
       .watch(pendingTransactionDeletesProvider)
       .values
-      .where(inThisMonth);
+      .where(countsThisMonth);
   int pendingOf(TransactionType type) =>
       pending.where((t) => t.type == type).fold(0, (sum, t) => sum + t.amount);
   final income = totals.income - pendingOf(TransactionType.income);

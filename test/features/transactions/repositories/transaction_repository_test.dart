@@ -104,6 +104,30 @@ void main() {
       expect(empty.expense, 0);
     });
 
+    test('monthTotals leaves out the wallets it is told to', () async {
+      final walletId = await createWallet();
+      final otherId = await createWallet(name: 'Other');
+      for (final (id, amount) in [(walletId, 1000), (otherId, 300)]) {
+        await repo.insert(
+          Transaction(
+            walletId: id,
+            amount: amount,
+            type: TransactionType.income,
+            date: '2026-10-05',
+            createdAt: '2026-10-05T12:00:00.000',
+          ),
+        );
+      }
+
+      final all = await repo.monthTotals(DateTime(2026, 10));
+      final withoutOther = await repo.monthTotals(
+        DateTime(2026, 10),
+        exceptWallets: {otherId},
+      );
+      expect(all.income, 1300);
+      expect(withoutOther.income, 1000);
+    });
+
     test('monthTotals rethrows a failed read', () async {
       await db.execute('DROP TABLE ${TransactionsTable.table}');
 

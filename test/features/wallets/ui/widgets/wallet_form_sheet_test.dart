@@ -266,8 +266,8 @@ void main() {
 
     expect(find.text('A wallet with this name already exists'), findsOne);
     expect(
-      await WalletRepositoryImpl(currentDb!).getCount(),
-      1,
+      await WalletRepositoryImpl(currentDb!).getAll(),
+      hasLength(1),
       reason: 'nothing saved',
     );
   });

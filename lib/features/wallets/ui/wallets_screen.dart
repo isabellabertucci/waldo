@@ -54,14 +54,14 @@ class WalletsScreen extends ConsumerWidget {
       restoredLabel: l10n.walletRestored,
     );
     if (undone) {
-      viewModel.restoreWallet();
+      viewModel.restoreWallet(wallet.id!);
       return;
     }
 
     try {
       await viewModel.confirmDelete(wallet.id!);
     } catch (e) {
-      viewModel.restoreWallet();
+      viewModel.restoreWallet(wallet.id!);
       final message = failureMessage(l10n, e, unknown: l10n.deleteError);
       messenger.showSnackBar(SnackBar(content: Text(message)));
     }

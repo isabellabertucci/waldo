@@ -19,7 +19,10 @@ abstract class ITransactionRepository {
   Future<Transaction?> getById(int id);
 
   /// Income and expense totals, in cents, for [month]'s calendar month.
-  Future<({int income, int expense})> monthTotals(DateTime month);
+  Future<({int income, int expense})> monthTotals(
+    DateTime month, {
+    Set<int> exceptWallets = const {},
+  });
   Future<int> insert(Transaction transaction);
   Future<void> update(Transaction transaction);
   Future<void> delete(int id);
@@ -110,18 +113,26 @@ class TransactionRepositoryImpl implements ITransactionRepository {
   }
 
   @override
-  Future<({int income, int expense})> monthTotals(DateTime month) async {
+  Future<({int income, int expense})> monthTotals(
+    DateTime month, {
+    Set<int> exceptWallets = const {},
+  }) async {
     try {
       // ISO dates sort as text, so the month is a plain string range.
       final start = DateTime(month.year, month.month).toIso8601String();
       final end = DateTime(month.year, month.month + 1).toIso8601String();
+      final notInWallets = exceptWallets.isEmpty
+          ? ''
+          : 'AND ${TransactionsTable.walletId} NOT IN '
+                '(${List.filled(exceptWallets.length, '?').join(', ')}) ';
       final rows = await _db.rawQuery(
         'SELECT ${TransactionsTable.type}, '
         'SUM(${TransactionsTable.amount}) AS total '
         'FROM ${TransactionsTable.table} '
         'WHERE ${TransactionsTable.date} >= ? AND ${TransactionsTable.date} < ? '
+        '$notInWallets'
         'GROUP BY ${TransactionsTable.type}',
-        [start.substring(0, 10), end.substring(0, 10)],
+        [start.substring(0, 10), end.substring(0, 10), ...exceptWallets],
       );
       int totalOf(TransactionType type) =>
           rows
