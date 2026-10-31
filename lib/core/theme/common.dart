@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
@@ -7,8 +8,31 @@ import 'package:waldo/core/theme/spacing.dart';
 class Common {
   Common._();
 
-  static AppBarTheme getAppBarTheme(AppColors colors) {
-    return AppBarTheme(backgroundColor: colors.transparent, centerTitle: false);
+  /// Dark status bar text on the light theme, light on the dark one.
+  static SystemUiOverlayStyle getSystemBarsStyle(
+    AppColors colors,
+    Brightness brightness,
+  ) {
+    final isDark = brightness == Brightness.dark;
+    final icons = isDark ? Brightness.light : Brightness.dark;
+    return SystemUiOverlayStyle(
+      statusBarColor: colors.transparent,
+      systemNavigationBarColor: colors.transparent,
+      // Otherwise Android adds its own grey scrim behind the 3 buttons.
+      systemNavigationBarContrastEnforced: false,
+      statusBarIconBrightness: icons,
+      systemNavigationBarIconBrightness: icons,
+      statusBarBrightness: brightness, // iOS
+    );
+  }
+
+  static AppBarTheme getAppBarTheme(AppColors colors, Brightness brightness) {
+    return AppBarTheme(
+      backgroundColor: colors.transparent,
+      centerTitle: false,
+      // Without it, the transparent background reads as dark: white text.
+      systemOverlayStyle: getSystemBarsStyle(colors, brightness),
+    );
   }
 
   static FloatingActionButtonThemeData getFloatingActionButtonTheme(

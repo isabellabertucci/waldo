@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -80,6 +81,31 @@ void main() {
           expect(style.letterSpacing, closeTo(style.fontSize! * ratio, 1e-9));
         }
       });
+    });
+
+    testWidgets('A screen with an AppBar keeps readable status bar text '
+        '($name)', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(appBar: AppBar(title: const Text('Title'))),
+        ),
+      );
+
+      final style = tester
+          .widget<AnnotatedRegion<SystemUiOverlayStyle>>(
+            find.descendant(
+              of: find.byType(AppBar),
+              matching: find.byType(AnnotatedRegion<SystemUiOverlayStyle>),
+            ),
+          )
+          .value;
+      final isDark = theme.brightness == Brightness.dark;
+      expect(
+        style.statusBarIconBrightness,
+        isDark ? Brightness.light : Brightness.dark,
+      );
+      expect(style.statusBarBrightness, theme.brightness); // iOS
     });
   }
 

@@ -11,6 +11,7 @@ import 'core/logging/app_logger.dart';
 import 'core/logging/provider_observer.dart';
 import 'core/router/app_router_provider.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/common.dart';
 import 'core/theme/dynamic_type_scaler.dart';
 import 'l10n/app_localizations.dart';
 
@@ -38,21 +39,6 @@ ThemeMode _toThemeMode(bool? isDarkMode) {
     true => ThemeMode.dark,
     false => ThemeMode.light,
   };
-}
-
-SystemUiOverlayStyle _systemBarsStyle(BuildContext context) {
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  final icons = isDark ? Brightness.light : Brightness.dark;
-  final transparent = context.appColors.transparent;
-  return SystemUiOverlayStyle(
-    statusBarColor: transparent,
-    systemNavigationBarColor: transparent,
-    // Otherwise Android adds its own grey scrim behind the 3 buttons.
-    systemNavigationBarContrastEnforced: false,
-    statusBarIconBrightness: icons,
-    systemNavigationBarIconBrightness: icons,
-    statusBarBrightness: isDark ? Brightness.dark : Brightness.light, // iOS
-  );
 }
 
 /// On iOS, titles grow less than body text, as in Apple's apps. Android 14+
@@ -91,7 +77,10 @@ class MyApp extends ConsumerWidget {
       darkTheme: AppTheme.dark,
       themeMode: themeMode,
       builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
-        value: _systemBarsStyle(context),
+        value: Common.getSystemBarsStyle(
+          context.appColors,
+          Theme.of(context).brightness,
+        ),
         child: _withDynamicType(context, child!),
       ),
     );

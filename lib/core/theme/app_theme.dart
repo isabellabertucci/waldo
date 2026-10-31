@@ -54,7 +54,7 @@ class AppTheme {
       scaffoldBackgroundColor: colors.surfaceContainer,
       extensions: [colors],
 
-      appBarTheme: Common.getAppBarTheme(colors),
+      appBarTheme: Common.getAppBarTheme(colors, brightness),
       floatingActionButtonTheme: Common.getFloatingActionButtonTheme(colors),
       cardTheme: Common.getCardTheme(colors),
       dialogTheme: Common.getDialogTheme(colors),
