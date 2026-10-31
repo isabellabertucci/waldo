@@ -212,7 +212,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
               // The same row and picker as the edit sheet.
               EditFieldRow(
                 key: const Key('transactionCategoryField'),
-                icon: category?.icon ?? AppIcons.categoryGeneric,
+                icon: category?.icon ?? AppIcons.categoryNone,
                 label: l10n.category,
                 value: category?.displayName(l10n) ?? l10n.none,
                 onTap: () => showCategoryPicker(

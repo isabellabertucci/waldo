@@ -26,6 +26,7 @@ abstract final class AppIcons {
   static const categoryInvestments = PhosphorIconsRegular.trendUp;
   static const categoryOthers = PhosphorIconsRegular.dotsThreeCircle;
   static const categoryGeneric = PhosphorIconsRegular.tag;
+  static const categoryNone = PhosphorIconsRegular.prohibit;
 
   // Transactions
   static const income = PhosphorIconsRegular.arrowDown;

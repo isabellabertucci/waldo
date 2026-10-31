@@ -22,11 +22,7 @@ Future<void> showCategoryPicker(
     initialValue: selected,
     pickOnTap: true,
     options: [
-      SheetOption(
-        value: null,
-        label: l10n.none,
-        icon: AppIcons.categoryGeneric,
-      ),
+      SheetOption(value: null, label: l10n.none, icon: AppIcons.categoryNone),
       for (final c in categories.inDisplayOrder(l10n))
         SheetOption(value: c.id, label: c.displayName(l10n), icon: c.icon),
     ],

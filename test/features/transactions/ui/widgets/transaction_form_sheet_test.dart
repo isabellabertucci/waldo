@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/database/db_providers.dart';
+import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/utils/localization_delegates.dart';
 import 'package:waldo/features/categories/models/category.dart';
@@ -44,9 +45,25 @@ void main() {
       find.descendant(of: row, matching: find.text('None')),
       findsOneWidget,
     );
+    // None has its own icon, not the tag of a category you made.
+    expect(
+      find.descendant(of: row, matching: find.byIcon(AppIcons.categoryNone)),
+      findsOneWidget,
+    );
 
     await tester.tap(row);
     await tester.pumpAndSettle();
+    final noneTile = find.ancestor(
+      of: find.text('None').last,
+      matching: find.byType(InkWell),
+    );
+    expect(
+      find.descendant(
+        of: noneTile,
+        matching: find.byIcon(AppIcons.categoryNone),
+      ),
+      findsOneWidget,
+    );
     await tester.tap(find.text('Groceries'));
     await tester.pumpAndSettle();
 

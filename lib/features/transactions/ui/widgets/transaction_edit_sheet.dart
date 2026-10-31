@@ -363,7 +363,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           ? '—'
           : '${isIncome ? '+' : '-'}${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currency.code)}',
       amountColor: isIncome ? colors.primaryStrong : colors.error,
-      categoryIcon: category?.icon ?? AppIcons.categoryGeneric,
+      categoryIcon: category?.icon ?? AppIcons.categoryNone,
       categoryLabel: category?.displayName(l10n) ?? l10n.none,
       dateLabel: formState.date == null
           ? '—'
