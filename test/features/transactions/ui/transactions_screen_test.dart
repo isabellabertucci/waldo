@@ -360,6 +360,21 @@ void main() {
     expect(amountFieldText(tester), '10,00');
   });
 
+  testWidgets('A Portuguese phone types the amount with the currency after '
+      'it, as the lists show it', (tester) async {
+    tester.platformDispatcher.localeTestValue = const Locale('pt', 'PT');
+    addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '10.00', description: 'Coffee');
+
+    await openEditFromRowMenu(tester);
+
+    final field = tester.getRect(find.byKey(const Key('txAmountField')));
+    final symbol = tester.getRect(find.text(r' $'));
+    expect(find.text('-'), findsOneWidget, reason: 'the sign alone');
+    expect(symbol.left, greaterThanOrEqualTo(field.right));
+  });
+
   testWidgets('Cancel puts back the amount as it was', (tester) async {
     await pumpTransactionsScreen(tester);
     await createTransaction(tester, amount: '10.00', description: 'Coffee');

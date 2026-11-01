@@ -65,10 +65,16 @@ class _TransactionAmountCardState extends ConsumerState<TransactionAmountCard> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
-    final currencySymbol = switch (ref.watch(preferencesViewModelProvider)) {
-      AsyncValue(:final value?) => value.currency.symbol,
-      _ => Currency.usd.symbol,
+    final currency = switch (ref.watch(preferencesViewModelProvider)) {
+      AsyncValue(:final value?) => value.currency,
+      _ => Currency.usd,
     };
+    // Where the lists put it: "-87,35 €" on a Portuguese phone, "-€ 87.35"
+    // on an American one.
+    final symbolAfter = currencyAfterAmount(
+      moneyLocale(context),
+      currencyCode: currency.code,
+    );
     final isIncome = widget.type == TransactionType.income;
     final amountColor = isIncome ? colors.primaryStrong : colors.error;
 
@@ -102,9 +108,11 @@ class _TransactionAmountCardState extends ConsumerState<TransactionAmountCard> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // The trailing space makes "+$ 0.00" read as one string.
+                          // The sign, then the symbol where it comes first;
+                          // its space makes "+$ 0.00" read as one string.
                           Text(
-                            '${isIncome ? '+' : '-'}$currencySymbol ',
+                            '${isIncome ? '+' : '-'}'
+                            '${symbolAfter ? '' : '${currency.symbol} '}',
                             style: context.amountDisplayExtraBold.copyWith(
                               color: amountColor,
                             ),
@@ -148,6 +156,13 @@ class _TransactionAmountCardState extends ConsumerState<TransactionAmountCard> {
                               ),
                             ),
                           ),
+                          if (symbolAfter)
+                            Text(
+                              ' ${currency.symbol}',
+                              style: context.amountDisplayExtraBold.copyWith(
+                                color: amountColor,
+                              ),
+                            ),
                         ],
                       ),
                       if (field.hasError)

@@ -50,6 +50,16 @@ String nameKey(String name) => name.trim().toLowerCase();
 String decimalSeparator(String locale) =>
     NumberFormat.decimalPattern(locale).symbols.DECIMAL_SEP;
 
+/// Whether [locale] writes the currency after the amount ("1,00 €" in
+/// pt_PT, "€1.00" in en_US), as [formatCents] does.
+bool currencyAfterAmount(String locale, {String currencyCode = 'USD'}) {
+  final format = NumberFormat.simpleCurrency(
+    locale: locale,
+    name: currencyCode,
+  );
+  return format.format(1).trimRight().endsWith(format.currencySymbol);
+}
+
 String formatCents(
   int cents, {
   required String locale,
