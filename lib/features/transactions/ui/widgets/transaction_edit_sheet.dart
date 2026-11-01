@@ -43,6 +43,7 @@ import 'category_picker.dart';
 import 'transaction_amount_card.dart';
 import 'transaction_date_picker.dart';
 import 'transaction_field_row.dart';
+import 'wallet_picker.dart';
 
 /// Opens a transaction in a bottom sheet, read-only unless [startInEditMode].
 /// New transactions use [showTransactionFormSheet].
@@ -285,8 +286,20 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final navigator = Navigator.of(context);
     await deleteTransactionWithUndo(
       context,
-      widget.transaction,
+      _saved(),
       onConfirmed: navigator.pop,
+    );
+  }
+
+  /// The transaction as last saved here: a save in this sheet may have
+  /// renamed it or moved it to another wallet. Delete is only in the view,
+  /// where the form holds what is saved.
+  Transaction _saved() {
+    final saved = _formState;
+    final description = saved.description.trim();
+    return widget.transaction.copyWith(
+      walletId: saved.walletId ?? widget.transaction.walletId,
+      description: description.isEmpty ? null : description,
     );
   }
 
@@ -309,12 +322,11 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final currency = preferences.currency;
     // The format picked in Settings, as the add form uses.
     final dateFormat = DateFormat(preferences.dateFormat);
-    final walletsAsync = ref.watch(walletListViewModelProvider());
-    final wallet = switch (walletsAsync) {
-      AsyncValue(:final value?) =>
-        value.where((w) => w.id == formState.walletId).firstOrNull,
-      _ => null,
+    final wallets = switch (ref.watch(walletListViewModelProvider())) {
+      AsyncValue(:final value?) => value,
+      _ => const <Wallet>[],
     };
+    final wallet = wallets.where((w) => w.id == formState.walletId).firstOrNull;
 
     final summary = _summarize(
       formState,
@@ -334,7 +346,14 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           ),
         ),
         child: _editable
-            ? _buildEditList(context, formState, summary, categories)
+            ? _buildEditList(
+                context,
+                formState,
+                summary,
+                categories,
+                wallets,
+                wallet,
+              )
             : _buildViewList(context, formState, summary, wallet),
       ),
     );
@@ -356,7 +375,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
         .where((c) => c.id == formState.categoryId)
         .firstOrNull;
     return (
-      // Masked like the lists; the keypad editor still shows what you type.
+      // Masked like the lists; the amount card still shows what you type.
       amountText: isAmountHidden
           ? hiddenAmount
           : amountCents == null
@@ -494,7 +513,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                   value: dateLabel,
                 ),
                 _ViewInfoRow(
-                  icon: AppIcons.wallets,
+                  icon: wallet?.type.icon ?? AppIcons.wallets,
                   label: l10n.wallet,
                   value: walletLabel,
                 ),
@@ -547,6 +566,8 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     TransactionFormState formState,
     _Summary summary,
     List<Category> categories,
+    List<Wallet> wallets,
+    Wallet? wallet,
   ) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
@@ -631,12 +652,38 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             ),
           ),
           const SizedBox(height: Spacing.sm),
-          EditFieldRow(
-            icon: AppIcons.calendar,
-            label: l10n.date,
-            required: true,
-            value: summary.dateLabel,
-            onTap: () => _editDate(formState),
+          // Date and Wallet share one card, as in the new-transaction sheet.
+          Material(
+            color: colors.surfaceContainer,
+            borderRadius: BorderRadius.circular(Rounded.lg),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              children: [
+                EditFieldRow(
+                  grouped: true,
+                  icon: AppIcons.calendar,
+                  label: l10n.date,
+                  required: true,
+                  value: summary.dateLabel,
+                  onTap: () => _editDate(formState),
+                ),
+                const Divider(indent: Spacing.md, endIndent: Spacing.md),
+                EditFieldRow(
+                  key: const Key('txWalletField'),
+                  grouped: true,
+                  icon: wallet?.type.icon ?? AppIcons.wallets,
+                  label: l10n.wallet,
+                  required: true,
+                  value: wallet?.name ?? '—',
+                  onTap: () => showWalletPicker(
+                    context,
+                    wallets: wallets,
+                    selected: formState.walletId,
+                    onPicked: _viewModel.updateWalletId,
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: Spacing.sm),
           FormPillField(

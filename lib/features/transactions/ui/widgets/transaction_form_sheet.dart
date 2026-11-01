@@ -14,7 +14,6 @@ import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/sheet_grabber.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/form_pill_field.dart';
-import 'package:waldo/core/widgets/option_sheet.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/models/category.dart';
@@ -22,6 +21,7 @@ import 'package:waldo/features/categories/viewmodels/category_list_view_model.da
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_form_view_model.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
+import 'package:waldo/features/wallets/wallets_x.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/widgets/heading.dart';
 
@@ -29,6 +29,7 @@ import 'category_picker.dart';
 import 'transaction_amount_card.dart';
 import 'transaction_date_picker.dart';
 import 'transaction_field_row.dart';
+import 'wallet_picker.dart';
 
 final _log = Logger('waldo.ui.transaction_form');
 
@@ -145,9 +146,9 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     };
     final dateFormat = DateFormat(dateFormatPattern);
 
-    final walletName = switch (walletsAsync) {
+    final wallet = switch (walletsAsync) {
       AsyncValue(:final value?) =>
-        value.where((w) => w.id == formState.walletId).firstOrNull?.name,
+        value.where((w) => w.id == formState.walletId).firstOrNull,
       _ => null,
     };
 
@@ -283,26 +284,18 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                               EditFieldRow(
                                 key: const Key('transactionWalletField'),
                                 grouped: true,
-                                icon: AppIcons.wallets,
+                                icon: wallet?.type.icon ?? AppIcons.wallets,
                                 label: l10n.wallet,
                                 required: true,
-                                value: walletName ?? l10n.none,
+                                value: wallet?.name ?? l10n.none,
                                 hasError: field.hasError,
-                                onTap: () => showOptionSheet<int?>(
+                                // The same picker as the edit sheet.
+                                onTap: () => showWalletPicker(
                                   context,
-                                  title: l10n.wallet,
-                                  initialValue: field.value,
-                                  pickOnTap: true,
-                                  options: [
-                                    for (final wallet in value)
-                                      SheetOption(
-                                        value: wallet.id,
-                                        label: wallet.name,
-                                        icon: AppIcons.wallets,
-                                      ),
-                                  ],
-                                  onConfirm: (walletId) {
-                                    viewModel.updateWalletId(walletId!);
+                                  wallets: value,
+                                  selected: field.value,
+                                  onPicked: (walletId) {
+                                    viewModel.updateWalletId(walletId);
                                     field.didChange(walletId);
                                   },
                                 ),
