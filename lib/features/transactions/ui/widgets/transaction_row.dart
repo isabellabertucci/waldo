@@ -154,6 +154,8 @@ class TransactionRow extends StatelessWidget {
                 return Row(
                   children: [
                     Expanded(child: texts),
+                    // So a cut title never touches the amount.
+                    const SizedBox(width: Spacing.sm),
                     amount,
                   ],
                 );
