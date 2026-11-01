@@ -609,7 +609,9 @@ undo window).
   system keyboard; a choice from a list (wallet, category) is always an
   `EditFieldRow` that opens `showOptionSheet` - the same tiles as the
   Settings pickers, picked with one tap. A picker that can grow puts its
-  "New ..." tile first, so making one never means leaving the sheet.
+  "New ..." tile first, so making one never means leaving the sheet. A
+  sheet of things to do (the dashboard's "Add") is `showActionSheet`: the
+  same title, close button and tiles, without the rings.
 
 ## Do's and Don'ts
 

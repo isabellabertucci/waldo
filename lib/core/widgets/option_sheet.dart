@@ -112,6 +112,94 @@ class _OptionSheetState<T> extends State<OptionSheet<T>> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+
+    return _SheetShell(
+      title: widget.title,
+      children: [
+        if (widget.action case final action?) ...[
+          _ActionRow(action: action),
+          const SizedBox(height: Spacing.sm),
+        ],
+        for (var i = 0; i < widget.options.length; i++) ...[
+          if (i > 0) const SizedBox(height: Spacing.sm),
+          _OptionRow(
+            label: widget.options[i].label,
+            subtitle: widget.options[i].subtitle,
+            icon: widget.options[i].icon,
+            symbolText: widget.options[i].symbolText,
+            selected: widget.options[i].value == _selected,
+            onTap: () => _pick(widget.options[i].value),
+          ),
+        ],
+        if (widget.notice != null) ...[
+          const SizedBox(height: Spacing.md),
+          _NoticeBox(text: widget.notice!),
+        ],
+        if (!widget.pickOnTap) ...[
+          const SizedBox(height: Spacing.lg),
+          SizedBox(
+            width: double.infinity,
+            child: DashedStitchButton(
+              label: l10n.done,
+              onPressed: () {
+                widget.onConfirm(_selected);
+                Navigator.of(context).pop();
+              },
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Opens a sheet of things to do, in the same tiles as every picker (the
+/// dashboard's "Add").
+Future<void> showActionSheet(
+  BuildContext context, {
+  required String title,
+  required List<SheetAction> actions,
+}) {
+  return showModalBottomSheet(
+    context: context,
+    useRootNavigator: true,
+    backgroundColor: context.appColors.transparent,
+    isScrollControlled: true,
+    useSafeArea: true,
+    builder: (_) => _ActionSheet(title: title, actions: actions),
+  );
+}
+
+/// A picker's sheet with only actions: a tap closes it and runs one.
+class _ActionSheet extends StatelessWidget {
+  const _ActionSheet({required this.title, required this.actions});
+
+  final String title;
+  final List<SheetAction> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    return _SheetShell(
+      title: title,
+      children: [
+        for (var i = 0; i < actions.length; i++) ...[
+          if (i > 0) const SizedBox(height: Spacing.sm),
+          _ActionRow(action: actions[i]),
+        ],
+      ],
+    );
+  }
+}
+
+/// The grabber, title, close button and scrolling body every sheet here has.
+class _SheetShell extends StatelessWidget {
+  const _SheetShell({required this.title, required this.children});
+
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.appColors;
 
     return Material(
@@ -148,7 +236,7 @@ class _OptionSheetState<T> extends State<OptionSheet<T>> {
                               Expanded(
                                 child: Heading(
                                   child: Text(
-                                    widget.title,
+                                    title,
                                     style: context.headlineSmExtraBold.copyWith(
                                       color: colors.onSurface,
                                     ),
@@ -159,46 +247,7 @@ class _OptionSheetState<T> extends State<OptionSheet<T>> {
                             ],
                           ),
                           const SizedBox(height: Spacing.md),
-                          if (widget.action case final action?) ...[
-                            _OptionRow(
-                              label: action.label,
-                              icon: action.icon,
-                              isChoice: false,
-                              onTap: () {
-                                Navigator.of(context).pop();
-                                action.onTap();
-                              },
-                            ),
-                            const SizedBox(height: Spacing.sm),
-                          ],
-                          for (var i = 0; i < widget.options.length; i++) ...[
-                            if (i > 0) const SizedBox(height: Spacing.sm),
-                            _OptionRow(
-                              label: widget.options[i].label,
-                              subtitle: widget.options[i].subtitle,
-                              icon: widget.options[i].icon,
-                              symbolText: widget.options[i].symbolText,
-                              selected: widget.options[i].value == _selected,
-                              onTap: () => _pick(widget.options[i].value),
-                            ),
-                          ],
-                          if (widget.notice != null) ...[
-                            const SizedBox(height: Spacing.md),
-                            _NoticeBox(text: widget.notice!),
-                          ],
-                          if (!widget.pickOnTap) ...[
-                            const SizedBox(height: Spacing.lg),
-                            SizedBox(
-                              width: double.infinity,
-                              child: DashedStitchButton(
-                                label: l10n.done,
-                                onPressed: () {
-                                  widget.onConfirm(_selected);
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ),
-                          ],
+                          ...children,
                         ],
                       ),
                     ),
@@ -209,6 +258,26 @@ class _OptionSheetState<T> extends State<OptionSheet<T>> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// An action's tile: closes the sheet, then runs it.
+class _ActionRow extends StatelessWidget {
+  const _ActionRow({required this.action});
+
+  final SheetAction action;
+
+  @override
+  Widget build(BuildContext context) {
+    return _OptionRow(
+      label: action.label,
+      icon: action.icon,
+      isChoice: false,
+      onTap: () {
+        Navigator.of(context).pop();
+        action.onTap();
+      },
     );
   }
 }

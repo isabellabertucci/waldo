@@ -344,6 +344,26 @@ void main() {
       await tester.pumpAndSettle();
     },
   );
+
+  testWidgets('Add opens the app\'s own sheet, and New transaction its form', (
+    tester,
+  ) async {
+    final db = await createTestDatabase();
+    await WalletRepositoryImpl(
+      db,
+    ).insert(const Wallet(name: 'Cash', createdAt: '2026-08-10T12:00:00.000'));
+    await pumpDashboardScreen(tester, db: db);
+
+    await tester.tap(find.text('Add'));
+    await tester.pumpAndSettle();
+    // Titled, with the close button every sheet has.
+    expect(find.text('Add'), findsNWidgets(2));
+    expect(find.byTooltip('Close'), findsOneWidget);
+
+    await tester.tap(find.text('New transaction'));
+    await tester.pumpAndSettle();
+    expect(find.text('Add expense'), findsOneWidget);
+  });
 }
 
 class _SlowTransactionRepository extends TransactionRepositoryImpl {

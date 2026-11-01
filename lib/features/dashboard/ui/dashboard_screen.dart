@@ -6,7 +6,7 @@ import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/clock.dart';
-import 'package:waldo/core/widgets/sheet_grabber.dart';
+import 'package:waldo/core/widgets/option_sheet.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_form_sheet.dart';
@@ -148,42 +148,21 @@ class _DashboardBody extends ConsumerWidget {
 void _showQuickAddSheet(BuildContext context) {
   final l10n = AppLocalizations.of(context);
 
-  showModalBottomSheet(
-    context: context,
-    useRootNavigator: true,
-    isScrollControlled: true,
-    builder: (sheetContext) => SafeArea(
-      child: Padding(
-        // Same side margin as every other sheet.
-        padding: const EdgeInsets.symmetric(
-          horizontal: Spacing.md,
-          vertical: Spacing.sm,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Like every other sheet: says it can be dragged away.
-            const SheetGrabber(),
-            const SizedBox(height: Spacing.sm),
-            ListTile(
-              leading: const Icon(AppIcons.receipt),
-              title: Text(l10n.newTransaction),
-              onTap: () {
-                Navigator.of(sheetContext).pop();
-                showTransactionFormSheet(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(AppIcons.wallets),
-              title: Text(l10n.newWallet),
-              onTap: () {
-                Navigator.of(sheetContext).pop();
-                showWalletFormSheet(context);
-              },
-            ),
-          ],
-        ),
+  // The same tiles as every picker, so it reads like the rest of the app.
+  showActionSheet(
+    context,
+    title: l10n.add,
+    actions: [
+      (
+        icon: AppIcons.receipt,
+        label: l10n.newTransaction,
+        onTap: () => showTransactionFormSheet(context),
       ),
-    ),
+      (
+        icon: AppIcons.wallets,
+        label: l10n.newWallet,
+        onTap: () => showWalletFormSheet(context),
+      ),
+    ],
   );
 }

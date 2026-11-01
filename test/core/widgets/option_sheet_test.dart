@@ -120,4 +120,50 @@ void main() {
     await tester.pumpAndSettle();
     expect(ran, isTrue);
   });
+
+  testWidgets('An action sheet has a title, the picker\'s tiles without '
+      'rings, and a tap closes it and runs the action', (tester) async {
+    var ran = '';
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showActionSheet(
+                context,
+                title: 'Add',
+                actions: [
+                  (
+                    icon: AppIcons.receipt,
+                    label: 'New transaction',
+                    onTap: () => ran = 'transaction',
+                  ),
+                  (
+                    icon: AppIcons.wallets,
+                    label: 'New wallet',
+                    onTap: () => ran = 'wallet',
+                  ),
+                ],
+              ),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add'), findsOneWidget);
+    expect(find.byTooltip('Close'), findsOneWidget);
+    expect(find.byIcon(AppIcons.radioUnselected), findsNothing);
+
+    await tester.tap(find.text('New wallet'));
+    await tester.pumpAndSettle();
+    expect(ran, 'wallet');
+    expect(find.text('New transaction'), findsNothing, reason: 'it closed');
+  });
 }
