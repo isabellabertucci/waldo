@@ -34,7 +34,7 @@ final class CategoryListViewModelProvider
 }
 
 String _$categoryListViewModelHash() =>
-    r'13986d0c233e946da6c1fc9a8cd0d92c10884171';
+    r'1ee64f3584bf4d356709596c53e1886804a42518';
 
 abstract class _$CategoryListViewModel extends $AsyncNotifier<List<Category>> {
   FutureOr<List<Category>> build();
@@ -56,13 +56,13 @@ abstract class _$CategoryListViewModel extends $AsyncNotifier<List<Category>> {
 }
 
 /// The categories by id, for rows that show a transaction's category; empty
-/// until they load.
+/// until they load. A category inside its Undo window maps to "Others".
 
 @ProviderFor(categoriesById)
 const categoriesByIdProvider = CategoriesByIdProvider._();
 
 /// The categories by id, for rows that show a transaction's category; empty
-/// until they load.
+/// until they load. A category inside its Undo window maps to "Others".
 
 final class CategoriesByIdProvider
     extends
@@ -73,7 +73,7 @@ final class CategoriesByIdProvider
         >
     with $Provider<Map<int, Category>> {
   /// The categories by id, for rows that show a transaction's category; empty
-  /// until they load.
+  /// until they load. A category inside its Undo window maps to "Others".
   const CategoriesByIdProvider._()
     : super(
         from: null,
@@ -108,4 +108,4 @@ final class CategoriesByIdProvider
   }
 }
 
-String _$categoriesByIdHash() => r'aaf60e05751e35ab60e08720519d229c6f60f617';
+String _$categoriesByIdHash() => r'6a79bb45bce61f0a0dca96b33a31796b76cf4b42';

@@ -330,7 +330,8 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
 
     final summary = _summarize(
       formState,
-      categories,
+      // As the rows find it, so one inside its Undo window shows as Others.
+      ref.watch(categoriesByIdProvider)[formState.categoryId],
       currency,
       dateFormat,
       isAmountHidden: ref.watch(balanceHiddenProvider),
@@ -362,7 +363,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   /// What the view and the edit list both show.
   _Summary _summarize(
     TransactionFormState formState,
-    List<Category> categories,
+    Category? category,
     Currency currency,
     DateFormat dateFormat, {
     required bool isAmountHidden,
@@ -371,9 +372,6 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final colors = context.appColors;
     final isIncome = formState.type == TransactionType.income;
     final amountCents = parseToCents(formState.amount, allowNegative: false);
-    final category = categories
-        .where((c) => c.id == formState.categoryId)
-        .firstOrNull;
     return (
       // Masked like the lists; the amount card still shows what you type.
       amountText: isAmountHidden

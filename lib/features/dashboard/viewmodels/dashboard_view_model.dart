@@ -1,8 +1,10 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/clock.dart';
+import 'package:waldo/features/categories/categories_x.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
+import 'package:waldo/features/categories/viewmodels/pending_category_deletes.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/transactions/viewmodels/pending_transaction_deletes.dart';
@@ -44,6 +46,7 @@ class DashboardViewModel extends _$DashboardViewModel {
 
     final pending = ref.watch(pendingTransactionDeletesProvider);
     final pendingWallets = ref.watch(pendingWalletDeletesProvider);
+    final pendingCategories = ref.watch(pendingCategoryDeletesProvider);
     // Deletes still inside their Undo window are already gone everywhere.
     final wallets = (await walletRepo.getAll())
         .where((w) => !pendingWallets.contains(w.id))
@@ -55,14 +58,25 @@ class DashboardViewModel extends _$DashboardViewModel {
           w.currentBalance -
           pendingBalanceChange(pending, walletId: w.id),
     );
-    final transactions = (await transactionRepo.getAll())
+    final remaining = (await transactionRepo.getAll())
         .where(
           (t) =>
               !pending.containsKey(t.id) &&
               !pendingWallets.contains(t.walletId),
         )
         .toList();
-    final categories = await categoryRepo.getAll();
+    final allCategories = await categoryRepo.getAll();
+    final categories = allCategories
+        .where((c) => !pendingCategories.contains(c.id))
+        .toList();
+    // A category inside its Undo window already counts as "Others".
+    final othersId = allCategories.where((c) => c.isOthers).firstOrNull?.id;
+    final transactions = [
+      for (final t in remaining)
+        pendingCategories.contains(t.categoryId)
+            ? t.copyWith(categoryId: othersId)
+            : t,
+    ];
 
     final currentMonthTransactions = _transactionsInMonth(
       transactions,

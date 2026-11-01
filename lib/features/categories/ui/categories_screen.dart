@@ -152,14 +152,14 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
       restoredLabel: l10n.categoryRestored,
     );
     if (undone) {
-      viewModel.restoreCategory();
+      viewModel.restoreCategory(category.id!);
       return;
     }
 
     try {
       await viewModel.confirmDelete(category.id!);
     } catch (e) {
-      viewModel.restoreCategory();
+      viewModel.restoreCategory(category.id!);
       final message = failureMessage(
         l10n,
         e,
