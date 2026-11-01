@@ -11,6 +11,7 @@ import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/month_selector.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/widgets/heading.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
 
 import '../../models/transaction_filter.dart';
 import '../../transactions_x.dart';
@@ -82,13 +83,15 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
               padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
               child: Row(
                 children: [
-                  Heading(
-                    child: Text(
-                      l10n.filterTitle,
-                      style: context.headlineLgExtraBold,
+                  // Takes what Reset leaves, so large text never overflows.
+                  Expanded(
+                    child: Heading(
+                      child: WholeWordsText(
+                        l10n.filterTitle,
+                        style: context.headlineLgExtraBold,
+                      ),
                     ),
                   ),
-                  const Spacer(),
                   TextButton(
                     onPressed: _reset,
                     style: TextButton.styleFrom(

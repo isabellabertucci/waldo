@@ -319,6 +319,73 @@ void main() {
         expect(find.text('Amount'), findsOneWidget);
       });
 
+      testWidgets('The edit sheet and its wallet picker fit at $label', (
+        tester,
+      ) async {
+        await setUpPhone(tester, size, scale);
+        final db = await createTestDatabase();
+        await seedGoldenData(db);
+        final transaction = Transaction.fromMap(
+          (await db.query(TransactionsTable.table, limit: 1)).first,
+        );
+        currentDb = await pumpWidgetWithProviders(
+          tester,
+          Scaffold(
+            body: Builder(
+              builder: (context) => TextButton(
+                onPressed: () => showTransactionEditSheet(
+                  context,
+                  transaction: transaction,
+                  startInEditMode: true,
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+          db: db,
+        );
+        await tester.tap(find.text('open'));
+        await tester.pumpAndSettle();
+
+        final wallet = find.byKey(const Key('txWalletField'));
+        await tester.ensureVisible(wallet);
+        await tester.pumpAndSettle();
+        await tester.tap(wallet);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Wallet'), findsWidgets);
+      });
+
+      testWidgets("A wallet's filter sheet fits at $label", (tester) async {
+        await setUpPhone(tester, size, scale);
+        final db = await createTestDatabase();
+        final seed = await seedGoldenData(db);
+        currentDb = await pumpWidgetWithProviders(
+          tester,
+          TransactionsScreen(walletId: seed.walletId),
+          db: db,
+        );
+        await tester.tap(find.byIcon(AppIcons.filter));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Filter'), findsOneWidget);
+      });
+
+      testWidgets("The dashboard's Add sheet fits at $label", (tester) async {
+        await setUpPhone(tester, size, scale);
+        final db = await createTestDatabase();
+        await seedGoldenData(db);
+        currentDb = await pumpWidgetWithProviders(
+          tester,
+          const DashboardScreen(),
+          db: db,
+        );
+        await tester.tap(find.text('Add').first);
+        await tester.pumpAndSettle();
+
+        expect(find.text('New wallet'), findsOneWidget);
+      });
+
       for (final (locale, rows, done) in const [
         (Locale('en'), ['Theme', 'Currency', 'Date format'], 'Done'),
         (Locale('pt'), ['Tema', 'Moeda', 'Formato de data'], 'Concluído'),
