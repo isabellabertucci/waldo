@@ -369,6 +369,8 @@ class _CashFlowChart extends StatelessWidget {
                 LineChartBarData(
                   spots: spots,
                   isCurved: true,
+                  // A flat run of months stays flat, never dipping below it.
+                  preventCurveOverShooting: true,
                   color: seriesColor,
                   barWidth: ComponentSize.chartLine,
                   dotData: const FlDotData(show: false),
