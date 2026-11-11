@@ -36,13 +36,23 @@ class ComponentSize {
   /// The tab at the bottom of a card that has another card below it.
   static const walletCardSeam = Size(36, 5);
 
+  /// A ⋮ menu's narrowest and widest, and the steps it grows by: Material's
+  /// own popup menu sizes.
+  static const menuMinWidth = 112.0;
+  static const menuMaxWidth = 280.0;
+  static const menuWidthStep = 56.0;
+
   /// The card shown beside a wallet's name on its screen.
   static const walletThumbnail = Size(52, 40);
 
-  /// How far the wallet card behind peeks above the balance pouch, and how
+  /// How far the front wallet card peeks above the balance pouch, and how
   /// much more of it is tucked under the pouch.
   static const balancePeek = 44.0;
   static const balancePeekTuck = 24.0;
+
+  /// How much of each older card shows above the one in front of it: just
+  /// its edge, so the pouch reads as holding several cards.
+  static const balancePeekStep = 10.0;
 
   // Sheet grabber
 
