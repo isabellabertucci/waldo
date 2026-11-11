@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Fails if a widget holds a raw design value instead of a token from
-# lib/core/theme: a colour, a font size or weight, an animation duration,
-# or a fractional opacity. Every such value has a named token in
+# lib/core/theme: a colour, a font size or weight, an animation duration
+# or curve, or a fractional opacity. Every such value has a named token in
 # lib/core/theme (see DESIGN.md), so there is no exception marker.
 #
 # Not checked: the shape of a drawing inside a painter (the pouch's curve,
@@ -30,6 +30,8 @@ check '\bColors\.[a-z]' "Material Colors.*"
 check 'fontSize:' "Raw fontSize:"
 check 'fontWeight:' "Raw fontWeight:"
 check 'Duration\(milliseconds' "Raw animation duration"
+check '[0-9]\.(ms|seconds)\b' "Raw flutter_animate duration"
+check '\bCurves\.' "Raw animation curve"
 check 'alpha: 0\.[0-9]' "Raw opacity"
 
 if [ "$violations" -gt 0 ]; then

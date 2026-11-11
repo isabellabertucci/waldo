@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:corner_radius_plugin/corner_radius_plugin.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
@@ -17,13 +18,20 @@ import 'l10n/app_localizations.dart';
 
 final _log = Logger('waldo');
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Draw behind the Android system bars, so they show the app's background.
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   initLogging();
   _log.info('App starting');
   installGlobalErrorLoggers();
+  // The screen's corner radius, read before the first frame so every sheet
+  // already curves with it. A phone that doesn't say counts as square.
+  try {
+    await CornerRadiusPlugin.init();
+  } on Exception catch (e) {
+    _log.warning('Screen corner radius unavailable', e);
+  }
 
   runApp(
     const ProviderScope(

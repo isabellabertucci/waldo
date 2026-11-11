@@ -18,26 +18,37 @@ class PillStitchPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final inner = (Offset.zero & size).deflate(Stitch.pillInset);
-    if (inner.shortestSide <= 0) return;
-    final path = Path()
-      ..addRRect(
-        RRect.fromRectAndRadius(
-          inner,
-          Radius.circular(
-            math.min(radius - Stitch.pillInset, inner.shortestSide / 2),
-          ),
-        ),
-      );
-    final paint = Paint()
-      ..color = color.withValues(alpha: Alpha.stitch)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = Stitch.width;
-
-    canvas.drawPath(dashPath(path, Stitch.fine), paint);
+    paintPillStitch(canvas, Offset.zero & size, color: color, radius: radius);
   }
 
   @override
   bool shouldRepaint(covariant PillStitchPainter oldDelegate) =>
       color != oldDelegate.color || radius != oldDelegate.radius;
+}
+
+/// Paints [PillStitchPainter]'s stitch inside [rect], for painters that draw
+/// the pill themselves.
+void paintPillStitch(
+  Canvas canvas,
+  Rect rect, {
+  required Color color,
+  double radius = Rounded.pill,
+}) {
+  final inner = rect.deflate(Stitch.pillInset);
+  if (inner.shortestSide <= 0) return;
+  final path = Path()
+    ..addRRect(
+      RRect.fromRectAndRadius(
+        inner,
+        Radius.circular(
+          math.min(radius - Stitch.pillInset, inner.shortestSide / 2),
+        ),
+      ),
+    );
+  final paint = Paint()
+    ..color = color.withValues(alpha: Alpha.stitch)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = Stitch.width;
+
+  canvas.drawPath(dashPath(path, Stitch.fine), paint);
 }

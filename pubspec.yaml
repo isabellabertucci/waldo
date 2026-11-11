@@ -46,6 +46,8 @@ dependencies:
   logging: ^1.3.0
   phosphoricons_flutter: ^1.0.0
   fl_chart: ^1.2.0
+  flutter_animate: ^4.5.2
+  corner_radius_plugin: ^1.0.0
  
 
 
