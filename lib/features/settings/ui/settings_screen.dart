@@ -30,7 +30,9 @@ class SettingsScreen extends ConsumerWidget {
 
     // Same header as Wallets, so the title shares the page gutter.
     return Scaffold(
+      // Scrolls on under the floating navbar (AppShell's `extendBody`).
       body: SafeArea(
+        bottom: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -93,18 +95,19 @@ class _SettingsBody extends ConsumerWidget {
     };
 
     return ListView(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Spacing.pageMargin,
-        vertical: Spacing.md,
+      padding: EdgeInsets.fromLTRB(
+        Spacing.pageMargin,
+        Spacing.md,
+        Spacing.pageMargin,
+        Spacing.md + MediaQuery.paddingOf(context).bottom,
       ),
+      // One card per row, no groups for now.
       children: [
-        SectionLabel(title: l10n.moneySection),
         SettingsCard(
           children: [
             SettingsRow(
               icon: AppIcons.currency,
               title: l10n.currency,
-              subtitle: l10n.currencyRowSubtitle,
               value: preferences.currency.code,
               onTap: () => _showCurrencySheet(
                 context,
@@ -115,10 +118,14 @@ class _SettingsBody extends ConsumerWidget {
                 isBalanceHidden,
               ),
             ),
+          ],
+        ),
+        const SizedBox(height: Spacing.sm),
+        SettingsCard(
+          children: [
             SettingsRow(
               icon: AppIcons.calendar,
               title: l10n.dateFormat,
-              subtitle: l10n.dateFormatRowSubtitle,
               value: DateFormat(
                 preferences.dateFormat,
               ).format(ref.watch(clockProvider)()),
@@ -130,6 +137,11 @@ class _SettingsBody extends ConsumerWidget {
                 ref.read(clockProvider)(),
               ),
             ),
+          ],
+        ),
+        const SizedBox(height: Spacing.sm),
+        SettingsCard(
+          children: [
             // Categories also live here, not only behind the transaction form.
             SettingsRow(
               icon: AppIcons.categoryGeneric,
@@ -140,9 +152,7 @@ class _SettingsBody extends ConsumerWidget {
           ],
         ),
 
-        const SizedBox(height: Spacing.lg),
-
-        SectionLabel(title: l10n.appearanceSection),
+        const SizedBox(height: Spacing.sm),
         SettingsCard(
           children: [
             SettingsRow(

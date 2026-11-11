@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/surface_card.dart';
 import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/dynamic_type_scaler.dart';
@@ -6,29 +7,6 @@ import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/core/widgets/heading.dart';
-
-class SectionLabel extends StatelessWidget {
-  const SectionLabel({required this.title, super.key});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: Spacing.xs),
-      child: Heading(
-        child: Text(
-          title.toUpperCase(),
-          style: context.labelXs.copyWith(
-            color: context.appColors.onSurfaceVariant,
-            letterSpacing: 1.0,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class SettingsCard extends StatelessWidget {
   const SettingsCard({required this.children, super.key});
@@ -37,9 +15,8 @@ class SettingsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      // No outer margin, so the card lines up with the page gutter.
-      margin: EdgeInsets.zero,
+    return SurfaceCard(
+      pill: children.length == 1,
       child: Column(
         children: [
           for (var i = 0; i < children.length; i++) ...[

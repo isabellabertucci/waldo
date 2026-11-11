@@ -11,8 +11,9 @@ part 'category_repository.g.dart';
 
 final _log = Logger('waldo.repository.category');
 
-/// "Others" is where a deleted category's transactions go, so it stays.
-class CannotDeleteOthersCategoryException implements Exception {}
+/// The built-ins always stay, "Others" above all: it's where a deleted
+/// category's transactions go. Only the user's own can be deleted.
+class CannotDeleteDefaultCategoryException implements Exception {}
 
 class DuplicateCategoryNameException implements Exception {}
 
@@ -148,8 +149,11 @@ class CategoryRepositoryImpl implements ICategoryRepository {
   @override
   Future<void> delete(int id) async {
     try {
+      final category = await getById(id);
+      if (category?.isDefault ?? false) {
+        throw CannotDeleteDefaultCategoryException();
+      }
       final others = await getOthers();
-      if (others.id == id) throw CannotDeleteOthersCategoryException();
 
       // Both steps or neither, so no transaction is left pointing nowhere.
       await _db.transaction((txn) async {

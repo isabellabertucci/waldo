@@ -170,12 +170,6 @@ abstract class AppLocalizations {
   /// **'How much is in it today?'**
   String get startingBalancePrompt;
 
-  /// Tag beside a form section title that doesn't need filling in
-  ///
-  /// In en, this message translates to:
-  /// **'Optional'**
-  String get optional;
-
   /// Read by screen readers after a field label marked with *
   ///
   /// In en, this message translates to:
@@ -734,30 +728,6 @@ abstract class AppLocalizations {
   /// **'Date format'**
   String get dateFormat;
 
-  /// Section header grouping the currency and date format rows in settings
-  ///
-  /// In en, this message translates to:
-  /// **'Money'**
-  String get moneySection;
-
-  /// Section header grouping the theme row in settings
-  ///
-  /// In en, this message translates to:
-  /// **'Appearance'**
-  String get appearanceSection;
-
-  /// Subtitle under the Currency row in settings
-  ///
-  /// In en, this message translates to:
-  /// **'How amounts are shown'**
-  String get currencyRowSubtitle;
-
-  /// Subtitle under the Date format row in settings
-  ///
-  /// In en, this message translates to:
-  /// **'Used for a transaction\'s date'**
-  String get dateFormatRowSubtitle;
-
   /// Notice shown at the bottom of the currency picker sheet
   ///
   /// In en, this message translates to:
@@ -926,17 +896,17 @@ abstract class AppLocalizations {
   /// **'Month'**
   String get filterSectionMonth;
 
-  /// Name of the month selector's left chevron, which scrolls to earlier months
+  /// Name of the month selector's left chevron, which selects the month before
   ///
   /// In en, this message translates to:
-  /// **'Earlier months'**
-  String get earlierMonths;
+  /// **'Previous month'**
+  String get previousMonth;
 
-  /// Name of the month selector's right chevron, which scrolls to later months
+  /// Name of the month selector's right chevron, which selects the month after
   ///
   /// In en, this message translates to:
-  /// **'Later months'**
-  String get laterMonths;
+  /// **'Next month'**
+  String get nextMonth;
 
   /// Section label (shown uppercased) above the income/expense toggle in the filter sheet
   ///

@@ -46,9 +46,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get startingBalancePrompt => 'Quanto tem a carteira hoje?';
 
   @override
-  String get optional => 'Opcional';
-
-  @override
   String get requiredField => 'obrigatório';
 
   @override
@@ -368,18 +365,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get dateFormat => 'Formato de data';
 
   @override
-  String get moneySection => 'Dinheiro';
-
-  @override
-  String get appearanceSection => 'Aparência';
-
-  @override
-  String get currencyRowSubtitle => 'Como os valores são apresentados';
-
-  @override
-  String get dateFormatRowSubtitle => 'Usado na data de cada transação';
-
-  @override
   String get currencyChangeNotice =>
       'Isto altera apenas o símbolo. Os teus valores mantêm-se e não são convertidos.';
 
@@ -484,10 +469,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get filterSectionMonth => 'Mês';
 
   @override
-  String get earlierMonths => 'Meses anteriores';
+  String get previousMonth => 'Mês anterior';
 
   @override
-  String get laterMonths => 'Meses seguintes';
+  String get nextMonth => 'Mês seguinte';
 
   @override
   String get filterSectionType => 'Tipo';

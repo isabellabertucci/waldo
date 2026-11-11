@@ -45,9 +45,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startingBalancePrompt => 'How much is in it today?';
 
   @override
-  String get optional => 'Optional';
-
-  @override
   String get requiredField => 'required';
 
   @override
@@ -363,18 +360,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dateFormat => 'Date format';
 
   @override
-  String get moneySection => 'Money';
-
-  @override
-  String get appearanceSection => 'Appearance';
-
-  @override
-  String get currencyRowSubtitle => 'How amounts are shown';
-
-  @override
-  String get dateFormatRowSubtitle => 'Used for a transaction\'s date';
-
-  @override
   String get currencyChangeNotice =>
       'This changes the symbol only. Your amounts stay the same and are not converted.';
 
@@ -479,10 +464,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterSectionMonth => 'Month';
 
   @override
-  String get earlierMonths => 'Earlier months';
+  String get previousMonth => 'Previous month';
 
   @override
-  String get laterMonths => 'Later months';
+  String get nextMonth => 'Next month';
 
   @override
   String get filterSectionType => 'Type';

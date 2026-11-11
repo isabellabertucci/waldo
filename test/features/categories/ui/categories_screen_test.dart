@@ -4,6 +4,8 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
+import 'package:waldo/core/widgets/surface_card.dart';
+import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/categories/ui/categories_screen.dart';
 
@@ -28,6 +30,16 @@ void main() {
       const CategoriesScreen(),
       db: db,
     );
+  }
+
+  /// A database with one category of the user's own, "Gym": the only kind
+  /// that can be deleted.
+  Future<(Database, int)> dbWithGym() async {
+    final db = await createTestDatabase();
+    final id = await CategoryRepositoryImpl(
+      db,
+    ).insert(const Category(name: 'Gym', createdAt: '2026-08-10T12:00:00.000'));
+    return (db, id);
   }
 
   /// The header's "+", which opens the new-category sheet.
@@ -76,11 +88,36 @@ void main() {
     );
   });
 
-  testWidgets('Every category but Others has a named X', (tester) async {
+  testWidgets('The categories you made get their own card, below the '
+      'built-ins', (tester) async {
+    final (db, _) = await dbWithGym();
+    await pumpCategoriesScreen(tester, db: db);
+
+    expect(find.byType(SurfaceCard), findsNWidgets(2));
+    Finder inCard(int i, String name) => find.descendant(
+      of: find.byType(SurfaceCard).at(i),
+      matching: find.text(name),
+    );
+    expect(inCard(0, 'Others'), findsOneWidget);
+    expect(inCard(0, 'Gym'), findsNothing);
+    expect(inCard(1, 'Gym'), findsOneWidget);
+  });
+
+  testWidgets('With none of your own, there is only the built-ins\' card', (
+    tester,
+  ) async {
     await pumpCategoriesScreen(tester);
 
-    expect(find.byIcon(AppIcons.close), findsNWidgets(5));
-    expect(find.byTooltip('Delete Groceries'), findsOneWidget);
+    expect(find.byType(SurfaceCard), findsOneWidget);
+  });
+
+  testWidgets('Only the categories you made have a named X', (tester) async {
+    final (db, _) = await dbWithGym();
+    await pumpCategoriesScreen(tester, db: db);
+
+    expect(find.byIcon(AppIcons.close), findsOneWidget);
+    expect(find.byTooltip('Delete Gym'), findsOneWidget);
+    expect(find.byTooltip('Delete Groceries'), findsNothing);
     expect(find.byTooltip('Delete Others'), findsNothing);
     expect(find.byTooltip('Back'), findsOneWidget);
   });
@@ -167,13 +204,16 @@ void main() {
 
   testWidgets('An empty name shows an error and adds nothing', (tester) async {
     await pumpCategoriesScreen(tester);
+    Future<int> count() async =>
+        (await currentDb!.query(CategoriesTable.table)).length;
+    final before = await count();
 
     await openNewCategory(tester);
     await tapAdd(tester);
 
     expect(find.text('Name is required'), findsOneWidget);
     expect(find.text('Create category'), findsOneWidget, reason: 'still open');
-    expect(find.byTooltip(RegExp('^Delete ')), findsNWidgets(5));
+    expect(await count(), before);
   });
 
   testWidgets('A name matching a listed category warns, ignoring case', (
@@ -210,56 +250,60 @@ void main() {
   testWidgets('Deleting an unused category asks first, then offers Undo', (
     tester,
   ) async {
-    await pumpCategoriesScreen(tester);
+    final (db, _) = await dbWithGym();
+    await pumpCategoriesScreen(tester, db: db);
 
-    await tester.tap(find.byTooltip('Delete Education'));
+    await tester.tap(find.byTooltip('Delete Gym'));
     await tester.pumpAndSettle();
-    expect(find.text('This will delete "Education".'), findsOneWidget);
+    expect(find.text('This will delete "Gym".'), findsOneWidget);
 
     await tester.tap(find.text('Delete'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 250));
 
-    expect(textOutsideSnackBar('Education'), findsNothing);
+    expect(textOutsideSnackBar('Gym'), findsNothing);
     expect(find.text('Category deleted'), findsOneWidget);
     await tester.pump(const Duration(seconds: 6));
   });
 
   testWidgets('Undo puts the category back', (tester) async {
-    await pumpCategoriesScreen(tester);
+    final (db, _) = await dbWithGym();
+    await pumpCategoriesScreen(tester, db: db);
 
-    await deleteCategory(tester, 'Education');
+    await deleteCategory(tester, 'Gym');
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Education'), findsOneWidget);
+    expect(find.text('Gym'), findsOneWidget);
     await tester.pump(const Duration(seconds: 6));
   });
 
   testWidgets('Without Undo, the category is gone after 5 seconds', (
     tester,
   ) async {
-    await pumpCategoriesScreen(tester);
+    final (db, _) = await dbWithGym();
+    await pumpCategoriesScreen(tester, db: db);
 
-    await deleteCategory(tester, 'Education');
+    await deleteCategory(tester, 'Gym');
     await tester.pump(const Duration(seconds: 6));
     await tester.pumpAndSettle();
 
     final rows = await currentDb!.query(
       CategoriesTable.table,
-      where: '${CategoriesTable.type} = ? AND ${CategoriesTable.isDefault} = 1',
-      whereArgs: [CategoryType.education.name],
+      where: '${CategoriesTable.name} = ?',
+      whereArgs: ['Gym'],
     );
     expect(rows, isEmpty);
   });
 
   testWidgets('When the count before deleting fails, the tap still gets an '
       'answer', (tester) async {
-    await pumpCategoriesScreen(tester);
+    final (db, _) = await dbWithGym();
+    await pumpCategoriesScreen(tester, db: db);
     // The X first counts the category's transactions; with no table, it fails.
     await currentDb!.execute('DROP TABLE ${TransactionsTable.table}');
 
-    await tester.tap(find.byTooltip('Delete Education'));
+    await tester.tap(find.byTooltip('Delete Gym'));
     await tester.pumpAndSettle();
 
     expect(
@@ -271,8 +315,9 @@ void main() {
 
   testWidgets('A failed delete brings the category back and says nothing '
       'was changed', (tester) async {
-    await pumpCategoriesScreen(tester);
-    await deleteCategory(tester, 'Education');
+    final (db, _) = await dbWithGym();
+    await pumpCategoriesScreen(tester, db: db);
+    await deleteCategory(tester, 'Gym');
     // Deleting moves the category's transactions first; with no table, that
     // fails once the Undo window ends.
     await currentDb!.execute('DROP TABLE ${TransactionsTable.table}');
@@ -283,16 +328,13 @@ void main() {
       find.text("Couldn't delete the category. Nothing was changed."),
       findsOneWidget,
     );
-    expect(find.text('Education'), findsOneWidget);
+    expect(find.text('Gym'), findsOneWidget);
   });
 
   testWidgets('Deleting a used category says how many transactions move to '
       'Others, and moves them', (tester) async {
-    final db = await createTestDatabase();
+    final (db, gymId) = await dbWithGym();
     final repo = CategoryRepositoryImpl(db);
-    final education = (await repo.getAll()).firstWhere(
-      (c) => c.type == CategoryType.education,
-    );
     final walletId = await db.insert(WalletsTable.table, {
       WalletsTable.name: 'Cash',
       WalletsTable.nameKey: 'cash',
@@ -301,7 +343,7 @@ void main() {
     for (var i = 0; i < 2; i++) {
       await db.insert(TransactionsTable.table, {
         TransactionsTable.walletId: walletId,
-        TransactionsTable.categoryId: education.id,
+        TransactionsTable.categoryId: gymId,
         TransactionsTable.amount: 100,
         TransactionsTable.type: TransactionType.expense.name,
         TransactionsTable.date: '2026-08-10T00:00:00.000',
@@ -310,11 +352,11 @@ void main() {
     }
     await pumpCategoriesScreen(tester, db: db);
 
-    await tester.tap(find.byTooltip('Delete Education'));
+    await tester.tap(find.byTooltip('Delete Gym'));
     await tester.pumpAndSettle();
     expect(
       find.text(
-        '2 transactions use "Education". If you delete it, they move to '
+        '2 transactions use "Gym". If you delete it, they move to '
         'Others.',
       ),
       findsOneWidget,

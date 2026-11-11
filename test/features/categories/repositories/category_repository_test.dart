@@ -149,14 +149,16 @@ void main() {
       expect(await repo.countTransactions(others.id!), 1);
     });
 
-    test('delete allows a built-in category other than Others', () async {
+    test('delete refuses a built-in category', () async {
       final groceries = (await repo.getAll()).firstWhere(
         (c) => c.type == CategoryType.groceries,
       );
 
-      await repo.delete(groceries.id!);
-
-      expect(await repo.getById(groceries.id!), isNull);
+      expect(
+        () => repo.delete(groceries.id!),
+        throwsA(isA<CannotDeleteDefaultCategoryException>()),
+      );
+      expect(await repo.getById(groceries.id!), isNotNull);
     });
 
     test('delete refuses the Others category', () async {
@@ -164,7 +166,7 @@ void main() {
 
       expect(
         () => repo.delete(others.id!),
-        throwsA(isA<CannotDeleteOthersCategoryException>()),
+        throwsA(isA<CannotDeleteDefaultCategoryException>()),
       );
       expect(await repo.getById(others.id!), isNotNull);
     });

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/constants/app_constants.dart';
+import 'package:waldo/core/widgets/app_sheet.dart';
 import 'package:waldo/core/database/save_failure.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
@@ -22,11 +23,8 @@ import '../../viewmodels/category_list_view_model.dart';
 /// Opens the category sheet, new or for renaming [category], as the
 /// Wallets screen opens its own. Returns the saved category's id, or null.
 Future<int?> showCategoryFormSheet(BuildContext context, {Category? category}) {
-  return showModalBottomSheet<int>(
-    context: context,
-    useRootNavigator: true,
-    isScrollControlled: true,
-    useSafeArea: true,
+  return showAppSheet<int>(
+    context,
     builder: (_) => CategoryFormSheet(category: category),
   );
 }

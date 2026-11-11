@@ -49,10 +49,6 @@
   "@startingBalancePrompt": {
     "description": "Label inside the starting balance field of the new-wallet form"
   },
-  "optional": "Optional",
-  "@optional": {
-    "description": "Tag beside a form section title that doesn't need filling in"
-  },
   "requiredField": "required",
   "@requiredField": {
     "description": "Read by screen readers after a field label marked with *"
@@ -456,22 +452,6 @@
   "@dateFormat": {
     "description": "Date format row title and sheet title in settings"
   },
-  "moneySection": "Money",
-  "@moneySection": {
-    "description": "Section header grouping the currency and date format rows in settings"
-  },
-  "appearanceSection": "Appearance",
-  "@appearanceSection": {
-    "description": "Section header grouping the theme row in settings"
-  },
-  "currencyRowSubtitle": "How amounts are shown",
-  "@currencyRowSubtitle": {
-    "description": "Subtitle under the Currency row in settings"
-  },
-  "dateFormatRowSubtitle": "Used for a transaction's date",
-  "@dateFormatRowSubtitle": {
-    "description": "Subtitle under the Date format row in settings"
-  },
   "currencyChangeNotice": "This changes the symbol only. Your amounts stay the same and are not converted.",
   "@currencyChangeNotice": {
     "description": "Notice shown at the bottom of the currency picker sheet"
@@ -613,13 +593,13 @@
   "@filterSectionMonth": {
     "description": "Section label (shown uppercased) above the month grid in the filter sheet"
   },
-  "earlierMonths": "Earlier months",
-  "@earlierMonths": {
-    "description": "Name of the month selector's left chevron, which scrolls to earlier months"
+  "previousMonth": "Previous month",
+  "@previousMonth": {
+    "description": "Name of the month selector's left chevron, which selects the month before"
   },
-  "laterMonths": "Later months",
-  "@laterMonths": {
-    "description": "Name of the month selector's right chevron, which scrolls to later months"
+  "nextMonth": "Next month",
+  "@nextMonth": {
+    "description": "Name of the month selector's right chevron, which selects the month after"
   },
   "filterSectionType": "Type",
   "@filterSectionType": {

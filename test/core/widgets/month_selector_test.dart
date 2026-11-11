@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/widgets/month_selector.dart';
+import 'package:waldo/core/widgets/stretch_pill.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 import '../../helpers/test_app.dart';
@@ -149,6 +150,91 @@ void main() {
     expect(center, moreOrLessEquals(rowCenter, epsilon: 1));
   });
 
+  for (final hintsScroll in [true, false]) {
+    testWidgets('The left chevron nudges on first show only when asked to '
+        '(hintsScroll: $hintsScroll)', (tester) async {
+      tester.view.physicalSize = const Size(402, 874);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          locale: const Locale('en'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: MonthSelector(
+              months: selectorMonths(DateTime(2026, 10, 8)),
+              selectedMonth: DateTime(2026, 10),
+              currentMonth: DateTime(2026, 10),
+              locale: 'en',
+              onSelect: (_) {},
+              hintsScroll: hintsScroll,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(tester.hasRunningAnimations, hintsScroll);
+      await tester.pumpAndSettle();
+    });
+  }
+
+  group('Chevrons pick the month next to the selected one', () {
+    Future<List<DateTime>> pumpSelector(
+      WidgetTester tester,
+      DateTime selected,
+    ) async {
+      tester.view.physicalSize = const Size(402, 874);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final picked = <DateTime>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          locale: const Locale('en'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: MonthSelector(
+              months: selectorMonths(DateTime(2026, 10, 8)),
+              selectedMonth: selected,
+              currentMonth: DateTime(2026, 10),
+              locale: 'en',
+              onSelect: picked.add,
+              hintsScroll: false,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      return picked;
+    }
+
+    testWidgets('The left one picks the month before', (tester) async {
+      final picked = await pumpSelector(tester, DateTime(2026, 10));
+
+      await tester.tap(find.byTooltip('Previous month'));
+      expect(picked, [DateTime(2026, 9)]);
+    });
+
+    testWidgets('The right one picks the month after', (tester) async {
+      final picked = await pumpSelector(tester, DateTime(2026, 9));
+
+      await tester.tap(find.byTooltip('Next month'));
+      expect(picked, [DateTime(2026, 10)]);
+    });
+
+    testWidgets('On the current month the right one does nothing: the '
+        'future can\'t be picked', (tester) async {
+      final picked = await pumpSelector(tester, DateTime(2026, 10));
+
+      await tester.tap(find.byTooltip('Next month'));
+      expect(picked, isEmpty);
+    });
+  });
+
   testWidgets('Opens already centred on the selected month, with no scroll '
       'animation', (tester) async {
     tester.view.physicalSize = const Size(402, 874);
@@ -198,7 +284,7 @@ void main() {
     );
     addTearDown(db.close);
 
-    for (final name in ['Earlier months', 'Later months']) {
+    for (final name in ['Previous month', 'Next month']) {
       final chevron = find.byTooltip(name);
       expect(chevron, findsOneWidget);
       expect(tester.getSize(chevron).shortestSide, greaterThanOrEqualTo(48));
@@ -219,8 +305,8 @@ void main() {
     );
   });
 
-  testWidgets('The selected month fills its Material, so a tap ripples over '
-      'it', (tester) async {
+  testWidgets('The selected month\'s pill is painted under its Material, so a '
+      'tap ripples over it', (tester) async {
     final db = await pumpWidgetWithProviders(
       tester,
       Scaffold(
@@ -235,12 +321,44 @@ void main() {
     );
     addTearDown(db.close);
 
-    // A filled box between the Material and the InkWell would hide the ink.
+    // A fill between the Material and the InkWell would hide the ink.
     final material = tester.widget<Material>(
       find
           .ancestor(of: find.text('October'), matching: find.byType(Material))
           .first,
     );
-    expect(material.color, AppColors.light.primary);
+    expect(material.color, AppColors.light.transparent);
+    final pill = tester.widget<StretchPill>(
+      find.ancestor(
+        of: find.text('October'),
+        matching: find.byType(StretchPill),
+      ),
+    );
+    expect(pill.color, AppColors.light.primary);
+  });
+
+  testWidgets('Picking another month clicks once; the picked one doesn\'t', (
+    tester,
+  ) async {
+    final haptics = recordHaptics(tester);
+    final db = await pumpWidgetWithProviders(
+      tester,
+      Scaffold(
+        body: MonthSelector(
+          months: selectorMonths(DateTime(2026, 10, 8)),
+          selectedMonth: DateTime(2026, 10),
+          currentMonth: DateTime(2026, 10),
+          locale: 'en',
+          onSelect: (_) {},
+        ),
+      ),
+    );
+    addTearDown(db.close);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('October'));
+    expect(haptics, isEmpty);
+    await tester.tap(find.text('Sep'));
+    expect(haptics, ['HapticFeedbackType.selectionClick']);
   });
 }

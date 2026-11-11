@@ -4,6 +4,7 @@ import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/widgets/badge_row.dart';
 import 'package:waldo/core/database/save_failure.dart';
 import 'package:waldo/core/theme/badge_size.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
@@ -169,10 +170,47 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
     }
   }
 
+  /// One card of rows, with hairlines between them.
+  Widget _card(List<Category> categories) {
+    return SurfaceCard(
+      pill: categories.length == 1,
+      child: Column(
+        children: [
+          for (var i = 0; i < categories.length; i++) ...[
+            _CategoryRow(
+              category: categories[i],
+              // Built-ins follow the app's language, so only the user's
+              // own categories can be renamed.
+              onTap: categories[i].isDefault
+                  ? null
+                  : () =>
+                        showCategoryFormSheet(context, category: categories[i]),
+              // The built-ins always stay; only the user's own go.
+              onDelete: categories[i].isDefault
+                  ? null
+                  : () => _confirmDelete(categories[i]),
+            ),
+            if (i != categories.length - 1)
+              Divider(
+                // Starts under the name, as in settings.
+                indent: DynamicTypeScaler.isAccessibilitySize(context)
+                    ? Spacing.sm
+                    : Spacing.sm + BadgeSize.lg + Spacing.component,
+                endIndent: Spacing.sm,
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final categories = widget.categories.inDisplayOrder(l10n);
+    // The built-ins in one card, the user's own in a second one below.
+    final builtIns = categories.where((c) => c.isDefault).toList();
+    final own = categories.where((c) => !c.isDefault).toList();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -182,37 +220,15 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
         Spacing.lg,
       ),
       children: [
-        SurfaceCard(
-          child: Column(
-            children: [
-              for (var i = 0; i < categories.length; i++) ...[
-                _CategoryRow(
-                  category: categories[i],
-                  // Built-ins follow the app's language, so only the user's
-                  // own categories can be renamed.
-                  onTap: categories[i].isDefault
-                      ? null
-                      : () => showCategoryFormSheet(
-                          context,
-                          category: categories[i],
-                        ),
-                  onDelete: categories[i].isOthers
-                      ? null
-                      : () => _confirmDelete(categories[i]),
-                ),
-                if (i != categories.length - 1)
-                  const Divider(indent: Spacing.md, endIndent: Spacing.md),
-              ],
-            ],
-          ),
-        ),
+        _card(builtIns),
+        if (own.isNotEmpty) ...[const SizedBox(height: Spacing.md), _card(own)],
       ],
     );
   }
 }
 
-/// One category: its icon, its name and, unless it's "Others", an X. A tap
-/// on one of the user's own opens it for renaming.
+/// One category: its icon, its name and, if it's one of the user's own, an
+/// X. A tap on one of those opens it for renaming.
 class _CategoryRow extends StatelessWidget {
   const _CategoryRow({required this.category, this.onTap, this.onDelete});
 
@@ -238,16 +254,19 @@ class _CategoryRow extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Padding(
+            // The settings rows' insets: 16 at the sides, 12 above and
+            // below the disc.
             padding: const EdgeInsets.fromLTRB(
-              Spacing.md,
+              Spacing.sm,
+              Spacing.xs,
               Spacing.xxs,
-              Spacing.xxs,
-              Spacing.xxs,
+              Spacing.xs,
             ),
             child: BadgeRow(
+              gap: Spacing.component,
               badge: Container(
-                width: BadgeSize.md,
-                height: BadgeSize.md,
+                width: BadgeSize.lg,
+                height: BadgeSize.lg,
                 decoration: BoxDecoration(
                   // The page behind the card, as if the disc were cut out of it.
                   color: colors.surfaceContainer,
@@ -255,7 +274,7 @@ class _CategoryRow extends StatelessWidget {
                 ),
                 child: Icon(
                   category.icon,
-                  size: IconSize.md,
+                  size: IconSize.lg,
                   color: colors.onSurface,
                 ),
               ),
