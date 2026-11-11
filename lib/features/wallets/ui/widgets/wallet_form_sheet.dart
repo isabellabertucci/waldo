@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/dynamic_type_scaler.dart';
+import 'package:waldo/core/widgets/app_sheet.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
+import 'package:waldo/core/theme/motion.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:waldo/core/constants/app_constants.dart';
@@ -30,11 +32,12 @@ final _log = Logger('waldo.ui.wallet_form');
 
 /// Opens the wallet form; pass [wallet] to edit it.
 Future<void> showWalletFormSheet(BuildContext context, {Wallet? wallet}) {
-  return showModalBottomSheet(
-    context: context,
-    useRootNavigator: true,
-    isScrollControlled: true,
-    useSafeArea: true,
+  return showAppSheet(
+    context,
+    // A new wallet's card lands in the stack once this has slid away.
+    sheetAnimationStyle: AnimationStyle(
+      reverseDuration: context.motion(Motion.sheetExit),
+    ),
     builder: (_) => WalletFormSheet(wallet: wallet),
   );
 }
@@ -163,14 +166,6 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
         letterSpacing: 0.4,
       ),
     );
-    final balanceOptional = _isEditing
-        ? null
-        : Text(
-            l10n.optional,
-            style: context.textTheme.bodySmall?.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          );
     final typeTiles = [
       for (final type in WalletType.values)
         OptionTile(
@@ -256,20 +251,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
                   children: typeTiles,
                 ),
               const SizedBox(height: Spacing.md),
-              // At accessibility sizes "Optional" moves under the heading.
-              Heading(
-                child: DynamicTypeScaler.isAccessibilitySize(context)
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [balanceHeading, ?balanceOptional],
-                      )
-                    : Row(
-                        children: [
-                          Expanded(child: balanceHeading),
-                          ?balanceOptional,
-                        ],
-                      ),
-              ),
+              Heading(child: balanceHeading),
               const SizedBox(height: Spacing.sm),
               FormPillField(
                 fieldKey: const Key('walletBalanceField'),

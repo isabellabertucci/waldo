@@ -97,7 +97,9 @@ class WalletsScreen extends ConsumerWidget {
     };
 
     return Scaffold(
+      // Scrolls on under the floating navbar (AppShell's `extendBody`).
       body: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             Padding(

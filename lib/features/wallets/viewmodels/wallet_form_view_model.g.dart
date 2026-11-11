@@ -59,7 +59,7 @@ final class WalletFormViewModelProvider
 }
 
 String _$walletFormViewModelHash() =>
-    r'4f73750bfa0155a53c17eb32e51adffd6997c340';
+    r'07ee9db3db7a667b80c2aff6d77c02e0a34a3d7d';
 
 final class WalletFormViewModelFamily extends $Family
     with

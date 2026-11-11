@@ -6,6 +6,7 @@ import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
+import 'just_added_wallet.dart';
 import 'wallet_form_state.dart';
 import 'wallet_list_view_model.dart';
 
@@ -67,7 +68,7 @@ class WalletFormViewModel extends _$WalletFormViewModel {
         existingWallet.copyWith(name: state.name.trim(), type: state.type),
       );
     } else {
-      await repo.insert(
+      final id = await repo.insert(
         Wallet(
           name: state.name.trim(),
           type: state.type,
@@ -76,6 +77,10 @@ class WalletFormViewModel extends _$WalletFormViewModel {
           createdAt: ref.read(clockProvider)().toIso8601String(),
         ),
       );
+      // Its card lands in Home's pouch and in the Wallets stack.
+      for (final landing in WalletLanding.values) {
+        ref.read(justAddedWalletProvider(landing).notifier).set(id);
+      }
     }
     _log.info('Wallet save succeeded: isEditing=$isEditing');
     ref.invalidate(walletListViewModelProvider());
