@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/balance_amount.dart';
 import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/component_size.dart';
@@ -106,10 +107,14 @@ class ReceiptRow extends StatelessWidget {
     required this.color,
     this.bold = false,
     this.large = false,
+    this.hidden = false,
   });
 
   final String label;
   final String value;
+
+  /// Tucks [value] away behind the dots (the eye toggle).
+  final bool hidden;
   final Color color;
   final bool bold;
   final bool large;
@@ -153,7 +158,12 @@ class ReceiptRow extends StatelessWidget {
                   ),
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text(value, maxLines: 1, style: style),
+                    child: BalanceAmount(
+                      amount: value,
+                      hidden: hidden,
+                      style: style,
+                      alignment: AlignmentDirectional.centerEnd,
+                    ),
                   ),
                 ),
               ],
@@ -199,7 +209,12 @@ class ReceiptRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: ComponentSize.receiptLeaderGap),
-        Text(value, maxLines: 1, style: style),
+        BalanceAmount(
+          amount: value,
+          hidden: hidden,
+          style: style,
+          alignment: AlignmentDirectional.centerEnd,
+        ),
       ],
     );
   }
