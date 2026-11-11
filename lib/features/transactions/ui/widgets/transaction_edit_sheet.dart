@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/dynamic_type_scaler.dart';
+import 'package:waldo/core/widgets/app_sheet.dart';
 import 'package:waldo/core/widgets/badge_row.dart';
 import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/theme/alpha.dart';
@@ -52,11 +53,8 @@ Future<void> showTransactionEditSheet(
   required Transaction transaction,
   bool startInEditMode = false,
 }) {
-  return showModalBottomSheet(
-    context: context,
-    useRootNavigator: true,
-    isScrollControlled: true,
-    useSafeArea: true,
+  return showAppSheet(
+    context,
     builder: (_) => TransactionEditSheet(
       transaction: transaction,
       startInEditMode: startInEditMode,
@@ -131,7 +129,7 @@ Future<void> deleteTransactionWithUndo(
   }
 }
 
-/// Cancel and Save: room for "Save changes" beside Cancel, at a 48px height.
+/// Cancel and Save side by side, at a 48px height.
 const _actionPadding = EdgeInsets.symmetric(
   horizontal: Spacing.xxs,
   vertical: Spacing.sm,
@@ -416,9 +414,10 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
 
     // Scrolls, like the edit list, so large text never pushes it off-screen.
     return SingleChildScrollView(
+      // Without a grabber, room above the header in its place.
       padding: const EdgeInsets.fromLTRB(
         Spacing.md,
-        Spacing.sm,
+        Spacing.lg,
         Spacing.md,
         Spacing.md,
       ),
@@ -558,7 +557,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     );
   }
 
-  /// Edit view; nothing is saved until "Save changes".
+  /// Edit view; nothing is saved until "Save".
   Widget _buildEditList(
     BuildContext context,
     TransactionFormState formState,
@@ -569,25 +568,24 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
   ) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
+    // Full-size labels: one short word each, so they fit side by side.
     final cancel = DashedStitchButton(
       variant: StitchVariant.secondary,
       label: l10n.cancel,
       onPressed: _cancelEdit,
-      compact: true,
       padding: _actionPadding,
     );
     final save = DashedStitchButton(
-      icon: const Icon(AppIcons.check, size: IconSize.sm),
-      label: l10n.saveChanges,
+      label: l10n.save,
       onPressed: _saveChanges,
-      compact: true,
       padding: _actionPadding,
     );
 
     return SingleChildScrollView(
+      // Without a grabber, room above the header in its place.
       padding: EdgeInsets.fromLTRB(
         Spacing.md,
-        Spacing.sm,
+        Spacing.lg,
         Spacing.md,
         MediaQuery.of(context).viewInsets.bottom + Spacing.md,
       ),
@@ -616,7 +614,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             ],
           ),
           const SizedBox(height: Spacing.md),
-          // The same card as the new-transaction sheet, typed with the
+          // The same amount as the new-transaction sheet, typed with the
           // system keyboard.
           TransactionAmountCard(
             fieldKey: const Key('txAmountField'),
@@ -637,53 +635,6 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             onChanged: (value) => _viewModel.updateDescription(value),
           ),
           const SizedBox(height: Spacing.sm),
-          EditFieldRow(
-            icon: summary.categoryIcon,
-            label: l10n.category,
-            value: summary.categoryLabel,
-            // The same row and picker as the new-transaction sheet.
-            onTap: () => showCategoryPicker(
-              context,
-              categories: categories,
-              selected: formState.categoryId,
-              onPicked: _viewModel.updateCategoryId,
-            ),
-          ),
-          const SizedBox(height: Spacing.sm),
-          // Date and Wallet share one card, as in the new-transaction sheet.
-          Material(
-            color: colors.surfaceContainer,
-            borderRadius: BorderRadius.circular(Rounded.lg),
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              children: [
-                EditFieldRow(
-                  grouped: true,
-                  icon: AppIcons.calendar,
-                  label: l10n.date,
-                  required: true,
-                  value: summary.dateLabel,
-                  onTap: () => _editDate(formState),
-                ),
-                const Divider(indent: Spacing.md, endIndent: Spacing.md),
-                EditFieldRow(
-                  key: const Key('txWalletField'),
-                  grouped: true,
-                  icon: wallet?.type.icon ?? AppIcons.wallets,
-                  label: l10n.wallet,
-                  required: true,
-                  value: wallet?.name ?? '—',
-                  onTap: () => showWalletPicker(
-                    context,
-                    wallets: wallets,
-                    selected: formState.walletId,
-                    onPicked: _viewModel.updateWalletId,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: Spacing.sm),
           FormPillField(
             fieldKey: const Key('txNoteField'),
             leading: const Icon(AppIcons.note),
@@ -694,6 +645,42 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             textCapitalization: TextCapitalization.sentences,
             onChanged: (value) => _viewModel.updateNote(value),
           ),
+          const SizedBox(height: Spacing.sm),
+          // Wallet, Category and Date in one card, as in the new-transaction
+          // sheet, with the same rows and pickers.
+          EditFieldRow.group(context, [
+            EditFieldRow(
+              key: const Key('txWalletField'),
+              icon: wallet?.type.icon ?? AppIcons.wallets,
+              label: l10n.wallet,
+              required: true,
+              value: wallet?.name ?? '—',
+              onTap: () => showWalletPicker(
+                context,
+                wallets: wallets,
+                selected: formState.walletId,
+                onPicked: _viewModel.updateWalletId,
+              ),
+            ),
+            EditFieldRow(
+              icon: summary.categoryIcon,
+              label: l10n.category,
+              value: summary.categoryLabel,
+              onTap: () => showCategoryPicker(
+                context,
+                categories: categories,
+                selected: formState.categoryId,
+                onPicked: _viewModel.updateCategoryId,
+              ),
+            ),
+            EditFieldRow(
+              icon: AppIcons.calendar,
+              label: l10n.date,
+              required: true,
+              value: summary.dateLabel,
+              onTap: () => _editDate(formState),
+            ),
+          ]),
           const SizedBox(height: Spacing.md),
           if (_saveError case final error?) ...[
             SizedBox(

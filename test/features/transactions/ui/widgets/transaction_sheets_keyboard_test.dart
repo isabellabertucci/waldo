@@ -91,7 +91,7 @@ void main() {
         tester,
         field: find.byKey(const Key('txAmountField')),
         sheet: find.byType(TransactionEditSheet),
-        lastButton: find.text('Save changes'),
+        lastButton: find.text('Save'),
       );
     });
 
@@ -102,7 +102,7 @@ void main() {
         tester,
         field: find.byKey(const Key('txNameField')),
         sheet: find.byType(TransactionEditSheet),
-        lastButton: find.text('Save changes'),
+        lastButton: find.text('Save'),
       );
     });
 
@@ -113,7 +113,7 @@ void main() {
         tester,
         field: find.byType(TextField).last,
         sheet: find.byType(TransactionEditSheet),
-        lastButton: find.text('Save changes'),
+        lastButton: find.text('Save'),
       );
     });
 
@@ -128,7 +128,7 @@ void main() {
         const Offset(0, -600),
       );
       await tester.pumpAndSettle();
-      final save = find.text('Save changes');
+      final save = find.text('Save');
       expect(tester.getBottomLeft(save).dy, lessThanOrEqualTo(640 - 48));
     });
 

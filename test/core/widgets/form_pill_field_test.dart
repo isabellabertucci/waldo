@@ -69,4 +69,43 @@ void main() {
         .decoration;
     expect(decoration.hintStyle?.color, AppColors.light.onSurfaceVariant);
   });
+
+  testWidgets('An error shows under the pill, not inside it', (tester) async {
+    final controller = TextEditingController();
+    addTearDown(controller.dispose);
+    final form = GlobalKey<FormState>();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: Form(
+            key: form,
+            child: FormPillField(
+              leading: const Icon(AppIcons.note),
+              controller: controller,
+              label: 'Name',
+              hint: 'Add a name',
+              validator: (value) =>
+                  value == null || value.isEmpty ? 'Name is required' : null,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(form.currentState!.validate(), isFalse);
+    await tester.pump();
+
+    final pill = tester.getRect(find.byType(DashedBorder));
+    final error = tester.getRect(find.text('Name is required'));
+    expect(error.top, greaterThanOrEqualTo(pill.bottom));
+
+    // Typed into, it checks what was typed.
+    await tester.enterText(find.byType(TextFormField), 'Gym');
+    expect(form.currentState!.validate(), isTrue);
+    await tester.pump();
+    expect(find.text('Name is required'), findsNothing);
+  });
 }

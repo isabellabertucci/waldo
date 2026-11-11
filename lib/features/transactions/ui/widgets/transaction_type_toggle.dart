@@ -5,10 +5,12 @@ import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import '../../transactions_x.dart';
 
-/// The Expense/Income toggle: Expense fills orange, Income fills `primary`.
+/// The Expense/Income toggle: the picked one is a `surface` pill with the
+/// app's ink stitch, as every selected tile is.
 class TransactionTypeToggle extends StatelessWidget {
   const TransactionTypeToggle({
     super.key,
@@ -29,7 +31,7 @@ class TransactionTypeToggle extends StatelessWidget {
       // The top and bottom margin is inside each segment's touch.
       padding: const EdgeInsets.symmetric(horizontal: Spacing.xxs),
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: colors.surfaceContainer,
         borderRadius: BorderRadius.circular(Rounded.pill),
       ),
       // Segmented controls stop growing where bars do, as on iOS.
@@ -37,24 +39,18 @@ class TransactionTypeToggle extends StatelessWidget {
         maxScaleFactor: DynamicTypeScaler.barMaxScale,
         child: Row(
           children: [
-            Expanded(
-              child: _TypeToggleSegment(
-                label: TransactionType.expense.label(l10n),
-                selected: selected == TransactionType.expense,
-                color: colors.error,
-                onColor: colors.onPrimary,
-                onTap: () => onChanged(TransactionType.expense),
+            // Expense first: it's what most transactions are.
+            for (final type in [
+              TransactionType.expense,
+              TransactionType.income,
+            ])
+              Expanded(
+                child: _TypeToggleSegment(
+                  label: type.label(l10n),
+                  selected: selected == type,
+                  onTap: () => onChanged(type),
+                ),
               ),
-            ),
-            Expanded(
-              child: _TypeToggleSegment(
-                label: TransactionType.income.label(l10n),
-                selected: selected == TransactionType.income,
-                color: colors.primary,
-                onColor: colors.onPrimary,
-                onTap: () => onChanged(TransactionType.income),
-              ),
-            ),
           ],
         ),
       ),
@@ -66,15 +62,11 @@ class _TypeToggleSegment extends StatelessWidget {
   const _TypeToggleSegment({
     required this.label,
     required this.selected,
-    required this.color,
-    required this.onColor,
     required this.onTap,
   });
 
   final String label;
   final bool selected;
-  final Color color;
-  final Color onColor;
   final VoidCallback onTap;
 
   @override
@@ -91,18 +83,22 @@ class _TypeToggleSegment extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: Spacing.xxs),
-          child: AnimatedContainer(
-            duration: Motion.toggle,
-            padding: const EdgeInsets.symmetric(vertical: Spacing.component),
-            decoration: BoxDecoration(
-              color: selected ? color : colors.transparent,
-              borderRadius: BorderRadius.circular(Rounded.pill),
-            ),
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              style: context.bodyMdBold.copyWith(
-                color: selected ? onColor : colors.onSurfaceVariant,
+          child: DashedBorder(
+            radius: Rounded.pill,
+            color: selected ? colors.primary : colors.transparent,
+            child: AnimatedContainer(
+              duration: Motion.toggle,
+              padding: const EdgeInsets.symmetric(vertical: Spacing.component),
+              decoration: BoxDecoration(
+                color: selected ? colors.surface : colors.transparent,
+                borderRadius: BorderRadius.circular(Rounded.pill),
+              ),
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: context.bodyMdBold.copyWith(
+                  color: selected ? colors.onSurface : colors.onSurfaceVariant,
+                ),
               ),
             ),
           ),

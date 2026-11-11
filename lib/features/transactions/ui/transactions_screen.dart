@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/balance_amount.dart';
+import 'package:waldo/core/widgets/app_sheet.dart';
 import 'package:waldo/core/widgets/badge_row.dart';
 import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/theme/dynamic_type_scaler.dart';
@@ -75,7 +77,8 @@ class TransactionsScreen extends ConsumerWidget {
       body = const Center(child: CircularProgressIndicator());
     }
 
-    return Scaffold(body: SafeArea(child: body));
+    // Scrolls on under the floating navbar (AppShell's `extendBody`).
+    return Scaffold(body: SafeArea(bottom: false, child: body));
   }
 }
 
@@ -99,39 +102,11 @@ class _TransactionsBody extends ConsumerStatefulWidget {
 class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
   late TransactionFilter _filter;
 
-  // The Hero is only kept for the push; once it lands it's dropped, so popping
-  // back is a plain transition.
-  bool _showHero = true;
-  Animation<double>? _routeAnimation;
-
   @override
   void initState() {
     super.initState();
     final now = ref.read(clockProvider)();
     _filter = TransactionFilter(month: DateTime(now.year, now.month));
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final animation = ModalRoute.of(context)?.animation;
-    if (animation != _routeAnimation) {
-      _routeAnimation?.removeStatusListener(_handleRouteAnimationStatus);
-      _routeAnimation = animation;
-      _routeAnimation?.addStatusListener(_handleRouteAnimationStatus);
-    }
-  }
-
-  void _handleRouteAnimationStatus(AnimationStatus status) {
-    if (status == AnimationStatus.completed && mounted) {
-      setState(() => _showHero = false);
-    }
-  }
-
-  @override
-  void dispose() {
-    _routeAnimation?.removeStatusListener(_handleRouteAnimationStatus);
-    super.dispose();
   }
 
   List<Transaction> _applyFilter(TransactionFilter filter) {
@@ -141,10 +116,8 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
   }
 
   Future<void> _openFilterSheet(String locale) async {
-    final result = await showModalBottomSheet<TransactionFilter>(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
+    final result = await showAppSheet<TransactionFilter>(
+      context,
       builder: (_) => TransactionFilterSheet(
         initial: _filter,
         locale: locale,
@@ -172,17 +145,20 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
     };
     final categoriesById = ref.watch(categoriesByIdProvider);
     final isBalanceHidden = ref.watch(balanceHiddenProvider);
-    final balanceText = isBalanceHidden
-        ? hiddenAmount
-        : formatCents(
-            widget.wallet.currentBalance,
-            locale: moneyLocale(context),
-            currencyCode: currency.code,
-          );
+    final balanceText = formatCents(
+      widget.wallet.currentBalance,
+      locale: moneyLocale(context),
+      currencyCode: currency.code,
+    );
     final balanceStyle = context.bodyMdExtraBold.copyWith(
       color: !isBalanceHidden && widget.wallet.currentBalance < 0
           ? colors.error
           : colors.onSurface,
+    );
+    final balance = BalanceAmount(
+      amount: balanceText,
+      hidden: isBalanceHidden,
+      style: balanceStyle,
     );
     final typeStyle = context.textTheme.bodyMedium?.copyWith(
       color: colors.onSurfaceVariant,
@@ -255,13 +231,8 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
               child: SizedBox(
                 width: ComponentSize.walletThumbnail.width,
                 height: ComponentSize.walletThumbnail.height,
-                // The wallet's own finish, with a Hero from its card (see `_showHero`).
-                child: _showHero
-                    ? Hero(
-                        tag: 'walletCardBg_${widget.walletId}',
-                        child: WalletCardBackground(finish: finish),
-                      )
-                    : WalletCardBackground(finish: finish),
+                // The wallet's own finish, as on its card.
+                child: WalletCardBackground(finish: finish),
               ),
             ),
             child: Column(
@@ -283,7 +254,7 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     alignment: AlignmentDirectional.centerStart,
-                    child: Text(balanceText, style: balanceStyle),
+                    child: balance,
                   ),
                 ] else
                   Text.rich(
@@ -291,7 +262,11 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                       children: [
                         TextSpan(text: '${widget.wallet.type.label(l10n)} · '),
                         // Only the balance is bold in the line.
-                        TextSpan(text: balanceText, style: balanceStyle),
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.baseline,
+                          baseline: TextBaseline.alphabetic,
+                          child: balance,
+                        ),
                       ],
                     ),
                     maxLines: 1,
@@ -419,11 +394,11 @@ class _TransactionsBodyState extends ConsumerState<_TransactionsBody> {
                   currency: currency,
                   now: now,
                   isAmountHidden: isBalanceHidden,
-                  padding: const EdgeInsets.fromLTRB(
+                  padding: EdgeInsets.fromLTRB(
                     Spacing.pageMargin,
                     Spacing.md,
                     Spacing.pageMargin,
-                    Spacing.lg,
+                    Spacing.lg + MediaQuery.paddingOf(context).bottom,
                   ),
                 ),
         ),

@@ -36,6 +36,29 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets('The date starts as today, and a missing wallet says so '
+      'under the card', (tester) async {
+    await openSheet(tester);
+    await tester.enterText(
+      find.byKey(const Key('transactionAmountField')),
+      '10.00',
+    );
+    final save = find.text('Add expense');
+    await tester.ensureVisible(save);
+    await tester.pumpAndSettle();
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Date is required'), findsNothing);
+    final error = find.text('Wallet is required');
+    expect(error, findsOneWidget);
+    // Below the card's last row, not between the rows.
+    final dateRow = tester.getRect(
+      find.byKey(const Key('transactionDateField')),
+    );
+    expect(tester.getRect(error).top, greaterThanOrEqualTo(dateRow.bottom));
+  });
+
   testWidgets('The category starts as None and is picked from a list', (
     tester,
   ) async {

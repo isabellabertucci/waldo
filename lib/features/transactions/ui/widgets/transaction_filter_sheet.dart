@@ -6,6 +6,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/secondary_button.dart';
 import 'package:waldo/core/widgets/sheet_grabber.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/core/widgets/month_selector.dart';
@@ -92,13 +93,7 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
                       ),
                     ),
                   ),
-                  TextButton(
-                    onPressed: _reset,
-                    style: TextButton.styleFrom(
-                      foregroundColor: colors.onSurfaceVariant,
-                    ),
-                    child: Text(l10n.filterReset),
-                  ),
+                  SecondaryButton(label: l10n.filterReset, onPressed: _reset),
                 ],
               ),
             ),
@@ -177,6 +172,8 @@ class _TransactionFilterSheetState extends State<TransactionFilterSheet> {
               locale: widget.locale,
               onSelect: (month) =>
                   setState(() => _filter = _filter.copyWith(month: month)),
+              // Opened to pick a month, so no hint that the row scrolls.
+              hintsScroll: false,
             ),
             const SizedBox(height: Spacing.md),
             Padding(

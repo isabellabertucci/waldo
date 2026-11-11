@@ -102,9 +102,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Savings'));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Save changes'));
+    await tester.ensureVisible(find.text('Save'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Save changes'));
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     final repo = TransactionRepositoryImpl(db);

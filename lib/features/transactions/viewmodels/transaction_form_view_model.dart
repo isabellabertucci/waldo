@@ -34,7 +34,12 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
         note: existingTransaction.note ?? '',
       );
     }
-    return TransactionFormState(walletId: initialWalletId);
+    // Most transactions are logged the day they happen.
+    final now = ref.read(clockProvider)();
+    return TransactionFormState(
+      walletId: initialWalletId,
+      date: DateTime(now.year, now.month, now.day),
+    );
   }
 
   void updateAmount(String value) {

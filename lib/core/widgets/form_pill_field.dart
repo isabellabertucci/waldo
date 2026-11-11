@@ -22,6 +22,7 @@ class FormPillField extends StatefulWidget {
     this.onChanged,
     this.validator,
     this.trailing,
+    this.prefix,
     this.enabled = true,
     this.keyboardType,
     this.inputFormatters,
@@ -40,11 +41,14 @@ class FormPillField extends StatefulWidget {
   final String hint;
   final ValueChanged<String>? onChanged;
 
-  /// Only checked inside a [Form].
+  /// Only checked inside a [Form]. Its message shows under the pill.
   final FormFieldValidator<String>? validator;
 
   /// A short tag at the end of the pill, e.g. a currency code.
   final String? trailing;
+
+  /// A short text just before the input, e.g. an amount's sign.
+  final String? prefix;
   final bool enabled;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
@@ -84,6 +88,37 @@ class _FormPillFieldState extends State<FormPillField> {
 
   @override
   Widget build(BuildContext context) {
+    // Checked here rather than by the input, so the message sits under the
+    // pill, like every other field's, instead of inside it.
+    return FormField<String>(
+      validator: (_) => widget.validator?.call(widget.controller.text),
+      builder: (field) {
+        final colors = context.appColors;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _pill(context, field),
+            if (field.errorText case final error?)
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: Spacing.md,
+                  top: Spacing.xxs,
+                ),
+                child: Text(
+                  error,
+                  style: context.textTheme.bodySmall?.copyWith(
+                    color: colors.error,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _pill(BuildContext context, FormFieldState<String> field) {
     final colors = context.appColors;
     final largeText = DynamicTypeScaler.isAccessibilitySize(context);
     final trailing = widget.trailing;
@@ -93,13 +128,15 @@ class _FormPillFieldState extends State<FormPillField> {
             trailing,
             style: context.bodyMdBold.copyWith(color: colors.onSurfaceVariant),
           );
-    final input = TextFormField(
+    final textField = TextFormField(
       key: widget.fieldKey,
       controller: widget.controller,
       focusNode: _focusNode,
       enabled: widget.enabled,
-      onChanged: widget.onChanged,
-      validator: widget.validator,
+      onChanged: (value) {
+        field.didChange(value);
+        widget.onChanged?.call(value);
+      },
       keyboardType: widget.keyboardType,
       inputFormatters: widget.inputFormatters,
       textCapitalization: widget.textCapitalization,
@@ -116,7 +153,8 @@ class _FormPillFieldState extends State<FormPillField> {
         errorBorder: InputBorder.none,
         focusedErrorBorder: InputBorder.none,
         filled: false,
-        contentPadding: const EdgeInsets.symmetric(vertical: Spacing.xs),
+        // Right under the label, like a picker row's value.
+        contentPadding: EdgeInsets.zero,
         hintText: widget.hint,
         // At accessibility sizes the hint wraps rather than being cut.
         hintMaxLines: largeText ? _largeTextHintLines : null,
@@ -126,6 +164,19 @@ class _FormPillFieldState extends State<FormPillField> {
       ),
       style: context.bodyMdBold,
     );
+
+    final prefix = widget.prefix;
+    final input = prefix == null
+        ? textField
+        : Row(
+            children: [
+              Text(
+                '$prefix ',
+                style: context.bodyMdBold.copyWith(color: colors.onSurface),
+              ),
+              Expanded(child: textField),
+            ],
+          );
 
     // A tap anywhere on the pill, the disc included, goes to the field.
     return GestureDetector(

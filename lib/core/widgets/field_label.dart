@@ -5,10 +5,13 @@ import 'package:waldo/l10n/app_localizations.dart';
 /// The small label over a field's value; [required] adds a dark " *" that
 /// screen readers announce as "required".
 class FieldLabel extends StatelessWidget {
-  const FieldLabel(this.text, {super.key, this.required = false});
+  const FieldLabel(this.text, {super.key, this.required = false, this.style});
 
   final String text;
   final bool required;
+
+  /// In place of the small grey caption, e.g. a list row's name.
+  final TextStyle? style;
 
   /// "Name, required": what screen readers hear for a required field's label.
   static String requiredSemantics(BuildContext context, String text) =>
@@ -30,9 +33,9 @@ class FieldLabel extends StatelessWidget {
         ],
       ),
       semanticsLabel: required ? requiredSemantics(context, text) : null,
-      style: context.textTheme.bodySmall?.copyWith(
-        color: colors.onSurfaceVariant,
-      ),
+      style:
+          style ??
+          context.textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:waldo/core/widgets/dashed_stitch_button.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/transactions/ui/transactions_screen.dart';
+import 'package:waldo/features/transactions/ui/widgets/transaction_row.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
 
@@ -95,7 +96,14 @@ void main() {
     // The decimal key on a Portuguese numeric keyboard types ','.
     await createTransaction(tester, amount: '12,50');
 
-    expect(find.text(r'-$12.50'), findsOneWidget);
+    // In the row; the wallet's balance above reads the same.
+    expect(
+      find.descendant(
+        of: find.byType(TransactionRow),
+        matching: find.text(r'-$12.50'),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('A failed save shows its error on the sheet, not behind it', (
@@ -240,24 +248,6 @@ void main() {
     expect(find.text('Amount is required'), findsOneWidget);
   });
 
-  testWidgets('Shows validation error when date is not selected', (
-    tester,
-  ) async {
-    await pumpTransactionsScreen(tester);
-
-    await tester.tap(find.byIcon(AppIcons.add));
-    await tester.pumpAndSettle();
-
-    await tester.enterText(
-      find.byKey(const Key('transactionAmountField')),
-      '10.00',
-    );
-
-    await tapAddExpense(tester);
-
-    expect(find.text('Date is required'), findsOneWidget);
-  });
-
   testWidgets(
     'Tapping a transaction opens a read-only view with no edit affordances',
     (tester) async {
@@ -294,10 +284,10 @@ void main() {
       // Category and Date still drill into their own pickers (chevron);
       // Name is directly editable in place on this same screen.
       expect(find.byIcon(AppIcons.chevronRight), findsWidgets);
-      expect(find.text('Save changes'), findsOneWidget);
+      expect(find.text('Save'), findsOneWidget);
 
       await tester.enterText(find.byKey(const Key('txNameField')), 'Rent');
-      await tester.tap(find.text('Save changes'));
+      await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
 
       expect(find.text('Rent'), findsWidgets);
@@ -341,7 +331,7 @@ void main() {
     await openEditFromRowMenu(tester);
     expect(amountFieldText(tester), '10.00');
     await tester.enterText(find.byKey(const Key('txAmountField')), '105.5');
-    await tester.tap(find.text('Save changes'));
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(find.text(r'-$105.50'), findsWidgets);
@@ -360,19 +350,20 @@ void main() {
     expect(amountFieldText(tester), '10,00');
   });
 
-  testWidgets('A Portuguese phone types the amount with the currency after '
-      'it, as the lists show it', (tester) async {
-    tester.platformDispatcher.localeTestValue = const Locale('pt', 'PT');
-    addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+  testWidgets('The amount is a pill like every field: the symbol in its '
+      'disc, the sign before the number, the code at the end', (tester) async {
     await pumpTransactionsScreen(tester);
     await createTransaction(tester, amount: '10.00', description: 'Coffee');
 
     await openEditFromRowMenu(tester);
 
     final field = tester.getRect(find.byKey(const Key('txAmountField')));
-    final symbol = tester.getRect(find.text(r' $'));
-    expect(find.text('-'), findsOneWidget, reason: 'the sign alone');
-    expect(symbol.left, greaterThanOrEqualTo(field.right));
+    final symbol = tester.getRect(find.text(r'$'));
+    final sign = tester.getRect(find.text('- '));
+    final code = tester.getRect(find.text('USD'));
+    expect(symbol.right, lessThan(sign.left));
+    expect(sign.right, lessThanOrEqualTo(field.left));
+    expect(code.left, greaterThanOrEqualTo(field.right));
   });
 
   testWidgets('Cancel puts back the amount as it was', (tester) async {
@@ -397,7 +388,7 @@ void main() {
 
     await openEditFromRowMenu(tester);
     await tester.enterText(find.byKey(const Key('txAmountField')), '');
-    await tester.tap(find.text('Save changes'));
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(find.text('Amount is required').hitTestable(), findsOneWidget);
@@ -412,7 +403,7 @@ void main() {
     await openEditFromRowMenu(tester);
     // Gone from the database, so the update throws.
     await currentDb!.delete('transactions');
-    await tester.tap(find.text('Save changes'));
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     expect(
@@ -421,10 +412,10 @@ void main() {
           .hitTestable(),
       findsOneWidget,
     );
-    expect(find.text('Save changes'), findsOneWidget);
+    expect(find.text('Save'), findsOneWidget);
   });
 
-  testWidgets('Cancel and Save changes are the same size', (tester) async {
+  testWidgets('Cancel and Save are the same size', (tester) async {
     await pumpTransactionsScreen(tester);
     await createTransaction(tester, amount: '25.00', description: 'Groceries');
     await openEditFromRowMenu(tester);
@@ -435,7 +426,7 @@ void main() {
         matching: find.byType(DashedStitchButton),
       ),
     );
-    expect(sizeOf('Cancel'), sizeOf('Save changes'));
+    expect(sizeOf('Cancel'), sizeOf('Save'));
     expect(sizeOf('Cancel').height, greaterThanOrEqualTo(48));
   });
 
@@ -461,7 +452,7 @@ void main() {
 
     await openEditFromRowMenu(tester);
     await tester.enterText(find.byKey(const Key('txNameField')), 'Lunch');
-    await tester.tap(find.text('Save changes'));
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Edit transaction'));

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/balance_amount.dart';
+import 'package:waldo/core/widgets/surface_card.dart';
 import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
@@ -6,7 +8,6 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/icon_size.dart';
-import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/badge_row.dart';
@@ -48,9 +49,8 @@ class TransactionRow extends StatelessWidget {
         ? l10n.transactionDefaultDescription
         : description;
     final categoryLabel = category?.displayName(l10n);
-    final amountText = isAmountHidden
-        ? hiddenAmount
-        : '$sign${formatCents(transaction.amount, locale: moneyLocale(context), currencyCode: currency.code)}';
+    final amountText =
+        '$sign${formatCents(transaction.amount, locale: moneyLocale(context), currencyCode: currency.code)}';
     final amountStyle = context.bodyMdBold.copyWith(color: amountColor);
     final referenceAmount =
         '-${formatCents(_referenceAmountCents, locale: moneyLocale(context), currencyCode: currency.code)}';
@@ -78,23 +78,20 @@ class TransactionRow extends StatelessWidget {
         onTap: () =>
             showTransactionEditSheet(context, transaction: transaction),
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: Spacing.sm,
-            vertical: Spacing.sm,
+          // Little on the right: the ⋮'s 48px tap target is inset enough, so
+          // the dots sit as far in as the disc does on the left.
+          // Little on the right: the ⋮'s 48px tap target is inset enough, so
+          // the dots sit as far in as the disc does on the left.
+          padding: const EdgeInsetsDirectional.fromSTEB(
+            Spacing.sm,
+            Spacing.sm,
+            Spacing.xxs,
+            Spacing.sm,
           ),
           child: BadgeRow(
             badge: disc,
-            trailing: PopupMenuButton<EditDeleteAction>(
+            trailing: EditDeleteMenuButton(
               tooltip: l10n.optionsFor(title),
-              padding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(Rounded.md),
-              ),
-              icon: Icon(
-                AppIcons.more,
-                size: IconSize.lg,
-                color: colors.onSurfaceVariant,
-              ),
               onSelected: (action) {
                 switch (action) {
                   case EditDeleteAction.edit:
@@ -107,7 +104,11 @@ class TransactionRow extends StatelessWidget {
                     deleteTransactionWithUndo(context, transaction);
                 }
               },
-              itemBuilder: editDeleteMenuItems,
+              child: Icon(
+                AppIcons.more,
+                size: IconSize.lg,
+                color: colors.onSurfaceVariant,
+              ),
             ),
             // The amount stays on the right while the description keeps at
             // least as much room as a typical amount; with large text it moves
@@ -115,11 +116,6 @@ class TransactionRow extends StatelessWidget {
             // row in a list on the same layout.
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final amount = Text(
-                  amountText,
-                  maxLines: 1,
-                  style: amountStyle,
-                );
                 final painter = TextPainter(
                   text: TextSpan(text: referenceAmount, style: amountStyle),
                   textScaler: MediaQuery.textScalerOf(context),
@@ -130,6 +126,14 @@ class TransactionRow extends StatelessWidget {
                     DynamicTypeScaler.isAccessibilitySize(context) ||
                     painter.width * 2 > constraints.maxWidth;
                 painter.dispose();
+                final amount = BalanceAmount(
+                  amount: amountText,
+                  hidden: isAmountHidden,
+                  style: amountStyle,
+                  alignment: stacked
+                      ? AlignmentDirectional.centerStart
+                      : AlignmentDirectional.centerEnd,
+                );
 
                 final texts = Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,13 +192,8 @@ class TransactionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(Rounded.md),
-      ),
+    return SurfaceCard(
+      pill: transactions.length == 1,
       child: Column(
         children: [
           for (var i = 0; i < transactions.length; i++) ...[

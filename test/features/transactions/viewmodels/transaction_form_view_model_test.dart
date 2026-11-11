@@ -57,12 +57,12 @@ void main() {
     container.dispose();
   });
 
-  test('build(null) starts empty with the default type', () {
+  test('build(null) starts empty with the default type, dated today', () {
     final state = container.read(transactionFormViewModelProvider(null));
 
     expect(state.amount, '');
     expect(state.type, TransactionType.expense);
-    expect(state.date, isNull);
+    expect(state.date, DateTime(2026, 10, 13), reason: 'the day, no time');
     expect(state.walletId, isNull);
   });
 
@@ -99,18 +99,6 @@ void main() {
     );
     notifier.updateAmount('10.00');
     notifier.updateDate(DateTime(2026, 8, 10));
-
-    final success = await notifier.save();
-
-    expect(success, isFalse);
-    verifyNever(() => mockRepo.insert(any()));
-  });
-
-  test('save returns false when date is missing', () async {
-    final notifier = container.read(
-      transactionFormViewModelProvider(null, initialWalletId: 1).notifier,
-    );
-    notifier.updateAmount('10.00');
 
     final success = await notifier.save();
 

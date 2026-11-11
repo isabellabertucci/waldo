@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/constants/enums.dart';
-import 'package:waldo/core/theme/app_theme.dart';
-import 'package:waldo/core/theme/rounded.dart';
+import 'package:waldo/core/widgets/form_pill_field.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/amount_input_formatter.dart';
 import 'package:waldo/core/utils/utils.dart';
-import 'package:waldo/core/widgets/dashed_border.dart';
-import 'package:waldo/core/widgets/field_label.dart';
 import 'package:waldo/features/preferences/currency_x.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -16,7 +13,7 @@ import 'transaction_type_toggle.dart';
 
 /// Expense/Income over the amount, typed with the system keyboard. The new
 /// and edit sheets share it, so the amount works the same in both.
-class TransactionAmountCard extends ConsumerStatefulWidget {
+class TransactionAmountCard extends ConsumerWidget {
   const TransactionAmountCard({
     super.key,
     required this.type,
@@ -41,145 +38,34 @@ class TransactionAmountCard extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<TransactionAmountCard> createState() =>
-      _TransactionAmountCardState();
-}
-
-class _TransactionAmountCardState extends ConsumerState<TransactionAmountCard> {
-  final _focus = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    // Redraw so the card's stitch follows focus.
-    _focus.addListener(() => setState(() {}));
-  }
-
-  @override
-  void dispose() {
-    _focus.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final colors = context.appColors;
     final currency = switch (ref.watch(preferencesViewModelProvider)) {
       AsyncValue(:final value?) => value.currency,
       _ => Currency.usd,
     };
-    // Where the lists put it: "-87,35 €" on a Portuguese phone, "-€ 87.35"
-    // on an American one.
-    final symbolAfter = currencyAfterAmount(
-      moneyLocale(context),
-      currencyCode: currency.code,
-    );
-    final isIncome = widget.type == TransactionType.income;
-    final amountColor = isIncome ? colors.primaryStrong : colors.error;
 
-    return DashedBorder(
-      radius: Rounded.lg,
-      color: _focus.hasFocus ? colors.primary : colors.transparent,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(Spacing.sm),
-        decoration: BoxDecoration(
-          color: colors.surfaceContainer,
-          borderRadius: BorderRadius.circular(Rounded.lg),
+    return Column(
+      children: [
+        TransactionTypeToggle(selected: type, onChanged: onTypeChanged),
+        const SizedBox(height: Spacing.sm),
+        // The same pill as every other field: the symbol in the disc, the
+        // code at the end, and the sign before what's typed.
+        FormPillField(
+          fieldKey: fieldKey,
+          leading: Text(currency.symbol),
+          trailing: currency.code,
+          prefix: type == TransactionType.income ? '+' : '-',
+          controller: controller,
+          label: l10n.amount,
+          required: true,
+          hint: zeroAmountHint(moneyLocale(context)),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: const [AmountInputFormatter()],
+          validator: (value) => validate(l10n, value),
+          onChanged: onChanged,
         ),
-        child: Column(
-          children: [
-            TransactionTypeToggle(
-              selected: widget.type,
-              onChanged: widget.onTypeChanged,
-            ),
-            const SizedBox(height: Spacing.xs),
-            // The error goes under the whole row; inside the hugging field it'd be cut off.
-            FormField<String>(
-              validator: (_) =>
-                  TransactionAmountCard.validate(l10n, widget.controller.text),
-              // One node named "Amount", with its sign, value and error.
-              builder: (field) => MergeSemantics(
-                child: Semantics(
-                  label: FieldLabel.requiredSemantics(context, l10n.amount),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // The sign, then the symbol where it comes first;
-                          // its space makes "+$ 0.00" read as one string.
-                          Text(
-                            '${isIncome ? '+' : '-'}'
-                            '${symbolAfter ? '' : '${currency.symbol} '}',
-                            style: context.amountDisplayExtraBold.copyWith(
-                              color: amountColor,
-                            ),
-                          ),
-                          // As wide as its text, so the gap stays one space.
-                          Flexible(
-                            child: IntrinsicWidth(
-                              child: TextField(
-                                key: widget.fieldKey,
-                                controller: widget.controller,
-                                focusNode: _focus,
-                                onChanged: (value) {
-                                  widget.onChanged(value);
-                                  field.didChange(value);
-                                },
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                      decimal: true,
-                                    ),
-                                inputFormatters: const [AmountInputFormatter()],
-                                decoration: InputDecoration(
-                                  isCollapsed: true,
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                  disabledBorder: InputBorder.none,
-                                  errorBorder: InputBorder.none,
-                                  focusedErrorBorder: InputBorder.none,
-                                  filled: false,
-                                  // The theme's padding would widen the one-space gap.
-                                  contentPadding: EdgeInsets.zero,
-                                  hintText: zeroAmountHint(
-                                    moneyLocale(context),
-                                  ),
-                                  hintStyle: context.amountDisplayExtraBold
-                                      .copyWith(color: colors.onSurfaceVariant),
-                                ),
-                                style: context.amountDisplayExtraBold.copyWith(
-                                  color: colors.onSurface,
-                                ),
-                              ),
-                            ),
-                          ),
-                          if (symbolAfter)
-                            Text(
-                              ' ${currency.symbol}',
-                              style: context.amountDisplayExtraBold.copyWith(
-                                color: amountColor,
-                              ),
-                            ),
-                        ],
-                      ),
-                      if (field.hasError)
-                        Text(
-                          field.errorText!,
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: colors.error,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }

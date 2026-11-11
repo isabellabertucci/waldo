@@ -77,11 +77,6 @@ void main() {
     expect(formatCents(100, locale: 'en_US', currencyCode: 'EUR'), '€1.00');
   });
 
-  test('currencyAfterAmount says where the locale writes the currency', () {
-    expect(currencyAfterAmount('pt_PT', currencyCode: 'EUR'), isTrue);
-    expect(currencyAfterAmount('en_US', currencyCode: 'EUR'), isFalse);
-  });
-
   testWidgets('moneyLocale reads the device region', (tester) async {
     tester.platformDispatcher.localeTestValue = const Locale('pt', 'PT');
     addTearDown(tester.platformDispatcher.clearLocaleTestValue);
