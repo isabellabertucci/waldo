@@ -402,7 +402,7 @@ balance figure on the dashboard.
     biggest number on a screen: the dashboard's total balance figure,
     specifically. Not general emphasis.
   - `body-sm-strong` (600) - an unselected choice beside a bold one, and
-    the name on the wallet card peeking behind the balance.
+    the name on the front wallet card peeking behind the balance.
   - `body-md-extra-bold` (800) - a figure that must win its line, e.g. the
     balance after a wallet's type.
 - **Styles named for one job**, so a screen never sets a size or weight:
@@ -482,7 +482,7 @@ needs to lift off the page:
 | Level | Treatment | Use |
 |-------|-----------|-----|
 | None | No shadow | Default - list rows, chips, inputs, the vast majority of surfaces |
-| Low | `rgba(0,0,0,0.04)`, offset `(0, 4)`, blur `24` | Grouped list/transaction cards |
+| Low | `rgba(0,0,0,0.04)`, offset `(0, 4)`, blur `24` | The nav bar, floating over the pages as they scroll behind it (cards stay flat) |
 | High | `rgba(0,0,0,0.12)`, offset varies | Sheet/dialog shadowColor, drag handles |
 
 There is no hard, tight shadow anywhere in the system - every shadow is a
@@ -499,7 +499,7 @@ small and large tiers so the UI reads as either "a small control" or
 |-------|-------|-----|
 | `sm` | 12px | Chips, small badges |
 | `md` | 20px | Text fields, segmented controls |
-| `lg` | 28px | Cards, dialogs, sheets |
+| `lg` | 28px | Cards, dialogs; a sheet when the screen is square |
 | `pill` | 9999px | Buttons, nav pill, FAB, toggle tracks, tags |
 
 The middle ground most systems have (8-16px) is intentionally absent.
@@ -534,13 +534,49 @@ number of its own.
 | Token | Duration | Use |
 |---|---|---|
 | `toggle` | 150ms (`short3`) | A segment or toggle filling in |
-| `navigation` | 200ms (`short4`) | The navbar's pill sliding to a tab |
 | `scroll` | 300ms (`medium2`), ease-out | A row scrolling to a picked item |
 | `enter` | 350ms (`medium3`), fast then settling | Something arriving, like the undo bar |
 | `hint` | 1400ms, out and back | The nudge hinting that a row scrolls |
+| `balanceTuck` | 300ms (`medium2`), ease-out | The balance tucking into the pouch; the dots land with `settleCurve` |
+| `receiptPrint` | 600ms (`long4`), ease-out | The month's receipt feeding out from under the pouch |
+| `cardFall` / `cardSettle` | 400ms (`medium4`) then 300ms (`medium2`) | A new wallet's card fading in (`cardDropFade` 100ms) as it falls `cardDropHeight`, tilted `cardTilt`, `cardSink` too deep into the pouch, then popping back |
+| `pouchSquash` / `pouchRebound` | 100ms (`short2`) then 250ms (`medium1`) | The pouch giving to `pouchSquashScale` as the card lands, then springing back |
+| `pillStretch` | 450ms (`long1`), `emphasizedCurve` | The month and navbar pills stretching to a new pick like ink: the front edge arrives in the first `pillStretchLead`, then the back catches up |
+| `pillLabel` | 250ms (`medium1`) | A month or tab label's colour following the pill |
+| `chartDraw` | 800ms (`extralong2`), `emphasizedCurve` | The cash-flow line drawing in, left to right; then its end point pops on the `wobbly` spring and the month's total rises `chartLabelRise` in (`chartLabel` 250ms, `chartLabelDelay` 100ms after the point) |
+| `chartMorph` | 600ms (`long4`), `emphasizedCurve` | The line reshaping between expense and income, colour and all |
+| `menuFadeIn` / `menuClose` | 100ms (`short2`) / 200ms (`short4`) | A ⋮ menu growing from `menuScaleFrom` out of its dots on `bouncyCurve`, fading in; closing is a plain fade. The dots dip to `menuDipScale` in `menuDip` (200ms) |
+| `cardLeave` | 400ms (`medium4`), `cardLeaveCurve` | A deleted wallet's card sliding `cardLeaveDistance` of its width out; the cards below close the gap on `snappy` from `cardGapDelay` (250ms, `medium1`) |
+| `cardReturn` | 300ms (`medium2`), `emphasizedCurve` | Undo: the card fading back from `cardReturnScale` while the cards below make room |
+| `cardLandFade` | 100ms (`short2`) | A new wallet's card landing in the stack from `cardLandHeight` above at `cardLandScale`, on `snappy`, while the cards below make room |
+| `sheetExit` | 200ms (`short4`) | The new-wallet sheet sliding away; a card made in it waits this out before it lands |
 
-Anything that moves on its own, like the scroll hint, is skipped when the
-phone asks for reduced motion.
+Curves come from `Motion` too, and so do springs, named by feel with the
+design playground's values (`snappy`: firm, a hint of overshoot; `bouncy`: one
+clear bounce; `wobbly`: two small bounces). `SpringCurve` turns one into a
+curve and its settle time, for APIs that take a duration and a curve. Simple
+chains (fade, slide, shake) use `flutter_animate` and physical motion a
+`SpringSimulation` on a `Motion` spring, with every duration from `Motion`,
+never a `300.ms` of its own; the design guardrail catches a raw `.ms`,
+`Duration(milliseconds:` or `Curves.`.
+
+**Reduce motion:** every animation takes its duration through
+`context.motion(Motion.x)`, which is zero when the phone asks for reduced
+motion (iOS "Reduce Motion", Android "Remove animations"), so it jumps to its
+end. A `flutter_animate` effect would still draw its first frame, so with
+reduced motion it isn't built at all (`context.reduceMotion`). Anything that
+moves on its own, like the scroll hint, is skipped.
+
+Animate position, opacity, scale and paint only - never width, height or
+padding, which lay the screen out again on every frame. A moving selection
+is painted (`StretchPill`), not a resized box. The one exception is the
+navbar: a tab's name opens and closes with its padding.
+
+**Haptics** aren't motion, so they stay on with reduce motion:
+`HapticFeedback.selectionClick()` when a choice moves (a month, a tab, the
+cash-flow series), and only when it actually changes; `lightImpact()` when
+something opens or lands (a ⋮ menu, a new card); `mediumImpact()` when
+something goes away (a deleted card).
 
 ## Other tokens
 
@@ -569,22 +605,30 @@ undo window).
   `on-primary` text in `label-lg-bold`, 24px x 16px padding (16px x 8px
   and `body-sm-bold` when `compact`). Plain `FilledButton`s get the same
   pill and type from the theme.
-- **Buttons (secondary):** `SecondaryButton` - no fill, on the page and on
-  sheets alike; `on-surface` text in `body-md-strong`, 12px x 4px padding that
-  keeps the tap target and the `rounded.pill` press ripple. For
-  low-emphasis actions beside a section title ("See all").
-- **Cards:** `surface`-filled, `rounded.lg`, no elevation unless grouping
-  list rows (see Elevation: Low).
-- **Sheets:** every bottom sheet keeps a 24px (`md`) side margin, form or
-  list alike, so content never runs to the sheet's edge.
+- **Buttons (secondary):** `SecondaryButton` - a `rounded.pill` filled with
+  `on-surface` at `Alpha.faint`, the month selector arrows' grey, on the page
+  and on sheets alike; `on-surface` text in `body-md-strong`, 12px x 4px
+  padding. For low-emphasis actions beside a section or sheet title ("See
+  all", the filter's "Reset").
+- **Cards:** one widget, `SurfaceCard`: `surface`-filled, flat; a card of
+  one row is a `pill` like the buttons and fields, a card of several keeps
+  `rounded.lg` (a tall pill rounds into a stadium). Every card of rows uses it (settings, categories, transactions), and
+  its rows sit 16px (`sm`) from the sides with 12px above and below a
+  40px (`BadgeSize.lg`) disc; hairlines start under the text.
+- **Sheets:** every bottom sheet opens with `showAppSheet` and floats: a
+  `surface` card 12px (`component`) in from the screen's sides and bottom (just
+  above the keyboard when it's up). Its corners are concentric with the
+  screen's: the phone's own corner radius, read at start by
+  `corner_radius_plugin`, less those 12px; `rounded.lg` when the phone doesn't
+  say. Inside, content keeps a 24px (`md`) side margin, form or list alike.
 - **Input fields:** `field-fill` background (never tinted toward the cream
   palette), `field-border` outline, `rounded.md`, `body-md` typography,
   2px `primary` border when focused, `error` border (1.5-2px) in an error
   state.
 - **Required fields:** the label ends in " *" (`FieldLabel(required: true)`),
   in `on-surface` rather than `error` - nothing is wrong yet. Screen readers
-  hear "required". Optional sections say "Optional" instead; the hero amount
-  and single-field forms carry no mark.
+  hear "required". Optional fields carry no mark, and neither do the hero amount
+  and single-field forms.
 - **Sheet errors:** a failed save shows its message inside the sheet, centered
   just above the button, in `body-md-strong` `error` - never a SnackBar, which
   would land behind the sheet. It names the cause (storage full, try again)
@@ -605,9 +649,13 @@ undo window).
 - **App bar:** transparent background - it never visually separates from the
   page.
 - **One pattern per input:** the same field looks and works the same on
-  every screen. The amount is always `TransactionAmountCard`, typed with the
-  system keyboard; a choice from a list (wallet, category) is always an
-  `EditFieldRow` that opens `showOptionSheet` - the same tiles as the
+  every screen. The amount is always `TransactionAmountCard`: the
+  Expense/Income toggle (the picked side a `surface` pill with the ink
+  stitch) over a `FormPillField`, symbol in the disc, sign before the number,
+  code at the end, typed with the system keyboard. A choice from a list
+  (wallet, category, date) is always an `EditFieldRow` - name at the start,
+  value at the end - grouped in one `surfaceContainer` card by
+  `EditFieldRow.group`, opening `showOptionSheet` - the same tiles as the
   Settings pickers, picked with one tap. A picker that can grow puts its
   "New ..." tile first, so making one never means leaving the sheet. A
   sheet of things to do (the dashboard's "Add") is `showActionSheet`: the
