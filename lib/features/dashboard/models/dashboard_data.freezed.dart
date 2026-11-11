@@ -555,7 +555,9 @@ as int,
 /// @nodoc
 mixin _$DashboardData {
 
- int get totalBalance; int get walletCount; int get monthlyIncome; int get monthlyExpense; List<CategorySpending> get spendingByCategory;// Expenses this month with no category (never set, or the category was
+/// The month these figures are for: while the next month loads, the
+/// screen still shows this one.
+ DateTime get month; int get totalBalance; int get walletCount; int get monthlyIncome; int get monthlyExpense; List<CategorySpending> get spendingByCategory;// Expenses this month with no category (never set, or the category was
 // deleted) - so the receipt's category lines always add up to EXPENSE.
  int get uncategorizedSpending; List<MonthlyCashFlow> get monthlyCashFlow; List<Transaction> get recentTransactions;
 /// Create a copy of DashboardData
@@ -568,16 +570,16 @@ $DashboardDataCopyWith<DashboardData> get copyWith => _$DashboardDataCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DashboardData&&(identical(other.totalBalance, totalBalance) || other.totalBalance == totalBalance)&&(identical(other.walletCount, walletCount) || other.walletCount == walletCount)&&(identical(other.monthlyIncome, monthlyIncome) || other.monthlyIncome == monthlyIncome)&&(identical(other.monthlyExpense, monthlyExpense) || other.monthlyExpense == monthlyExpense)&&const DeepCollectionEquality().equals(other.spendingByCategory, spendingByCategory)&&(identical(other.uncategorizedSpending, uncategorizedSpending) || other.uncategorizedSpending == uncategorizedSpending)&&const DeepCollectionEquality().equals(other.monthlyCashFlow, monthlyCashFlow)&&const DeepCollectionEquality().equals(other.recentTransactions, recentTransactions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DashboardData&&(identical(other.month, month) || other.month == month)&&(identical(other.totalBalance, totalBalance) || other.totalBalance == totalBalance)&&(identical(other.walletCount, walletCount) || other.walletCount == walletCount)&&(identical(other.monthlyIncome, monthlyIncome) || other.monthlyIncome == monthlyIncome)&&(identical(other.monthlyExpense, monthlyExpense) || other.monthlyExpense == monthlyExpense)&&const DeepCollectionEquality().equals(other.spendingByCategory, spendingByCategory)&&(identical(other.uncategorizedSpending, uncategorizedSpending) || other.uncategorizedSpending == uncategorizedSpending)&&const DeepCollectionEquality().equals(other.monthlyCashFlow, monthlyCashFlow)&&const DeepCollectionEquality().equals(other.recentTransactions, recentTransactions));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,totalBalance,walletCount,monthlyIncome,monthlyExpense,const DeepCollectionEquality().hash(spendingByCategory),uncategorizedSpending,const DeepCollectionEquality().hash(monthlyCashFlow),const DeepCollectionEquality().hash(recentTransactions));
+int get hashCode => Object.hash(runtimeType,month,totalBalance,walletCount,monthlyIncome,monthlyExpense,const DeepCollectionEquality().hash(spendingByCategory),uncategorizedSpending,const DeepCollectionEquality().hash(monthlyCashFlow),const DeepCollectionEquality().hash(recentTransactions));
 
 @override
 String toString() {
-  return 'DashboardData(totalBalance: $totalBalance, walletCount: $walletCount, monthlyIncome: $monthlyIncome, monthlyExpense: $monthlyExpense, spendingByCategory: $spendingByCategory, uncategorizedSpending: $uncategorizedSpending, monthlyCashFlow: $monthlyCashFlow, recentTransactions: $recentTransactions)';
+  return 'DashboardData(month: $month, totalBalance: $totalBalance, walletCount: $walletCount, monthlyIncome: $monthlyIncome, monthlyExpense: $monthlyExpense, spendingByCategory: $spendingByCategory, uncategorizedSpending: $uncategorizedSpending, monthlyCashFlow: $monthlyCashFlow, recentTransactions: $recentTransactions)';
 }
 
 
@@ -588,7 +590,7 @@ abstract mixin class $DashboardDataCopyWith<$Res>  {
   factory $DashboardDataCopyWith(DashboardData value, $Res Function(DashboardData) _then) = _$DashboardDataCopyWithImpl;
 @useResult
 $Res call({
- int totalBalance, int walletCount, int monthlyIncome, int monthlyExpense, List<CategorySpending> spendingByCategory, int uncategorizedSpending, List<MonthlyCashFlow> monthlyCashFlow, List<Transaction> recentTransactions
+ DateTime month, int totalBalance, int walletCount, int monthlyIncome, int monthlyExpense, List<CategorySpending> spendingByCategory, int uncategorizedSpending, List<MonthlyCashFlow> monthlyCashFlow, List<Transaction> recentTransactions
 });
 
 
@@ -605,9 +607,10 @@ class _$DashboardDataCopyWithImpl<$Res>
 
 /// Create a copy of DashboardData
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? totalBalance = null,Object? walletCount = null,Object? monthlyIncome = null,Object? monthlyExpense = null,Object? spendingByCategory = null,Object? uncategorizedSpending = null,Object? monthlyCashFlow = null,Object? recentTransactions = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? month = null,Object? totalBalance = null,Object? walletCount = null,Object? monthlyIncome = null,Object? monthlyExpense = null,Object? spendingByCategory = null,Object? uncategorizedSpending = null,Object? monthlyCashFlow = null,Object? recentTransactions = null,}) {
   return _then(_self.copyWith(
-totalBalance: null == totalBalance ? _self.totalBalance : totalBalance // ignore: cast_nullable_to_non_nullable
+month: null == month ? _self.month : month // ignore: cast_nullable_to_non_nullable
+as DateTime,totalBalance: null == totalBalance ? _self.totalBalance : totalBalance // ignore: cast_nullable_to_non_nullable
 as int,walletCount: null == walletCount ? _self.walletCount : walletCount // ignore: cast_nullable_to_non_nullable
 as int,monthlyIncome: null == monthlyIncome ? _self.monthlyIncome : monthlyIncome // ignore: cast_nullable_to_non_nullable
 as int,monthlyExpense: null == monthlyExpense ? _self.monthlyExpense : monthlyExpense // ignore: cast_nullable_to_non_nullable
@@ -700,10 +703,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int totalBalance,  int walletCount,  int monthlyIncome,  int monthlyExpense,  List<CategorySpending> spendingByCategory,  int uncategorizedSpending,  List<MonthlyCashFlow> monthlyCashFlow,  List<Transaction> recentTransactions)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( DateTime month,  int totalBalance,  int walletCount,  int monthlyIncome,  int monthlyExpense,  List<CategorySpending> spendingByCategory,  int uncategorizedSpending,  List<MonthlyCashFlow> monthlyCashFlow,  List<Transaction> recentTransactions)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DashboardData() when $default != null:
-return $default(_that.totalBalance,_that.walletCount,_that.monthlyIncome,_that.monthlyExpense,_that.spendingByCategory,_that.uncategorizedSpending,_that.monthlyCashFlow,_that.recentTransactions);case _:
+return $default(_that.month,_that.totalBalance,_that.walletCount,_that.monthlyIncome,_that.monthlyExpense,_that.spendingByCategory,_that.uncategorizedSpending,_that.monthlyCashFlow,_that.recentTransactions);case _:
   return orElse();
 
 }
@@ -721,10 +724,10 @@ return $default(_that.totalBalance,_that.walletCount,_that.monthlyIncome,_that.m
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int totalBalance,  int walletCount,  int monthlyIncome,  int monthlyExpense,  List<CategorySpending> spendingByCategory,  int uncategorizedSpending,  List<MonthlyCashFlow> monthlyCashFlow,  List<Transaction> recentTransactions)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( DateTime month,  int totalBalance,  int walletCount,  int monthlyIncome,  int monthlyExpense,  List<CategorySpending> spendingByCategory,  int uncategorizedSpending,  List<MonthlyCashFlow> monthlyCashFlow,  List<Transaction> recentTransactions)  $default,) {final _that = this;
 switch (_that) {
 case _DashboardData():
-return $default(_that.totalBalance,_that.walletCount,_that.monthlyIncome,_that.monthlyExpense,_that.spendingByCategory,_that.uncategorizedSpending,_that.monthlyCashFlow,_that.recentTransactions);case _:
+return $default(_that.month,_that.totalBalance,_that.walletCount,_that.monthlyIncome,_that.monthlyExpense,_that.spendingByCategory,_that.uncategorizedSpending,_that.monthlyCashFlow,_that.recentTransactions);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -741,10 +744,10 @@ return $default(_that.totalBalance,_that.walletCount,_that.monthlyIncome,_that.m
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int totalBalance,  int walletCount,  int monthlyIncome,  int monthlyExpense,  List<CategorySpending> spendingByCategory,  int uncategorizedSpending,  List<MonthlyCashFlow> monthlyCashFlow,  List<Transaction> recentTransactions)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( DateTime month,  int totalBalance,  int walletCount,  int monthlyIncome,  int monthlyExpense,  List<CategorySpending> spendingByCategory,  int uncategorizedSpending,  List<MonthlyCashFlow> monthlyCashFlow,  List<Transaction> recentTransactions)?  $default,) {final _that = this;
 switch (_that) {
 case _DashboardData() when $default != null:
-return $default(_that.totalBalance,_that.walletCount,_that.monthlyIncome,_that.monthlyExpense,_that.spendingByCategory,_that.uncategorizedSpending,_that.monthlyCashFlow,_that.recentTransactions);case _:
+return $default(_that.month,_that.totalBalance,_that.walletCount,_that.monthlyIncome,_that.monthlyExpense,_that.spendingByCategory,_that.uncategorizedSpending,_that.monthlyCashFlow,_that.recentTransactions);case _:
   return null;
 
 }
@@ -756,9 +759,12 @@ return $default(_that.totalBalance,_that.walletCount,_that.monthlyIncome,_that.m
 
 
 class _DashboardData implements DashboardData {
-  const _DashboardData({required this.totalBalance, required this.walletCount, required this.monthlyIncome, required this.monthlyExpense, required final  List<CategorySpending> spendingByCategory, required this.uncategorizedSpending, required final  List<MonthlyCashFlow> monthlyCashFlow, required final  List<Transaction> recentTransactions}): _spendingByCategory = spendingByCategory,_monthlyCashFlow = monthlyCashFlow,_recentTransactions = recentTransactions;
+  const _DashboardData({required this.month, required this.totalBalance, required this.walletCount, required this.monthlyIncome, required this.monthlyExpense, required final  List<CategorySpending> spendingByCategory, required this.uncategorizedSpending, required final  List<MonthlyCashFlow> monthlyCashFlow, required final  List<Transaction> recentTransactions}): _spendingByCategory = spendingByCategory,_monthlyCashFlow = monthlyCashFlow,_recentTransactions = recentTransactions;
   
 
+/// The month these figures are for: while the next month loads, the
+/// screen still shows this one.
+@override final  DateTime month;
 @override final  int totalBalance;
 @override final  int walletCount;
 @override final  int monthlyIncome;
@@ -798,16 +804,16 @@ _$DashboardDataCopyWith<_DashboardData> get copyWith => __$DashboardDataCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DashboardData&&(identical(other.totalBalance, totalBalance) || other.totalBalance == totalBalance)&&(identical(other.walletCount, walletCount) || other.walletCount == walletCount)&&(identical(other.monthlyIncome, monthlyIncome) || other.monthlyIncome == monthlyIncome)&&(identical(other.monthlyExpense, monthlyExpense) || other.monthlyExpense == monthlyExpense)&&const DeepCollectionEquality().equals(other._spendingByCategory, _spendingByCategory)&&(identical(other.uncategorizedSpending, uncategorizedSpending) || other.uncategorizedSpending == uncategorizedSpending)&&const DeepCollectionEquality().equals(other._monthlyCashFlow, _monthlyCashFlow)&&const DeepCollectionEquality().equals(other._recentTransactions, _recentTransactions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DashboardData&&(identical(other.month, month) || other.month == month)&&(identical(other.totalBalance, totalBalance) || other.totalBalance == totalBalance)&&(identical(other.walletCount, walletCount) || other.walletCount == walletCount)&&(identical(other.monthlyIncome, monthlyIncome) || other.monthlyIncome == monthlyIncome)&&(identical(other.monthlyExpense, monthlyExpense) || other.monthlyExpense == monthlyExpense)&&const DeepCollectionEquality().equals(other._spendingByCategory, _spendingByCategory)&&(identical(other.uncategorizedSpending, uncategorizedSpending) || other.uncategorizedSpending == uncategorizedSpending)&&const DeepCollectionEquality().equals(other._monthlyCashFlow, _monthlyCashFlow)&&const DeepCollectionEquality().equals(other._recentTransactions, _recentTransactions));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,totalBalance,walletCount,monthlyIncome,monthlyExpense,const DeepCollectionEquality().hash(_spendingByCategory),uncategorizedSpending,const DeepCollectionEquality().hash(_monthlyCashFlow),const DeepCollectionEquality().hash(_recentTransactions));
+int get hashCode => Object.hash(runtimeType,month,totalBalance,walletCount,monthlyIncome,monthlyExpense,const DeepCollectionEquality().hash(_spendingByCategory),uncategorizedSpending,const DeepCollectionEquality().hash(_monthlyCashFlow),const DeepCollectionEquality().hash(_recentTransactions));
 
 @override
 String toString() {
-  return 'DashboardData(totalBalance: $totalBalance, walletCount: $walletCount, monthlyIncome: $monthlyIncome, monthlyExpense: $monthlyExpense, spendingByCategory: $spendingByCategory, uncategorizedSpending: $uncategorizedSpending, monthlyCashFlow: $monthlyCashFlow, recentTransactions: $recentTransactions)';
+  return 'DashboardData(month: $month, totalBalance: $totalBalance, walletCount: $walletCount, monthlyIncome: $monthlyIncome, monthlyExpense: $monthlyExpense, spendingByCategory: $spendingByCategory, uncategorizedSpending: $uncategorizedSpending, monthlyCashFlow: $monthlyCashFlow, recentTransactions: $recentTransactions)';
 }
 
 
@@ -818,7 +824,7 @@ abstract mixin class _$DashboardDataCopyWith<$Res> implements $DashboardDataCopy
   factory _$DashboardDataCopyWith(_DashboardData value, $Res Function(_DashboardData) _then) = __$DashboardDataCopyWithImpl;
 @override @useResult
 $Res call({
- int totalBalance, int walletCount, int monthlyIncome, int monthlyExpense, List<CategorySpending> spendingByCategory, int uncategorizedSpending, List<MonthlyCashFlow> monthlyCashFlow, List<Transaction> recentTransactions
+ DateTime month, int totalBalance, int walletCount, int monthlyIncome, int monthlyExpense, List<CategorySpending> spendingByCategory, int uncategorizedSpending, List<MonthlyCashFlow> monthlyCashFlow, List<Transaction> recentTransactions
 });
 
 
@@ -835,9 +841,10 @@ class __$DashboardDataCopyWithImpl<$Res>
 
 /// Create a copy of DashboardData
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? totalBalance = null,Object? walletCount = null,Object? monthlyIncome = null,Object? monthlyExpense = null,Object? spendingByCategory = null,Object? uncategorizedSpending = null,Object? monthlyCashFlow = null,Object? recentTransactions = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? month = null,Object? totalBalance = null,Object? walletCount = null,Object? monthlyIncome = null,Object? monthlyExpense = null,Object? spendingByCategory = null,Object? uncategorizedSpending = null,Object? monthlyCashFlow = null,Object? recentTransactions = null,}) {
   return _then(_DashboardData(
-totalBalance: null == totalBalance ? _self.totalBalance : totalBalance // ignore: cast_nullable_to_non_nullable
+month: null == month ? _self.month : month // ignore: cast_nullable_to_non_nullable
+as DateTime,totalBalance: null == totalBalance ? _self.totalBalance : totalBalance // ignore: cast_nullable_to_non_nullable
 as int,walletCount: null == walletCount ? _self.walletCount : walletCount // ignore: cast_nullable_to_non_nullable
 as int,monthlyIncome: null == monthlyIncome ? _self.monthlyIncome : monthlyIncome // ignore: cast_nullable_to_non_nullable
 as int,monthlyExpense: null == monthlyExpense ? _self.monthlyExpense : monthlyExpense // ignore: cast_nullable_to_non_nullable

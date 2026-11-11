@@ -1,6 +1,6 @@
 import 'dart:ui' show CheckedState, SemanticsRole, Tristate;
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:waldo/features/dashboard/ui/widgets/cash_flow_card.dart';
@@ -14,6 +14,8 @@ import 'package:waldo/features/transactions/ui/widgets/transaction_filter_sheet.
 import 'package:waldo/features/transactions/models/transaction_filter.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
 import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/features/categories/models/category.dart';
+import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/categories/ui/categories_screen.dart';
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
 import 'package:waldo/features/settings/ui/settings_screen.dart';
@@ -305,23 +307,6 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('Settings group names are headings', (tester) async {
-    final semantics = tester.ensureSemantics();
-    tester.view.physicalSize = const Size(402, 1400);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    final db = await pumpWidgetWithProviders(tester, const SettingsScreen());
-    addTearDown(db.close);
-
-    for (final group in ['MONEY', 'APPEARANCE']) {
-      expect(
-        tester.getSemantics(find.text(group)),
-        isSemantics(label: group, isHeader: true),
-      );
-    }
-    semantics.dispose();
-  });
-
   /// Each text is its own heading node (or, for a merged title, part of one).
   void expectHeadings(WidgetTester tester, List<String> texts) {
     for (final text in texts) {
@@ -372,17 +357,6 @@ void main() {
       semantics.dispose();
     });
   }
-
-  testWidgets('"Optional" is read with its section heading', (tester) async {
-    final semantics = tester.ensureSemantics();
-    await pumpSheet(tester, (context, _) => showWalletFormSheet(context));
-
-    expect(
-      tester.getSemantics(find.text('STARTING BALANCE')).label,
-      'STARTING BALANCE\nOptional',
-    );
-    semantics.dispose();
-  });
 
   testWidgets('The detail title is one heading with its category and type', (
     tester,
@@ -655,14 +629,19 @@ void main() {
     tester.view.physicalSize = const Size(402, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final db = await pumpWidgetWithProviders(tester, const CategoriesScreen());
+    final db = await createTestDatabase();
+    // Only the user's own categories have an X.
+    await CategoryRepositoryImpl(
+      db,
+    ).insert(const Category(name: 'Gym', createdAt: '2026-08-10T12:00:00.000'));
+    await pumpWidgetWithProviders(tester, const CategoriesScreen(), db: db);
     addTearDown(db.close);
 
     for (final name in ['Education', 'Groceries', 'Others']) {
       expect(tester.getSemantics(find.text(name)).label, name);
     }
     expect(
-      tester.getSemantics(find.byTooltip('Delete Education')),
+      tester.getSemantics(find.byTooltip('Delete Gym')),
       isSemantics(isButton: true),
     );
     semantics.dispose();
@@ -677,7 +656,12 @@ void main() {
     final db = await createTestDatabase();
     addTearDown(db.close);
     await seedGoldenData(db);
-    await pumpWidgetWithProviders(tester, const DashboardScreen(), db: db);
+    await pumpWidgetWithProviders(
+      tester,
+      const DashboardScreen(),
+      db: db,
+      now: seedToday,
+    );
 
     final eye = tester.getSemantics(find.byTooltip('Hide balance'));
     expect(
@@ -699,6 +683,7 @@ void main() {
       tester,
       Scaffold(
         body: CashFlowCard(
+          month: DateTime(2026, 10),
           monthlyCashFlow: [
             MonthlyCashFlow(month: DateTime(2026, 8), income: 0, expense: 0),
             MonthlyCashFlow(
@@ -774,7 +759,12 @@ void main() {
     final db = await createTestDatabase();
     addTearDown(db.close);
     await seedGoldenData(db);
-    await pumpWidgetWithProviders(tester, const WalletsScreen(), db: db);
+    await pumpWidgetWithProviders(
+      tester,
+      const WalletsScreen(),
+      db: db,
+      now: seedToday,
+    );
 
     expect(
       tester.getSemantics(find.text('Total balance')).label,

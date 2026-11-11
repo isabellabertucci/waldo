@@ -31,6 +31,19 @@ class SelectedDashboardMonth extends _$SelectedDashboardMonth {
   void select(DateTime month) => state = DateTime(month.year, month.month);
 }
 
+/// What plays on Home when it shows a new month.
+enum MonthIntro { receiptPrint, cashFlowDraw }
+
+/// The month [intro] last played for this session, so scrolling back to it,
+/// or a new figure on it, doesn't play it again.
+@Riverpod(keepAlive: true)
+class PlayedMonth extends _$PlayedMonth {
+  @override
+  DateTime? build(MonthIntro intro) => null;
+
+  void mark(DateTime month) => state = month;
+}
+
 @riverpod
 class DashboardViewModel extends _$DashboardViewModel {
   @override
@@ -103,6 +116,7 @@ class DashboardViewModel extends _$DashboardViewModel {
     );
 
     return DashboardData(
+      month: anchor,
       totalBalance: totalBalance,
       walletCount: wallets.length,
       monthlyIncome: monthlyIncome,

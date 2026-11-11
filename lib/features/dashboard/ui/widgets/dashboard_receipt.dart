@@ -54,14 +54,28 @@ class DashboardReceipt extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onAddTransaction;
 
+  /// False when it shows the dashed "add a transaction" box instead of
+  /// paper: there are wallets but nothing this month.
+  static bool isPaper(DashboardData data) =>
+      data.walletCount == 0 ||
+      _hasFigures(
+        data.monthlyIncome,
+        data.monthlyExpense,
+        data.spendingByCategory,
+      );
+
+  static bool _hasFigures(
+    int income,
+    int expense,
+    List<CategorySpending> spending,
+  ) => income != 0 || expense != 0 || spending.isNotEmpty;
+
   @override
   Widget build(BuildContext context) {
     if (!hasWallets) {
       return _NoWalletReceipt(monthLabel: monthLabel, year: year);
     }
-    if (monthlyIncome == 0 &&
-        monthlyExpense == 0 &&
-        spendingByCategory.isEmpty) {
+    if (!_hasFigures(monthlyIncome, monthlyExpense, spendingByCategory)) {
       return _EmptyReceipt(onAddTransaction: onAddTransaction);
     }
 
@@ -69,8 +83,6 @@ class DashboardReceipt extends StatelessWidget {
     final colors = context.appColors;
     final currencyCode = currency.code;
     final saved = monthlyIncome - monthlyExpense;
-    String amount(String formatted) =>
-        isBalanceHidden ? hiddenAmount : formatted;
     final visibleCategories = spendingByCategory
         .take(_maxCategoryRows)
         .toList();
@@ -112,9 +124,9 @@ class DashboardReceipt extends StatelessWidget {
                           label: TransactionType.income
                               .label(l10n)
                               .toUpperCase(),
-                          value: amount(
-                            '+${formatCents(monthlyIncome, locale: moneyLocale(context), currencyCode: currencyCode)}',
-                          ),
+                          hidden: isBalanceHidden,
+                          value:
+                              '+${formatCents(monthlyIncome, locale: moneyLocale(context), currencyCode: currencyCode)}',
                           color: colors.primaryStrong,
                           bold: true,
                         ),
@@ -123,9 +135,9 @@ class DashboardReceipt extends StatelessWidget {
                           label: TransactionType.expense
                               .label(l10n)
                               .toUpperCase(),
-                          value: amount(
-                            '-${formatCents(monthlyExpense, locale: moneyLocale(context), currencyCode: currencyCode)}',
-                          ),
+                          hidden: isBalanceHidden,
+                          value:
+                              '-${formatCents(monthlyExpense, locale: moneyLocale(context), currencyCode: currencyCode)}',
                           color: colors.error,
                           bold: true,
                         ),
@@ -137,12 +149,11 @@ class DashboardReceipt extends StatelessWidget {
                             label: visibleCategories[i].category.displayName(
                               l10n,
                             ),
-                            value: amount(
-                              formatCents(
-                                visibleCategories[i].amount,
-                                locale: moneyLocale(context),
-                                currencyCode: currencyCode,
-                              ),
+                            hidden: isBalanceHidden,
+                            value: formatCents(
+                              visibleCategories[i].amount,
+                              locale: moneyLocale(context),
+                              currencyCode: currencyCode,
                             ),
                             color: colors.onSurface.withValues(
                               alpha: Alpha.strong,
@@ -159,12 +170,11 @@ class DashboardReceipt extends StatelessWidget {
                             label: l10n.dashboardReceiptOtherCategories(
                               otherCategories.length,
                             ),
-                            value: amount(
-                              formatCents(
-                                otherAmount,
-                                locale: moneyLocale(context),
-                                currencyCode: currencyCode,
-                              ),
+                            hidden: isBalanceHidden,
+                            value: formatCents(
+                              otherAmount,
+                              locale: moneyLocale(context),
+                              currencyCode: currencyCode,
                             ),
                             color: colors.onSurface.withValues(
                               alpha: Alpha.strong,
@@ -177,12 +187,11 @@ class DashboardReceipt extends StatelessWidget {
                             ),
                           ReceiptRow(
                             label: l10n.uncategorized,
-                            value: amount(
-                              formatCents(
-                                uncategorizedSpending,
-                                locale: moneyLocale(context),
-                                currencyCode: currencyCode,
-                              ),
+                            hidden: isBalanceHidden,
+                            value: formatCents(
+                              uncategorizedSpending,
+                              locale: moneyLocale(context),
+                              currencyCode: currencyCode,
                             ),
                             color: colors.onSurface.withValues(
                               alpha: Alpha.strong,
@@ -194,12 +203,11 @@ class DashboardReceipt extends StatelessWidget {
                         const SizedBox(height: Spacing.sm),
                         ReceiptRow(
                           label: l10n.monthNetLabel.toUpperCase(),
-                          value: amount(
-                            formatCents(
-                              saved,
-                              locale: moneyLocale(context),
-                              currencyCode: currencyCode,
-                            ),
+                          hidden: isBalanceHidden,
+                          value: formatCents(
+                            saved,
+                            locale: moneyLocale(context),
+                            currencyCode: currencyCode,
                           ),
                           color: saved < 0 ? colors.error : colors.onSurface,
                           bold: true,

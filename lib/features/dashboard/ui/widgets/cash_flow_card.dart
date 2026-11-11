@@ -1,6 +1,10 @@
 import 'dart:math';
+import 'dart:ui' show lerpDouble;
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/physics.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/component_size.dart';
@@ -12,21 +16,29 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
+import 'package:waldo/core/widgets/balance_amount.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/widgets/heading.dart';
+import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:waldo/features/transactions/transactions_x.dart';
 
 import '../../models/dashboard_data.dart';
+import 'month_intro_claim.dart';
 
 /// One series (income or expense) at a time; exact values are in the tooltip.
-class CashFlowCard extends StatefulWidget {
+/// The line draws itself in the first time Home shows a month, then its end
+/// point pops in with the month's total over it.
+class CashFlowCard extends ConsumerStatefulWidget {
   const CashFlowCard({
     super.key,
+    required this.month,
     required this.monthlyCashFlow,
     required this.currency,
     required this.isBalanceHidden,
   });
 
+  /// The month Home shows: the line's last point.
+  final DateTime month;
   final List<MonthlyCashFlow> monthlyCashFlow;
   final Currency currency;
 
@@ -34,14 +46,90 @@ class CashFlowCard extends StatefulWidget {
   final bool isBalanceHidden;
 
   @override
-  State<CashFlowCard> createState() => _CashFlowCardState();
+  ConsumerState<CashFlowCard> createState() => _CashFlowCardState();
 }
 
-class _CashFlowCardState extends State<CashFlowCard> {
+class _CashFlowCardState extends ConsumerState<CashFlowCard>
+    with MonthIntroClaim, TickerProviderStateMixin {
   TransactionType _selectedType = TransactionType.expense;
+
+  /// The line drawing in, its end point popping, then the month's total
+  /// rising in; all at rest (1) unless a month is playing its intro.
+  late final AnimationController _draw;
+  late final CurvedAnimation _drawn;
+  late final AnimationController _point;
+  late final AnimationController _label;
+
+  /// The label waits [Motion.chartLabelDelay] after the point pops.
+  late final CurvedAnimation _labelIn;
+
+  @override
+  void initState() {
+    super.initState();
+    _draw = AnimationController(
+      vsync: this,
+      duration: Motion.chartDraw,
+      value: 1,
+    )..addStatusListener(_onDrawn);
+    _drawn = CurvedAnimation(parent: _draw, curve: Motion.emphasizedCurve);
+    _point = AnimationController.unbounded(vsync: this, value: 1);
+    _label = AnimationController(
+      vsync: this,
+      duration: Motion.chartLabelDelay + Motion.chartLabel,
+      value: 1,
+    );
+    _labelIn = CurvedAnimation(
+      parent: _label,
+      curve: Interval(
+        Motion.chartLabelDelay.inMicroseconds / _label.duration!.inMicroseconds,
+        1,
+      ),
+    );
+    _claimDraw();
+  }
+
+  @override
+  void didUpdateWidget(CashFlowCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.month != widget.month) _claimDraw();
+  }
+
+  void _claimDraw() {
+    if (!claimMonthIntro(MonthIntro.cashFlowDraw, widget.month)) return;
+    _point.value = 0;
+    _label.value = 0;
+    _draw.forward(from: 0);
+  }
+
+  void _onDrawn(AnimationStatus status) {
+    if (status != AnimationStatus.completed) return;
+    _point
+        .animateWith(SpringSimulation(Motion.wobbly, 0, 1, 0))
+        // A spring stops within a hair of rest; end exactly at full size.
+        .then((_) => _point.value = 1);
+    _label.forward(from: 0);
+  }
+
+  @override
+  void dispose() {
+    _drawn.dispose();
+    _draw.dispose();
+    _point.dispose();
+    _labelIn.dispose();
+    _label.dispose();
+    super.dispose();
+  }
+
+  void _selectType(TransactionType type) {
+    if (type == _selectedType) return;
+    HapticFeedback.selectionClick();
+    setState(() => _selectedType = type);
+  }
 
   @override
   Widget build(BuildContext context) {
+    // With reduce motion on, the line and its end point are simply there.
+    final still = context.reduceMotion;
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
     final currencyCode = widget.currency.code;
@@ -74,17 +162,19 @@ class _CashFlowCardState extends State<CashFlowCard> {
                 Heading(
                   child: Text(l10n.cashFlow, style: context.headlineMdStrong),
                 ),
-                _SeriesToggle(
-                  selected: _selectedType,
-                  onChanged: (type) => setState(() => _selectedType = type),
-                ),
+                _SeriesToggle(selected: _selectedType, onChanged: _selectType),
               ],
             ),
           ),
           const SizedBox(height: Spacing.lg),
           SizedBox(
             height: ComponentSize.chartHeight,
+            // A new month draws its own line, rather than reshaping the last.
             child: _CashFlowChart(
+              key: ValueKey(widget.month),
+              draw: still ? kAlwaysCompleteAnimation : _drawn,
+              point: still ? kAlwaysCompleteAnimation : _point,
+              label: still ? kAlwaysCompleteAnimation : _labelIn,
               monthlyCashFlow: widget.monthlyCashFlow,
               currencyCode: currencyCode,
               locale: locale,
@@ -202,6 +292,10 @@ class _SeriesToggleSegment extends StatelessWidget {
 
 class _CashFlowChart extends StatelessWidget {
   const _CashFlowChart({
+    super.key,
+    required this.draw,
+    required this.point,
+    required this.label,
     required this.monthlyCashFlow,
     required this.currencyCode,
     required this.locale,
@@ -212,6 +306,14 @@ class _CashFlowChart extends StatelessWidget {
     required this.isBalanceHidden,
   });
 
+  /// How much of the line is drawn, left to right.
+  final Animation<double> draw;
+
+  /// The end point's size; a spring, so it overshoots before settling.
+  final Animation<double> point;
+
+  /// The month's total fading and rising in over the end point.
+  final Animation<double> label;
   final List<MonthlyCashFlow> monthlyCashFlow;
   final String currencyCode;
   final String locale;
@@ -231,6 +333,11 @@ class _CashFlowChart extends StatelessWidget {
       for (var i = 0; i < monthlyCashFlow.length; i++)
         FlSpot(i.toDouble(), _valueFor(monthlyCashFlow[i]) / 100),
     ];
+    // fl_chart's own range, given explicitly so the end point can be placed
+    // on the line.
+    final minY = spots.map((s) => s.y).fold(double.infinity, min);
+    final maxY = spots.map((s) => s.y).fold(double.negativeInfinity, max);
+    final hasEnd = spots.isNotEmpty;
 
     final labelStyle = context.chartAxis.copyWith(color: labelColor);
     final labels = [
@@ -288,9 +395,16 @@ class _CashFlowChart extends StatelessWidget {
               : constraints.maxWidth;
           // Every [step]th month, counted back from the last so it always shows.
           final step = max(1, ((widest + Spacing.xs) / monthGap).ceil());
+          final titlesHeight = tallest + Spacing.xs;
+          final plotHeight = constraints.maxHeight - titlesHeight;
 
-          return LineChart(
+          final chart = LineChart(
+            // Toggling the series reshapes the line, colour and all.
+            duration: context.motion(Motion.chartMorph),
+            curve: Motion.emphasizedCurve,
             LineChartData(
+              minY: hasEnd ? minY : null,
+              maxY: hasEnd ? maxY : null,
               gridData: const FlGridData(show: false),
               borderData: FlBorderData(show: false),
               titlesData: FlTitlesData(
@@ -302,7 +416,7 @@ class _CashFlowChart extends StatelessWidget {
                     showTitles: true,
                     // Asks for every month; [step] picks which get a label.
                     interval: 1,
-                    reservedSize: tallest + Spacing.xs,
+                    reservedSize: titlesHeight,
                     getTitlesWidget: (value, meta) {
                       final index = value.toInt();
                       if (index < 0 || index > lastIndex) {
@@ -389,7 +503,248 @@ class _CashFlowChart extends StatelessWidget {
               ],
             ),
           );
+
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // The line and its shading draw in; the month names don't.
+              ClipPath(
+                clipper: _DrawClipper(draw: draw, plotHeight: plotHeight),
+                child: chart,
+              ),
+              // On top, but every touch still reaches the chart.
+              if (hasEnd)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: TweenAnimationBuilder<_EndPoint>(
+                      // Blends between series as fl_chart does, so it rides
+                      // the line.
+                      tween: _EndPointTween(
+                        end: _EndPoint(
+                          y: spots.last.y,
+                          minY: minY,
+                          maxY: maxY,
+                          color: seriesColor,
+                        ),
+                      ),
+                      duration: context.motion(Motion.chartMorph),
+                      curve: Motion.emphasizedCurve,
+                      builder: (context, end, _) {
+                        final at = Offset(
+                          constraints.maxWidth,
+                          plotHeight * (1 - end.height),
+                        );
+                        return Stack(
+                          children: [
+                            Positioned.fill(
+                              child: CustomPaint(
+                                painter: _EndPointPainter(
+                                  at: at,
+                                  scale: point,
+                                  color: end.color,
+                                  ring: colors.surface,
+                                ),
+                              ),
+                            ),
+                            Positioned.fill(
+                              child: CustomSingleChildLayout(
+                                delegate: _EndLabelLayout(at),
+                                child: _EndLabel(
+                                  text: _endLabel(context),
+                                  hidden: isBalanceHidden,
+                                  color: end.color,
+                                  appear: label,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+            ],
+          );
         },
+      ),
+    );
+  }
+
+  /// The month's total, signed as on the receipt.
+  String _endLabel(BuildContext context) {
+    final sign = selectedType == TransactionType.income ? '+' : '-';
+    final amount = formatCents(
+      _valueFor(monthlyCashFlow.last),
+      locale: moneyLocale(context),
+      currencyCode: currencyCode,
+    );
+    return '$sign$amount';
+  }
+}
+
+/// Shows the line and its shading up to [draw] of the way across; the month
+/// names below them always show.
+class _DrawClipper extends CustomClipper<Path> {
+  _DrawClipper({required this.draw, required this.plotHeight})
+    : super(reclip: draw);
+
+  final Animation<double> draw;
+  final double plotHeight;
+
+  @override
+  Path getClip(Size size) {
+    // Room around the plot for the line's round ends and the touch tooltip.
+    final right = draw.value >= 1 ? size.width * 2 : size.width * draw.value;
+    return Path()
+      ..addRect(Rect.fromLTRB(-size.width, -size.height, right, plotHeight))
+      ..addRect(
+        Rect.fromLTRB(-size.width, plotHeight, size.width * 2, size.height * 2),
+      );
+  }
+
+  @override
+  bool shouldReclip(_DrawClipper oldClipper) =>
+      oldClipper.draw != draw || oldClipper.plotHeight != plotHeight;
+}
+
+/// Where the line ends and in what colour, in the chart's own values, so it
+/// blends from series to series exactly as the line does.
+class _EndPoint {
+  const _EndPoint({
+    required this.y,
+    required this.minY,
+    required this.maxY,
+    required this.color,
+  });
+
+  final double y;
+  final double minY;
+  final double maxY;
+  final Color color;
+
+  /// How far up the plot it sits: 0 at the bottom, as fl_chart puts a flat
+  /// line.
+  double get height => maxY == minY ? 0 : (y - minY) / (maxY - minY);
+
+  static _EndPoint lerp(_EndPoint a, _EndPoint b, double t) => _EndPoint(
+    y: lerpDouble(a.y, b.y, t)!,
+    minY: lerpDouble(a.minY, b.minY, t)!,
+    maxY: lerpDouble(a.maxY, b.maxY, t)!,
+    color: Color.lerp(a.color, b.color, t)!,
+  );
+}
+
+class _EndPointTween extends Tween<_EndPoint> {
+  _EndPointTween({super.end});
+
+  @override
+  _EndPoint lerp(double t) => _EndPoint.lerp(begin!, end!, t);
+}
+
+/// The line's last point, drawn like the touch dot.
+class _EndPointPainter extends CustomPainter {
+  _EndPointPainter({
+    required this.at,
+    required this.scale,
+    required this.color,
+    required this.ring,
+  }) : super(repaint: scale);
+
+  final Offset at;
+  final Animation<double> scale;
+  final Color color;
+  final Color ring;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final scale = max(0.0, this.scale.value);
+    if (scale == 0) return;
+    canvas
+      ..save()
+      ..translate(at.dx, at.dy)
+      ..scale(scale);
+    FlDotCirclePainter(
+      radius: ComponentSize.chartDotRadius,
+      color: color,
+      strokeWidth: ComponentSize.chartDotRing,
+      strokeColor: ring,
+    ).draw(canvas, const FlSpot(0, 0), Offset.zero);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_EndPointPainter oldDelegate) =>
+      oldDelegate.at != at ||
+      oldDelegate.scale != scale ||
+      oldDelegate.color != color ||
+      oldDelegate.ring != ring;
+}
+
+/// Puts the end label just above the point, its right edge on it; beside it
+/// on the left when the point is too near the top for it to fit above.
+class _EndLabelLayout extends SingleChildLayoutDelegate {
+  _EndLabelLayout(this.at);
+
+  final Offset at;
+
+  static const _gap = ComponentSize.chartDotRadius + ComponentSize.chartDotRing;
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
+      constraints.loosen();
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    final above = at.dy - _gap - childSize.height;
+    if (above >= 0) return Offset(max(0, at.dx - childSize.width), above);
+    return Offset(
+      max(0, at.dx - _gap - childSize.width),
+      max(0, at.dy - childSize.height / 2),
+    );
+  }
+
+  @override
+  bool shouldRelayout(_EndLabelLayout oldDelegate) => oldDelegate.at != at;
+}
+
+class _EndLabel extends StatelessWidget {
+  const _EndLabel({
+    required this.text,
+    required this.hidden,
+    required this.color,
+    required this.appear,
+  });
+
+  final String text;
+  final bool hidden;
+  final Color color;
+
+  /// Fades it in as it rises [Motion.chartLabelRise] into place.
+  final Animation<double> appear;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: appear,
+      builder: (context, child) => Opacity(
+        opacity: appear.value,
+        child: Transform.translate(
+          offset: Offset(0, (1 - appear.value) * Motion.chartLabelRise),
+          child: child,
+        ),
+      ),
+      // The series' new total fades in over the old one; the eye tucks it
+      // away like every other amount.
+      child: AnimatedSwitcher(
+        duration: context.motion(Motion.chartLabel),
+        child: BalanceAmount(
+          key: ValueKey(text),
+          amount: text,
+          hidden: hidden,
+          style: context.bodySmBold.copyWith(color: color),
+          // Its right edge is pinned to the line's end.
+          alignment: AlignmentDirectional.centerEnd,
+        ),
       ),
     );
   }

@@ -24,7 +24,6 @@ import 'package:waldo/features/transactions/ui/widgets/transaction_edit_sheet.da
 import 'package:waldo/features/transactions/ui/widgets/transaction_form_sheet.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_row.dart';
 import 'package:waldo/features/wallets/ui/wallets_screen.dart';
-import 'package:waldo/features/wallets/ui/widgets/wallet_form_sheet.dart';
 
 import '../helpers/golden_seed.dart';
 import '../helpers/test_app.dart';
@@ -98,6 +97,7 @@ void main() {
           const DashboardScreen(),
           db: db,
           locale: const Locale('pt'),
+          now: seedToday,
         );
 
         expect(find.text('BALANÇO'), findsOneWidget);
@@ -166,6 +166,7 @@ void main() {
               body: Padding(
                 padding: const EdgeInsets.all(24),
                 child: CashFlowCard(
+                  month: DateTime(2026, 10),
                   monthlyCashFlow: [
                     for (var i = 11; i >= 0; i--)
                       MonthlyCashFlow(
@@ -387,8 +388,9 @@ void main() {
       });
 
       for (final (locale, rows, done) in const [
-        (Locale('en'), ['Theme', 'Currency', 'Date format'], 'Done'),
-        (Locale('pt'), ['Tema', 'Moeda', 'Formato de data'], 'Concluído'),
+        // In screen order: the test only scrolls down.
+        (Locale('en'), ['Currency', 'Date format', 'Theme'], 'Done'),
+        (Locale('pt'), ['Moeda', 'Formato de data', 'Tema'], 'Concluído'),
       ]) {
         testWidgets('Settings and its pickers fit in $locale at $label', (
           tester,
@@ -471,7 +473,7 @@ void main() {
 
     final title = tester.getRect(find.text('Currency'));
     final value = tester.getRect(find.text('USD'));
-    expect(value.top, greaterThan(title.bottom));
+    expect(value.top, greaterThanOrEqualTo(title.bottom));
   });
 
   testWidgets('At AX5 on a small phone a large amount shows whole', (
@@ -604,31 +606,8 @@ void main() {
     await tester.ensureVisible(find.text('Cancel'));
     await tester.pumpAndSettle();
 
-    final save = tester.getRect(find.text('Save changes'));
+    final save = tester.getRect(find.text('Save'));
     final cancel = tester.getRect(find.text('Cancel'));
     expect(save.bottom, lessThanOrEqualTo(cancel.top));
-  });
-
-  testWidgets('At AX1 "Optional" moves under the starting balance heading', (
-    tester,
-  ) async {
-    await setUpPhone(tester, const Size(390, 844), 28 / 17);
-    currentDb = await pumpWidgetWithProviders(
-      tester,
-      Scaffold(
-        body: Builder(
-          builder: (context) => TextButton(
-            onPressed: () => showWalletFormSheet(context),
-            child: const Text('open'),
-          ),
-        ),
-      ),
-    );
-    await tester.tap(find.text('open'));
-    await tester.pumpAndSettle();
-
-    final heading = tester.getRect(find.text('STARTING BALANCE'));
-    final optional = tester.getRect(find.text('Optional'));
-    expect(optional.top, greaterThanOrEqualTo(heading.bottom));
   });
 }

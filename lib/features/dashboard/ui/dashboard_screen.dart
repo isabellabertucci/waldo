@@ -10,6 +10,7 @@ import 'package:waldo/core/widgets/option_sheet.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_form_sheet.dart';
+import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/ui/widgets/wallet_form_sheet.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/l10n/app_localizations.dart';
@@ -17,9 +18,11 @@ import 'package:waldo/l10n/app_localizations.dart';
 import '../models/dashboard_data.dart';
 import '../viewmodels/dashboard_view_model.dart';
 import 'widgets/balance_overview_card.dart';
+import 'widgets/card_landing.dart';
 import 'widgets/cash_flow_card.dart';
 import 'widgets/dashboard_receipt.dart';
 import 'package:waldo/core/widgets/month_selector.dart';
+import 'widgets/receipt_print.dart';
 import 'widgets/recent_transactions_list.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -31,7 +34,9 @@ class DashboardScreen extends ConsumerWidget {
     final dashboardAsync = ref.watch(dashboardViewModelProvider);
 
     return Scaffold(
+      // Scrolls on under the floating navbar (AppShell's `extendBody`).
       body: SafeArea(
+        bottom: false,
         child: switch (dashboardAsync) {
           AsyncValue(:final value?) => _DashboardBody(data: value),
           AsyncValue(hasError: true) => Center(
@@ -59,10 +64,13 @@ class _DashboardBody extends ConsumerWidget {
     final selectedMonth = ref.watch(selectedDashboardMonthProvider);
     final isBalanceHidden = ref.watch(balanceHiddenProvider);
     final walletsAsync = ref.watch(walletListViewModelProvider());
-    final peekWalletName = switch (walletsAsync) {
-      AsyncValue(:final value?) when value.isNotEmpty => value.first.name,
-      _ => null,
+    // Newest first, so the first is the front card.
+    final peekWallets = switch (walletsAsync) {
+      AsyncValue(:final value?) =>
+        value.take(BalanceOverviewCard.maxPeekCards).toList(),
+      _ => const <Wallet>[],
     };
+    final peekWallet = peekWallets.firstOrNull;
     final locale = Localizations.localeOf(context).toString();
     final now = ref.watch(clockProvider)();
     // 12 months, matching the cash flow chart's trailing window.
@@ -72,7 +80,10 @@ class _DashboardBody extends ConsumerWidget {
     );
 
     return ListView(
-      padding: const EdgeInsets.symmetric(vertical: Spacing.lg),
+      padding: EdgeInsets.only(
+        top: Spacing.lg,
+        bottom: Spacing.lg + MediaQuery.paddingOf(context).bottom,
+      ),
       children: [
         // No month row until there's a wallet.
         if (data.walletCount > 0) ...[
@@ -86,45 +97,58 @@ class _DashboardBody extends ConsumerWidget {
           ),
           const SizedBox(height: Spacing.lg),
         ],
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Spacing.pageMargin),
-          child: BalanceOverviewCard(
-            totalBalance: data.totalBalance,
-            currency: currency,
-            isBalanceHidden: isBalanceHidden,
-            cardMonthLabel: DateFormat(
-              'MMM yyyy',
-              locale,
-            ).format(selectedMonth),
-            peekWalletName: peekWalletName,
-            walletCount: data.walletCount,
-            onCreateWallet: () => showWalletFormSheet(context),
-            onAddPressed: () => _showQuickAddSheet(context),
-            onToggleBalanceHidden: () =>
-                ref.read(balanceHiddenProvider.notifier).toggle(),
+        // A new month prints its receipt out of the pouch.
+        ReceiptPrint(
+          month: data.month,
+          isPaper: DashboardReceipt.isPaper(data),
+          // A wallet just made drops its card into the pouch.
+          pouch: CardLanding(
+            walletId: peekWallet?.id,
+            builder: (landing) => Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: Spacing.pageMargin,
+              ),
+              child: BalanceOverviewCard(
+                totalBalance: data.totalBalance,
+                currency: currency,
+                isBalanceHidden: isBalanceHidden,
+                cardMonthLabel: DateFormat(
+                  'MMM yyyy',
+                  locale,
+                ).format(data.month),
+                peekWalletNames: [for (final w in peekWallets) w.name],
+                walletCount: data.walletCount,
+                landing: landing,
+                onCreateWallet: () => showWalletFormSheet(context),
+                onAddPressed: () => _showQuickAddSheet(context),
+                onToggleBalanceHidden: () =>
+                    ref.read(balanceHiddenProvider.notifier).toggle(),
+              ),
+            ),
           ),
-        ),
-        DashboardReceipt(
-          monthLabel: DateFormat.MMMM(locale).format(selectedMonth),
-          year: selectedMonth.year,
-          monthlyIncome: data.monthlyIncome,
-          monthlyExpense: data.monthlyExpense,
-          spendingByCategory: data.spendingByCategory,
-          uncategorizedSpending: data.uncategorizedSpending,
-          isBalanceHidden: isBalanceHidden,
-          currency: currency,
-          hasWallets: data.walletCount > 0,
-          // The receipt's own month, not every transaction ever.
-          onTap: () => AllTransactionsRoute(
-            month: DateFormat('yyyy-MM').format(selectedMonth),
-          ).push(context),
-          onAddTransaction: () => showTransactionFormSheet(context),
+          receipt: DashboardReceipt(
+            monthLabel: DateFormat.MMMM(locale).format(data.month),
+            year: data.month.year,
+            monthlyIncome: data.monthlyIncome,
+            monthlyExpense: data.monthlyExpense,
+            spendingByCategory: data.spendingByCategory,
+            uncategorizedSpending: data.uncategorizedSpending,
+            isBalanceHidden: isBalanceHidden,
+            currency: currency,
+            hasWallets: data.walletCount > 0,
+            // The receipt's own month, not every transaction ever.
+            onTap: () => AllTransactionsRoute(
+              month: DateFormat('yyyy-MM').format(data.month),
+            ).push(context),
+            onAddTransaction: () => showTransactionFormSheet(context),
+          ),
         ),
         if (hasCashFlowData) ...[
           const SizedBox(height: Spacing.xl),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: Spacing.pageMargin),
             child: CashFlowCard(
+              month: data.month,
               monthlyCashFlow: data.monthlyCashFlow,
               currency: currency,
               isBalanceHidden: isBalanceHidden,

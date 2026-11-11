@@ -24,6 +24,9 @@ abstract class MonthlyCashFlow with _$MonthlyCashFlow {
 @freezed
 abstract class DashboardData with _$DashboardData {
   const factory DashboardData({
+    /// The month these figures are for: while the next month loads, the
+    /// screen still shows this one.
+    required DateTime month,
     required int totalBalance,
     required int walletCount,
     required int monthlyIncome,
