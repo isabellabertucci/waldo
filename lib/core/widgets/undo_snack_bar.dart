@@ -90,9 +90,7 @@ SnackBar _barSnackBar(
       Spacing.sm,
       Spacing.component,
     ),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(Rounded.md),
-    ),
+    shape: const StadiumBorder(),
   );
 }
 
@@ -106,6 +104,10 @@ class _BarShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // A pill, so its round ends follow the Undo pill and the ring inside.
+    // With large text the bar stacks and grows tall, where a pill's ends
+    // would cut into the text, so it keeps card corners there.
+    final isPill = !DynamicTypeScaler.isAccessibilitySize(context);
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 1, end: 0),
@@ -118,8 +120,10 @@ class _BarShell extends StatelessWidget {
       // At least 64 tall, and taller with large text, so it never clips.
       child: Container(
         constraints: const BoxConstraints(minHeight: _barHeight),
-        padding: const EdgeInsets.fromLTRB(
-          Spacing.component,
+        // As far in from the left end as the ring is from the top and bottom,
+        // so the ring sits centred in the round end.
+        padding: EdgeInsets.fromLTRB(
+          isPill ? Spacing.sm : Spacing.component,
           Spacing.xs,
           Spacing.xs,
           Spacing.xs,
@@ -127,7 +131,9 @@ class _BarShell extends StatelessWidget {
         decoration: BoxDecoration(
           // Ink in both themes, like the wallet card.
           color: colors.leather,
-          borderRadius: BorderRadius.circular(Rounded.md),
+          borderRadius: BorderRadius.circular(
+            isPill ? Rounded.pill : Rounded.lg,
+          ),
           // On the dark page the ink bar needs an edge to show where it ends.
           border: isDark
               ? Border.all(

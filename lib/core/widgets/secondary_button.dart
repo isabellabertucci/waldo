@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
-/// Low-emphasis text button with no fill; the press ripple marks it as tappable.
+/// Low-emphasis text button beside a section or sheet title, on the same
+/// faint grey fill as the month selector's arrows.
 class SecondaryButton extends StatelessWidget {
   const SecondaryButton({
     super.key,
@@ -22,7 +24,7 @@ class SecondaryButton extends StatelessWidget {
     return FilledButton(
       onPressed: onPressed,
       style: FilledButton.styleFrom(
-        backgroundColor: colors.transparent,
+        backgroundColor: colors.onSurface.withValues(alpha: Alpha.faint),
         foregroundColor: colors.onSurface,
         textStyle: context.bodyMdStrong,
         padding: const EdgeInsets.symmetric(

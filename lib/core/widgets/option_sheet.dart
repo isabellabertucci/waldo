@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/widgets/whole_words_text.dart';
+import 'package:waldo/core/widgets/app_sheet.dart';
 import 'package:waldo/core/widgets/badge_row.dart';
 import 'package:waldo/core/theme/badge_size.dart';
 import 'package:waldo/core/theme/app_icons.dart';
@@ -49,13 +50,8 @@ Future<void> showOptionSheet<T>(
   SheetAction? action,
   String? notice,
 }) {
-  return showModalBottomSheet(
-    context: context,
-    useRootNavigator: true,
-    backgroundColor: context.appColors.transparent,
-    // Grows with the options, then scrolls; never under the status bar.
-    isScrollControlled: true,
-    useSafeArea: true,
+  return showAppSheet(
+    context,
     builder: (_) => OptionSheet<T>(
       title: title,
       initialValue: initialValue,
@@ -160,12 +156,8 @@ Future<void> showActionSheet(
   required String title,
   required List<SheetAction> actions,
 }) {
-  return showModalBottomSheet(
-    context: context,
-    useRootNavigator: true,
-    backgroundColor: context.appColors.transparent,
-    isScrollControlled: true,
-    useSafeArea: true,
+  return showAppSheet(
+    context,
     builder: (_) => _ActionSheet(title: title, actions: actions),
   );
 }
@@ -424,8 +416,8 @@ class _NoticeBox extends StatelessWidget {
         color: colors.surfaceContainer,
         borderRadius: BorderRadius.circular(Rounded.md),
       ),
+      // The icon centred on the text, however many lines it runs to.
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
             AppIcons.info,
