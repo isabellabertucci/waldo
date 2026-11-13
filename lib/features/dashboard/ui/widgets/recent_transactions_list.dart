@@ -47,8 +47,8 @@ class RecentTransactionsList extends ConsumerWidget {
                   children: [
                     Heading(
                       child: WholeWordsText(
-                        l10n.recentTransactions,
-                        style: context.headlineMdStrong,
+                        l10n.transactions,
+                        style: context.titleSection,
                       ),
                     ),
                     seeAll,
@@ -60,10 +60,10 @@ class RecentTransactionsList extends ConsumerWidget {
                     Expanded(
                       child: Heading(
                         child: Text(
-                          l10n.recentTransactions,
+                          l10n.transactions,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: context.headlineMdStrong,
+                          style: context.titleSection,
                         ),
                       ),
                     ),
@@ -75,7 +75,7 @@ class RecentTransactionsList extends ConsumerWidget {
         const SizedBox(height: Spacing.sm),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: Spacing.pageMargin),
-          child: TransactionCard(
+          child: TransactionRows(
             transactions: transactions,
             categoriesById: categoriesById,
             currency: currency,

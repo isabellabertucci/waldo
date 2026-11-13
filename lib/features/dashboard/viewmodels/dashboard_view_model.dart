@@ -31,19 +31,6 @@ class SelectedDashboardMonth extends _$SelectedDashboardMonth {
   void select(DateTime month) => state = DateTime(month.year, month.month);
 }
 
-/// What plays on Home when it shows a new month.
-enum MonthIntro { receiptPrint, cashFlowDraw }
-
-/// The month [intro] last played for this session, so scrolling back to it,
-/// or a new figure on it, doesn't play it again.
-@Riverpod(keepAlive: true)
-class PlayedMonth extends _$PlayedMonth {
-  @override
-  DateTime? build(MonthIntro intro) => null;
-
-  void mark(DateTime month) => state = month;
-}
-
 @riverpod
 class DashboardViewModel extends _$DashboardViewModel {
   @override
@@ -79,9 +66,6 @@ class DashboardViewModel extends _$DashboardViewModel {
         )
         .toList();
     final allCategories = await categoryRepo.getAll();
-    final categories = allCategories
-        .where((c) => !pendingCategories.contains(c.id))
-        .toList();
     // A category inside its Undo window already counts as "Others".
     final othersId = allCategories.where((c) => c.isOthers).firstOrNull?.id;
     final transactions = [
@@ -106,26 +90,15 @@ class DashboardViewModel extends _$DashboardViewModel {
       TransactionType.expense,
     );
 
-    final spendingByCategory = _buildSpendingByCategory(
-      currentMonthTransactions,
-      categories,
-    );
-    final categorizedTotal = spendingByCategory.fold<int>(
-      0,
-      (sum, s) => sum + s.amount,
-    );
-
     return DashboardData(
       month: anchor,
       totalBalance: totalBalance,
       walletCount: wallets.length,
       monthlyIncome: monthlyIncome,
       monthlyExpense: monthlyExpense,
-      spendingByCategory: spendingByCategory,
-      uncategorizedSpending: monthlyExpense - categorizedTotal,
-      monthlyCashFlow: _buildMonthlyCashFlow(transactions, anchor),
+      monthlyCashFlow: monthlyCashFlowOf(transactions, anchor),
       // Newest first. On the current month, from any date, so the 1st isn't
-      // empty; on a past month, that month's, to match the receipt.
+      // empty; on a past month, that month's.
       recentTransactions:
           (isCurrentMonth ? transactions : currentMonthTransactions)
               .take(_recentTransactionsLimit)
@@ -149,69 +122,72 @@ class DashboardViewModel extends _$DashboardViewModel {
         .where((t) => t.type == type)
         .fold<int>(0, (sum, t) => sum + t.amount);
   }
+}
 
-  Map<int, int> _expenseTotalsByCategory(List<Transaction> transactions) {
-    final totals = <int, int>{};
-    for (final t in transactions) {
-      final categoryId = t.categoryId;
-      if (t.type != TransactionType.expense || categoryId == null) continue;
-      totals[categoryId] = (totals[categoryId] ?? 0) + t.amount;
-    }
-    return totals;
+Map<int, int> _expenseTotalsByCategory(List<Transaction> transactions) {
+  final totals = <int, int>{};
+  for (final t in transactions) {
+    final categoryId = t.categoryId;
+    if (t.type != TransactionType.expense || categoryId == null) continue;
+    totals[categoryId] = (totals[categoryId] ?? 0) + t.amount;
+  }
+  return totals;
+}
+
+/// A month's expenses per category, dearest first. Expenses without a
+/// category, or whose category is gone, are left out.
+List<CategorySpending> spendingByCategoryOf(
+  List<Transaction> currentMonthTransactions,
+  List<Category> categories,
+) {
+  final currentTotals = _expenseTotalsByCategory(currentMonthTransactions);
+  final categoriesById = {for (final c in categories) c.id: c};
+
+  final spending = <CategorySpending>[];
+  for (final entry in currentTotals.entries) {
+    final category = categoriesById[entry.key];
+    if (category == null) continue;
+
+    spending.add(CategorySpending(category: category, amount: entry.value));
   }
 
-  List<CategorySpending> _buildSpendingByCategory(
-    List<Transaction> currentMonthTransactions,
-    List<Category> categories,
-  ) {
-    final currentTotals = _expenseTotalsByCategory(currentMonthTransactions);
-    final categoriesById = {for (final c in categories) c.id: c};
+  spending.sort((a, b) => b.amount.compareTo(a.amount));
+  return spending;
+}
 
-    final spending = <CategorySpending>[];
-    for (final entry in currentTotals.entries) {
-      final category = categoriesById[entry.key];
-      if (category == null) continue;
+/// Income and expense for the [_trailingMonths] months up to and including
+/// [anchor].
+List<MonthlyCashFlow> monthlyCashFlowOf(
+  List<Transaction> transactions,
+  DateTime anchor,
+) {
+  final months = List.generate(
+    _trailingMonths,
+    (i) => DateTime(anchor.year, anchor.month - (_trailingMonths - 1) + i),
+  );
 
-      spending.add(CategorySpending(category: category, amount: entry.value));
+  final incomeByMonth = {for (final m in months) m: 0};
+  final expenseByMonth = {for (final m in months) m: 0};
+
+  for (final t in transactions) {
+    final date = DateTime.parse(t.date);
+    final bucket = DateTime(date.year, date.month);
+    if (!incomeByMonth.containsKey(bucket)) continue;
+
+    if (t.type == TransactionType.income) {
+      incomeByMonth[bucket] = incomeByMonth[bucket]! + t.amount;
+    } else {
+      expenseByMonth[bucket] = expenseByMonth[bucket]! + t.amount;
     }
-
-    spending.sort((a, b) => b.amount.compareTo(a.amount));
-    return spending;
   }
 
-  /// The [_trailingMonths] months up to and including [anchor].
-  List<MonthlyCashFlow> _buildMonthlyCashFlow(
-    List<Transaction> transactions,
-    DateTime anchor,
-  ) {
-    final months = List.generate(
-      _trailingMonths,
-      (i) => DateTime(anchor.year, anchor.month - (_trailingMonths - 1) + i),
-    );
-
-    final incomeByMonth = {for (final m in months) m: 0};
-    final expenseByMonth = {for (final m in months) m: 0};
-
-    for (final t in transactions) {
-      final date = DateTime.parse(t.date);
-      final bucket = DateTime(date.year, date.month);
-      if (!incomeByMonth.containsKey(bucket)) continue;
-
-      if (t.type == TransactionType.income) {
-        incomeByMonth[bucket] = incomeByMonth[bucket]! + t.amount;
-      } else {
-        expenseByMonth[bucket] = expenseByMonth[bucket]! + t.amount;
-      }
-    }
-
-    return months
-        .map(
-          (m) => MonthlyCashFlow(
-            month: m,
-            income: incomeByMonth[m]!,
-            expense: expenseByMonth[m]!,
-          ),
-        )
-        .toList();
-  }
+  return months
+      .map(
+        (m) => MonthlyCashFlow(
+          month: m,
+          income: incomeByMonth[m]!,
+          expense: expenseByMonth[m]!,
+        ),
+      )
+      .toList();
 }
