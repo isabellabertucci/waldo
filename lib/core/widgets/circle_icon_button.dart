@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_theme.dart';
-import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/min_tap_target.dart';
 
-/// A `surface` disc with a soft shadow, for secondary header actions.
+/// A `surface` disc with a `line` outline, for secondary header actions.
 class CircleIconButton extends StatelessWidget {
   const CircleIconButton({
     super.key,
@@ -22,7 +21,7 @@ class CircleIconButton extends StatelessWidget {
   /// practice whenever [child] is only an icon.
   final String? tooltip;
 
-  /// Tinted and without a shadow, for a control inside a sheet.
+  /// Tinted and without an outline, for a control inside a sheet.
   final bool flat;
 
   /// A flat disc's fill in place of `surfaceContainer`, e.g. a faint orange
@@ -34,10 +33,10 @@ class CircleIconButton extends StatelessWidget {
     final colors = context.appColors;
 
     final button = Material(
-      color: flat ? (tint ?? colors.surfaceContainer) : colors.surface,
-      shape: const CircleBorder(),
-      elevation: flat ? 0 : 1,
-      shadowColor: Elevation.highShadowColor,
+      color: flat ? (tint ?? colors.bg) : colors.sheet,
+      shape: CircleBorder(
+        side: flat ? BorderSide.none : BorderSide(color: colors.line),
+      ),
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: onPressed,

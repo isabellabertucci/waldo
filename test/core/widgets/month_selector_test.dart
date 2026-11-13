@@ -334,7 +334,7 @@ void main() {
         matching: find.byType(StretchPill),
       ),
     );
-    expect(pill.color, AppColors.light.primary);
+    expect(pill.color, AppColors.light.ink);
   });
 
   testWidgets('Picking another month clicks once; the picked one doesn\'t', (

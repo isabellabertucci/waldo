@@ -3,7 +3,6 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/theme/rounded.dart';
-import 'package:waldo/core/widgets/pill_stitch_painter.dart';
 
 /// A filled pill painted behind [child], under the item [selectedKey] marks.
 /// A new selection stretches it there like a drop of ink: the front edge
@@ -14,7 +13,6 @@ class StretchPill extends StatefulWidget {
     super.key,
     required this.selectedKey,
     required this.color,
-    this.stitchColor,
     this.stretches = true,
     required this.child,
   });
@@ -22,9 +20,6 @@ class StretchPill extends StatefulWidget {
   /// The selected item's key, on a widget inside [child]; null paints no pill.
   final GlobalKey? selectedKey;
   final Color color;
-
-  /// The navbar's pill is stitched; the month pill isn't.
-  final Color? stitchColor;
 
   /// False: the pill moves to a new selection at once, with no stretch.
   final bool stretches;
@@ -87,7 +82,6 @@ class _StretchPillState extends State<StretchPill>
         to: _selectedRect,
         progress: _controller,
         color: widget.color,
-        stitchColor: widget.stitchColor,
         onPaint: (rect) => _painted = rect,
       ),
       child: widget.child,
@@ -102,7 +96,6 @@ class _StretchPillPainter extends CustomPainter {
     required this.to,
     required this.progress,
     required this.color,
-    required this.stitchColor,
     required this.onPaint,
   }) : super(repaint: progress);
 
@@ -111,7 +104,6 @@ class _StretchPillPainter extends CustomPainter {
   final Rect? Function() to;
   final Animation<double> progress;
   final Color color;
-  final Color? stitchColor;
   final ValueChanged<Rect> onPaint;
 
   @override
@@ -125,9 +117,6 @@ class _StretchPillPainter extends CustomPainter {
       RRect.fromRectAndRadius(rect, const Radius.circular(Rounded.pill)),
       Paint()..color = color,
     );
-    if (stitchColor case final stitchColor?) {
-      paintPillStitch(canvas, rect, color: stitchColor);
-    }
   }
 
   Rect _stretched(Rect target) {
@@ -151,6 +140,5 @@ class _StretchPillPainter extends CustomPainter {
   bool shouldRepaint(_StretchPillPainter oldDelegate) =>
       oldDelegate.selectedKey != selectedKey ||
       oldDelegate.from != from ||
-      oldDelegate.color != color ||
-      oldDelegate.stitchColor != stitchColor;
+      oldDelegate.color != color;
 }

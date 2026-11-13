@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/component_size.dart';
-import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/theme/rounded.dart';
@@ -38,9 +37,9 @@ List<PopupMenuEntry<EditDeleteAction>> editDeleteMenuItems(
       value: EditDeleteAction.delete,
       child: Row(
         children: [
-          Icon(AppIcons.delete, size: IconSize.lg, color: colors.error),
+          Icon(AppIcons.delete, size: IconSize.lg, color: colors.negative),
           const SizedBox(width: Spacing.xs),
-          Text(l10n.delete, style: TextStyle(color: colors.error)),
+          Text(l10n.delete, style: TextStyle(color: colors.negative)),
         ],
       ),
     ),
@@ -256,30 +255,31 @@ class _Menu extends StatelessWidget {
     final colors = context.appColors;
     final shape = BorderRadius.circular(Rounded.md);
 
-    return DecoratedBox(
-      decoration: BoxDecoration(borderRadius: shape, boxShadow: Elevation.high),
-      child: Material(
-        color: colors.surfaceContainer,
+    return Material(
+      color: colors.sheet,
+      // An outline rather than a shadow, as everything that floats.
+      shape: RoundedRectangleBorder(
         borderRadius: shape,
-        clipBehavior: Clip.antiAlias,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minWidth: ComponentSize.menuMinWidth,
-            maxWidth: ComponentSize.menuMaxWidth,
-          ),
-          child: IntrinsicWidth(
-            stepWidth: ComponentSize.menuWidthStep,
-            // A menu to screen readers, as Material's own popup menu is.
-            child: Semantics(
-              role: SemanticsRole.menu,
-              scopesRoute: true,
-              namesRoute: true,
-              explicitChildNodes: true,
-              label: MaterialLocalizations.of(context).popupMenuLabel,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(vertical: Spacing.xs),
-                child: ListBody(children: editDeleteMenuItems(context)),
-              ),
+        side: BorderSide(color: colors.line),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minWidth: ComponentSize.menuMinWidth,
+          maxWidth: ComponentSize.menuMaxWidth,
+        ),
+        child: IntrinsicWidth(
+          stepWidth: ComponentSize.menuWidthStep,
+          // A menu to screen readers, as Material's own popup menu is.
+          child: Semantics(
+            role: SemanticsRole.menu,
+            scopesRoute: true,
+            namesRoute: true,
+            explicitChildNodes: true,
+            label: MaterialLocalizations.of(context).popupMenuLabel,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: Spacing.xs),
+              child: ListBody(children: editDeleteMenuItems(context)),
             ),
           ),
         ),

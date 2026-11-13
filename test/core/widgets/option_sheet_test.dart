@@ -3,12 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
-import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/option_sheet.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 void main() {
-  testWidgets('Only the selected option has the app stitch', (tester) async {
+  testWidgets('Only the selected option has the solid ink line', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.light,
@@ -28,16 +29,17 @@ void main() {
       ),
     );
 
-    Color stitchOf(String label) => tester
-        .widget<DashedBorder>(
-          find.ancestor(
-            of: find.text(label),
-            matching: find.byType(DashedBorder),
-          ),
-        )
-        .color;
-    expect(stitchOf('Light'), AppColors.light.primary);
-    expect(stitchOf('Dark'), AppColors.light.transparent);
+    Color lineOf(String label) {
+      final tile = tester.widget<Material>(
+        find
+            .ancestor(of: find.text(label), matching: find.byType(Material))
+            .first,
+      );
+      return (tile.shape! as RoundedRectangleBorder).side.color;
+    }
+
+    expect(lineOf('Light'), AppColors.light.ink);
+    expect(lineOf('Dark'), AppColors.light.transparent);
   });
 
   Future<void> openSheet(

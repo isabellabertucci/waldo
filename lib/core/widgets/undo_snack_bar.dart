@@ -6,18 +6,15 @@ import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/motion.dart';
-import 'package:waldo/core/theme/app_colors.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
-import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 /// How long a deleted item can still be brought back.
-const undoWindow = Duration(seconds: 5);
+const undoWindow = Duration(seconds: 10);
 
 /// The 48dp Undo button with the bar's padding above and below it.
 const _barHeight = kMinInteractiveDimension + Spacing.xs * 2;
@@ -140,7 +137,6 @@ class _BarShell extends StatelessWidget {
                   color: colors.onLeather.withValues(alpha: Alpha.soft),
                 )
               : null,
-          boxShadow: Elevation.high,
         ),
         child: child,
       ),
@@ -228,12 +224,12 @@ class _UndoBarState extends State<_UndoBar>
       children: [
         WholeWordsText.singleLine(
           widget.title,
-          style: context.bodyMdStrong.copyWith(color: colors.onLeather),
+          style: context.bodyStrong.copyWith(color: colors.onLeather),
         ),
         if (subtitle != null && subtitle.isNotEmpty)
           WholeWordsText.singleLine(
             subtitle,
-            style: context.textTheme.bodySmall?.copyWith(
+            style: context.label.copyWith(
               color: colors.onLeather.withValues(alpha: Alpha.muted),
             ),
           ),
@@ -300,7 +296,8 @@ class _CountdownRing extends StatelessWidget {
                 remaining: 1 - progress.value,
                 track: colors.onLeather.withValues(alpha: Alpha.medium),
                 // The bar is ink in both themes, so it takes dark mode's orange.
-                fill: AppColors.dark.error,
+                // Time running out is no danger: the details' green.
+                fill: colors.accent,
               ),
               // The number stops growing where bars do, so it stays inside
               // the ring.
@@ -309,7 +306,7 @@ class _CountdownRing extends StatelessWidget {
                 child: Center(
                   child: Text(
                     '$secondsLeft',
-                    style: context.bodySmBold.copyWith(
+                    style: context.caption.copyWith(
                       color: colors.onLeather,
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
@@ -383,8 +380,10 @@ class _UndoButton extends StatelessWidget {
     return Semantics(
       container: true,
       button: true,
+      // A small action, so light green like every other (DESIGN.md
+      // "Buttons"); text only, centred.
       child: Material(
-        color: colors.onLeather,
+        color: colors.accent,
         shape: const StadiumBorder(),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -395,32 +394,12 @@ class _UndoButton extends StatelessWidget {
               minHeight: kMinInteractiveDimension,
             ),
             child: Padding(
-              padding: const EdgeInsets.all(Spacing.xxs),
-              child: DashedBorder(
-                radius: Rounded.pill,
-                color: colors.leather.withValues(alpha: Alpha.stitch),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Spacing.sm - Spacing.xxs,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        AppIcons.undo,
-                        size: IconSize.md,
-                        color: colors.leather,
-                      ),
-                      const SizedBox(width: Spacing.xs),
-                      Text(
-                        l10n.undo,
-                        style: context.bodyMdStrong.copyWith(
-                          color: colors.leather,
-                        ),
-                      ),
-                    ],
-                  ),
+              padding: const EdgeInsets.symmetric(horizontal: Spacing.sm),
+              child: Center(
+                widthFactor: 1,
+                child: Text(
+                  l10n.undo,
+                  style: context.bodyStrong.copyWith(color: colors.onAccent),
                 ),
               ),
             ),
@@ -474,7 +453,7 @@ class _RestoredBar extends StatelessWidget {
             Expanded(
               child: WholeWordsText.singleLine(
                 label,
-                style: context.bodyMdStrong.copyWith(color: colors.onLeather),
+                style: context.bodyStrong.copyWith(color: colors.onLeather),
               ),
             ),
           ],

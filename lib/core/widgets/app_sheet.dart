@@ -49,7 +49,7 @@ class FloatingSheet extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.fromLTRB(_gap, 0, _gap, keyboard + _gap),
       child: Material(
-        color: context.appColors.surface,
+        color: context.appColors.sheet,
         borderRadius: BorderRadius.circular(
           radius(CornerRadiusPlugin.screenRadius.bottomLeft),
         ),

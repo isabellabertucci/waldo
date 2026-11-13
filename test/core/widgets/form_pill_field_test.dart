@@ -1,46 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:waldo/core/theme/app_colors.dart';
-import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
-import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/core/widgets/form_pill_field.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
+/// The filled box round the input.
+final _box = find
+    .ancestor(
+      of: find.byType(EditableText),
+      matching: find.byWidgetPredicate(
+        (w) => w is Container && w.decoration is BoxDecoration,
+      ),
+    )
+    .first;
+
 void main() {
-  testWidgets('A tap on the disc focuses the field and shows the stitch', (
-    tester,
-  ) async {
-    final controller = TextEditingController();
-    addTearDown(controller.dispose);
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.light,
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: FormPillField(
-            leading: const Icon(AppIcons.note),
-            controller: controller,
-            label: 'Note',
-            hint: 'Add a note',
+  testWidgets(
+    'A tap anywhere on the box focuses the field and shows the ink line',
+    (tester) async {
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: FormPillField(
+              controller: controller,
+              label: 'Note',
+              hint: 'Add a note',
+            ),
           ),
         ),
-      ),
-    );
-    Color stitch() =>
-        tester.widget<DashedBorder>(find.byType(DashedBorder)).color;
-    expect(stitch(), AppColors.light.transparent);
+      );
+      Color line() {
+        final box = tester.widget<Container>(_box);
+        return ((box.decoration! as BoxDecoration).border! as Border).top.color;
+      }
 
-    await tester.tap(find.byIcon(AppIcons.note));
-    await tester.pump();
+      expect(line(), AppColors.light.transparent);
 
-    expect(
-      tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus,
-      isTrue,
-    );
-    expect(stitch(), AppColors.light.primary);
-  });
+      // The box's padding, beside the input rather than on it.
+      final box = tester.getRect(_box);
+      await tester.tapAt(box.topLeft + const Offset(4, 4));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester
+            .widget<EditableText>(find.byType(EditableText))
+            .focusNode
+            .hasFocus,
+        isTrue,
+      );
+      expect(line(), AppColors.light.ink);
+    },
+  );
 
   testWidgets('The placeholder is full-strength secondary text', (
     tester,
@@ -54,7 +70,6 @@ void main() {
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: FormPillField(
-            leading: const Icon(AppIcons.note),
             controller: controller,
             label: 'Note',
             hint: 'Add a note',
@@ -67,7 +82,7 @@ void main() {
     final decoration = tester
         .widget<InputDecorator>(find.byType(InputDecorator))
         .decoration;
-    expect(decoration.hintStyle?.color, AppColors.light.onSurfaceVariant);
+    expect(decoration.hintStyle?.color, AppColors.light.inkMuted);
   });
 
   testWidgets('An error shows under the pill, not inside it', (tester) async {
@@ -83,7 +98,6 @@ void main() {
           body: Form(
             key: form,
             child: FormPillField(
-              leading: const Icon(AppIcons.note),
               controller: controller,
               label: 'Name',
               hint: 'Add a name',
@@ -98,7 +112,7 @@ void main() {
     expect(form.currentState!.validate(), isFalse);
     await tester.pump();
 
-    final pill = tester.getRect(find.byType(DashedBorder));
+    final pill = tester.getRect(_box);
     final error = tester.getRect(find.text('Name is required'));
     expect(error.top, greaterThanOrEqualTo(pill.bottom));
 

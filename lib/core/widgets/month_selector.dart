@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/fades.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/badge_size.dart';
@@ -249,7 +248,7 @@ class _MonthSelectorState extends State<MonthSelector> {
                     // Inside the scroll view, so the pill moves with the months.
                     child: StretchPill(
                       selectedKey: _itemKeys[widget.selectedMonth],
-                      color: context.appColors.primary,
+                      color: context.appColors.ink,
                       // A new month is simply filled, with no stretch.
                       stretches: false,
                       child: Row(
@@ -445,14 +444,11 @@ class _ChevronDisc extends StatelessWidget {
     return Container(
       width: BadgeSize.xs,
       height: BadgeSize.xs,
-      decoration: BoxDecoration(
-        color: colors.onSurface.withValues(alpha: Alpha.faint),
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: colors.card, shape: BoxShape.circle),
       child: Icon(
         icon,
         size: IconSize.md,
-        color: enabled ? colors.onSurface : colors.onSurfaceVariant,
+        color: enabled ? colors.ink : colors.inkMuted,
       ),
     );
   }
@@ -503,18 +499,17 @@ class _MonthPill extends StatelessWidget {
             child: TweenAnimationBuilder<Color?>(
               tween: ColorTween(
                 end: selected
-                    ? colors.onPrimary
-                    : colors.onSurfaceVariant.withValues(
-                        alpha: disabled ? 0.4 : 1,
-                      ),
+                    ? colors.onInk
+                    : colors.inkMuted.withValues(alpha: disabled ? 0.4 : 1),
               ),
               // Changes with the pill, at once.
               duration: Duration.zero,
               builder: (context, color, _) => Text(
                 label,
                 // The selected month is a step larger and bold.
-                style: (selected ? context.bodyMdBold : context.monthPill)
-                    .copyWith(color: color),
+                style: (selected ? context.bodyStrong : context.label).copyWith(
+                  color: color,
+                ),
               ),
             ),
           ),

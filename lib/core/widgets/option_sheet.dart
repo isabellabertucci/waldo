@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/state_style.dart';
 import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/widgets/app_sheet.dart';
 import 'package:waldo/core/widgets/badge_row.dart';
@@ -9,8 +10,7 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/sheet_grabber.dart';
-import 'package:waldo/core/widgets/dashed_border.dart';
-import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/pill_button.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/widgets/heading.dart';
@@ -135,7 +135,7 @@ class _OptionSheetState<T> extends State<OptionSheet<T>> {
           const SizedBox(height: Spacing.lg),
           SizedBox(
             width: double.infinity,
-            child: DashedStitchButton(
+            child: PillButton(
               label: l10n.done,
               onPressed: () {
                 widget.onConfirm(_selected);
@@ -201,7 +201,7 @@ class _SheetShell extends StatelessWidget {
           top: Radius.circular(Rounded.lg),
         ),
         child: DecoratedBox(
-          decoration: BoxDecoration(color: colors.surface),
+          decoration: BoxDecoration(color: colors.sheet),
           child: SafeArea(
             top: false,
             child: Column(
@@ -229,8 +229,8 @@ class _SheetShell extends StatelessWidget {
                                 child: Heading(
                                   child: Text(
                                     title,
-                                    style: context.headlineSmExtraBold.copyWith(
-                                      color: colors.onSurface,
+                                    style: context.titlePage.copyWith(
+                                      color: colors.ink,
                                     ),
                                   ),
                                 ),
@@ -299,99 +299,93 @@ class _OptionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     // Unpicked, the sheet behind the row shows through, as if cut out.
-    final badgeColor = selected ? colors.primary : colors.surface;
+    final badgeColor = selected ? StateStyle.pickedFill(colors) : colors.sheet;
 
     return Semantics(
       button: true,
       selected: isChoice ? selected : null,
       inMutuallyExclusiveGroup: isChoice,
       child: Material(
-        color: colors.surfaceContainer,
-        borderRadius: BorderRadius.circular(Rounded.md),
+        color: colors.card,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Rounded.md),
+          side: StateStyle.picked(colors, selected: selected),
+        ),
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(Rounded.md),
-          // The app's stitch, as on every selected tile.
-          child: DashedBorder(
-            radius: Rounded.md,
-            color: selected ? colors.primary : colors.transparent,
-            child: Padding(
-              padding: const EdgeInsets.all(Spacing.sm),
-              child: BadgeRow(
-                badge: Container(
-                  width: BadgeSize.lg,
-                  height: BadgeSize.lg,
-                  decoration: BoxDecoration(
-                    color: badgeColor,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  // Selected: `onPrimary` on `primary`; unselected: muted on a neutral fill.
-                  // A symbol shrinks to stay inside the disc with large text.
-                  child: symbolText != null
-                      ? FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            symbolText!,
-                            style: context.headlineMdStrong.copyWith(
-                              color: selected
-                                  ? colors.onPrimary
-                                  : colors.onSurfaceVariant,
-                            ),
+          child: Padding(
+            padding: const EdgeInsets.all(Spacing.sm),
+            child: BadgeRow(
+              badge: Container(
+                width: BadgeSize.lg,
+                height: BadgeSize.lg,
+                decoration: BoxDecoration(
+                  color: badgeColor,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                // Selected: `onPrimary` on `primary`; unselected: muted on a neutral fill.
+                // A symbol shrinks to stay inside the disc with large text.
+                child: symbolText != null
+                    ? FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          symbolText!,
+                          style: context.titleCard.copyWith(
+                            color: selected
+                                ? StateStyle.onPickedFill(colors)
+                                : colors.inkMuted,
                           ),
-                        )
-                      : Icon(
-                          icon,
-                          size: IconSize.lg,
-                          color: selected
-                              ? colors.onPrimary
-                              : colors.onSurfaceVariant,
                         ),
-                ),
-                trailing: !isChoice
-                    ? null
-                    : Padding(
-                        padding: const EdgeInsets.only(left: Spacing.sm),
-                        child: selected
-                            ? Container(
-                                width: BadgeSize.xs,
-                                height: BadgeSize.xs,
-                                decoration: BoxDecoration(
-                                  color: colors.primary,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  AppIcons.check,
-                                  size: IconSize.sm,
-                                  color: colors.onPrimary,
-                                ),
-                              )
-                            : Icon(
-                                AppIcons.radioUnselected,
-                                size: BadgeSize.xs,
-                                // An unpicked option's ring: 3:1 for a state (WCAG 1.4.11).
-                                color: colors.onSurfaceVariant,
+                      )
+                    : Icon(
+                        icon,
+                        size: IconSize.lg,
+                        color: selected
+                            ? StateStyle.onPickedFill(colors)
+                            : colors.inkMuted,
+                      ),
+              ),
+              trailing: !isChoice
+                  ? null
+                  : Padding(
+                      padding: const EdgeInsets.only(left: Spacing.sm),
+                      child: selected
+                          ? Container(
+                              width: BadgeSize.xs,
+                              height: BadgeSize.xs,
+                              decoration: BoxDecoration(
+                                color: StateStyle.pickedFill(colors),
+                                shape: BoxShape.circle,
                               ),
-                      ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    WholeWordsText(
-                      label,
-                      style: context.bodyMdBold.copyWith(
-                        color: colors.onSurface,
-                      ),
+                              child: Icon(
+                                AppIcons.check,
+                                size: IconSize.sm,
+                                color: StateStyle.onPickedFill(colors),
+                              ),
+                            )
+                          : Icon(
+                              AppIcons.radioUnselected,
+                              size: BadgeSize.xs,
+                              // An unpicked option's ring: 3:1 for a state (WCAG 1.4.11).
+                              color: colors.inkMuted,
+                            ),
                     ),
-                    if (subtitle != null)
-                      Text(
-                        subtitle!,
-                        style: context.textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                  ],
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WholeWordsText(
+                    label,
+                    style: context.bodyStrong.copyWith(color: colors.ink),
+                  ),
+                  if (subtitle != null)
+                    Text(
+                      subtitle!,
+                      style: context.label.copyWith(color: colors.inkMuted),
+                    ),
+                ],
               ),
             ),
           ),
@@ -413,24 +407,18 @@ class _NoticeBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Spacing.sm),
       decoration: BoxDecoration(
-        color: colors.surfaceContainer,
+        color: colors.card,
         borderRadius: BorderRadius.circular(Rounded.md),
       ),
       // The icon centred on the text, however many lines it runs to.
       child: Row(
         children: [
-          Icon(
-            AppIcons.info,
-            size: IconSize.md,
-            color: colors.onSurfaceVariant,
-          ),
+          Icon(AppIcons.info, size: IconSize.md, color: colors.inkMuted),
           const SizedBox(width: Spacing.xs),
           Expanded(
             child: Text(
               text,
-              style: context.textTheme.bodySmall?.copyWith(
-                color: colors.onSurfaceVariant,
-              ),
+              style: context.label.copyWith(color: colors.inkMuted),
             ),
           ),
         ],

@@ -7,7 +7,6 @@ import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/dynamic_type_scaler.dart';
-import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
@@ -63,7 +62,7 @@ class _AppNavBarState extends State<AppNavBar> {
       ),
     ];
 
-    return SafeArea(
+    final bar = SafeArea(
       minimum: const EdgeInsets.fromLTRB(Spacing.sm, 0, Spacing.sm, Spacing.xs),
       child: MediaQuery.withClampedTextScaling(
         maxScaleFactor: DynamicTypeScaler.barMaxScale,
@@ -73,9 +72,10 @@ class _AppNavBarState extends State<AppNavBar> {
             Container(
               padding: const EdgeInsets.all(Spacing.xs),
               decoration: BoxDecoration(
-                color: colors.surface,
+                color: colors.sheet,
                 borderRadius: BorderRadius.circular(Rounded.pill),
-                boxShadow: Elevation.low,
+                // An outline rather than a shadow, as everything that floats.
+                border: Border.all(color: colors.line),
               ),
               // A tab bar to screen readers, as Flutter's NavigationBar is.
               child: Semantics(
@@ -84,8 +84,7 @@ class _AppNavBarState extends State<AppNavBar> {
                 container: true,
                 child: StretchPill(
                   selectedKey: _tabKeys[currentIndex],
-                  color: colors.primary,
-                  stitchColor: colors.onPrimary,
+                  color: colors.navActive,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -113,6 +112,29 @@ class _AppNavBarState extends State<AppNavBar> {
           ],
         ),
       ),
+    );
+
+    // The page fades out under the bar, no higher than the bar itself, so
+    // rows don't run into it. Behind it and not tappable: a touch beside the
+    // pill still reaches the page.
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [colors.sheet.withValues(alpha: 0), colors.sheet],
+                  stops: const [0, 0.5],
+                ),
+              ),
+            ),
+          ),
+        ),
+        bar,
+      ],
     );
   }
 }
@@ -176,7 +198,7 @@ class AppNavButton extends StatelessWidget {
               children: [
                 TweenAnimationBuilder<Color?>(
                   tween: ColorTween(
-                    end: selected ? colors.onPrimary : colors.onSurfaceVariant,
+                    end: selected ? colors.onNavActive : colors.inkMuted,
                   ),
                   duration: context.motion(Motion.pillLabel),
                   builder: (context, color, _) => Icon(
@@ -205,8 +227,8 @@ class AppNavButton extends StatelessWidget {
                             const SizedBox(width: Spacing.xs),
                             Text(
                               label,
-                              style: context.labelLgBold.copyWith(
-                                color: colors.onPrimary,
+                              style: context.bodyStrong.copyWith(
+                                color: colors.onNavActive,
                               ),
                             ),
                           ],

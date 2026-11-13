@@ -37,7 +37,7 @@ void main() {
     return results;
   }
 
-  testWidgets('Shows the title, the item and a countdown from 5', (
+  testWidgets('Shows the title, the item and a countdown from 10', (
     tester,
   ) async {
     await pumpHost(tester);
@@ -47,11 +47,11 @@ void main() {
 
     expect(find.text('Wallet deleted'), findsOneWidget);
     expect(find.text('Index funds'), findsOneWidget);
-    expect(find.text('5'), findsOneWidget);
+    expect(find.text('10'), findsOneWidget);
 
     await tester.pump(const Duration(seconds: 2));
-    expect(find.text('3'), findsOneWidget);
-    await tester.pump(const Duration(seconds: 4));
+    expect(find.text('8'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 9));
     await tester.pumpAndSettle();
   });
 
@@ -69,7 +69,7 @@ void main() {
       isSemantics(label: 'Undo', isButton: true, hasTapAction: true),
     );
 
-    await tester.pump(const Duration(seconds: 6));
+    await tester.pump(const Duration(seconds: 11));
     await tester.pumpAndSettle();
     semantics.dispose();
   });
@@ -94,14 +94,14 @@ void main() {
     expect(find.text('Wallet restored'), findsNothing);
   });
 
-  testWidgets('Without Undo, completes with false after 5 seconds', (
+  testWidgets('Without Undo, completes with false after 10 seconds', (
     tester,
   ) async {
     await pumpHost(tester);
     final results = show('Index funds');
     await tester.pump();
 
-    await tester.pump(const Duration(seconds: 4));
+    await tester.pump(const Duration(seconds: 9));
     expect(results, isEmpty);
 
     await tester.pump(const Duration(seconds: 1, milliseconds: 100));
@@ -112,7 +112,7 @@ void main() {
 
   testWidgets('With a screen reader on, the bar waits for Undo instead of '
       'timing out', (tester) async {
-    // VoiceOver or TalkBack: reaching the Undo button takes longer than 5 s.
+    // VoiceOver or TalkBack: reaching the Undo button takes longer than 10 s.
     tester.platformDispatcher.accessibilityFeaturesTestValue =
         const FakeAccessibilityFeatures(accessibleNavigation: true);
     addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
@@ -123,7 +123,7 @@ void main() {
     await tester.pump(const Duration(seconds: 30));
     expect(results, isEmpty);
     expect(find.text('Wallet deleted'), findsOneWidget);
-    expect(find.text('5'), findsNothing, reason: 'no clock while it waits');
+    expect(find.text('10'), findsNothing, reason: 'no clock while it waits');
 
     await tester.tap(find.text('Undo'));
     await tester.pumpAndSettle();
@@ -145,9 +145,9 @@ void main() {
     expect(first, [false]);
     expect(second, isEmpty);
     expect(find.text('Pocket cash'), findsOneWidget);
-    expect(find.text('5'), findsOneWidget);
+    expect(find.text('10'), findsOneWidget);
 
-    await tester.pump(const Duration(seconds: 6));
+    await tester.pump(const Duration(seconds: 11));
     await tester.pumpAndSettle();
     expect(second, [false]);
   });
@@ -166,9 +166,9 @@ void main() {
 
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pump();
-    expect(find.text('3'), findsOneWidget);
+    expect(find.text('8'), findsOneWidget);
 
-    await tester.pump(const Duration(seconds: 4));
+    await tester.pump(const Duration(seconds: 9));
     await tester.pumpAndSettle();
     expect(results, [false]);
   });

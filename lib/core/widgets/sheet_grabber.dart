@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
@@ -15,7 +14,7 @@ class SheetGrabber extends StatelessWidget {
         width: ComponentSize.grabber.width,
         height: ComponentSize.grabber.height,
         decoration: BoxDecoration(
-          color: context.appColors.onSurface.withValues(alpha: Alpha.soft),
+          color: context.appColors.line,
           borderRadius: BorderRadius.circular(Rounded.pill),
         ),
       ),

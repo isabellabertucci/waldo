@@ -46,11 +46,11 @@ void main() {
     await tester.pump();
     await tester.pump(Motion.pillStretch ~/ 2);
     // Mid-way both names show, part open.
-    expect(find.text('Dashboard'), findsOneWidget);
+    expect(find.text('Home'), findsOneWidget);
     expect(find.text('Wallets'), findsOneWidget);
 
     await tester.pumpAndSettle();
-    expect(find.text('Dashboard'), findsNothing);
+    expect(find.text('Home'), findsNothing);
     expect(find.text('Wallets'), findsOneWidget);
     // Read while the tab was still growing, so it fits it exactly.
     expect(paintedStretchPill(tester), tabRect(tester, 1));

@@ -29,24 +29,20 @@ class EmptyState extends StatelessWidget {
             Icon(
               icon,
               size: IconSize.hero,
-              color: colors.onSurfaceVariant.withValues(alpha: Alpha.muted),
+              color: colors.inkMuted.withValues(alpha: Alpha.muted),
             ),
             const SizedBox(height: Spacing.sm),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: context.textTheme.titleMedium?.copyWith(
-                color: colors.onSurfaceVariant,
-              ),
+              style: context.titleCard.copyWith(color: colors.inkMuted),
             ),
             if (subtitle != null) ...[
               const SizedBox(height: Spacing.xs),
               Text(
                 subtitle!,
                 textAlign: TextAlign.center,
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
+                style: context.body.copyWith(color: colors.inkMuted),
               ),
             ],
           ],

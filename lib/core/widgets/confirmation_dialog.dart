@@ -6,15 +6,9 @@ import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/core/widgets/dashed_circle_badge.dart';
-import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/tinted_circle_badge.dart';
+import 'package:waldo/core/widgets/pill_button.dart';
 import 'package:waldo/l10n/app_localizations.dart';
-
-/// Room for "Cancelar" and "Descartar" side by side, at a 48px height.
-const _buttonPadding = EdgeInsets.symmetric(
-  horizontal: Spacing.xs,
-  vertical: Spacing.sm,
-);
 
 class ConfirmationDialog extends StatelessWidget {
   const ConfirmationDialog({
@@ -57,21 +51,18 @@ class ConfirmationDialog extends StatelessWidget {
     final colors = context.appColors;
     // Every confirmation here loses something (a delete, unsaved changes),
     // so it's always the error orange.
-    final accent = colors.error;
+    final accent = colors.negative;
     // As Flutter's AlertDialog: Android announces it as an alert; iOS lands
     // on the title.
-    final cancel = DashedStitchButton(
-      variant: StitchVariant.secondary,
+    // The same buttons as everywhere: no size or type of their own.
+    final cancel = PillButton(
+      variant: PillButtonVariant.secondary,
       label: l10n.cancel,
-      labelStyle: context.bodyMdBold,
-      padding: _buttonPadding,
       onPressed: () => Navigator.of(context).pop(false),
     );
-    final confirm = DashedStitchButton(
-      variant: StitchVariant.destructive,
+    final confirm = PillButton(
+      variant: PillButtonVariant.destructive,
       label: confirmLabel,
-      labelStyle: context.bodyMdBold,
-      padding: _buttonPadding,
       onPressed: () => Navigator.of(context).pop(true),
     );
     final routeLabel = switch (defaultTargetPlatform) {
@@ -80,7 +71,7 @@ class ConfirmationDialog extends StatelessWidget {
     };
 
     return Dialog(
-      backgroundColor: colors.surface,
+      backgroundColor: colors.sheet,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Rounded.lg),
       ),
@@ -96,25 +87,21 @@ class ConfirmationDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              DashedCircleBadge(icon: icon, color: accent),
+              TintedCircleBadge(icon: icon, color: accent),
               const SizedBox(height: Spacing.sm),
               Semantics(
                 container: true,
                 child: WholeWordsText(
                   title,
                   textAlign: TextAlign.center,
-                  style: context.headlineSmExtraBold.copyWith(
-                    color: colors.onSurface,
-                  ),
+                  style: context.titlePage.copyWith(color: colors.ink),
                 ),
               ),
               const SizedBox(height: Spacing.xs),
               WholeWordsText(
                 content,
                 textAlign: TextAlign.center,
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
+                style: context.body.copyWith(color: colors.inkMuted),
               ),
               const SizedBox(height: Spacing.lg),
               // One button in two variants, so they match in size. At

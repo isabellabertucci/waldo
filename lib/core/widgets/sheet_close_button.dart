@@ -18,7 +18,7 @@ class SheetCloseButton extends StatelessWidget {
       child: Icon(
         AppIcons.close,
         size: IconSize.lg,
-        color: context.appColors.onSurface,
+        color: context.appColors.ink,
       ),
     );
   }

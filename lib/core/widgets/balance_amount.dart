@@ -12,6 +12,7 @@ class BalanceAmount extends StatelessWidget {
     required this.hidden,
     required this.style,
     this.alignment = AlignmentDirectional.centerStart,
+    this.richAmount,
   });
 
   /// The formatted balance, shown when not [hidden].
@@ -22,6 +23,9 @@ class BalanceAmount extends StatelessWidget {
   /// The side the amount sits on in its line, so the amount and the dots
   /// animate there instead of jumping over when they settle.
   final AlignmentDirectional alignment;
+
+  /// [amount] in styled parts (the hero's muted cents), shown instead of it.
+  final InlineSpan? richAmount;
 
   @override
   Widget build(BuildContext context) {
@@ -54,11 +58,18 @@ class BalanceAmount extends StatelessWidget {
         },
         // Only one is in the tree once it settles, so a screen reader never
         // reads a hidden balance.
-        child: Text(
-          hidden ? hiddenAmount : amount,
-          key: ValueKey(hidden),
-          style: style,
-        ),
+        child: hidden || richAmount == null
+            ? Text(
+                hidden ? hiddenAmount : amount,
+                key: ValueKey(hidden),
+                style: style,
+              )
+            : Text.rich(
+                richAmount!,
+                key: ValueKey(hidden),
+                style: style,
+                semanticsLabel: amount,
+              ),
       ),
     );
   }
