@@ -16,21 +16,20 @@ class AppTheme {
         : const ColorScheme.light();
 
     final colorScheme = baseScheme.copyWith(
-      primary: colors.primary,
-      onPrimary: colors.onPrimary,
-      primaryContainer: colors.primaryContainer,
-      // The container is near-white in both themes, so it pairs with `onSurface`.
-      onPrimaryContainer: colors.onSurface,
-      onSurfaceVariant: colors.onSurfaceVariant,
-      error: colors.error,
+      primary: colors.ink,
+      onPrimary: colors.onInk,
+      primaryContainer: colors.card,
+      onPrimaryContainer: colors.ink,
+      onSurfaceVariant: colors.inkMuted,
+      error: colors.negative,
       // `onPrimary` already contrasts with `error` in both themes.
-      onError: colors.onPrimary,
-      surface: colors.surface,
-      onSurface: colors.onSurface,
-      surfaceContainer: colors.surfaceContainer,
-      outline: colors.fieldBorder,
+      onError: colors.onInk,
+      surface: colors.sheet,
+      onSurface: colors.ink,
+      surfaceContainer: colors.bg,
+      outline: colors.line,
       // Material 3 tints elevated surfaces toward `primary` by default;
-      // Waldo's surfaces are flat ink/cream with no such tint anywhere.
+      // Waldo's surfaces are flat, with no such tint anywhere.
       surfaceTint: colors.transparent,
     );
 
@@ -51,10 +50,10 @@ class AppTheme {
       colorScheme: colorScheme,
       textTheme: textTheme,
       useMaterial3: true,
-      scaffoldBackgroundColor: colors.surfaceContainer,
+      scaffoldBackgroundColor: colors.bg,
       extensions: [colors],
 
-      appBarTheme: Common.getAppBarTheme(colors),
+      appBarTheme: Common.getAppBarTheme(colors, brightness),
       floatingActionButtonTheme: Common.getFloatingActionButtonTheme(colors),
       cardTheme: Common.getCardTheme(colors),
       dialogTheme: Common.getDialogTheme(colors),
@@ -68,97 +67,107 @@ class AppTheme {
     );
   }
 
-  /// Headlines w500 at -2% tracking, body w400 at -0.5%, labels w500 at -3%.
+  /// The design system's type scale (DESIGN.md "Typography"): one family,
+  /// the hierarchy from size and weight alone.
   static TextTheme _applyTypeScale(TextTheme base) {
-    TextStyle? display(TextStyle? style) =>
-        _tracked(style, FontWeight.w500, -0.02);
-    TextStyle? body(TextStyle? style) =>
-        _tracked(style, FontWeight.w400, -0.005);
-    TextStyle? label(TextStyle? style) =>
-        _tracked(style, FontWeight.w500, -0.03);
+    TextStyle? style(
+      TextStyle? from,
+      double size,
+      double lineHeight,
+      FontWeight weight, [
+      double trackingEm = 0,
+    ]) => from?.copyWith(
+      fontSize: size,
+      height: lineHeight / size,
+      fontWeight: weight,
+      letterSpacing: size * trackingEm,
+    );
 
     return base.copyWith(
-      displayLarge: display(base.displayLarge),
-      displayMedium: display(base.displayMedium),
-      displaySmall: display(base.displaySmall),
-      headlineLarge: display(base.headlineLarge),
-      headlineMedium: display(base.headlineMedium),
-      headlineSmall: display(base.headlineSmall),
-      titleLarge: display(base.titleLarge),
-      titleMedium: display(base.titleMedium),
-      titleSmall: display(base.titleSmall),
-      bodyLarge: body(base.bodyLarge),
-      bodyMedium: body(base.bodyMedium),
-      bodySmall: body(base.bodySmall),
-      labelLarge: label(base.labelLarge),
-      labelMedium: label(base.labelMedium),
-      labelSmall: label(base.labelSmall),
-    );
-  }
-
-  static TextStyle? _tracked(
-    TextStyle? style,
-    FontWeight weight,
-    double trackingRatio,
-  ) {
-    if (style == null) return null;
-    final fontSize = style.fontSize ?? 14;
-    return style.copyWith(
-      fontWeight: weight,
-      letterSpacing: fontSize * trackingRatio,
+      // `amount-hero`: the larger displays only ever show an amount.
+      displayLarge: style(base.displayLarge, 32, 38, FontWeight.w700, -0.03),
+      displayMedium: style(base.displayMedium, 32, 38, FontWeight.w700, -0.03),
+      displaySmall: style(base.displaySmall, 32, 38, FontWeight.w700, -0.03),
+      headlineLarge: style(base.headlineLarge, 32, 38, FontWeight.w700, -0.03),
+      headlineMedium: style(
+        base.headlineMedium,
+        32,
+        38,
+        FontWeight.w700,
+        -0.03,
+      ),
+      // `title-page`
+      headlineSmall: style(base.headlineSmall, 28, 34, FontWeight.w700, -0.02),
+      // `title-section`
+      titleLarge: style(base.titleLarge, 20, 26, FontWeight.w700, -0.01),
+      // `title-card`
+      titleMedium: style(base.titleMedium, 16, 22, FontWeight.w600),
+      // `body-strong`
+      titleSmall: style(base.titleSmall, 15, 20, FontWeight.w600),
+      // `body`
+      bodyLarge: style(base.bodyLarge, 15, 20, FontWeight.w500),
+      bodyMedium: style(base.bodyMedium, 15, 20, FontWeight.w500),
+      // `label`
+      bodySmall: style(base.bodySmall, 13, 18, FontWeight.w500),
+      // `body-strong`: buttons
+      labelLarge: style(base.labelLarge, 15, 20, FontWeight.w600),
+      // `label`
+      labelMedium: style(base.labelMedium, 13, 18, FontWeight.w500),
+      // `caption`
+      labelSmall: style(base.labelSmall, 12, 16, FontWeight.w500),
     );
   }
 }
 
 /// The DESIGN.md emphasis tokens. Defined on [TextTheme] so component themes,
 /// which have no `context`, share them; widgets use the [ThemeContext] getters.
+/// A weight suffix always means the same: Strong w600, Bold w700,
+/// ExtraBold w800, Black w900.
 extension AppTextStyles on TextTheme {
-  /// `body-md`, semibold (w600).
-  TextStyle get bodyMdStrong =>
-      bodyMedium!.copyWith(fontWeight: FontWeight.w600);
+  /// `amount-hero`: the total balance only. Every amount style has tabular
+  /// figures, so digits line up and don't jiggle as they change.
+  TextStyle get amountHero => headlineMedium!.copyWith(fontFeatures: _tabular);
 
-  /// `body-md`, bold (w700) - the most common emphasis step.
-  TextStyle get bodyMdBold => bodyMedium!.copyWith(fontWeight: FontWeight.w700);
+  /// `amount-wallet`: a balance inside a wallet - never larger, so it
+  /// doesn't compete with the total.
+  TextStyle get amountWallet => titleLarge!.copyWith(
+    letterSpacing: titleLarge!.fontSize! * -0.02,
+    fontFeatures: _tabular,
+  );
 
-  /// `body-sm`, bold - a caption that still needs to read as a value, not
-  /// just muted metadata (e.g. a stat card's small bold figure).
-  TextStyle get bodySmBold => bodySmall!.copyWith(fontWeight: FontWeight.w700);
+  /// `amount-row`: an amount in a list row.
+  TextStyle get amountRow => titleSmall!.copyWith(fontFeatures: _tabular);
 
-  /// `label-lg` pushed to bold - transaction amounts, confirm buttons, and
-  /// other labels that need to visually win their row.
-  TextStyle get labelLgStrong =>
-      labelLarge!.copyWith(fontWeight: FontWeight.w700);
+  /// `title-page`: a page without a balance on top (Settings).
+  TextStyle get titlePage => headlineSmall!;
 
-  /// `label-sm`, bold - a small label that still needs emphasis (distinct
-  /// from [labelXs], which is specifically the uppercase eyebrow style).
-  TextStyle get labelSmBold =>
-      labelSmall!.copyWith(fontWeight: FontWeight.w700);
+  /// `title-section`: every section, never mixed with another size.
+  TextStyle get titleSection => titleLarge!;
 
-  /// `headline-md` pushed one step, semibold - section headers within a
-  /// screen (e.g. "Recent transactions", "Cash flow").
-  TextStyle get headlineMdStrong =>
-      titleMedium!.copyWith(fontWeight: FontWeight.w600);
+  /// `title-card`: a title inside a card.
+  TextStyle get titleCard => titleMedium!;
 
-  /// `headline-lg` pushed to extra-bold - the most common "screen/sheet
-  /// title" weight: dialog titles, form sheet headers, card titles.
-  TextStyle get headlineLgStrong =>
-      titleLarge!.copyWith(fontWeight: FontWeight.w800);
+  /// `body`: running text - a note, a field's value, a message.
+  TextStyle get body => bodyMedium!;
 
-  /// `headlineSmall`, extra-bold - an alternate large title.
-  TextStyle get headlineSmBold =>
-      headlineSmall!.copyWith(fontWeight: FontWeight.w800);
+  /// `body-strong`: a list row's name.
+  TextStyle get bodyStrong => titleSmall!;
 
-  /// `headlineMedium`, extra-bold - the amount being edited.
-  TextStyle get amountDisplayBold =>
-      headlineMedium!.copyWith(fontWeight: FontWeight.w800);
+  /// `label`: labels and secondary text.
+  TextStyle get label => bodySmall!;
 
-  /// `headlineMedium`, black (w900) - the dashboard's total balance.
-  TextStyle get headlineDisplayStrong =>
-      headlineMedium!.copyWith(fontWeight: FontWeight.w900);
+  /// `caption`
+  TextStyle get caption => labelSmall!;
 
-  /// A small uppercase eyebrow label. Callers upper-case the text themselves.
-  TextStyle get labelXs =>
-      labelSmall!.copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.4);
+  /// `overline`: a group header ("TODAY", "8 NOV."). Callers upper-case it.
+  TextStyle get overline => labelSmall!.copyWith(
+    fontSize: 11,
+    height: 14 / 11,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 11 * 0.1,
+  );
+
+  static const _tabular = [FontFeature.tabularFigures()];
 }
 
 extension ThemeContext on BuildContext {
@@ -166,15 +175,24 @@ extension ThemeContext on BuildContext {
 
   TextTheme get textTheme => Theme.of(this).textTheme;
 
-  TextStyle get bodyMdStrong => textTheme.bodyMdStrong;
-  TextStyle get bodyMdBold => textTheme.bodyMdBold;
-  TextStyle get bodySmBold => textTheme.bodySmBold;
-  TextStyle get labelLgStrong => textTheme.labelLgStrong;
-  TextStyle get labelSmBold => textTheme.labelSmBold;
-  TextStyle get headlineMdStrong => textTheme.headlineMdStrong;
-  TextStyle get headlineLgStrong => textTheme.headlineLgStrong;
-  TextStyle get headlineSmBold => textTheme.headlineSmBold;
-  TextStyle get amountDisplayBold => textTheme.amountDisplayBold;
-  TextStyle get headlineDisplayStrong => textTheme.headlineDisplayStrong;
-  TextStyle get labelXs => textTheme.labelXs;
+  /// The style a [Text] with [style] draws in: the inherited default plus
+  /// [style], bold when the user turns on Bold Text, as [Text] does.
+  TextStyle effectiveTextStyle(TextStyle? style) {
+    final resolved = DefaultTextStyle.of(this).style.merge(style);
+    return MediaQuery.boldTextOf(this)
+        ? resolved.merge(const TextStyle(fontWeight: FontWeight.bold))
+        : resolved;
+  }
+
+  TextStyle get amountHero => textTheme.amountHero;
+  TextStyle get amountWallet => textTheme.amountWallet;
+  TextStyle get amountRow => textTheme.amountRow;
+  TextStyle get titlePage => textTheme.titlePage;
+  TextStyle get titleSection => textTheme.titleSection;
+  TextStyle get titleCard => textTheme.titleCard;
+  TextStyle get body => textTheme.body;
+  TextStyle get bodyStrong => textTheme.bodyStrong;
+  TextStyle get label => textTheme.label;
+  TextStyle get caption => textTheme.caption;
+  TextStyle get overline => textTheme.overline;
 }

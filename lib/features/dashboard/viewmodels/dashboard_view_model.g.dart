@@ -9,17 +9,17 @@ part of 'dashboard_view_model.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// The month the dashboard is currently showing stats for. Defaults to the
-/// current month; changeable via the month picker in the dashboard's app bar.
+/// current month; changeable via the month row at the top of the dashboard.
 
 @ProviderFor(SelectedDashboardMonth)
 const selectedDashboardMonthProvider = SelectedDashboardMonthProvider._();
 
 /// The month the dashboard is currently showing stats for. Defaults to the
-/// current month; changeable via the month picker in the dashboard's app bar.
+/// current month; changeable via the month row at the top of the dashboard.
 final class SelectedDashboardMonthProvider
     extends $NotifierProvider<SelectedDashboardMonth, DateTime> {
   /// The month the dashboard is currently showing stats for. Defaults to the
-  /// current month; changeable via the month picker in the dashboard's app bar.
+  /// current month; changeable via the month row at the top of the dashboard.
   const SelectedDashboardMonthProvider._()
     : super(
         from: null,
@@ -51,7 +51,7 @@ String _$selectedDashboardMonthHash() =>
     r'd5019b5c2c704cac325a1dff9de2e6866455aeaa';
 
 /// The month the dashboard is currently showing stats for. Defaults to the
-/// current month; changeable via the month picker in the dashboard's app bar.
+/// current month; changeable via the month row at the top of the dashboard.
 
 abstract class _$SelectedDashboardMonth extends $Notifier<DateTime> {
   DateTime build();
@@ -97,7 +97,7 @@ final class DashboardViewModelProvider
 }
 
 String _$dashboardViewModelHash() =>
-    r'15059c012a8e372cf0438a4616e95e128c013d94';
+    r'a3e655a5cf0b427ee5d201906313af74ae8e8ec1';
 
 abstract class _$DashboardViewModel extends $AsyncNotifier<DashboardData> {
   FutureOr<DashboardData> build();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/stitch.dart';
 import 'package:waldo/core/utils/dash_path.dart';
 
 /// Waldo's stitch: a dashed outline around [child], following [radius].
@@ -8,41 +9,27 @@ class DashedBorder extends StatelessWidget {
     required this.child,
     required this.radius,
     required this.color,
-    this.strokeWidth = 1.5,
   });
 
   final Widget child;
   final double radius;
   final Color color;
-  final double strokeWidth;
 
   @override
   Widget build(BuildContext context) {
     // Painted over the child and outside layout, so toggling it never shifts content.
     return CustomPaint(
-      foregroundPainter: _DashedRRectPainter(
-        color: color,
-        radius: radius,
-        strokeWidth: strokeWidth,
-      ),
+      foregroundPainter: _DashedRRectPainter(color: color, radius: radius),
       child: child,
     );
   }
 }
 
 class _DashedRRectPainter extends CustomPainter {
-  const _DashedRRectPainter({
-    required this.color,
-    required this.radius,
-    required this.strokeWidth,
-  });
+  const _DashedRRectPainter({required this.color, required this.radius});
 
   final Color color;
   final double radius;
-  final double strokeWidth;
-
-  static const _dashLength = 4.0;
-  static const _gapLength = 3.0;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -50,25 +37,16 @@ class _DashedRRectPainter extends CustomPainter {
     final rrect = RRect.fromRectAndRadius(
       Offset.zero & size,
       Radius.circular(radius),
-    ).deflate(strokeWidth / 2);
+    ).deflate(Stitch.width / 2);
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth;
+      ..strokeWidth = Stitch.width;
 
-    canvas.drawPath(
-      dashPath(
-        Path()..addRRect(rrect),
-        dashLength: _dashLength,
-        gapLength: _gapLength,
-      ),
-      paint,
-    );
+    canvas.drawPath(dashPath(Path()..addRRect(rrect), Stitch.regular), paint);
   }
 
   @override
   bool shouldRepaint(covariant _DashedRRectPainter oldDelegate) =>
-      color != oldDelegate.color ||
-      radius != oldDelegate.radius ||
-      strokeWidth != oldDelegate.strokeWidth;
+      color != oldDelegate.color || radius != oldDelegate.radius;
 }

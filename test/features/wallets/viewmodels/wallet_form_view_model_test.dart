@@ -5,6 +5,7 @@ import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
+import 'package:waldo/features/wallets/viewmodels/just_added_wallet.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_form_view_model.dart';
 
 class MockWalletRepository extends Mock implements IWalletRepository {}
@@ -75,6 +76,10 @@ void main() {
       '2026-10-13T09:30:00.000',
       reason: 'stamped by the clock',
     );
+    // Home drops the new wallet's card into the pouch.
+    for (final landing in WalletLanding.values) {
+      expect(container.read(justAddedWalletProvider(landing)), 1);
+    }
   });
 
   test(
@@ -146,5 +151,12 @@ void main() {
     expect(success, isTrue);
     verify(() => mockRepo.update(any())).called(1);
     verifyNever(() => mockRepo.insert(any()));
+    for (final landing in WalletLanding.values) {
+      expect(
+        container.read(justAddedWalletProvider(landing)),
+        isNull,
+        reason: 'no landing',
+      );
+    }
   });
 }

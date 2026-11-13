@@ -1,5 +1,8 @@
 enum WalletType { checking, savings, cash, credit, investment }
 
+/// A wallet's leather, picked when it's made (DESIGN.md "Wallets").
+enum LeatherFinish { black, yellow, green, white }
+
 enum TransactionType { income, expense }
 
 enum CategoryType {

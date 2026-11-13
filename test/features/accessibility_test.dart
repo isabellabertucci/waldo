@@ -1,19 +1,20 @@
 import 'dart:ui' show CheckedState, SemanticsRole, Tristate;
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:waldo/features/dashboard/ui/widgets/cash_flow_card.dart';
+import 'package:waldo/core/widgets/cash_flow_card.dart';
 import 'package:waldo/features/dashboard/models/dashboard_data.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:waldo/core/widgets/option_sheet.dart';
+import 'package:waldo/features/transactions/ui/widgets/transaction_row.dart';
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/features/wallets/ui/widgets/wallet_form_sheet.dart';
-import 'package:waldo/features/transactions/ui/widgets/transaction_filter_sheet.dart';
-import 'package:waldo/features/transactions/models/transaction_filter.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
-import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/features/categories/models/category.dart';
+import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/categories/ui/categories_screen.dart';
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
 import 'package:waldo/features/settings/ui/settings_screen.dart';
@@ -112,19 +113,31 @@ void main() {
     });
   }
 
-  testWidgets('The selected category chip is read as selected', (tester) async {
+  testWidgets('The picked category is read as selected in its picker', (
+    tester,
+  ) async {
     final semantics = tester.ensureSemantics();
     await pumpSheet(tester, (context, _) => showTransactionFormSheet(context));
 
-    await tester.tap(find.text('Groceries'));
+    final row = find.byKey(const Key('transactionCategoryField'));
+    // In the picker, not the recent-category chips over the card.
+    Finder inPicker(String text) => find.descendant(
+      of: find.byWidgetPredicate((w) => w is OptionSheet),
+      matching: find.text(text),
+    );
+    await tester.tap(row);
+    await tester.pumpAndSettle();
+    await tester.tap(inPicker('Groceries'));
+    await tester.pumpAndSettle();
+    await tester.tap(row);
     await tester.pumpAndSettle();
 
     expect(
-      tester.getSemantics(find.text('Groceries')),
+      tester.getSemantics(inPicker('Groceries')),
       isSemantics(isButton: true, isSelected: true),
     );
     expect(
-      tester.getSemantics(find.text('Education')),
+      tester.getSemantics(inPicker('Education')),
       isSemantics(isButton: true, isSelected: false),
     );
     semantics.dispose();
@@ -144,11 +157,11 @@ void main() {
     final db = await createTestDatabase();
     addTearDown(db.close);
     await pumpWidgetWithProviders(tester, const WalletsScreen(), db: db);
-    await tester.tap(find.byType(DashedStitchButton));
+    await tester.tap(find.byKey(const Key('newWalletAction')));
     await tester.pumpAndSettle();
 
     expectNamed(tester, 'walletNameField', 'Name, required');
-    expectNamed(tester, 'walletBalanceField', 'How much is in it today?');
+    expectNamed(tester, 'walletBalanceField', 'Starting balance');
     semantics.dispose();
   });
 
@@ -180,6 +193,8 @@ void main() {
     final semantics = tester.ensureSemantics();
     await pumpSheet(tester, sheets['transaction edit sheet']!);
 
+    // As in the new-transaction sheet: the same card.
+    expectNamed(tester, 'txAmountField', 'Amount, required');
     expectNamed(tester, 'txNameField', 'Title');
     expectNamed(tester, 'txNoteField', 'Note');
     // An empty note gives an example, not its label again.
@@ -246,7 +261,7 @@ void main() {
     await seedGoldenData(db);
     await pumpWidgetWithProviders(tester, const DashboardScreen(), db: db);
 
-    for (final title in ['Recent transactions', 'Cash flow']) {
+    for (final title in ['Your wallets', 'Cash flow', 'Transactions']) {
       expect(
         tester.getSemantics(find.text(title)),
         isSemantics(label: title, isHeader: true),
@@ -279,7 +294,7 @@ void main() {
     );
 
     for (final (screen, title) in [
-      (const WalletsScreen(), 'Wallets'),
+      (const WalletsScreen(), 'Your wallets'),
       (const SettingsScreen(), 'Settings'),
       (const CategoriesScreen(), 'Categories'),
       (TransactionsScreen(walletId: wallet.id!), wallet.name),
@@ -291,23 +306,6 @@ void main() {
         tester.getSemantics(find.text(title).first),
         isSemantics(label: title, isHeader: true),
         reason: title,
-      );
-    }
-    semantics.dispose();
-  });
-
-  testWidgets('Settings group names are headings', (tester) async {
-    final semantics = tester.ensureSemantics();
-    tester.view.physicalSize = const Size(402, 1400);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    final db = await pumpWidgetWithProviders(tester, const SettingsScreen());
-    addTearDown(db.close);
-
-    for (final group in ['MONEY', 'APPEARANCE']) {
-      expect(
-        tester.getSemantics(find.text(group)),
-        isSemantics(label: group, isHeader: true),
       );
     }
     semantics.dispose();
@@ -328,7 +326,7 @@ void main() {
       <String, (void Function(BuildContext, Transaction), List<String>)>{
         'new transaction sheet': (
           sheets['new transaction sheet']!,
-          ['New transaction', 'CATEGORY'],
+          ['New transaction'],
         ),
         'transaction edit sheet': (
           sheets['transaction edit sheet']!,
@@ -336,19 +334,7 @@ void main() {
         ),
         'new wallet sheet': (
           (context, _) => showWalletFormSheet(context),
-          ['New wallet', 'TYPE', 'STARTING BALANCE'],
-        ),
-        'filter sheet': (
-          (context, _) => showModalBottomSheet<void>(
-            context: context,
-            builder: (_) => TransactionFilterSheet(
-              initial: TransactionFilter(month: DateTime(2026, 10)),
-              locale: 'en',
-              now: DateTime(2026, 10, 22),
-              countForFilter: (_) => 0,
-            ),
-          ),
-          ['Filter', 'TYPE', 'MONTH'],
+          ['New wallet', 'Type', 'Leather colour'],
         ),
       };
   for (final MapEntry(key: name, value: (open, headings))
@@ -363,17 +349,6 @@ void main() {
       semantics.dispose();
     });
   }
-
-  testWidgets('"Optional" is read with its section heading', (tester) async {
-    final semantics = tester.ensureSemantics();
-    await pumpSheet(tester, (context, _) => showWalletFormSheet(context));
-
-    expect(
-      tester.getSemantics(find.text('STARTING BALANCE')).label,
-      'STARTING BALANCE\nOptional',
-    );
-    semantics.dispose();
-  });
 
   testWidgets('The detail title is one heading with its category and type', (
     tester,
@@ -435,19 +410,6 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('The amount editor title is a heading', (tester) async {
-    final semantics = tester.ensureSemantics();
-    await pumpSheet(tester, sheets['transaction edit sheet']!);
-    await tester.tap(find.byKey(const Key('txAmountField')));
-    await tester.pumpAndSettle();
-
-    expect(
-      tester.getSemantics(find.text('Amount')),
-      isSemantics(label: 'Amount', isHeader: true),
-    );
-    semantics.dispose();
-  });
-
   /// Read like Flutter's single-select SegmentedButton: a button, its
   /// selected state, one choice of a group.
   void expectSingleChoice(WidgetTester tester, String label, bool selected) {
@@ -463,36 +425,6 @@ void main() {
     );
   }
 
-  testWidgets('The filter type options are single-choice buttons', (
-    tester,
-  ) async {
-    final semantics = tester.ensureSemantics();
-    await pumpSheet(tester, sheetHeadings['filter sheet']!.$1);
-
-    expectSingleChoice(tester, 'All', true);
-    expectSingleChoice(tester, 'Income', false);
-    expectSingleChoice(tester, 'Expense', false);
-    expectSingleChoice(tester, 'October', true);
-    semantics.dispose();
-  });
-
-  testWidgets('The expense/income toggles are single-choice buttons', (
-    tester,
-  ) async {
-    final semantics = tester.ensureSemantics();
-    tester.view.physicalSize = const Size(402, 3000);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    final db = await createTestDatabase();
-    addTearDown(db.close);
-    await seedGoldenData(db);
-    // The cash flow card's toggle.
-    await pumpWidgetWithProviders(tester, const DashboardScreen(), db: db);
-    expectSingleChoice(tester, 'Expense', true);
-    expectSingleChoice(tester, 'Income', false);
-    semantics.dispose();
-  });
-
   testWidgets('The new transaction type toggle is single-choice', (
     tester,
   ) async {
@@ -504,8 +436,8 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('A wallet card and its menu are buttons, the menu named by '
-      'its wallet', (tester) async {
+  testWidgets('A wallet row is a button that edits or deletes on a long '
+      'press', (tester) async {
     final semantics = tester.ensureSemantics();
     final db = await createTestDatabase();
     addTearDown(db.close);
@@ -514,16 +446,17 @@ void main() {
 
     expect(
       tester.getSemantics(find.text('Everyday')),
-      isSemantics(isButton: true),
-    );
-    expect(
-      tester.getSemantics(find.byTooltip('Everyday options')),
-      isSemantics(isButton: true, tooltip: 'Everyday options'),
+      isSemantics(
+        isButton: true,
+        hasTapAction: true,
+        hasLongPressAction: true,
+        onLongPressHint: 'edit or delete',
+      ),
     );
     semantics.dispose();
   });
 
-  testWidgets('A transaction row menu is named by its transaction', (
+  testWidgets('A transaction row is a button with a long-press hint', (
     tester,
   ) async {
     final semantics = tester.ensureSemantics();
@@ -538,8 +471,18 @@ void main() {
 
     for (final title in ['Weekly groceries', 'Paycheck']) {
       expect(
-        tester.getSemantics(find.byTooltip('$title options')),
-        isSemantics(isButton: true, tooltip: '$title options'),
+        tester.getSemantics(
+          find.ancestor(
+            of: find.text(title),
+            matching: find.byType(TransactionRow),
+          ),
+        ),
+        isSemantics(
+          isButton: true,
+          hasTapAction: true,
+          hasLongPressAction: true,
+          onLongPressHint: 'edit or delete',
+        ),
       );
     }
     semantics.dispose();
@@ -578,7 +521,6 @@ void main() {
     for (final MapEntry(key: name, value: open) in {
       ...sheets,
       'new wallet sheet': sheetHeadings['new wallet sheet']!.$1,
-      'filter sheet': sheetHeadings['filter sheet']!.$1,
     }.entries) {
       testWidgets('In the $name, $check', (tester) async {
         final semantics = tester.ensureSemantics();
@@ -616,7 +558,6 @@ void main() {
   for (final MapEntry(key: name, value: open) in {
     ...sheets,
     'new wallet sheet': sheetHeadings['new wallet sheet']!.$1,
-    'filter sheet': sheetHeadings['filter sheet']!.$1,
   }.entries) {
     testWidgets('In the $name in dark mode, text contrast is readable', (
       tester,
@@ -642,7 +583,7 @@ void main() {
         .evaluate()
         .toList();
     expect(tabs, hasLength(3));
-    for (final (i, name) in ['Dashboard', 'Wallets', 'Settings'].indexed) {
+    for (final (i, name) in ['Home', 'Wallets', 'Settings'].indexed) {
       expect(tabs[i].label, '$name\nTab ${i + 1} of 3');
       expect(
         tabs[i],
@@ -659,21 +600,25 @@ void main() {
     tester.view.physicalSize = const Size(402, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final db = await pumpWidgetWithProviders(tester, const CategoriesScreen());
+    final db = await createTestDatabase();
+    // Only the user's own categories have an X.
+    await CategoryRepositoryImpl(
+      db,
+    ).insert(const Category(name: 'Gym', createdAt: '2026-08-10T12:00:00.000'));
+    await pumpWidgetWithProviders(tester, const CategoriesScreen(), db: db);
     addTearDown(db.close);
 
     for (final name in ['Education', 'Groceries', 'Others']) {
       expect(tester.getSemantics(find.text(name)).label, name);
     }
     expect(
-      tester.getSemantics(find.byTooltip('Delete Education')),
+      tester.getSemantics(find.byTooltip('Delete Gym')),
       isSemantics(isButton: true),
     );
     semantics.dispose();
   });
 
-  testWidgets('The balance eye is its own button and the receipt says where '
-      'it goes', (tester) async {
+  testWidgets('The balance eye is its own button', (tester) async {
     final semantics = tester.ensureSemantics();
     tester.view.physicalSize = const Size(402, 3000);
     tester.view.devicePixelRatio = 1;
@@ -681,20 +626,19 @@ void main() {
     final db = await createTestDatabase();
     addTearDown(db.close);
     await seedGoldenData(db);
-    await pumpWidgetWithProviders(tester, const DashboardScreen(), db: db);
-
-    final eye = tester.getSemantics(find.byTooltip('Hide balance'));
-    expect(
-      eye,
-      isSemantics(isButton: true, tooltip: 'Hide balance', hasTapAction: true),
+    await pumpWidgetWithProviders(
+      tester,
+      const DashboardScreen(),
+      db: db,
+      now: seedToday,
     );
-    // Not the card's text, which is read apart.
-    expect(eye.label, isEmpty);
 
+    // Named by its label alone, not merged with the balance above it.
     expect(
-      tester.getSemantics(find.textContaining('WALDO')),
-      isSemantics(isButton: true, hint: 'Opens all transactions'),
+      tester.getSemantics(find.bySemanticsLabel('Hide')),
+      isSemantics(isButton: true, label: 'Hide', hasTapAction: true),
     );
+
     semantics.dispose();
   });
 
@@ -703,6 +647,7 @@ void main() {
       tester,
       Scaffold(
         body: CashFlowCard(
+          month: DateTime(2026, 10),
           monthlyCashFlow: [
             MonthlyCashFlow(month: DateTime(2026, 8), income: 0, expense: 0),
             MonthlyCashFlow(
@@ -723,6 +668,17 @@ void main() {
     );
     addTearDown(db.close);
   }
+
+  testWidgets('The expense/income toggles are single-choice buttons', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    // The cash flow card's toggle.
+    await pumpCashFlow(tester);
+    expectSingleChoice(tester, 'Expense', true);
+    expectSingleChoice(tester, 'Income', false);
+    semantics.dispose();
+  });
 
   testWidgets('The cash flow chart reads what it shows and every month', (
     tester,
@@ -758,16 +714,15 @@ void main() {
     semantics.dispose();
   });
 
-  testWidgets('The starting balance field is read with its unit, without a '
-      'loose symbol', (tester) async {
+  testWidgets('The starting balance field is read as one stop, with its '
+      'label and unit', (tester) async {
     final semantics = tester.ensureSemantics();
     await pumpSheet(tester, (context, _) => showWalletFormSheet(context));
 
     final field = tester.getSemantics(
       find.byKey(const Key('walletBalanceField')),
     );
-    expect(field.label, 'How much is in it today?\n0.00\nUSD');
-    expect(find.bySemanticsLabel(r'$'), findsNothing);
+    expect(field.label, 'Starting balance\n0.00\n\$');
     semantics.dispose();
   });
 
@@ -778,27 +733,16 @@ void main() {
     final db = await createTestDatabase();
     addTearDown(db.close);
     await seedGoldenData(db);
-    await pumpWidgetWithProviders(tester, const WalletsScreen(), db: db);
+    await pumpWidgetWithProviders(
+      tester,
+      const WalletsScreen(),
+      db: db,
+      now: seedToday,
+    );
 
     expect(
       tester.getSemantics(find.text('Total balance')).label,
-      matches(RegExp(r'^Total balance\nKept \d+% .*\n\$3,458\.00$')),
-    );
-    semantics.dispose();
-  });
-
-  testWidgets('The amount editor announces the amount as keys change it', (
-    tester,
-  ) async {
-    final semantics = tester.ensureSemantics();
-    await pumpSheet(tester, sheets['transaction edit sheet']!);
-    await tester.tap(find.byKey(const Key('txAmountField')));
-    await tester.pumpAndSettle();
-
-    final display = find.textContaining(RegExp(r'^[-+]\$'));
-    expect(
-      tester.getSemantics(display),
-      isSemantics(isLiveRegion: true, label: tester.widget<Text>(display).data),
+      matches(RegExp(r'^Total balance\n\$3,458\.00$')),
     );
     semantics.dispose();
   });
@@ -823,7 +767,6 @@ void main() {
 
   for (final MapEntry(key: name, value: open) in {
     'new wallet sheet': sheetHeadings['new wallet sheet']!.$1,
-    'filter sheet': sheetHeadings['filter sheet']!.$1,
   }.entries) {
     testWidgets('Everything tappable in the $name is read as a button', (
       tester,
@@ -836,9 +779,13 @@ void main() {
     });
   }
 
-  testWidgets('The filter button is named by what it shows and says what it '
-      'opens', (tester) async {
+  testWidgets("A wallet's type tiles are buttons that say which is chosen", (
+    tester,
+  ) async {
     final semantics = tester.ensureSemantics();
+    tester.view.physicalSize = const Size(402, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final db = await createTestDatabase();
     addTearDown(db.close);
     await seedGoldenData(db);
@@ -850,16 +797,18 @@ void main() {
       TransactionsScreen(walletId: wallet.id!),
       db: db,
     );
+    await tester.tap(find.byKey(const Key('walletFilterAction')));
+    await tester.pumpAndSettle();
 
     expect(
-      find.semantics.byPredicate(
-        (n) =>
-            n.flagsCollection.isButton &&
-            n.hint == 'Opens the filter' &&
-            RegExp(r'^\w+, All transactions$').hasMatch(n.label),
-      ),
-      findsOne,
+      tester.getSemantics(find.text('All')),
+      isSemantics(isButton: true, isSelected: true, hasSelectedState: true),
     );
+    expect(
+      tester.getSemantics(find.text('Income')),
+      isSemantics(isButton: true, isSelected: false, hasSelectedState: true),
+    );
+    expect(find.byTooltip('Previous month'), findsOneWidget);
     semantics.dispose();
   });
 }

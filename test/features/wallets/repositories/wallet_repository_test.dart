@@ -150,7 +150,7 @@ void main() {
         () => repo.insert(_wallet('pocket CASH ')),
         throwsA(isA<DuplicateWalletNameException>()),
       );
-      expect(await repo.getCount(), 1);
+      expect(await repo.getAll(), hasLength(1));
     });
 
     test(
@@ -163,7 +163,7 @@ void main() {
           () => repo.insert(_wallet('POUPANÇA')),
           throwsA(isA<DuplicateWalletNameException>()),
         );
-        expect(await repo.getCount(), 1);
+        expect(await repo.getAll(), hasLength(1));
       },
     );
 
@@ -186,27 +186,6 @@ void main() {
       await repo.update(visa.copyWith(name: 'VISA card'));
 
       expect((await repo.getById(id))!.name, 'VISA card');
-    });
-
-    test('getCount returns 0 for an empty table', () async {
-      expect(await repo.getCount(), 0);
-    });
-
-    test('getCount returns the number of wallets', () async {
-      await repo.insert(
-        const Wallet(name: 'Cash', createdAt: '2026-08-04T12:00:00.000'),
-      );
-      await repo.insert(
-        const Wallet(name: 'Bank', createdAt: '2026-08-05T12:00:00.000'),
-      );
-
-      expect(await repo.getCount(), 2);
-    });
-
-    test('getCount rethrows a failed read', () async {
-      await db.execute('DROP TABLE ${WalletsTable.table}');
-
-      expect(() => repo.getCount(), throwsA(isA<DatabaseException>()));
     });
   });
 }

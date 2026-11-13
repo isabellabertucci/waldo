@@ -11,6 +11,7 @@ void main() {
         type: WalletType.credit,
         startingBalance: 1050,
         currentBalance: 2000,
+        finish: LeatherFinish.green,
         createdAt: '2026-08-04T12:00:00.000',
       );
 
@@ -37,6 +38,7 @@ void main() {
         'type': 'cash',
         'starting_balance': 0,
         'current_balance': 0,
+        'finish': 'black',
         'created_at': '2026-08-04T12:00:00.000',
       };
 

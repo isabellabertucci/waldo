@@ -4,6 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/database/db_providers.dart';
+import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
@@ -12,6 +13,8 @@ import 'package:waldo/features/transactions/viewmodels/transaction_form_view_mod
 import 'package:waldo/features/transactions/viewmodels/transaction_list_view_model.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
+import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
+import 'package:waldo/features/wallets/viewmodels/wallets_summary_view_model.dart';
 
 import '../../../helpers/test_app.dart';
 
@@ -202,6 +205,45 @@ void main() {
         )).single.id,
         transactionId,
       );
+    });
+
+    test('during its Undo window it is gone from every balance and total, '
+        'and Undo puts it back', () async {
+      // August, the transaction's month, so the month totals count it.
+      final august = ProviderContainer(
+        overrides: [
+          appDatabaseProvider.overrideWith((ref) async => db),
+          clockProvider.overrideWithValue(() => DateTime(2026, 8, 20)),
+        ],
+      );
+      addTearDown(august.dispose);
+      // The wallet's balance, the dashboard's total and the month's net.
+      Future<(int, int, int)> numbers() async {
+        final wallet = (await august.read(
+          walletListViewModelProvider().future,
+        )).single;
+        final dashboard = await august.read(dashboardViewModelProvider.future);
+        final month = await august.read(walletsSummaryViewModelProvider.future);
+        return (
+          wallet.currentBalance,
+          dashboard.totalBalance,
+          month.netThisMonth,
+        );
+      }
+
+      expect(await numbers(), (-500, -500, -500));
+
+      final notifier = august.read(
+        transactionListViewModelProvider(walletId: walletId).notifier,
+      );
+      await august.read(
+        transactionListViewModelProvider(walletId: walletId).future,
+      );
+      notifier.hideTransaction(transactionId);
+      expect(await numbers(), (0, 0, 0));
+
+      notifier.restoreTransaction(transactionId);
+      expect(await numbers(), (-500, -500, -500));
     });
 
     test('confirming clears it from the pending set', () async {

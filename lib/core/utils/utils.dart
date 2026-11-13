@@ -61,3 +61,22 @@ String formatCents(
   );
   return formatter.format(cents / 100);
 }
+
+/// [cents] with its sign always written: "+217,00 $", "−2 010,50 $" (a true
+/// minus) and "0,00 $" (DESIGN.md "Amounts").
+String formatSignedCents(
+  int cents, {
+  required String locale,
+  String currencyCode = 'USD',
+}) {
+  final magnitude = formatCents(
+    cents.abs(),
+    locale: locale,
+    currencyCode: currencyCode,
+  );
+  return switch (cents) {
+    > 0 => '+$magnitude',
+    < 0 => '−$magnitude',
+    _ => magnitude,
+  };
+}

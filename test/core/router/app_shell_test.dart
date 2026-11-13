@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:waldo/core/router/app_nav_bar.dart';
@@ -8,6 +9,7 @@ import 'package:waldo/features/transactions/ui/transactions_screen.dart';
 import 'package:waldo/features/wallets/ui/wallets_screen.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
+import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/features/settings/ui/settings_screen.dart';
 import '../../helpers/test_app.dart';
 
@@ -99,5 +101,44 @@ void main() {
         expect(isSelected(tester, 1), isTrue);
       },
     );
+
+    testWidgets("Deleting a wallet from its own screen goes back to the list", (
+      WidgetTester tester,
+    ) async {
+      currentDb = await pumpTestApp(tester, router: router);
+      final walletId = await WalletRepositoryImpl(currentDb!).insert(
+        const Wallet(name: 'Test Wallet', createdAt: '2026-08-10T12:00:00.000'),
+      );
+      // Home loaded the wallets before this one was added.
+      ProviderScope.containerOf(
+        tester.element(find.byType(DashboardScreen)),
+      ).invalidate(walletListViewModelProvider);
+      await tester.tap(findNavButton(1));
+      await tester.pumpAndSettle();
+      router.go('/wallets/$walletId/transactions');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byTooltip('Test Wallet options'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+      // The confirmation dialog's button.
+      await tester.tap(find.text('Delete'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(find.byType(TransactionsScreen), findsNothing);
+      expect(find.byType(WalletsScreen), findsOneWidget);
+      expect(find.text('Wallet deleted'), findsOneWidget);
+      // Above the floating navbar, not behind it.
+      expect(
+        tester.getRect(find.byType(SnackBar)).bottom,
+        lessThanOrEqualTo(tester.getRect(find.byType(AppNavBar)).top),
+      );
+
+      // Let the Undo window close.
+      await tester.pump(const Duration(seconds: 11));
+      await tester.pumpAndSettle();
+    });
   });
 }

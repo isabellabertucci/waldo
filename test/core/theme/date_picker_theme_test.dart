@@ -40,7 +40,7 @@ void main() {
       final dayColor = DefaultTextStyle.of(
         tester.element(find.text('12')),
       ).style.merge(day.style).color;
-      expect(dayColor, colors.onPrimary);
+      expect(dayColor, colors.onInk);
     });
   }
 }

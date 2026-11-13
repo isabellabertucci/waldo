@@ -10,15 +10,12 @@ void main() {
       ..moveTo(0, 0)
       ..lineTo(22, 0);
 
-    final dashes = dashPath(line, dashLength: 4, gapLength: 3).computeMetrics();
+    final dashes = dashPath(line, (dash: 4, gap: 3)).computeMetrics();
 
     expect(dashes.map((d) => d.length), [4, 4, 4, 1]);
   });
 
   test('an empty path gives no dashes', () {
-    expect(
-      dashPath(Path(), dashLength: 4, gapLength: 3).computeMetrics(),
-      isEmpty,
-    );
+    expect(dashPath(Path(), (dash: 4, gap: 3)).computeMetrics(), isEmpty);
   });
 }

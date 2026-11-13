@@ -49,3 +49,30 @@ extension CategoryIcon on Category {
   /// Built-ins keep their own icon; a user-named category gets a plain tag.
   IconData get icon => isDefault ? type.icon : AppIcons.categoryGeneric;
 }
+
+extension CategoryOthers on Category {
+  /// The built-in catch-all: deleted categories' transactions move here, so
+  /// it can't be deleted itself and lists last of the built-ins.
+  bool get isOthers => isDefault && type == CategoryType.others;
+}
+
+extension CategoryListOrder on Iterable<Category> {
+  /// The built-ins A-Z by the name on screen, with the catch-all "Others"
+  /// closing them, then the user's own below, newest first: the order of
+  /// every category list, so each one reads the same.
+  List<Category> inDisplayOrder(AppLocalizations l10n) {
+    return [...this]..sort((a, b) {
+      if (a.isDefault != b.isDefault) return a.isDefault ? -1 : 1;
+      if (a.isOthers != b.isOthers) return a.isOthers ? 1 : -1;
+      if (a.isDefault) {
+        return a
+            .displayName(l10n)
+            .toLowerCase()
+            .compareTo(b.displayName(l10n).toLowerCase());
+      }
+      // ISO-8601 sorts as text; the id breaks a tie, as it only grows.
+      final byNewest = b.createdAt.compareTo(a.createdAt);
+      return byNewest != 0 ? byNewest : (b.id ?? 0).compareTo(a.id ?? 0);
+    });
+  }
+}

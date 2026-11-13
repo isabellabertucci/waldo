@@ -1,70 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:waldo/core/theme/badge_size.dart';
+import 'package:waldo/core/widgets/rows_card.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/core/widgets/heading.dart';
-
-class SectionLabel extends StatelessWidget {
-  const SectionLabel({required this.title, super.key});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: Spacing.xs),
-      child: Heading(
-        child: Text(
-          title.toUpperCase(),
-          style: context.labelXs.copyWith(
-            color: context.appColors.onSurfaceVariant,
-            letterSpacing: 1.0,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class SettingsCard extends StatelessWidget {
-  const SettingsCard({required this.children, super.key});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      // No outer margin, so the card lines up with the page gutter.
-      margin: EdgeInsets.zero,
-      child: Column(
-        children: [
-          for (var i = 0; i < children.length; i++) ...[
-            if (i > 0) const _RowDivider(),
-            children[i],
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _RowDivider extends StatelessWidget {
-  const _RowDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Divider(
-      // Starts under the title: row padding + badge + title gap.
-      indent: Spacing.sm + BadgeSize.lg + Spacing.component,
-    );
-  }
-}
 
 /// From this text size up, the value moves under the title so the title
 /// keeps the row's width.
-const _stackValueTextScale = 1.5; // one-off
+const _stackValueTextScale = 1.5;
 
 class SettingsRow extends StatelessWidget {
   const SettingsRow({
@@ -89,43 +34,47 @@ class SettingsRow extends StatelessWidget {
     final colors = context.appColors;
     final stacked =
         MediaQuery.textScalerOf(context).scale(1) >= _stackValueTextScale;
-    final valueText = Text(
+    // At accessibility sizes the disc moves above the title, so long words
+    // get the row's full width instead of breaking.
+    final discAbove = DynamicTypeScaler.isAccessibilitySize(context);
+    final valueText = WholeWordsText(
       value,
-      style: context.textTheme.bodyMedium?.copyWith(
-        color: colors.onSurfaceVariant,
-      ),
+      style: context.label.copyWith(color: colors.inkMuted),
     );
+
+    final disc = RowDisc(icon: icon);
+    final titleText = WholeWordsText(title, style: context.bodyStrong);
 
     return ListTile(
       onTap: onTap,
+      // The section's card is the fill and the shape, not each row.
+      tileColor: colors.transparent,
+      shape: const RoundedRectangleBorder(),
       contentPadding: const EdgeInsets.symmetric(
         horizontal: Spacing.sm,
         vertical: Spacing.xxs,
       ),
       horizontalTitleGap: Spacing.component,
-      // Same disc as the option sheet's, so both screens match.
-      leading: Container(
-        width: BadgeSize.lg,
-        height: BadgeSize.lg,
-        decoration: BoxDecoration(
-          // The page behind the card, as if the disc were cut out of it.
-          color: colors.surfaceContainer,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, size: IconSize.lg, color: colors.onSurfaceVariant),
-      ),
-      title: Text(title, style: context.bodyMdBold),
+      leading: discAbove ? null : disc,
+      title: discAbove
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                disc,
+                const SizedBox(height: Spacing.xs),
+                titleText,
+              ],
+            )
+          : titleText,
       subtitle: subtitle == null && !stacked
           ? null
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (subtitle != null)
-                  Text(
+                  WholeWordsText(
                     subtitle!,
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
+                    style: context.label.copyWith(color: colors.inkMuted),
                   ),
                 if (stacked) valueText,
               ],
@@ -136,8 +85,8 @@ class SettingsRow extends StatelessWidget {
           if (!stacked) ...[valueText, const SizedBox(width: Spacing.xs)],
           Icon(
             AppIcons.chevronRight,
-            size: IconSize.xl,
-            color: colors.onSurfaceVariant,
+            size: IconSize.md,
+            color: colors.inkMuted,
           ),
         ],
       ),

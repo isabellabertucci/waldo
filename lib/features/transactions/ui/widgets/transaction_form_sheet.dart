@@ -1,40 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:waldo/core/theme/badge_size.dart';
+import 'package:waldo/core/widgets/choice_chips.dart';
+import 'package:waldo/features/transactions/viewmodels/recent_categories_view_model.dart';
+import 'package:waldo/core/widgets/field_label.dart';
+import 'package:waldo/core/widgets/form_sheet_body.dart';
 import 'package:waldo/core/utils/clock.dart';
-import 'package:waldo/core/theme/icon_size.dart';
+import 'package:waldo/core/widgets/app_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:logging/logging.dart';
 import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/database/save_failure.dart';
 import 'package:waldo/core/constants/enums.dart';
-import 'package:waldo/core/router/app_router.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
-import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/core/utils/amount_input_formatter.dart';
-import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/sheet_grabber.dart';
-import 'package:waldo/core/widgets/dashed_border.dart';
-import 'package:waldo/core/widgets/secondary_button.dart';
-import 'package:waldo/core/widgets/dashed_stitch_button.dart';
-import 'package:waldo/core/widgets/field_label.dart';
+import 'package:waldo/core/widgets/pill_button.dart';
 import 'package:waldo/core/widgets/form_pill_field.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/categories/categories_x.dart';
+import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
-import 'package:waldo/features/preferences/currency_x.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_form_view_model.dart';
-import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
+import 'package:waldo/features/wallets/wallets_x.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/widgets/heading.dart';
 
+import 'category_picker.dart';
+import 'transaction_amount_card.dart';
 import 'transaction_date_picker.dart';
 import 'transaction_field_row.dart';
-import 'transaction_type_toggle.dart';
+import 'wallet_picker.dart';
 
 final _log = Logger('waldo.ui.transaction_form');
 
@@ -42,20 +40,28 @@ final _log = Logger('waldo.ui.transaction_form');
 Future<void> showTransactionFormSheet(
   BuildContext context, {
   int? initialWalletId,
+  TransactionType? initialType,
 }) {
-  return showModalBottomSheet(
-    context: context,
-    useRootNavigator: true,
-    isScrollControlled: true,
-    useSafeArea: true,
-    builder: (_) => TransactionFormSheet(initialWalletId: initialWalletId),
+  return showAppSheet(
+    context,
+    builder: (_) => TransactionFormSheet(
+      initialWalletId: initialWalletId,
+      initialType: initialType,
+    ),
   );
 }
 
 class TransactionFormSheet extends ConsumerStatefulWidget {
-  const TransactionFormSheet({super.key, this.initialWalletId});
+  const TransactionFormSheet({
+    super.key,
+    this.initialWalletId,
+    this.initialType,
+  });
 
   final int? initialWalletId;
+
+  /// Expense or Income already picked (the app icon's shortcuts).
+  final TransactionType? initialType;
 
   @override
   ConsumerState<TransactionFormSheet> createState() =>
@@ -63,26 +69,29 @@ class TransactionFormSheet extends ConsumerStatefulWidget {
 }
 
 class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
+  /// This sheet's form: new, maybe for a wallet, maybe as an income.
+  TransactionFormViewModelProvider get _provider =>
+      transactionFormViewModelProvider(
+        null,
+        initialWalletId: widget.initialWalletId,
+        initialType: widget.initialType,
+      );
+
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _amountController;
   late final TextEditingController _descriptionController;
   late final TextEditingController _noteController;
-  final _amountFocus = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    final initial = ref.read(
-      transactionFormViewModelProvider(
-        null,
-        initialWalletId: widget.initialWalletId,
-      ),
-    );
+    final initial = ref.read(_provider);
     _amountController = TextEditingController(text: initial.amount);
     _descriptionController = TextEditingController(text: initial.description);
     _noteController = TextEditingController(text: initial.note);
-    // Redraw so the amount card's stitch follows focus.
-    _amountFocus.addListener(() => setState(() {}));
+    final viewModel = ref.read(_provider.notifier);
+    // Opened from a wallet, the wallet is already known.
+    if (widget.initialWalletId == null) viewModel.preselectWallet();
   }
 
   @override
@@ -90,19 +99,7 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     _amountController.dispose();
     _descriptionController.dispose();
     _noteController.dispose();
-    _amountFocus.dispose();
     super.dispose();
-  }
-
-  String? _validateAmount(AppLocalizations l10n, String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return l10n.amountRequired;
-    }
-    final parsedCents = parseToCents(value, allowNegative: false);
-    if (parsedCents == null || parsedCents <= 0) {
-      return l10n.invalidNumber;
-    }
-    return null;
   }
 
   Future<DateTime?> _pickDate(DateTime? current) {
@@ -145,515 +142,210 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
-    final formState = ref.watch(
-      transactionFormViewModelProvider(
-        null,
-        initialWalletId: widget.initialWalletId,
-      ),
-    );
-    final viewModel = ref.read(
-      transactionFormViewModelProvider(
-        null,
-        initialWalletId: widget.initialWalletId,
-      ).notifier,
-    );
+    final formState = ref.watch(_provider);
+    final viewModel = ref.read(_provider.notifier);
     final walletsAsync = ref.watch(walletListViewModelProvider());
     final categoriesAsync = ref.watch(categoryListViewModelProvider);
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
-    final currencySymbol = switch (preferencesAsync) {
-      AsyncValue(:final value?) => value.currency.symbol,
-      _ => Currency.usd.symbol,
-    };
     final dateFormatPattern = switch (preferencesAsync) {
       AsyncValue(:final value?) => value.dateFormat,
       _ => 'yyyy-MM-dd',
     };
     final dateFormat = DateFormat(dateFormatPattern);
 
-    final isIncome = formState.type == TransactionType.income;
-    final amountColor = isIncome ? colors.primaryStrong : colors.error;
-    final walletName = switch (walletsAsync) {
+    final wallet = switch (walletsAsync) {
       AsyncValue(:final value?) =>
-        value.where((w) => w.id == formState.walletId).firstOrNull?.name,
+        value.where((w) => w.id == formState.walletId).firstOrNull,
       _ => null,
     };
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        Spacing.md,
-        Spacing.sm,
-        Spacing.md,
-        MediaQuery.viewInsetsOf(context).bottom +
-            MediaQuery.paddingOf(context).bottom +
-            Spacing.md,
-      ),
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SheetGrabber(),
-              const SizedBox(height: Spacing.md),
-              Row(
-                children: [
-                  Expanded(
-                    child: Heading(
-                      child: Text(
-                        l10n.newTransaction,
-                        style: context.headlineLgStrong,
-                      ),
+    final categories = categoriesAsync.value ?? const <Category>[];
+    final recentCategories =
+        ref.watch(recentCategoriesProvider(formState.type)).value ??
+        const <Category>[];
+    final category = categories
+        .where((c) => c.id == formState.categoryId)
+        .firstOrNull;
+
+    return FormSheetBody(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SheetGrabber(),
+            const SizedBox(height: Spacing.md),
+            Row(
+              children: [
+                Expanded(
+                  child: Heading(
+                    child: Text(
+                      l10n.newTransaction,
+                      style: context.titleSection,
                     ),
                   ),
-                  const SheetCloseButton(),
-                ],
-              ),
+                ),
+                const SheetCloseButton(),
+              ],
+            ),
+            const SizedBox(height: Spacing.md),
+            TransactionAmountCard(
+              fieldKey: const Key('transactionAmountField'),
+              type: formState.type,
+              onTypeChanged: viewModel.updateType,
+              controller: _amountController,
+              onChanged: viewModel.updateAmount,
+              autofocus: true,
+            ),
+            // The categories used last, one tap each, above the keyboard.
+            // Tapping the picked one again unpicks it.
+            if (recentCategories.isNotEmpty) ...[
               const SizedBox(height: Spacing.md),
-              DashedBorder(
-                radius: Rounded.lg,
-                color: _amountFocus.hasFocus
-                    ? colors.primary
-                    : colors.transparent,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Spacing.sm,
-                    vertical: Spacing.sm,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.surfaceContainer,
-                    borderRadius: BorderRadius.circular(Rounded.lg),
-                  ),
-                  child: Column(
-                    children: [
-                      TransactionTypeToggle(
-                        selected: formState.type,
-                        onChanged: viewModel.updateType,
-                      ),
-                      const SizedBox(height: Spacing.xs),
-                      // The error goes under the whole row; inside the hugging field it'd be cut off.
-                      FormField<String>(
-                        validator: (_) =>
-                            _validateAmount(l10n, _amountController.text),
-                        // One node named "Amount", with its sign, value and error.
-                        builder: (field) => MergeSemantics(
-                          child: Semantics(
-                            label: FieldLabel.requiredSemantics(
-                              context,
-                              l10n.amount,
-                            ),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    // The trailing space makes "+$ 0.00" read as one string.
-                                    Text(
-                                      '${isIncome ? '+' : '-'}$currencySymbol ',
-                                      style: context.amountDisplayBold.copyWith(
-                                        color: amountColor,
-                                      ),
-                                    ),
-                                    // As wide as its text, so the gap stays one space.
-                                    Flexible(
-                                      child: IntrinsicWidth(
-                                        child: TextField(
-                                          key: const Key(
-                                            'transactionAmountField',
-                                          ),
-                                          controller: _amountController,
-                                          focusNode: _amountFocus,
-                                          onChanged: (value) {
-                                            viewModel.updateAmount(value);
-                                            field.didChange(value);
-                                          },
-                                          keyboardType:
-                                              const TextInputType.numberWithOptions(
-                                                decimal: true,
-                                              ),
-                                          inputFormatters: const [
-                                            AmountInputFormatter(),
-                                          ],
-                                          decoration: InputDecoration(
-                                            isCollapsed: true,
-                                            border: InputBorder.none,
-                                            enabledBorder: InputBorder.none,
-                                            focusedBorder: InputBorder.none,
-                                            disabledBorder: InputBorder.none,
-                                            errorBorder: InputBorder.none,
-                                            focusedErrorBorder:
-                                                InputBorder.none,
-                                            filled: false,
-                                            // The theme's padding would widen the one-space gap.
-                                            contentPadding: EdgeInsets.zero,
-                                            hintText: zeroAmountHint(
-                                              moneyLocale(context),
-                                            ),
-                                            hintStyle: context.amountDisplayBold
-                                                .copyWith(
-                                                  color:
-                                                      colors.onSurfaceVariant,
-                                                ),
-                                          ),
-                                          style: context.amountDisplayBold
-                                              .copyWith(
-                                                color: colors.onSurface,
-                                              ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                if (field.hasError)
-                                  Text(
-                                    field.errorText!,
-                                    style: context.textTheme.bodySmall
-                                        ?.copyWith(color: colors.error),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+              FieldLabel(
+                l10n.recentCategories,
+                style: context.bodyStrong.copyWith(color: colors.inkMuted),
+              ),
+              const SizedBox(height: Spacing.xs),
+              ChoiceChips(
+                key: const Key('recentCategoryChips'),
+                chips: [
+                  for (final c in recentCategories)
+                    (value: c.id, icon: c.icon, label: c.displayName(l10n)),
+                ],
+                selected: formState.categoryId,
+                onTap: (id) => viewModel.updateCategoryId(
+                  id == formState.categoryId ? null : id,
                 ),
               ),
-              const SizedBox(height: Spacing.sm),
-              // Right under the amount, as in the edit sheet and the detail.
-              FormPillField(
-                fieldKey: const Key('transactionDescriptionField'),
-                leading: const Icon(AppIcons.name),
-                controller: _descriptionController,
-                label: l10n.transactionTitle,
-                hint: l10n.descriptionHint,
-                // Stops typing at the limit instead of failing on save.
-                maxLength: maxTransactionDescriptionLength,
-                textCapitalization: TextCapitalization.sentences,
-                onChanged: viewModel.updateDescription,
-              ),
-              const SizedBox(height: Spacing.md),
-              Row(
-                children: [
-                  // Says up front that skipping a category is fine; one text,
-                  // so it ellipsizes before pushing the button off a narrow row.
-                  Expanded(
-                    child: Heading(
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: l10n.category.toUpperCase(),
-                              style: context.bodySmBold.copyWith(
-                                color: colors.onSurfaceVariant,
-                                letterSpacing: 0.4,
-                              ),
-                            ),
-                            const TextSpan(text: '  '),
-                            TextSpan(
-                              text: l10n.optional,
-                              style: context.textTheme.bodySmall?.copyWith(
-                                color: colors.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                  SecondaryButton(
-                    label: l10n.manageCategories,
-                    onPressed: () => const CategoriesRoute().push(context),
-                  ),
-                ],
-              ),
-              const SizedBox(height: Spacing.sm),
-              switch (categoriesAsync) {
-                // One row that scrolls sideways, so more categories never make
-                // the sheet taller.
-                AsyncValue(:final value?) => SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      for (final category in value) ...[
-                        _CategoryChip(
-                          icon: category.icon,
-                          label: category.displayName(l10n),
-                          selected: formState.categoryId == category.id,
-                          onTap: () => viewModel.updateCategoryId(category.id),
-                        ),
-                        const SizedBox(width: Spacing.xs),
-                      ],
-                    ],
-                  ),
-                ),
-                _ => const SizedBox.shrink(),
+            ],
+            const SizedBox(height: Spacing.md),
+            // Wallet, Category and Date in one card, right under the amount,
+            // so the prefilled wallet shows above the keyboard before
+            // saving. One field checks the
+            // required ones, so their messages sit under the card, like
+            // every other field's, not between the rows.
+            FormField<void>(
+              // Reads the form as it is now: a pick lands in the view
+              // model before this widget rebuilds.
+              validator: (_) {
+                final current = ref.read(_provider);
+                final missing = [
+                  if (widget.initialWalletId == null &&
+                      current.walletId == null)
+                    l10n.walletRequired,
+                  if (current.date == null) l10n.dateRequired,
+                ];
+                return missing.isEmpty ? null : missing.join('\n');
               },
-              const SizedBox(height: Spacing.sm),
-              // Date and Wallet share one card divided by a hairline.
-              Material(
-                color: colors.surfaceContainer,
-                borderRadius: BorderRadius.circular(Rounded.lg),
-                clipBehavior: Clip.antiAlias,
-                child: Column(
+              builder: (field) {
+                // Once a save has failed, each pick checks again, so a
+                // message goes as soon as its field is filled.
+                void recheck() {
+                  if (field.hasError) field.validate();
+                }
+
+                final wallets = walletsAsync.value;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    FormField<DateTime>(
-                      initialValue: formState.date,
-                      validator: (value) =>
-                          value == null ? l10n.dateRequired : null,
-                      builder: (field) => Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          EditFieldRow(
-                            key: const Key('transactionDateField'),
-                            grouped: true,
-                            icon: AppIcons.calendar,
-                            label: l10n.date,
-                            required: true,
-                            value: formState.date == null
-                                ? '—'
-                                : dateFormat.format(formState.date!),
-                            hasError: field.hasError,
-                            onTap: () async {
-                              final picked = await _pickDate(formState.date);
-                              if (picked == null) return;
-                              viewModel.updateDate(picked);
-                              field.didChange(picked);
+                    EditFieldRow.group(context, [
+                      // Opened from a wallet, the wallet is already known.
+                      if (widget.initialWalletId == null && wallets != null)
+                        EditFieldRow(
+                          key: const Key('transactionWalletField'),
+                          icon: wallet?.type.icon ?? AppIcons.wallets,
+                          label: l10n.wallet,
+                          required: true,
+                          value: wallet?.name ?? l10n.none,
+                          hasError:
+                              field.hasError && formState.walletId == null,
+                          // The same picker as the edit sheet.
+                          onTap: () => showWalletPicker(
+                            context,
+                            wallets: wallets,
+                            selected: formState.walletId,
+                            onPicked: (walletId) {
+                              viewModel.updateWalletId(walletId);
+                              recheck();
                             },
                           ),
-                          if (field.hasError)
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: Spacing.md,
-                                bottom: Spacing.sm,
-                              ),
-                              child: Text(
-                                field.errorText!,
-                                style: context.textTheme.bodySmall?.copyWith(
-                                  color: colors.error,
-                                ),
-                              ),
-                            ),
-                        ],
+                        ),
+                      // The same row and picker as the edit sheet.
+                      EditFieldRow(
+                        key: const Key('transactionCategoryField'),
+                        icon: category?.icon ?? AppIcons.categoryNone,
+                        label: l10n.category,
+                        value: category?.displayName(l10n) ?? l10n.none,
+                        onTap: () => showCategoryPicker(
+                          context,
+                          categories: categories,
+                          selected: formState.categoryId,
+                          onPicked: viewModel.updateCategoryId,
+                        ),
                       ),
-                    ),
-                    if (widget.initialWalletId == null) ...[
-                      const Divider(indent: Spacing.md, endIndent: Spacing.md),
-                      switch (walletsAsync) {
-                        AsyncValue(:final value?) => FormField<int>(
-                          initialValue: formState.walletId,
-                          validator: (walletId) =>
-                              walletId == null ? l10n.walletRequired : null,
-                          builder: (field) => Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              EditFieldRow(
-                                grouped: true,
-                                icon: AppIcons.wallets,
-                                label: l10n.wallet,
-                                required: true,
-                                value: walletName ?? l10n.none,
-                                hasError: field.hasError,
-                                onTap: () => _showWalletPicker(
-                                  context,
-                                  value,
-                                  viewModel,
-                                  field,
-                                ),
-                              ),
-                              if (field.hasError)
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: Spacing.md,
-                                    bottom: Spacing.sm,
-                                  ),
-                                  child: Text(
-                                    field.errorText!,
-                                    style: context.textTheme.bodySmall
-                                        ?.copyWith(color: colors.error),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        _ => const SizedBox.shrink(),
-                      },
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(height: Spacing.sm),
-              // Last, as in the edit sheet: optional, so it never sits
-              // between the fields a save needs.
-              FormPillField(
-                fieldKey: const Key('transactionNoteField'),
-                leading: const Icon(AppIcons.note),
-                controller: _noteController,
-                label: l10n.transactionNote,
-                hint: l10n.noteHint,
-                maxLength: maxTransactionNoteLength,
-                textCapitalization: TextCapitalization.sentences,
-                onChanged: viewModel.updateNote,
-              ),
-              const SizedBox(height: Spacing.md),
-              if (_saveError case final error?) ...[
-                Text(
-                  error,
-                  textAlign: TextAlign.center,
-                  style: context.bodyMdStrong.copyWith(color: colors.error),
-                ),
-                const SizedBox(height: Spacing.sm),
-              ],
-              SizedBox(
-                width: double.infinity,
-                child: DashedStitchButton(
-                  icon: const Icon(AppIcons.check, size: IconSize.md),
-                  label: isIncome ? l10n.addIncome : l10n.addExpense,
-                  onPressed: () => _save(viewModel),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showWalletPicker(
-    BuildContext context,
-    List<Wallet> wallets,
-    TransactionFormViewModel viewModel,
-    FormFieldState<int> field,
-  ) {
-    final l10n = AppLocalizations.of(context);
-    final colors = context.appColors;
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      // Grows with the wallets, then scrolls, instead of overflowing; never
-      // under the status bar.
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (sheetContext) => SafeArea(
-        child: Padding(
-          // Same side margin as every other sheet.
-          padding: const EdgeInsets.symmetric(
-            horizontal: Spacing.md,
-            vertical: Spacing.sm,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SheetGrabber(),
-              const SizedBox(height: Spacing.md),
-              Heading(
-                child: Text(l10n.wallet, style: context.headlineLgStrong),
-              ),
-              const SizedBox(height: Spacing.sm),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    for (final wallet in wallets)
-                      ListTile(
-                        // Marks the current wallet, as every picker does.
-                        selected: wallet.id == field.value,
-                        selectedColor: colors.onSurface,
-                        leading: Icon(
-                          AppIcons.wallets,
-                          color: colors.onSurfaceVariant,
-                        ),
-                        title: Text(wallet.name, style: context.bodyMdBold),
-                        trailing: wallet.id == field.value
-                            ? const Icon(AppIcons.check, size: IconSize.lg)
-                            : null,
-                        onTap: () {
-                          viewModel.updateWalletId(wallet.id!);
-                          field.didChange(wallet.id);
-                          Navigator.of(sheetContext).pop();
+                      EditFieldRow(
+                        key: const Key('transactionDateField'),
+                        icon: AppIcons.calendar,
+                        label: l10n.date,
+                        required: true,
+                        value: formState.date == null
+                            ? '—'
+                            : dateFormat.format(formState.date!),
+                        hasError: field.hasError && formState.date == null,
+                        onTap: () async {
+                          final picked = await _pickDate(formState.date);
+                          if (picked == null) return;
+                          viewModel.updateDate(picked);
+                          recheck();
                         },
                       ),
+                    ]),
+                    if (field.errorText case final error?) FieldError(error),
                   ],
-                ),
+                );
+              },
+            ),
+            const SizedBox(height: Spacing.md),
+            FormPillField(
+              fieldKey: const Key('transactionDescriptionField'),
+              controller: _descriptionController,
+              label: l10n.transactionTitle,
+              hint: l10n.descriptionHint,
+              // Stops typing at the limit instead of failing on save.
+              maxLength: maxTransactionDescriptionLength,
+              textCapitalization: TextCapitalization.sentences,
+              onChanged: viewModel.updateDescription,
+            ),
+            const SizedBox(height: Spacing.md),
+            FormPillField(
+              fieldKey: const Key('transactionNoteField'),
+              controller: _noteController,
+              label: l10n.transactionNote,
+              hint: l10n.noteHint,
+              maxLength: maxTransactionNoteLength,
+              textCapitalization: TextCapitalization.sentences,
+              onChanged: viewModel.updateNote,
+            ),
+            const SizedBox(height: Spacing.md),
+            if (_saveError case final error?) ...[
+              Text(
+                error,
+                textAlign: TextAlign.center,
+                style: context.bodyStrong.copyWith(color: colors.negative),
               ),
+              const SizedBox(height: Spacing.sm),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// One selectable category pill - a filled icon disc plus label, with a
-/// dashed accent border and bold label when selected.
-class _CategoryChip extends StatelessWidget {
-  const _CategoryChip({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-
-    // Picks one of a set, like the wallet type tiles.
-    return Semantics(
-      button: true,
-      selected: selected,
-      inMutuallyExclusiveGroup: true,
-      child: Material(
-        color: colors.surfaceContainer,
-        borderRadius: BorderRadius.circular(Rounded.pill),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(Rounded.pill),
-          onTap: onTap,
-          child: DashedBorder(
-            radius: Rounded.pill,
-            color: selected ? colors.primary : colors.transparent,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: Spacing.xs,
-                right: Spacing.sm,
-                top: Spacing.xs,
-                bottom: Spacing.xs,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: BadgeSize.sm,
-                    height: BadgeSize.sm,
-                    decoration: BoxDecoration(
-                      color: colors.surface,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      icon,
-                      size: IconSize.sm,
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(width: Spacing.xs),
-                  Text(
-                    label,
-                    style: selected ? context.bodyMdBold : context.bodyMdStrong,
-                  ),
-                ],
+            SizedBox(
+              width: double.infinity,
+              child: PillButton(
+                label: formState.type == TransactionType.income
+                    ? l10n.addIncome
+                    : l10n.addExpense,
+                onPressed: () => _save(viewModel),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );

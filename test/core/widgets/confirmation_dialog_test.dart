@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
-import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/pill_button.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 void main() {
@@ -31,10 +31,7 @@ void main() {
     await tester.pumpAndSettle();
 
     Size sizeOf(String label) => tester.getSize(
-      find.ancestor(
-        of: find.text(label),
-        matching: find.byType(DashedStitchButton),
-      ),
+      find.ancestor(of: find.text(label), matching: find.byType(PillButton)),
     );
     expect(sizeOf('Cancel'), sizeOf('Delete'));
     expect(sizeOf('Cancel').height, greaterThanOrEqualTo(48));

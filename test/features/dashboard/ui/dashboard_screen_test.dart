@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/features/transactions/ui/widgets/transaction_row.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/database/db_providers.dart';
-import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/utils/utils.dart';
-import 'package:waldo/core/widgets/month_selector.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
 import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
@@ -49,19 +46,39 @@ void main() {
     (tester) async {
       await pumpDashboardScreen(tester);
 
-      // With no wallets the dashboard still renders, but without the month row.
-      final currentMonth = DateFormat.MMMM('en').format(DateTime.now());
-      expect(find.text(currentMonth), findsNothing);
-      expect(find.text('Slide in your first wallet'), findsOneWidget);
-      expect(find.text('0 wallets'), findsOneWidget);
+      // With no wallets the dashboard still renders: the way to the first
+      // wallet, and placeholders saying when the rest shows up.
+      expect(find.text('Cash flow'), findsNothing);
+      expect(find.text('Your wallets'), findsOneWidget);
+      expect(find.text('No wallets yet'), findsOneWidget);
+      expect(find.text('Create your first wallet'), findsOneWidget);
+      expect(find.text('This month'), findsOneWidget);
       expect(
-        find.text(
-          "Your month's receipt prints here after the first transaction.",
-        ),
+        find.text('No transactions yet. Create a wallet first.'),
         findsOneWidget,
       );
     },
   );
+
+  testWidgets('Before the first wallet, New wallet is the main action and '
+      'Hide and Transaction wait, greyed out', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pumpDashboardScreen(tester);
+
+    expect(
+      tester.getSemantics(find.bySemanticsLabel('Transaction')),
+      isSemantics(isButton: true, hasEnabledState: true, isEnabled: false),
+    );
+    expect(
+      tester.getSemantics(find.bySemanticsLabel('Hide')),
+      isSemantics(hasEnabledState: true, isEnabled: false),
+    );
+    expect(
+      tester.getSemantics(find.bySemanticsLabel('New wallet')),
+      isSemantics(isButton: true, hasEnabledState: true, isEnabled: true),
+    );
+    semantics.dispose();
+  });
 
   testWidgets('The first-wallet prompt is a button to screen readers', (
     tester,
@@ -70,10 +87,10 @@ void main() {
     await pumpDashboardScreen(tester);
 
     expect(
-      tester.getSemantics(find.text('Slide in your first wallet')),
-      // Named by its own text only, not merged with the balance card.
+      tester.getSemantics(find.text('Create your first wallet')),
+      // Named by its own text only, not merged with the text above it.
       isSemantics(
-        label: 'Slide in your first wallet',
+        label: 'Create your first wallet',
         isButton: true,
         hasTapAction: true,
       ),
@@ -90,10 +107,11 @@ void main() {
     WidgetController.hitTestWarningShouldBeFatal = true;
     addTearDown(() => WidgetController.hitTestWarningShouldBeFatal = false);
 
-    await tester.tap(find.text('Slide in your first wallet'));
+    await tester.ensureVisible(find.text('Create your first wallet'));
+    await tester.tap(find.text('Create your first wallet'));
     await tester.pumpAndSettle();
 
-    expect(find.text('New wallet'), findsOneWidget);
+    expect(find.byKey(const Key('walletNameField')), findsOneWidget);
   });
 
   testWidgets(
@@ -112,19 +130,9 @@ void main() {
 
       await pumpDashboardScreen(tester, db: db);
 
-      final currentMonth = DateFormat.MMMM('en').format(DateTime.now());
-      expect(find.text(currentMonth), findsOneWidget);
-      expect(find.text('Add first transaction'), findsOneWidget);
-      // The app's primary button, as every other first step uses.
-      expect(
-        find.ancestor(
-          of: find.text('Add first transaction'),
-          matching: find.byType(DashedStitchButton),
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Cash flow'), findsOneWidget);
       // No ghost rows: the section stays hidden until the first transaction.
-      expect(find.text('Recent transactions'), findsNothing);
+      expect(find.text('Transactions'), findsNothing);
       expect(find.text('See all'), findsNothing);
     },
   );
@@ -167,8 +175,8 @@ void main() {
     expect(find.text('Total balance'), findsOneWidget);
     expect(find.text('\$75.00'), findsOneWidget); // 10000 - 2500 cents
     expect(find.text('Weekly shop'), findsOneWidget);
-    // On the receipt, and under the transaction's name in the recent list.
-    expect(find.text(groceriesCategory.name), findsNWidgets(2));
+    // Under the transaction's name in the recent list.
+    expect(find.text(groceriesCategory.name), findsOneWidget);
   });
 
   testWidgets('Deleting a recent transaction hides it from the dashboard', (
@@ -193,7 +201,7 @@ void main() {
     await pumpDashboardScreen(tester, db: db);
     expect(find.text('Weekly shop'), findsOneWidget);
 
-    await tester.tap(find.byIcon(AppIcons.more));
+    await tester.longPress(find.byType(TransactionRow).first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
@@ -204,9 +212,51 @@ void main() {
 
     expect(textOutsideSnackBar('Weekly shop'), findsNothing);
 
-    await tester.pump(const Duration(seconds: 6));
+    await tester.pump(const Duration(seconds: 11));
     await tester.pumpAndSettle();
     expect(textOutsideSnackBar('Weekly shop'), findsNothing);
+  });
+
+  testWidgets('While Undo is on screen the total already leaves the deleted '
+      'transaction out, and Undo puts it back', (tester) async {
+    final db = await createTestDatabase();
+    final walletId = await WalletRepositoryImpl(db).insert(
+      const Wallet(
+        name: 'Test Wallet',
+        startingBalance: 10000,
+        currentBalance: 10000,
+        createdAt: '2026-08-10T12:00:00.000',
+      ),
+    );
+    final today = DateTime.now().toIso8601String();
+    await TransactionRepositoryImpl(db).insert(
+      Transaction(
+        walletId: walletId,
+        amount: 2500,
+        type: TransactionType.expense,
+        date: today,
+        description: 'Weekly shop',
+        createdAt: today,
+      ),
+    );
+    await pumpDashboardScreen(tester, db: db);
+    expect(find.text('\$75.00'), findsOneWidget);
+
+    await tester.longPress(find.byType(TransactionRow).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 250));
+
+    expect(find.text('Undo'), findsOneWidget);
+    expect(find.text('\$100.00'), findsOneWidget);
+
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(find.text('\$75.00'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 11));
   });
 
   testWidgets('Hiding the balance masks every amount on the dashboard', (
@@ -296,8 +346,8 @@ void main() {
       await tester.pump();
 
       expect(find.byType(CircularProgressIndicator), findsNothing);
-      // The month row (and the rest of the dashboard) is still on screen.
-      expect(find.byType(MonthSelector), findsOneWidget);
+      // The cash flow chart (and the rest of the dashboard) is still on screen.
+      expect(find.text('Cash flow'), findsOneWidget);
 
       await tester.pumpAndSettle();
     },

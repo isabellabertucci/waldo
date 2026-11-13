@@ -47,4 +47,4 @@ final class WalletsSummaryViewModelProvider
 }
 
 String _$walletsSummaryViewModelHash() =>
-    r'f8c112fbc031e598c461ee125c33959007c896f1';
+    r'b69d26980ca7ea41bba42f6aedd1a8cb4489724f';

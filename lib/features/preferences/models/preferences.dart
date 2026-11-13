@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 
 part 'preferences.freezed.dart';
@@ -13,22 +14,30 @@ abstract class Preferences with _$Preferences {
     // true/false = user has explicitly chosen dark or light.
     bool? isDarkMode,
     @Default('yyyy-MM-dd') String dateFormat,
+    // The eye toggle: amounts masked app-wide, kept across launches.
+    @Default(false) bool isBalanceHidden,
   }) = _Preferences;
 
   Map<String, Object?> toMap() {
     return {
-      'preferred_currency': currency.name,
-      'theme_dark': isDarkMode == null ? null : (isDarkMode! ? 1 : 0),
-      'date_format': dateFormat,
+      PreferencesTable.preferredCurrency: currency.name,
+      PreferencesTable.themeDark: isDarkMode == null
+          ? null
+          : (isDarkMode! ? 1 : 0),
+      PreferencesTable.dateFormat: dateFormat,
+      PreferencesTable.balanceHidden: isBalanceHidden ? 1 : 0,
     };
   }
 
   factory Preferences.fromMap(Map<String, Object?> map) {
-    final themeDark = map['theme_dark'] as int?;
+    final themeDark = map[PreferencesTable.themeDark] as int?;
     return Preferences(
-      currency: Currency.values.byName(map['preferred_currency'] as String),
+      currency: Currency.values.byName(
+        map[PreferencesTable.preferredCurrency] as String,
+      ),
       isDarkMode: themeDark == null ? null : themeDark == 1,
-      dateFormat: map['date_format'] as String,
+      dateFormat: map[PreferencesTable.dateFormat] as String,
+      isBalanceHidden: (map[PreferencesTable.balanceHidden] as int?) == 1,
     );
   }
 }

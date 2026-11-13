@@ -1,8 +1,14 @@
+import 'dart:ui' show SemanticsRole;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
+import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/icon_size.dart';
+import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
+import 'package:waldo/core/widgets/min_tap_target.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 /// What a row or card's ⋮ menu offers.
@@ -30,11 +36,189 @@ List<PopupMenuEntry<EditDeleteAction>> editDeleteMenuItems(
       value: EditDeleteAction.delete,
       child: Row(
         children: [
-          Icon(AppIcons.delete, size: IconSize.lg, color: colors.error),
+          Icon(AppIcons.delete, size: IconSize.lg, color: colors.negative),
           const SizedBox(width: Spacing.xs),
-          Text(l10n.delete, style: TextStyle(color: colors.error)),
+          Text(l10n.delete, style: TextStyle(color: colors.negative)),
         ],
       ),
     ),
   ];
+}
+
+/// A ⋮ button whose Edit/Delete menu opens by the dots. [child] is the
+/// dots; the touch area around them is 48px.
+class EditDeleteMenuButton extends StatefulWidget {
+  const EditDeleteMenuButton({
+    super.key,
+    required this.tooltip,
+    required this.onSelected,
+    required this.child,
+  });
+
+  final String tooltip;
+  final ValueChanged<EditDeleteAction> onSelected;
+  final Widget child;
+
+  @override
+  State<EditDeleteMenuButton> createState() => _EditDeleteMenuButtonState();
+}
+
+class _EditDeleteMenuButtonState extends State<EditDeleteMenuButton> {
+  final _dotsKey = GlobalKey();
+
+  Future<void> _open() async {
+    final navigator = Navigator.of(context);
+    final dots = _dotsKey.currentContext!.findRenderObject()! as RenderBox;
+    final overlay = navigator.overlay!.context.findRenderObject()! as RenderBox;
+    final anchor =
+        dots.localToGlobal(Offset.zero, ancestor: overlay) & dots.size;
+
+    HapticFeedback.lightImpact();
+    final action = await navigator.push(
+      _MenuRoute(
+        anchor: anchor,
+        barrierLabel: MaterialLocalizations.of(
+          context,
+        ).modalBarrierDismissLabel,
+      ),
+    );
+    if (action != null && mounted) widget.onSelected(action);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // A named button to screen readers, the size of its touch area.
+    return Semantics(
+      button: true,
+      child: Tooltip(
+        message: widget.tooltip,
+        child: MinTapTarget(
+          onTap: _open,
+          child: KeyedSubtree(key: _dotsKey, child: widget.child),
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuRoute extends PopupRoute<EditDeleteAction> {
+  _MenuRoute({required this.anchor, required this.barrierLabel});
+
+  /// The dots the menu opens by, in the navigator's coordinates.
+  final Rect anchor;
+
+  @override
+  final String barrierLabel;
+
+  @override
+  bool get barrierDismissible => true;
+
+  @override
+  Color? get barrierColor => null;
+
+  @override
+  Duration get transitionDuration => Duration.zero;
+
+  @override
+  Duration get reverseTransitionDuration => Duration.zero;
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
+    // Below the dots, unless its two rows wouldn't fit there.
+    final padding = MediaQuery.paddingOf(context);
+    final menuHeight =
+        MediaQuery.textScalerOf(context).scale(kMinInteractiveDimension) * 2 +
+        Spacing.xs * 2;
+    final above =
+        anchor.bottom + menuHeight >
+        MediaQuery.sizeOf(context).height - padding.bottom - Spacing.xs;
+
+    return CustomSingleChildLayout(
+      delegate: _MenuLayout(anchor, padding, above: above),
+      child: const _Menu(),
+    );
+  }
+}
+
+/// Puts the menu just below the dots (or [above] them), its right edge on
+/// theirs, kept on screen.
+class _MenuLayout extends SingleChildLayoutDelegate {
+  _MenuLayout(this.anchor, this.padding, {required this.above});
+
+  final Rect anchor;
+  final EdgeInsets padding;
+  final bool above;
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
+      BoxConstraints.loose(
+        constraints.biggest,
+      ).deflate(padding + const EdgeInsets.all(Spacing.xs));
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    final left = (anchor.right - childSize.width).clamp(
+      padding.left + Spacing.xs,
+      size.width - padding.right - Spacing.xs - childSize.width,
+    );
+    final top = above ? anchor.top - childSize.height : anchor.bottom;
+    return Offset(
+      left,
+      top.clamp(
+        padding.top + Spacing.xs,
+        size.height - padding.bottom - Spacing.xs - childSize.height,
+      ),
+    );
+  }
+
+  @override
+  bool shouldRelayout(_MenuLayout oldDelegate) =>
+      anchor != oldDelegate.anchor ||
+      padding != oldDelegate.padding ||
+      above != oldDelegate.above;
+}
+
+class _Menu extends StatelessWidget {
+  const _Menu();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final shape = BorderRadius.circular(Rounded.md);
+
+    return Material(
+      color: colors.sheet,
+      // An outline rather than a shadow, as everything that floats.
+      shape: RoundedRectangleBorder(
+        borderRadius: shape,
+        side: BorderSide(color: colors.line),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minWidth: ComponentSize.menuMinWidth,
+          maxWidth: ComponentSize.menuMaxWidth,
+        ),
+        child: IntrinsicWidth(
+          stepWidth: ComponentSize.menuWidthStep,
+          // A menu to screen readers, as Material's own popup menu is.
+          child: Semantics(
+            role: SemanticsRole.menu,
+            scopesRoute: true,
+            namesRoute: true,
+            explicitChildNodes: true,
+            label: MaterialLocalizations.of(context).popupMenuLabel,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: Spacing.xs),
+              child: ListBody(children: editDeleteMenuItems(context)),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

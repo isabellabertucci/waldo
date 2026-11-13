@@ -3,6 +3,7 @@ import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
+import 'package:waldo/features/wallets/viewmodels/pending_wallet_deletes.dart';
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/features/wallets/viewmodels/wallets_summary_view_model.dart';
 
@@ -19,18 +20,26 @@ class TransactionListViewModel extends _$TransactionListViewModel {
   }) async {
     final repo = await ref.watch(transactionRepositoryProvider.future);
     final pending = ref.watch(pendingTransactionDeletesProvider);
+    final pendingWallets = ref.watch(pendingWalletDeletesProvider);
     final transactions = walletId == null
         ? await repo.getAll(sortOrder: sortOrder)
         : await repo.getByWallet(walletId, sortOrder: sortOrder);
-    return transactions.where((t) => !pending.contains(t.id)).toList();
+    return transactions
+        .where(
+          (t) =>
+              !pending.containsKey(t.id) &&
+              !pendingWallets.contains(t.walletId),
+        )
+        .toList();
   }
 
   bool hideTransaction(int id) {
     final current = state.value;
-    if (current == null) return false;
-    // Hidden here at once, and in every other list through the pending set.
+    final transaction = current?.where((t) => t.id == id).firstOrNull;
+    if (current == null || transaction == null) return false;
+    // Hidden here at once, and everywhere else through the pending set.
     state = AsyncData(current.where((t) => t.id != id).toList());
-    ref.read(pendingTransactionDeletesProvider.notifier).add(id);
+    ref.read(pendingTransactionDeletesProvider.notifier).add(transaction);
     return true;
   }
 

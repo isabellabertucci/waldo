@@ -7,6 +7,8 @@ import 'package:waldo/features/preferences/repositories/preferences_repository.d
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_edit_sheet.dart';
+import 'package:waldo/features/wallets/models/wallet.dart';
+import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
 
 import '../../../../helpers/golden_seed.dart';
 import '../../../../helpers/test_app.dart';
@@ -48,6 +50,8 @@ void main() {
     await openSheet(tester, db, startInEditMode: true);
 
     for (final key in const ['txNameField', 'txNoteField']) {
+      await tester.ensureVisible(find.byKey(Key(key)));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(Key(key)));
       await tester.pumpAndSettle();
 
@@ -79,5 +83,44 @@ void main() {
       'dd/MM/yyyy',
     ).format(DateTime.parse(transaction.date));
     expect(find.text(date), findsOneWidget);
+  });
+
+  testWidgets('A transaction moved and renamed here, then deleted, is the '
+      'one the Undo bar names and deletes', (tester) async {
+    final db = await createTestDatabase();
+    addTearDown(db.close);
+    await seedGoldenData(db);
+    final savingsId = await WalletRepositoryImpl(db).insert(
+      const Wallet(name: 'Savings', createdAt: '2026-10-02T12:00:00.000'),
+    );
+    final transaction = await openSheet(tester, db, startInEditMode: true);
+
+    await tester.enterText(find.byKey(const Key('txNameField')), 'Rent');
+    await tester.ensureVisible(find.byKey(const Key('txWalletField')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('txWalletField')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Savings'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Save'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    final repo = TransactionRepositoryImpl(db);
+    expect((await repo.getById(transaction.id!))!.walletId, savingsId);
+
+    await tester.tap(find.byTooltip('Delete'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Rent'), findsOneWidget, reason: 'the Undo bar');
+
+    // Past the Undo window, the delete goes through.
+    for (var i = 0; i < 13; i++) {
+      await tester.pump(const Duration(seconds: 1));
+    }
+    expect(await repo.getById(transaction.id!), isNull);
   });
 }

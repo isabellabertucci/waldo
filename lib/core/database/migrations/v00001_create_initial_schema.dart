@@ -21,6 +21,13 @@ Future<void> up(Database db) async {
         )),
       ${WalletsTable.startingBalance} INTEGER NOT NULL DEFAULT 0,
       ${WalletsTable.currentBalance} INTEGER NOT NULL DEFAULT 0,
+      ${WalletsTable.finish} TEXT NOT NULL DEFAULT '${LeatherFinish.black.name}'
+        CHECK (${WalletsTable.finish} IN (
+          '${LeatherFinish.black.name}',
+          '${LeatherFinish.yellow.name}',
+          '${LeatherFinish.green.name}',
+          '${LeatherFinish.white.name}'
+        )),
       ${WalletsTable.createdAt} TEXT NOT NULL
     )
   ''');
@@ -104,6 +111,7 @@ Future<void> up(Database db) async {
       ${PreferencesTable.preferredCurrency} TEXT NOT NULL DEFAULT '${Currency.usd.name}',
       ${PreferencesTable.themeDark} INTEGER,
       ${PreferencesTable.dateFormat} TEXT NOT NULL DEFAULT 'yyyy-MM-dd',
+      ${PreferencesTable.balanceHidden} INTEGER NOT NULL DEFAULT 0,
       ${PreferencesTable.updatedAt} TEXT NOT NULL
     )
   ''');

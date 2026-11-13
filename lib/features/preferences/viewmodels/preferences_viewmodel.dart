@@ -36,4 +36,18 @@ class PreferencesViewModel extends _$PreferencesViewModel {
     _log.info('setDateFormat succeeded: format=$format');
     ref.invalidateSelf();
   }
+
+  /// Saves the eye toggle. Updates the loaded preferences in place, so
+  /// [balanceHiddenProvider] never sees the old value during a reload.
+  Future<void> setBalanceHidden(bool isHidden) async {
+    final repo = await ref.read(preferencesRepositoryProvider.future);
+    await repo.setBalanceHidden(isHidden);
+    _log.info('setBalanceHidden succeeded: isHidden=$isHidden');
+    final current = state.value;
+    if (current == null) {
+      ref.invalidateSelf();
+    } else {
+      state = AsyncData(current.copyWith(isBalanceHidden: isHidden));
+    }
+  }
 }

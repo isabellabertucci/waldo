@@ -9,7 +9,7 @@ class AppLocalizationsPt extends AppLocalizations {
   AppLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
-  String get dashboard => 'Painel';
+  String get dashboard => 'Início';
 
   @override
   String get transactions => 'Transações';
@@ -21,11 +21,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get wallets => 'Carteiras';
 
   @override
-  String get noWalletsYet => 'Ainda não há carteiras';
+  String get noWalletsYet => 'Ainda não tens carteiras';
 
   @override
   String get addFirstWallet =>
-      'Toca em + para adicionares a tua primeira carteira';
+      'Uma carteira é onde guardas o dinheiro: em mão, no banco ou numa poupança.';
 
   @override
   String get newWallet => 'Nova carteira';
@@ -43,12 +43,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get startingBalance => 'Saldo inicial';
 
   @override
-  String get startingBalancePrompt => 'Quanto tem a carteira hoje?';
-
-  @override
-  String get optional => 'Opcional';
-
-  @override
   String get requiredField => 'obrigatório';
 
   @override
@@ -59,6 +53,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get createWallet => 'Criar carteira';
+
+  @override
+  String get editCategory => 'Editar categoria';
 
   @override
   String get createCategory => 'Criar categoria';
@@ -77,7 +74,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get walletsError =>
-      'Ocorreu um problema ao carregar as tuas carteiras. Tenta novamente.';
+      'Ocorreu um problema ao carregar as tuas carteiras.';
 
   @override
   String get saveError =>
@@ -105,16 +102,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get back => 'Voltar';
 
   @override
-  String get deleteDigit => 'Apagar dígito';
-
-  @override
   String get hideBalance => 'Esconder saldo';
 
   @override
   String get showBalance => 'Mostrar saldo';
-
-  @override
-  String get receiptHint => 'Abre todas as transações';
 
   @override
   String get edit => 'Editar';
@@ -154,7 +145,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get addFirstTransaction =>
-      'Toca em + para adicionares a tua primeira transação';
+      'As transações que registares aparecem aqui.';
 
   @override
   String get newTransaction => 'Nova transação';
@@ -198,21 +189,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noteHint => 'Algo a lembrar?';
 
   @override
-  String editingAmountLabel(String type) {
-    return '$type · a editar valor';
-  }
-
-  @override
-  String get discardChangesTitle => 'Descartar alterações?';
-
-  @override
-  String get discardChangesMessage =>
-      'Tens alterações por guardar neste campo.';
-
-  @override
-  String get discard => 'Descartar';
-
-  @override
   String get deleteTransaction => 'Apagar transação?';
 
   @override
@@ -233,7 +209,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get transactionsError =>
-      'Ocorreu um problema ao carregar as tuas transações. Tenta novamente.';
+      'Ocorreu um problema ao carregar as tuas transações.';
 
   @override
   String get transactionSaveError =>
@@ -274,9 +250,6 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get categoryNameHint => 'ex: Café, Ginásio';
-
-  @override
-  String get manageCategories => 'Gerir categorias';
 
   @override
   String get deleteCategory => 'Apagar categoria?';
@@ -320,7 +293,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get categoriesError =>
-      'Ocorreu um problema ao carregar as tuas categorias. Tenta novamente.';
+      'Ocorreu um problema ao carregar as tuas categorias.';
 
   @override
   String get categorySaveError =>
@@ -376,24 +349,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get dateFormat => 'Formato de data';
 
   @override
-  String get moneySection => 'Dinheiro';
-
-  @override
-  String get appearanceSection => 'Aparência';
-
-  @override
-  String get currencyRowSubtitle => 'Como os valores são apresentados';
-
-  @override
-  String get dateFormatRowSubtitle => 'Usado na data de cada transação';
-
-  @override
   String get currencyChangeNotice =>
       'Isto altera apenas o símbolo. Os teus valores mantêm-se e não são convertidos.';
 
   @override
   String get preferencesError =>
-      'Ocorreu um problema ao carregar as tuas preferências. Tenta novamente.';
+      'Ocorreu um problema ao carregar as tuas preferências.';
 
   @override
   String get preferencesSaveError =>
@@ -415,19 +376,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get add => 'Adicionar';
 
   @override
-  String get dashboardError =>
-      'Ocorreu um problema ao carregar o teu painel. Tenta novamente.';
-
-  @override
-  String dashboardReceiptHeader(String month, String year) {
-    return 'WALDO · $month $year';
-  }
+  String get dashboardError => 'Ocorreu um problema ao carregar o teu painel.';
 
   @override
   String get uncategorized => 'Sem categoria';
-
-  @override
-  String get monthNetLabel => 'Balanço';
 
   @override
   String dashboardReceiptOtherCategories(int count) {
@@ -446,9 +398,6 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get categorySpendingEmptyHint =>
       'Adiciona a tua primeira transação para a veres dividida por categoria aqui.';
-
-  @override
-  String get addFirstTransactionButton => 'Adicionar primeira transação';
 
   @override
   String get cashFlow => 'Fluxo de caixa';
@@ -470,53 +419,17 @@ class AppLocalizationsPt extends AppLocalizations {
   String get recentTransactions => 'Transações recentes';
 
   @override
-  String get firstRunPeekCta => 'Desliza a tua primeira carteira';
+  String get previousMonth => 'Mês anterior';
 
   @override
-  String get dashboardReceiptNoWallet =>
-      'O recibo do mês aparece aqui depois da primeira transação.';
-
-  @override
-  String get zeroWalletsLabel => '0 carteiras';
-
-  @override
-  String get filterTitle => 'Filtro';
-
-  @override
-  String get filterHint => 'Abre o filtro';
-
-  @override
-  String get filterReset => 'Repor';
-
-  @override
-  String get filterSectionMonth => 'Mês';
-
-  @override
-  String get earlierMonths => 'Meses anteriores';
-
-  @override
-  String get laterMonths => 'Meses seguintes';
-
-  @override
-  String get filterSectionType => 'Tipo';
+  String get nextMonth => 'Mês seguinte';
 
   @override
   String get filterTypeAll => 'Todas';
 
   @override
-  String filterShowTransactions(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Ver $count transações',
-      one: 'Ver 1 transação',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String filterChipLabel(String type) {
-    return 'Tipo: $type';
+  String transactionsInMonth(String month) {
+    return 'Transações de $month';
   }
 
   @override
@@ -530,23 +443,183 @@ class AppLocalizationsPt extends AppLocalizations {
   String get transactionsGroupYesterday => 'Ontem';
 
   @override
-  String keptPercentThisMonth(String percent) {
-    return 'Ficaste com $percent do que recebeste';
-  }
-
-  @override
-  String overspentPercentThisMonth(String percent) {
-    return 'Gastaste mais $percent do que recebeste';
-  }
-
-  @override
   String walletsCountLabel(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other: '$count carteiras',
       one: '1 carteira',
+      zero: '0 carteiras',
     );
     return '$_temp0';
   }
+
+  @override
+  String get yourWallets => 'As tuas carteiras';
+
+  @override
+  String monthChangeThisMonth(String amount) {
+    return '$amount este mês';
+  }
+
+  @override
+  String monthChangeInMonth(String amount, String month) {
+    return '$amount em $month';
+  }
+
+  @override
+  String get actionHide => 'Ocultar';
+
+  @override
+  String get actionTransaction => 'Transação';
+
+  @override
+  String get categorySpending => 'Gastos por categoria';
+
+  @override
+  String get actionFilter => 'Filtrar';
+
+  @override
+  String get searchWallets => 'Procurar carteira';
+
+  @override
+  String walletsShownOf(int shown, int total) {
+    return '$shown de $total';
+  }
+
+  @override
+  String walletsInPositive(String amount) {
+    return 'Em positivo: $amount';
+  }
+
+  @override
+  String walletsInNegative(String amount) {
+    return 'Em negativo: $amount';
+  }
+
+  @override
+  String get walletStatusNegative => 'Em negativo';
+
+  @override
+  String get walletStatusEmpty => 'Sem saldo';
+
+  @override
+  String walletStatusShare(String percent) {
+    return '$percent do teu dinheiro';
+  }
+
+  @override
+  String get noWalletsMatch => 'Nenhuma carteira encontrada';
+
+  @override
+  String get walletActionsHint => 'editar ou apagar';
+
+  @override
+  String get walletRowHint =>
+      'Mantém premida uma carteira para a editar ou apagar';
+
+  @override
+  String walletShareOfPositive(String percent) {
+    return '$percent do teu dinheiro';
+  }
+
+  @override
+  String walletInRedBy(String amount) {
+    return 'Em negativo · $amount';
+  }
+
+  @override
+  String get walletAnalysis => 'Análise';
+
+  @override
+  String transactionsCountLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transações',
+      one: '1 transação',
+      zero: '0 transações',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get leatherColour => 'Cor do couro';
+
+  @override
+  String get leatherBlack => 'Preto';
+
+  @override
+  String get leatherYellow => 'Amarelo';
+
+  @override
+  String get leatherGreen => 'Verde';
+
+  @override
+  String get leatherWhite => 'Branco';
+
+  @override
+  String get transactionActionsHint => 'editar ou apagar';
+
+  @override
+  String get transactionRowHint =>
+      'Mantém premida uma transação para a editar ou apagar';
+
+  @override
+  String deleteWalletWithTransactions(String name, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'as suas $count transações',
+      one: 'a sua transação',
+      zero: 'as suas transações',
+    );
+    return 'Isto vai apagar permanentemente \"$name\" e $_temp0.';
+  }
+
+  @override
+  String get tryAgain => 'Tentar novamente';
+
+  @override
+  String get walletBalanceLabel => 'Saldo';
+
+  @override
+  String get recentCategories => 'Recentes';
+
+  @override
+  String get newExpense => 'Nova despesa';
+
+  @override
+  String get newIncome => 'Nova receita';
+
+  @override
+  String get createFirstWallet => 'Criar a primeira carteira';
+
+  @override
+  String get noActivityYet => 'Ainda sem movimentos';
+
+  @override
+  String get monthSummary => 'Resumo do mês';
+
+  @override
+  String get monthSummaryLater => 'Aparece aqui depois da primeira transação.';
+
+  @override
+  String get recentTransactionsLater =>
+      'Ainda não há transações. Cria uma carteira primeiro.';
+
+  @override
+  String get walletsNone => 'Nenhuma';
+
+  @override
+  String get settingsPreferences => 'Preferências';
+
+  @override
+  String get settingsOrganize => 'Organizar';
+
+  @override
+  String get categoriesBuiltIn => 'Incluídas';
+
+  @override
+  String get categoriesYours => 'As tuas';
 }

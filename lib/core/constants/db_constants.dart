@@ -11,6 +11,9 @@ class WalletsTable {
   static const type = 'type';
   static const startingBalance = 'starting_balance';
   static const currentBalance = 'current_balance';
+
+  /// The [LeatherFinish] picked for it.
+  static const finish = 'finish';
   static const createdAt = 'created_at';
 }
 
@@ -48,5 +51,6 @@ class PreferencesTable {
   static const preferredCurrency = 'preferred_currency';
   static const themeDark = 'theme_dark';
   static const dateFormat = 'date_format';
+  static const balanceHidden = 'balance_hidden';
   static const updatedAt = 'updated_at';
 }

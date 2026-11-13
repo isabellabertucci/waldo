@@ -51,7 +51,7 @@ final class WalletListViewModelProvider
 }
 
 String _$walletListViewModelHash() =>
-    r'cc5bef89ba31f97c536edf73f1f6a2b85510e56b';
+    r'87f1654e962e8cb72542a6d5f634abb0a3de9610';
 
 final class WalletListViewModelFamily extends $Family
     with

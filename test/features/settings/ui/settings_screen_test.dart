@@ -8,7 +8,7 @@ import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
 import 'package:waldo/features/settings/ui/settings_screen.dart';
-import 'package:waldo/features/settings/ui/widgets/settings_option_sheet.dart';
+import 'package:waldo/core/widgets/option_sheet.dart';
 
 import '../../../helpers/test_app.dart';
 
@@ -43,7 +43,7 @@ void main() {
     await tester.tap(find.text('System').first);
     await tester.pumpAndSettle();
 
-    expect(find.byType(SettingsOptionSheet<bool?>), findsOneWidget);
+    expect(find.byType(OptionSheet<bool?>), findsOneWidget);
     expect(find.text('Light'), findsOneWidget);
     expect(find.text('Dark'), findsOneWidget);
   });
@@ -61,7 +61,7 @@ void main() {
 
       // Still open, and the row behind the sheet hasn't changed yet - its
       // "System" value plus the sheet's own "System" option label.
-      expect(find.byType(SettingsOptionSheet<bool?>), findsOneWidget);
+      expect(find.byType(OptionSheet<bool?>), findsOneWidget);
       expect(find.text('System'), findsNWidgets(2));
     },
   );
@@ -77,7 +77,7 @@ void main() {
     await tester.tap(find.text('Done'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(SettingsOptionSheet<bool?>), findsNothing);
+    expect(find.byType(OptionSheet<bool?>), findsNothing);
     expect(find.text('Dark'), findsOneWidget);
   });
 
@@ -109,7 +109,7 @@ void main() {
     await tester.tap(find.byIcon(AppIcons.close));
     await tester.pumpAndSettle();
 
-    expect(find.byType(SettingsOptionSheet<bool?>), findsNothing);
+    expect(find.byType(OptionSheet<bool?>), findsNothing);
     expect(find.text('System'), findsOneWidget);
   });
 
@@ -135,7 +135,7 @@ void main() {
     await tester.tap(find.text('USD').first);
     await tester.pumpAndSettle();
 
-    expect(find.byType(SettingsOptionSheet<Currency>), findsOneWidget);
+    expect(find.byType(OptionSheet<Currency>), findsOneWidget);
     expect(find.text('US dollar'), findsOneWidget);
     expect(find.text('Euro'), findsOneWidget);
     expect(find.text('British pound'), findsOneWidget);
@@ -195,11 +195,11 @@ void main() {
     await tester.tap(find.text('Date format'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(SettingsOptionSheet<String>), findsOneWidget);
+    expect(find.byType(OptionSheet<String>), findsOneWidget);
     // One icon per format option in the sheet.
     expect(
       find.descendant(
-        of: find.byType(SettingsOptionSheet<String>),
+        of: find.byType(OptionSheet<String>),
         matching: find.byIcon(AppIcons.calendar),
       ),
       findsNWidgets(3),

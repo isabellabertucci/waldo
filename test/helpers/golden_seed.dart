@@ -7,6 +7,10 @@ import 'package:waldo/features/transactions/repositories/transaction_repository.
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
 
+/// The day the seed's transactions happen on: a test that reads "this
+/// month" pins the clock here, so it doesn't break when the month turns.
+final seedToday = DateTime(2026, 10, 8, 12);
+
 /// One wallet with one income and one expense, shared by the golden tests.
 class GoldenSeed {
   const GoldenSeed({required this.walletId});
@@ -32,7 +36,11 @@ Future<GoldenSeed> seedGoldenData(Database db) async {
     (c) => c.type == CategoryType.groceries,
   );
 
-  final today = DateTime(2026, 10, 8).toIso8601String();
+  final today = DateTime(
+    seedToday.year,
+    seedToday.month,
+    seedToday.day,
+  ).toIso8601String();
 
   await transactionRepo.insert(
     Transaction(

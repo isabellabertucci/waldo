@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get dashboard => 'Dashboard';
+  String get dashboard => 'Home';
 
   @override
   String get transactions => 'Transactions';
@@ -24,7 +24,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noWalletsYet => 'No wallets yet';
 
   @override
-  String get addFirstWallet => 'Tap + to add your first wallet';
+  String get addFirstWallet =>
+      'A wallet is where you keep money: in hand, at the bank or in savings.';
 
   @override
   String get newWallet => 'New wallet';
@@ -42,12 +43,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startingBalance => 'Starting balance';
 
   @override
-  String get startingBalancePrompt => 'How much is in it today?';
-
-  @override
-  String get optional => 'Optional';
-
-  @override
   String get requiredField => 'required';
 
   @override
@@ -58,6 +53,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createWallet => 'Create wallet';
+
+  @override
+  String get editCategory => 'Edit category';
 
   @override
   String get createCategory => 'Create category';
@@ -75,8 +73,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invalidNumber => 'Enter a valid number';
 
   @override
-  String get walletsError =>
-      'There was a problem loading your wallets. Please try again.';
+  String get walletsError => 'There was a problem loading your wallets.';
 
   @override
   String get saveError => 'Couldn\'t save the wallet. Nothing was changed.';
@@ -102,16 +99,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get back => 'Back';
 
   @override
-  String get deleteDigit => 'Delete digit';
-
-  @override
   String get hideBalance => 'Hide balance';
 
   @override
   String get showBalance => 'Show balance';
-
-  @override
-  String get receiptHint => 'Opens all transactions';
 
   @override
   String get edit => 'Edit';
@@ -150,7 +141,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noTransactionsYet => 'No transactions yet';
 
   @override
-  String get addFirstTransaction => 'Tap + to add your first transaction';
+  String get addFirstTransaction => 'The transactions you log show up here.';
 
   @override
   String get newTransaction => 'New transaction';
@@ -194,20 +185,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noteHint => 'Anything to remember?';
 
   @override
-  String editingAmountLabel(String type) {
-    return '$type · editing amount';
-  }
-
-  @override
-  String get discardChangesTitle => 'Discard changes?';
-
-  @override
-  String get discardChangesMessage => 'You have unsaved changes to this field.';
-
-  @override
-  String get discard => 'Discard';
-
-  @override
   String get deleteTransaction => 'Delete transaction?';
 
   @override
@@ -228,7 +205,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transactionsError =>
-      'There was a problem loading your transactions. Please try again.';
+      'There was a problem loading your transactions.';
 
   @override
   String get transactionSaveError =>
@@ -271,9 +248,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryNameHint => 'e.g. Coffee, Gym';
 
   @override
-  String get manageCategories => 'Manage categories';
-
-  @override
   String get deleteCategory => 'Delete category?';
 
   @override
@@ -314,8 +288,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryRestored => 'Category restored';
 
   @override
-  String get categoriesError =>
-      'There was a problem loading your categories. Please try again.';
+  String get categoriesError => 'There was a problem loading your categories.';
 
   @override
   String get categorySaveError =>
@@ -371,24 +344,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dateFormat => 'Date format';
 
   @override
-  String get moneySection => 'Money';
-
-  @override
-  String get appearanceSection => 'Appearance';
-
-  @override
-  String get currencyRowSubtitle => 'How amounts are shown';
-
-  @override
-  String get dateFormatRowSubtitle => 'Used for a transaction\'s date';
-
-  @override
   String get currencyChangeNotice =>
       'This changes the symbol only. Your amounts stay the same and are not converted.';
 
   @override
   String get preferencesError =>
-      'There was a problem loading your preferences. Please try again.';
+      'There was a problem loading your preferences.';
 
   @override
   String get preferencesSaveError =>
@@ -410,19 +371,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get add => 'Add';
 
   @override
-  String get dashboardError =>
-      'There was a problem loading your dashboard. Please try again.';
-
-  @override
-  String dashboardReceiptHeader(String month, String year) {
-    return 'WALDO · $month $year';
-  }
+  String get dashboardError => 'There was a problem loading your dashboard.';
 
   @override
   String get uncategorized => 'Uncategorized';
-
-  @override
-  String get monthNetLabel => 'Net';
 
   @override
   String dashboardReceiptOtherCategories(int count) {
@@ -441,9 +393,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get categorySpendingEmptyHint =>
       'Add your first transaction to see it broken down by category here.';
-
-  @override
-  String get addFirstTransactionButton => 'Add first transaction';
 
   @override
   String get cashFlow => 'Cash flow';
@@ -465,53 +414,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recentTransactions => 'Recent transactions';
 
   @override
-  String get firstRunPeekCta => 'Slide in your first wallet';
+  String get previousMonth => 'Previous month';
 
   @override
-  String get dashboardReceiptNoWallet =>
-      'Your month\'s receipt prints here after the first transaction.';
-
-  @override
-  String get zeroWalletsLabel => '0 wallets';
-
-  @override
-  String get filterTitle => 'Filter';
-
-  @override
-  String get filterHint => 'Opens the filter';
-
-  @override
-  String get filterReset => 'Reset';
-
-  @override
-  String get filterSectionMonth => 'Month';
-
-  @override
-  String get earlierMonths => 'Earlier months';
-
-  @override
-  String get laterMonths => 'Later months';
-
-  @override
-  String get filterSectionType => 'Type';
+  String get nextMonth => 'Next month';
 
   @override
   String get filterTypeAll => 'All';
 
   @override
-  String filterShowTransactions(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Show $count transactions',
-      one: 'Show 1 transaction',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String filterChipLabel(String type) {
-    return '$type transactions';
+  String transactionsInMonth(String month) {
+    return 'Transactions in $month';
   }
 
   @override
@@ -524,23 +437,182 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transactionsGroupYesterday => 'Yesterday';
 
   @override
-  String keptPercentThisMonth(String percent) {
-    return 'Kept $percent of what you received';
-  }
-
-  @override
-  String overspentPercentThisMonth(String percent) {
-    return 'Spent $percent more than you received';
-  }
-
-  @override
   String walletsCountLabel(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
       other: '$count wallets',
       one: '1 wallet',
+      zero: '0 wallets',
     );
     return '$_temp0';
   }
+
+  @override
+  String get yourWallets => 'Your wallets';
+
+  @override
+  String monthChangeThisMonth(String amount) {
+    return '$amount this month';
+  }
+
+  @override
+  String monthChangeInMonth(String amount, String month) {
+    return '$amount in $month';
+  }
+
+  @override
+  String get actionHide => 'Hide';
+
+  @override
+  String get actionTransaction => 'Transaction';
+
+  @override
+  String get categorySpending => 'Spending by category';
+
+  @override
+  String get actionFilter => 'Filter';
+
+  @override
+  String get searchWallets => 'Search wallets';
+
+  @override
+  String walletsShownOf(int shown, int total) {
+    return '$shown of $total';
+  }
+
+  @override
+  String walletsInPositive(String amount) {
+    return 'In the black: $amount';
+  }
+
+  @override
+  String walletsInNegative(String amount) {
+    return 'In the red: $amount';
+  }
+
+  @override
+  String get walletStatusNegative => 'In the red';
+
+  @override
+  String get walletStatusEmpty => 'Empty';
+
+  @override
+  String walletStatusShare(String percent) {
+    return '$percent of your money';
+  }
+
+  @override
+  String get noWalletsMatch => 'No wallets found';
+
+  @override
+  String get walletActionsHint => 'edit or delete';
+
+  @override
+  String get walletRowHint => 'Press and hold a wallet to edit or delete it';
+
+  @override
+  String walletShareOfPositive(String percent) {
+    return '$percent of your money';
+  }
+
+  @override
+  String walletInRedBy(String amount) {
+    return 'In the red · $amount';
+  }
+
+  @override
+  String get walletAnalysis => 'Analysis';
+
+  @override
+  String transactionsCountLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions',
+      one: '1 transaction',
+      zero: '0 transactions',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get leatherColour => 'Leather colour';
+
+  @override
+  String get leatherBlack => 'Black';
+
+  @override
+  String get leatherYellow => 'Yellow';
+
+  @override
+  String get leatherGreen => 'Green';
+
+  @override
+  String get leatherWhite => 'White';
+
+  @override
+  String get transactionActionsHint => 'edit or delete';
+
+  @override
+  String get transactionRowHint =>
+      'Press and hold a transaction to edit or delete it';
+
+  @override
+  String deleteWalletWithTransactions(String name, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'its $count transactions',
+      one: 'its 1 transaction',
+      zero: 'its transactions',
+    );
+    return 'This will permanently delete \"$name\" and $_temp0.';
+  }
+
+  @override
+  String get tryAgain => 'Try again';
+
+  @override
+  String get walletBalanceLabel => 'Balance';
+
+  @override
+  String get recentCategories => 'Recent';
+
+  @override
+  String get newExpense => 'New expense';
+
+  @override
+  String get newIncome => 'New income';
+
+  @override
+  String get createFirstWallet => 'Create your first wallet';
+
+  @override
+  String get noActivityYet => 'No activity yet';
+
+  @override
+  String get monthSummary => 'This month';
+
+  @override
+  String get monthSummaryLater => 'Shows up here after your first transaction.';
+
+  @override
+  String get recentTransactionsLater =>
+      'No transactions yet. Create a wallet first.';
+
+  @override
+  String get walletsNone => 'None';
+
+  @override
+  String get settingsPreferences => 'Preferences';
+
+  @override
+  String get settingsOrganize => 'Organize';
+
+  @override
+  String get categoriesBuiltIn => 'Built-in';
+
+  @override
+  String get categoriesYours => 'Yours';
 }

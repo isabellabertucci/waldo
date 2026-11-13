@@ -6,4 +6,7 @@ class IconSize {
   static const md = 16.0;
   static const lg = 18.0;
   static const xl = 20.0;
+
+  /// An empty state's illustration.
+  static const hero = 64.0;
 }

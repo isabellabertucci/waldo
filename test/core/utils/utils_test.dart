@@ -39,6 +39,14 @@ void main() {
     expect(decimalSeparator('pt_PT'), ',');
   });
 
+  group('formatSignedCents', () {
+    test('writes + on a gain, a true minus on a loss, nothing on zero', () {
+      expect(formatSignedCents(21700, locale: 'en_US'), '+\$217.00');
+      expect(formatSignedCents(-201050, locale: 'en_US'), '\u2212\$2,010.50');
+      expect(formatSignedCents(0, locale: 'en_US'), '\$0.00');
+    });
+  });
+
   group('formatCentsForInput', () {
     final cases = <(int, String)>[
       (1000, '10.00'),

@@ -116,50 +116,45 @@ void main() {
     expect(september.recentTransactions.map((t) => t.date), ['2026-09-20']);
   });
 
-  test(
-    'category lines plus uncategorized always add up to monthlyExpense',
-    () async {
-      final fixed = ProviderContainer(
-        overrides: [
-          appDatabaseProvider.overrideWith((ref) async => db),
-          clockProvider.overrideWithValue(() => DateTime(2026, 10, 15, 12)),
-        ],
-      );
-      addTearDown(fixed.dispose);
-      final walletId = await WalletRepositoryImpl(db).insert(
-        const Wallet(name: 'Cash', createdAt: '2026-08-01T12:00:00.000'),
-      );
-      final groceries = (await CategoryRepositoryImpl(
-        db,
-      ).getAll()).firstWhere((c) => c.type == CategoryType.groceries);
-      final transactions = TransactionRepositoryImpl(db);
-      await transactions.insert(
-        Transaction(
-          walletId: walletId,
-          categoryId: groceries.id,
-          amount: 7000,
-          type: TransactionType.expense,
-          date: '2026-10-05',
-          createdAt: '2026-10-05T12:00:00.000',
-        ),
-      );
-      await transactions.insert(
-        Transaction(
-          walletId: walletId,
-          amount: 3000,
-          type: TransactionType.expense,
-          date: '2026-10-06',
-          createdAt: '2026-10-06T12:00:00.000',
-        ),
-      );
+  test('monthlyExpense counts spending with and without a category', () async {
+    final fixed = ProviderContainer(
+      overrides: [
+        appDatabaseProvider.overrideWith((ref) async => db),
+        clockProvider.overrideWithValue(() => DateTime(2026, 10, 15, 12)),
+      ],
+    );
+    addTearDown(fixed.dispose);
+    final walletId = await WalletRepositoryImpl(
+      db,
+    ).insert(const Wallet(name: 'Cash', createdAt: '2026-08-01T12:00:00.000'));
+    final groceries = (await CategoryRepositoryImpl(
+      db,
+    ).getAll()).firstWhere((c) => c.type == CategoryType.groceries);
+    final transactions = TransactionRepositoryImpl(db);
+    await transactions.insert(
+      Transaction(
+        walletId: walletId,
+        categoryId: groceries.id,
+        amount: 7000,
+        type: TransactionType.expense,
+        date: '2026-10-05',
+        createdAt: '2026-10-05T12:00:00.000',
+      ),
+    );
+    await transactions.insert(
+      Transaction(
+        walletId: walletId,
+        amount: 3000,
+        type: TransactionType.expense,
+        date: '2026-10-06',
+        createdAt: '2026-10-06T12:00:00.000',
+      ),
+    );
 
-      final data = await fixed.read(dashboardViewModelProvider.future);
+    final data = await fixed.read(dashboardViewModelProvider.future);
 
-      expect(data.monthlyExpense, 10000);
-      expect(data.spendingByCategory.single.amount, 7000);
-      expect(data.uncategorizedSpending, 3000);
-    },
-  );
+    expect(data.monthlyExpense, 10000);
+  });
 
   group('SelectedDashboardMonth', () {
     ProviderContainer containerAt(DateTime now) {

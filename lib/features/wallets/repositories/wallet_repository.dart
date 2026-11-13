@@ -17,8 +17,6 @@ class DuplicateWalletNameException implements Exception {}
 abstract class IWalletRepository {
   Future<List<Wallet>> getAll({SortOrder sortOrder = SortOrder.desc});
   Future<Wallet?> getById(int id);
-  Future<int> getTotalBalance();
-  Future<int> getCount();
   Future<int> insert(Wallet wallet);
   Future<void> update(Wallet wallet);
   Future<void> delete(int id);
@@ -65,37 +63,6 @@ class WalletRepositoryImpl implements IWalletRepository {
   }
 
   @override
-  Future<int> getTotalBalance() async {
-    try {
-      final result = await _db.rawQuery(
-        'SELECT SUM(${WalletsTable.currentBalance}) AS total '
-        'FROM ${WalletsTable.table}',
-      );
-      final total = result.first['total'] as int?;
-      _log.fine('getTotalBalance succeeded: total=$total');
-      return total ?? 0;
-    } on DatabaseException catch (e) {
-      _log.severe('getTotalBalance failed', e);
-      rethrow;
-    }
-  }
-
-  @override
-  Future<int> getCount() async {
-    try {
-      final result = await _db.rawQuery(
-        'SELECT COUNT(*) AS count FROM ${WalletsTable.table}',
-      );
-      final count = result.first['count'] as int? ?? 0;
-      _log.fine('getCount succeeded: count=$count');
-      return count;
-    } on DatabaseException catch (e) {
-      _log.severe('getCount failed', e);
-      rethrow;
-    }
-  }
-
-  @override
   Future<int> insert(Wallet wallet) async {
     try {
       final id = await _db.insert(WalletsTable.table, wallet.toMap());
@@ -125,6 +92,7 @@ class WalletRepositoryImpl implements IWalletRepository {
           WalletsTable.name: wallet.name,
           WalletsTable.nameKey: nameKey(wallet.name),
           WalletsTable.type: wallet.type.name,
+          WalletsTable.finish: wallet.finish.name,
         },
         where: '${WalletsTable.id} = ?',
         whereArgs: [id],

@@ -4,14 +4,16 @@ import 'package:sqflite/sqflite.dart';
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/database/db_providers.dart';
+import 'package:waldo/core/utils/utils.dart';
 import '../models/category.dart';
 
 part 'category_repository.g.dart';
 
 final _log = Logger('waldo.repository.category');
 
-/// "Others" is where a deleted category's transactions go, so it stays.
-class CannotDeleteOthersCategoryException implements Exception {}
+/// The built-ins always stay, "Others" above all: it's where a deleted
+/// category's transactions go. Only the user's own can be deleted.
+class CannotDeleteDefaultCategoryException implements Exception {}
 
 class DuplicateCategoryNameException implements Exception {}
 
@@ -22,6 +24,9 @@ abstract class ICategoryRepository {
   /// The built-in "Others" category: the home of uncategorized transactions.
   Future<Category> getOthers();
   Future<int> insert(Category category);
+
+  /// Renames a custom category; throws [DuplicateCategoryNameException].
+  Future<void> rename(int id, String name);
   Future<int> countTransactions(int categoryId);
 
   /// Moves the category's transactions to "Others", then deletes it.
@@ -105,6 +110,26 @@ class CategoryRepositoryImpl implements ICategoryRepository {
   }
 
   @override
+  Future<void> rename(int id, String name) async {
+    try {
+      final updated = await _db.update(
+        CategoriesTable.table,
+        {CategoriesTable.name: name, CategoriesTable.nameKey: nameKey(name)},
+        where: '${CategoriesTable.id} = ?',
+        whereArgs: [id],
+      );
+      _log.info('rename succeeded: id=$id, updated=$updated');
+    } on DatabaseException catch (e) {
+      if (e.isUniqueConstraintError()) {
+        _log.warning('rename rejected: duplicate name, id=$id');
+        throw DuplicateCategoryNameException();
+      }
+      _log.severe('rename failed', e);
+      rethrow;
+    }
+  }
+
+  @override
   Future<int> countTransactions(int categoryId) async {
     try {
       final result = await _db.rawQuery(
@@ -124,8 +149,11 @@ class CategoryRepositoryImpl implements ICategoryRepository {
   @override
   Future<void> delete(int id) async {
     try {
+      final category = await getById(id);
+      if (category?.isDefault ?? false) {
+        throw CannotDeleteDefaultCategoryException();
+      }
       final others = await getOthers();
-      if (others.id == id) throw CannotDeleteOthersCategoryException();
 
       // Both steps or neither, so no transaction is left pointing nowhere.
       await _db.transaction((txn) async {

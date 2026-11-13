@@ -10,6 +10,8 @@ import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/utils/localization_delegates.dart';
 
+import 'golden_seed.dart';
+
 /// Wraps [child] in the real app's providers, theme and localizations.
 /// [isBalanceHidden] starts with the eye toggle on; [locale] is the app language.
 Widget wrapForGolden({
@@ -25,7 +27,7 @@ Widget wrapForGolden({
       // ignore: riverpod_lint/scoped_providers_should_specify_dependencies
       appDatabaseProvider.overrideWith((ref) async => db),
       // ignore: riverpod_lint/scoped_providers_should_specify_dependencies
-      clockProvider.overrideWithValue(() => DateTime(2026, 10, 8, 12)),
+      clockProvider.overrideWithValue(() => seedToday),
       if (isBalanceHidden)
         balanceHiddenProvider.overrideWith(_HiddenBalance.new),
     ],

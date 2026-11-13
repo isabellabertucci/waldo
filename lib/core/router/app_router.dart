@@ -23,11 +23,16 @@ class CategoriesRoute extends GoRouteData with $CategoriesRoute {
 
 @TypedGoRoute<AllTransactionsRoute>(path: '/transactions')
 class AllTransactionsRoute extends GoRouteData with $AllTransactionsRoute {
-  const AllTransactionsRoute();
+  const AllTransactionsRoute({this.month});
+
+  /// Shows only this month ("2026-10"), as the dashboard receipt does.
+  final String? month;
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const AllTransactionsScreen();
+    return AllTransactionsScreen(
+      month: month == null ? null : DateTime.tryParse('$month-01'),
+    );
   }
 }
 

@@ -85,6 +85,24 @@ void main() {
       expect(id, greaterThan(0));
     });
 
+    test('rename changes a custom category\'s name', () async {
+      final id = await repo.insert(_custom('Gym'));
+
+      await repo.rename(id, 'Sport');
+
+      expect((await repo.getById(id))!.name, 'Sport');
+    });
+
+    test('rename refuses a name another category has', () async {
+      await repo.insert(_custom('Gym'));
+      final id = await repo.insert(_custom('Sport'));
+
+      expect(
+        () => repo.rename(id, 'GYM'),
+        throwsA(isA<DuplicateCategoryNameException>()),
+      );
+    });
+
     test('delete removes a category with no transactions', () async {
       final id = await repo.insert(
         const Category(
@@ -131,14 +149,16 @@ void main() {
       expect(await repo.countTransactions(others.id!), 1);
     });
 
-    test('delete allows a built-in category other than Others', () async {
+    test('delete refuses a built-in category', () async {
       final groceries = (await repo.getAll()).firstWhere(
         (c) => c.type == CategoryType.groceries,
       );
 
-      await repo.delete(groceries.id!);
-
-      expect(await repo.getById(groceries.id!), isNull);
+      expect(
+        () => repo.delete(groceries.id!),
+        throwsA(isA<CannotDeleteDefaultCategoryException>()),
+      );
+      expect(await repo.getById(groceries.id!), isNotNull);
     });
 
     test('delete refuses the Others category', () async {
@@ -146,7 +166,7 @@ void main() {
 
       expect(
         () => repo.delete(others.id!),
-        throwsA(isA<CannotDeleteOthersCategoryException>()),
+        throwsA(isA<CannotDeleteDefaultCategoryException>()),
       );
       expect(await repo.getById(others.id!), isNotNull);
     });

@@ -9,5 +9,6 @@ abstract class WalletFormState with _$WalletFormState {
     @Default('') String name,
     @Default(WalletType.cash) WalletType type,
     @Default('') String startingBalance,
+    @Default(LeatherFinish.black) LeatherFinish finish,
   }) = _WalletFormState;
 }

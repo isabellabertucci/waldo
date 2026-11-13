@@ -1,25 +1,23 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:waldo/core/theme/app_colors.dart';
+import 'package:waldo/core/widgets/whole_words_text.dart';
+import 'package:waldo/core/theme/dynamic_type_scaler.dart';
+import 'package:waldo/core/theme/alpha.dart';
+import 'package:waldo/core/theme/component_size.dart';
+import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
-import 'package:waldo/core/theme/elevation.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/core/widgets/dashed_border.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 /// How long a deleted item can still be brought back.
-const undoWindow = Duration(seconds: 5);
+const undoWindow = Duration(seconds: 10);
 
-const _barHeight = 64.0; // one-off: two text lines plus the 48dp Undo button
-const _buttonHeight = 48.0;
-const _ringSize = 32.0;
-const _enterDuration = Duration(milliseconds: 350);
-const _enterCurve = Cubic(0.2, 0.8, 0.2, 1);
-const _enterOffset = 18.0;
+/// The 48dp Undo button with the bar's padding above and below it.
+const _barHeight = kMinInteractiveDimension + Spacing.xs * 2;
 const _restoredDuration = Duration(seconds: 2);
 
 /// Shows the undo bar for an item that was just hidden. Completes with true
@@ -89,9 +87,7 @@ SnackBar _barSnackBar(
       Spacing.sm,
       Spacing.component,
     ),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(Rounded.md),
-    ),
+    shape: const StadiumBorder(),
   );
 }
 
@@ -105,20 +101,26 @@ class _BarShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // A pill, so its round ends follow the Undo pill and the ring inside.
+    // With large text the bar stacks and grows tall, where a pill's ends
+    // would cut into the text, so it keeps card corners there.
+    final isPill = !DynamicTypeScaler.isAccessibilitySize(context);
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 1, end: 0),
-      duration: _enterDuration,
-      curve: _enterCurve,
+      duration: Motion.enter,
+      curve: Motion.enterCurve,
       builder: (context, t, child) => Transform.translate(
-        offset: Offset(0, _enterOffset * t),
+        offset: Offset(0, Motion.enterRise * t),
         child: Opacity(opacity: 1 - t, child: child),
       ),
       // At least 64 tall, and taller with large text, so it never clips.
       child: Container(
         constraints: const BoxConstraints(minHeight: _barHeight),
-        padding: const EdgeInsets.fromLTRB(
-          Spacing.component,
+        // As far in from the left end as the ring is from the top and bottom,
+        // so the ring sits centred in the round end.
+        padding: EdgeInsets.fromLTRB(
+          isPill ? Spacing.sm : Spacing.component,
           Spacing.xs,
           Spacing.xs,
           Spacing.xs,
@@ -126,12 +128,15 @@ class _BarShell extends StatelessWidget {
         decoration: BoxDecoration(
           // Ink in both themes, like the wallet card.
           color: colors.leather,
-          borderRadius: BorderRadius.circular(Rounded.md),
+          borderRadius: BorderRadius.circular(
+            isPill ? Rounded.pill : Rounded.lg,
+          ),
           // On the dark page the ink bar needs an edge to show where it ends.
           border: isDark
-              ? Border.all(color: colors.onLeather.withValues(alpha: 0.12))
+              ? Border.all(
+                  color: colors.onLeather.withValues(alpha: Alpha.soft),
+                )
               : null,
-          boxShadow: Elevation.high,
         ),
         child: child,
       ),
@@ -208,48 +213,59 @@ class _UndoBarState extends State<_UndoBar>
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final subtitle = widget.subtitle;
+    // No clock while it waits; a ring stuck at 5 would read as one.
+    final badge = _waitsForUndo
+        ? const _IconDisc(icon: AppIcons.delete)
+        : _CountdownRing(progress: _countdown);
+    const gap = SizedBox(width: Spacing.component);
+    final texts = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        WholeWordsText.singleLine(
+          widget.title,
+          style: context.bodyStrong.copyWith(color: colors.onLeather),
+        ),
+        if (subtitle != null && subtitle.isNotEmpty)
+          WholeWordsText.singleLine(
+            subtitle,
+            style: context.label.copyWith(
+              color: colors.onLeather.withValues(alpha: Alpha.muted),
+            ),
+          ),
+      ],
+    );
 
     return Semantics(
       liveRegion: true,
       container: true,
       child: _BarShell(
-        child: Row(
-          children: [
-            // No clock while it waits; a ring stuck at 5 would read as one.
-            if (_waitsForUndo)
-              const _IconDisc(icon: AppIcons.delete)
-            else
-              _CountdownRing(progress: _countdown),
-            const SizedBox(width: Spacing.component),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
+        // At accessibility sizes Undo moves under the message, so neither
+        // squeezes the other.
+        child: DynamicTypeScaler.isAccessibilitySize(context)
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    widget.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.bodyMdStrong.copyWith(
-                      color: colors.onLeather,
-                    ),
+                  Row(
+                    children: [
+                      badge,
+                      gap,
+                      Expanded(child: texts),
+                    ],
                   ),
-                  if (subtitle != null && subtitle.isNotEmpty)
-                    Text(
-                      subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: colors.onLeather.withValues(alpha: 0.62),
-                      ),
-                    ),
+                  const SizedBox(height: Spacing.xs),
+                  _UndoButton(onPressed: widget.onUndo),
+                ],
+              )
+            : Row(
+                children: [
+                  badge,
+                  gap,
+                  Expanded(child: texts),
+                  gap,
+                  _UndoButton(onPressed: widget.onUndo),
                 ],
               ),
-            ),
-            const SizedBox(width: Spacing.component),
-            _UndoButton(onPressed: widget.onUndo),
-          ],
-        ),
       ),
     );
   }
@@ -267,7 +283,7 @@ class _CountdownRing extends StatelessWidget {
 
     return ExcludeSemantics(
       child: SizedBox.square(
-        dimension: _ringSize,
+        dimension: ComponentSize.undoRing,
         child: AnimatedBuilder(
           animation: progress,
           builder: (context, _) {
@@ -278,16 +294,22 @@ class _CountdownRing extends StatelessWidget {
             return CustomPaint(
               painter: _RingPainter(
                 remaining: 1 - progress.value,
-                track: colors.onLeather.withValues(alpha: 0.18),
+                track: colors.onLeather.withValues(alpha: Alpha.medium),
                 // The bar is ink in both themes, so it takes dark mode's orange.
-                fill: AppColors.dark.error,
+                // Time running out is no danger: the details' green.
+                fill: colors.accent,
               ),
-              child: Center(
-                child: Text(
-                  '$secondsLeft',
-                  style: context.bodySmBold.copyWith(
-                    color: colors.onLeather,
-                    fontFeatures: const [FontFeature.tabularFigures()],
+              // The number stops growing where bars do, so it stays inside
+              // the ring.
+              child: MediaQuery.withClampedTextScaling(
+                maxScaleFactor: DynamicTypeScaler.barMaxScale,
+                child: Center(
+                  child: Text(
+                    '$secondsLeft',
+                    style: context.caption.copyWith(
+                      color: colors.onLeather,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
                   ),
                 ),
               ),
@@ -358,40 +380,26 @@ class _UndoButton extends StatelessWidget {
     return Semantics(
       container: true,
       button: true,
+      // A small action, so light green like every other (DESIGN.md
+      // "Buttons"); text only, centred.
       child: Material(
-        color: colors.onLeather,
+        color: colors.accent,
         shape: const StadiumBorder(),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onPressed,
-          child: SizedBox(
-            height: _buttonHeight,
+          // At least 48 tall, and taller with large text.
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: kMinInteractiveDimension,
+            ),
             child: Padding(
-              padding: const EdgeInsets.all(Spacing.xxs),
-              child: DashedBorder(
-                radius: Rounded.pill,
-                color: colors.leather.withValues(alpha: 0.3),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Spacing.sm - Spacing.xxs,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        AppIcons.undo,
-                        size: IconSize.md,
-                        color: colors.leather,
-                      ),
-                      const SizedBox(width: Spacing.xs),
-                      Text(
-                        l10n.undo,
-                        style: context.bodyMdStrong.copyWith(
-                          color: colors.leather,
-                        ),
-                      ),
-                    ],
-                  ),
+              padding: const EdgeInsets.symmetric(horizontal: Spacing.sm),
+              child: Center(
+                widthFactor: 1,
+                child: Text(
+                  l10n.undo,
+                  style: context.bodyStrong.copyWith(color: colors.onAccent),
                 ),
               ),
             ),
@@ -413,8 +421,8 @@ class _IconDisc extends StatelessWidget {
     final colors = context.appColors;
 
     return Container(
-      width: _ringSize,
-      height: _ringSize,
+      width: ComponentSize.undoRing,
+      height: ComponentSize.undoRing,
       decoration: BoxDecoration(
         color: colors.onLeather,
         shape: BoxShape.circle,
@@ -443,11 +451,9 @@ class _RestoredBar extends StatelessWidget {
             const _IconDisc(icon: AppIcons.check),
             const SizedBox(width: Spacing.component),
             Expanded(
-              child: Text(
+              child: WholeWordsText.singleLine(
                 label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.bodyMdStrong.copyWith(color: colors.onLeather),
+                style: context.bodyStrong.copyWith(color: colors.onLeather),
               ),
             ),
           ],

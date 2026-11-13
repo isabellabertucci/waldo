@@ -14,6 +14,10 @@ class AppShell extends StatelessWidget {
     final currentIndex = navigationShell.currentIndex;
 
     return Scaffold(
+      // The navbar floats: pages scroll on behind it, with no band of
+      // background cutting them off above it. They get its height as bottom
+      // padding, to scroll their last row clear of it.
+      extendBody: true,
       // No fade on `body`: sheets and buttons rendered inside it would fade too.
       body: PageWidth(child: navigationShell),
       bottomNavigationBar: AppNavBar(

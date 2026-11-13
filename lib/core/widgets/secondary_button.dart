@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 
-/// Low-emphasis text button with no fill; the press ripple marks it as tappable.
+/// A small action inside a card or beside a title ("See all"): a light
+/// green `accent` pill, as green marks details (DESIGN.md "Buttons").
 class SecondaryButton extends StatelessWidget {
   const SecondaryButton({
     super.key,
@@ -21,14 +23,14 @@ class SecondaryButton extends StatelessWidget {
     return FilledButton(
       onPressed: onPressed,
       style: FilledButton.styleFrom(
-        backgroundColor: colors.transparent,
-        foregroundColor: colors.onSurface,
-        textStyle: context.bodyMdStrong,
+        backgroundColor: colors.accent,
+        foregroundColor: colors.onAccent,
+        textStyle: context.bodyStrong,
         padding: const EdgeInsets.symmetric(
           horizontal: Spacing.component,
           vertical: Spacing.xxs,
         ),
-        minimumSize: const Size(0, 32),
+        minimumSize: const Size(0, ComponentSize.compactButton),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Rounded.pill),
         ),

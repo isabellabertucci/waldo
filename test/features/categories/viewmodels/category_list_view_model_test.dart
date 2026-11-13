@@ -1,10 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:waldo/core/constants/enums.dart';
+import 'package:waldo/core/database/db_providers.dart';
 import 'package:waldo/core/utils/clock.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/categories/viewmodels/category_list_view_model.dart';
+import 'package:waldo/features/categories/viewmodels/pending_category_deletes.dart';
+import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
+import 'package:waldo/features/transactions/models/transaction.dart';
+import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
+import 'package:waldo/features/wallets/models/wallet.dart';
+import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
+
+import '../../../helpers/test_app.dart';
 
 class MockCategoryRepository extends Mock implements ICategoryRepository {}
 
@@ -95,7 +105,7 @@ void main() {
     notifier.hideCategory(custom.id!);
     expect(container.read(categoryListViewModelProvider).value, [groceries]);
 
-    notifier.restoreCategory();
+    notifier.restoreCategory(custom.id!);
     final restored = await container.read(categoryListViewModelProvider.future);
 
     expect(restored, [groceries, custom]);
@@ -174,6 +184,48 @@ void main() {
     );
   });
 
+  test('add returns the new category\'s id', () async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries]);
+    when(() => mockRepo.insert(any())).thenAnswer((_) async => 7);
+    await container.read(categoryListViewModelProvider.future);
+
+    final id = await container
+        .read(categoryListViewModelProvider.notifier)
+        .add('Gym');
+
+    expect(id, 7);
+  });
+
+  test('rename saves the new name and fetches the list again', () async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries, custom]);
+    when(() => mockRepo.rename(custom.id!, 'Gym')).thenAnswer((_) async {});
+    container.listen(categoryListViewModelProvider, (_, _) {});
+    await container.read(categoryListViewModelProvider.future);
+
+    await container
+        .read(categoryListViewModelProvider.notifier)
+        .rename(custom.id!, '  Gym ');
+
+    verify(() => mockRepo.rename(custom.id!, 'Gym')).called(1);
+    await container.read(categoryListViewModelProvider.future);
+    verify(() => mockRepo.getAll()).called(2);
+  });
+
+  test('rename lets a duplicate-name error reach the screen', () async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries, custom]);
+    when(
+      () => mockRepo.rename(custom.id!, 'Groceries'),
+    ).thenThrow(DuplicateCategoryNameException());
+    await container.read(categoryListViewModelProvider.future);
+
+    expect(
+      () => container
+          .read(categoryListViewModelProvider.notifier)
+          .rename(custom.id!, 'Groceries'),
+      throwsA(isA<DuplicateCategoryNameException>()),
+    );
+  });
+
   test('transactionCount asks the repository', () async {
     when(() => mockRepo.getAll()).thenAnswer((_) async => [groceries, custom]);
     when(
@@ -204,4 +256,55 @@ void main() {
       );
     },
   );
+
+  test('during its Undo window a category\'s transactions on Home and its '
+      'rows already show as Others, and Undo puts it back', () async {
+    final db = await createTestDatabase();
+    addTearDown(db.close);
+    final real = ProviderContainer(
+      overrides: [
+        appDatabaseProvider.overrideWith((ref) async => db),
+        clockProvider.overrideWithValue(() => DateTime(2026, 10, 20)),
+      ],
+    );
+    addTearDown(real.dispose);
+    real.listen(categoriesByIdProvider, (_, _) {});
+    final gymId = await CategoryRepositoryImpl(
+      db,
+    ).insert(const Category(name: 'Gym', createdAt: '2026-10-01T00:00:00.000'));
+    final walletId = await WalletRepositoryImpl(
+      db,
+    ).insert(const Wallet(name: 'Cash', createdAt: '2026-10-01T00:00:00.000'));
+    await TransactionRepositoryImpl(db).insert(
+      Transaction(
+        walletId: walletId,
+        categoryId: gymId,
+        amount: 3000,
+        type: TransactionType.expense,
+        date: '2026-10-10',
+        createdAt: '2026-10-10T12:00:00.000',
+      ),
+    );
+
+    // Home's category for the transaction, and the name a row shows.
+    Future<(String, String?)> shown() async {
+      final dashboard = await real.read(dashboardViewModelProvider.future);
+      final categories = await real.read(categoryListViewModelProvider.future);
+      final onHome = dashboard.recentTransactions.single.categoryId;
+      return (
+        categories.firstWhere((c) => c.id == onHome).name,
+        real.read(categoriesByIdProvider)[gymId]?.name,
+      );
+    }
+
+    expect(await shown(), ('Gym', 'Gym'));
+
+    final notifier = real.read(categoryListViewModelProvider.notifier);
+    expect(notifier.hideCategory(gymId), isTrue);
+    expect(await shown(), ('Others', 'Others'));
+
+    notifier.restoreCategory(gymId);
+    expect(await shown(), ('Gym', 'Gym'));
+    expect(real.read(pendingCategoryDeletesProvider), isEmpty);
+  });
 }
