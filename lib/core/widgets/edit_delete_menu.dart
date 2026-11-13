@@ -1,4 +1,4 @@
-import 'dart:ui' show SemanticsRole;
+import 'dart:ui' show SemanticsRole, lerpDouble;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +6,7 @@ import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/component_size.dart';
 import 'package:waldo/core/theme/icon_size.dart';
+import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/widgets/min_tap_target.dart';
@@ -45,8 +46,9 @@ List<PopupMenuEntry<EditDeleteAction>> editDeleteMenuItems(
   ];
 }
 
-/// A ⋮ button whose Edit/Delete menu opens by the dots. [child] is the
-/// dots; the touch area around them is 48px.
+/// A ⋮ button whose Edit/Delete menu grows out of the dots with a small
+/// bounce, and closes with a quick fade. [child] is the dots; the touch area
+/// around them is 48px.
 class EditDeleteMenuButton extends StatefulWidget {
   const EditDeleteMenuButton({
     super.key,
@@ -63,8 +65,28 @@ class EditDeleteMenuButton extends StatefulWidget {
   State<EditDeleteMenuButton> createState() => _EditDeleteMenuButtonState();
 }
 
-class _EditDeleteMenuButtonState extends State<EditDeleteMenuButton> {
+class _EditDeleteMenuButtonState extends State<EditDeleteMenuButton>
+    with SingleTickerProviderStateMixin {
   final _dotsKey = GlobalKey();
+
+  /// The dots dip a little as they're tapped.
+  late final _dip = AnimationController(vsync: this, duration: Motion.menuDip);
+  late final _scale = TweenSequence([
+    TweenSequenceItem(
+      tween: Tween(begin: 1.0, end: Motion.menuDipScale),
+      weight: 1,
+    ),
+    TweenSequenceItem(
+      tween: Tween(begin: Motion.menuDipScale, end: 1.0),
+      weight: 1,
+    ),
+  ]).chain(CurveTween(curve: Motion.emphasizedCurve)).animate(_dip);
+
+  @override
+  void dispose() {
+    _dip.dispose();
+    super.dispose();
+  }
 
   Future<void> _open() async {
     final navigator = Navigator.of(context);
@@ -72,11 +94,14 @@ class _EditDeleteMenuButtonState extends State<EditDeleteMenuButton> {
     final overlay = navigator.overlay!.context.findRenderObject()! as RenderBox;
     final anchor =
         dots.localToGlobal(Offset.zero, ancestor: overlay) & dots.size;
+    final reduceMotion = context.reduceMotion;
 
+    if (!reduceMotion) _dip.forward(from: 0);
     HapticFeedback.lightImpact();
     final action = await navigator.push(
       _MenuRoute(
         anchor: anchor,
+        reduceMotion: reduceMotion,
         barrierLabel: MaterialLocalizations.of(
           context,
         ).modalBarrierDismissLabel,
@@ -94,7 +119,10 @@ class _EditDeleteMenuButtonState extends State<EditDeleteMenuButton> {
         message: widget.tooltip,
         child: MinTapTarget(
           onTap: _open,
-          child: KeyedSubtree(key: _dotsKey, child: widget.child),
+          child: ScaleTransition(
+            scale: _scale,
+            child: KeyedSubtree(key: _dotsKey, child: widget.child),
+          ),
         ),
       ),
     );
@@ -102,10 +130,15 @@ class _EditDeleteMenuButtonState extends State<EditDeleteMenuButton> {
 }
 
 class _MenuRoute extends PopupRoute<EditDeleteAction> {
-  _MenuRoute({required this.anchor, required this.barrierLabel});
+  _MenuRoute({
+    required this.anchor,
+    required this.reduceMotion,
+    required this.barrierLabel,
+  });
 
-  /// The dots the menu opens by, in the navigator's coordinates.
+  /// The dots the menu grows from, in the navigator's coordinates.
   final Rect anchor;
+  final bool reduceMotion;
 
   @override
   final String barrierLabel;
@@ -117,10 +150,12 @@ class _MenuRoute extends PopupRoute<EditDeleteAction> {
   Color? get barrierColor => null;
 
   @override
-  Duration get transitionDuration => Duration.zero;
+  Duration get transitionDuration =>
+      reduceMotion ? Duration.zero : Motion.bouncyCurve.duration;
 
   @override
-  Duration get reverseTransitionDuration => Duration.zero;
+  Duration get reverseTransitionDuration =>
+      reduceMotion ? Duration.zero : Motion.menuClose;
 
   @override
   Widget buildPage(
@@ -128,7 +163,14 @@ class _MenuRoute extends PopupRoute<EditDeleteAction> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    // Below the dots, unless its two rows wouldn't fit there.
+    final fadeIn = Interval(
+      0,
+      Motion.menuFadeIn.inMicroseconds /
+          Motion.bouncyCurve.duration.inMicroseconds,
+    );
+
+    // Below the dots, unless its two rows wouldn't fit there; it grows from
+    // the corner by the dots either way.
     final padding = MediaQuery.paddingOf(context);
     final menuHeight =
         MediaQuery.textScalerOf(context).scale(kMinInteractiveDimension) * 2 +
@@ -139,7 +181,30 @@ class _MenuRoute extends PopupRoute<EditDeleteAction> {
 
     return CustomSingleChildLayout(
       delegate: _MenuLayout(anchor, padding, above: above),
-      child: const _Menu(),
+      child: AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) {
+          // Closing is a plain fade, no bounce.
+          final closing = animation.status == AnimationStatus.reverse;
+          return Opacity(
+            opacity: closing
+                ? animation.value
+                : fadeIn.transform(animation.value),
+            child: Transform.scale(
+              scale: closing
+                  ? 1
+                  : lerpDouble(
+                      Motion.menuScaleFrom,
+                      1,
+                      Motion.bouncyCurve.transform(animation.value),
+                    ),
+              alignment: above ? Alignment.bottomRight : Alignment.topRight,
+              child: child,
+            ),
+          );
+        },
+        child: const _Menu(),
+      ),
     );
   }
 }

@@ -395,15 +395,25 @@ number of its own.
 | `scroll` | 300ms (`medium2`), ease-out | A row scrolling to a picked item |
 | `enter` | 350ms (`medium3`), fast then settling | Something arriving, like the undo bar |
 | `hint` | 1400ms, out and back | The nudge hinting that a row scrolls |
+| `balanceTuck` | 300ms (`medium2`), ease-out | An amount tucking away as it's hidden; the dots land with `settleCurve` |
 | `pillStretch` | 450ms (`long1`), `emphasizedCurve` | The month and navbar pills stretching to a new pick like ink: the front edge arrives in the first `pillStretchLead`, then the back catches up |
+| `pillLabel` | 250ms (`medium1`) | A month or tab label's colour following the pill |
+| `chartDraw` | 800ms (`extralong2`), `emphasizedCurve` | The cash-flow line drawing in, left to right; then its end point pops on the `wobbly` spring and the month's total rises `chartLabelRise` in (`chartLabel` 250ms, `chartLabelDelay` 100ms after the point) |
 | `chartMorph` | 600ms (`long4`), `emphasizedCurve` | The line reshaping between expense and income, colour and all |
-| `chartLabel` | 250ms (`medium1`) | The month's total fading `chartLabelRise` in over the line's end point |
+| `menuFadeIn` / `menuClose` | 100ms (`short2`) / 200ms (`short4`) | A ⋮ menu growing from `menuScaleFrom` out of its dots on `bouncyCurve`, fading in; closing is a plain fade. The dots dip to `menuDipScale` in `menuDip` (200ms) |
+| `cardLeave` | 400ms (`medium4`), `cardLeaveCurve` | A deleted wallet's card sliding `cardLeaveDistance` of its width out; the cards below close the gap on `snappy` from `cardGapDelay` (250ms, `medium1`) |
+| `cardReturn` | 300ms (`medium2`), `emphasizedCurve` | Undo: the card fading back from `cardReturnScale` while the cards below make room |
+| `cardLandFade` | 100ms (`short2`) | A new wallet's card landing in the stack from `cardLandHeight` above at `cardLandScale`, on `snappy`, while the cards below make room |
 | `sheetExit` | 200ms (`short4`) | The new-wallet sheet sliding away; a card made in it waits this out before it lands |
 
-Curves come from `Motion` too. Simple chains (fade, slide, shake) use
-`flutter_animate`, with every duration from `Motion`, never a `300.ms` of its
-own; the design guardrail catches a raw `.ms`, `Duration(milliseconds:` or
-`Curves.`.
+Curves come from `Motion` too, and so do springs, named by feel with the
+design playground's values (`snappy`: firm, a hint of overshoot; `bouncy`: one
+clear bounce; `wobbly`: two small bounces). `SpringCurve` turns one into a
+curve and its settle time, for APIs that take a duration and a curve. Simple
+chains (fade, slide, shake) use `flutter_animate` and physical motion a
+`SpringSimulation` on a `Motion` spring, with every duration from `Motion`,
+never a `300.ms` of its own; the design guardrail catches a raw `.ms`,
+`Duration(milliseconds:` or `Curves.`.
 
 **Reduce motion:** every animation takes its duration through
 `context.motion(Motion.x)`, which is zero when the phone asks for reduced
@@ -414,7 +424,8 @@ moves on its own, like the scroll hint, is skipped.
 
 Animate position, opacity, scale and paint only - never width, height or
 padding, which lay the screen out again on every frame. A moving selection
-is painted (`StretchPill`), not a resized box.
+is painted (`StretchPill`), not a resized box. The one exception is the
+navbar: a tab's name opens and closes with its padding.
 
 **Haptics** aren't motion, so they stay on with reduce motion:
 `HapticFeedback.selectionClick()` when a choice moves (a month, a tab, the
