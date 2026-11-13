@@ -8,14 +8,12 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
-import 'package:waldo/core/widgets/dashed_stitch_button.dart';
-import 'package:waldo/core/widgets/receipt_shell.dart';
 import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/categories/ui/categories_screen.dart';
 import 'package:waldo/features/dashboard/models/dashboard_data.dart';
 import 'package:waldo/features/dashboard/ui/dashboard_screen.dart';
-import 'package:waldo/features/dashboard/ui/widgets/cash_flow_card.dart';
+import 'package:waldo/core/widgets/cash_flow_card.dart';
 import 'package:waldo/features/settings/ui/settings_screen.dart';
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/ui/all_transactions_screen.dart';
@@ -60,32 +58,34 @@ void main() {
           '${size.width.toInt()}dp, text x${scale.toStringAsFixed(2)}';
 
       for (final locale in const [Locale('en'), Locale('pt')]) {
-        testWidgets('Wallets and the new wallet sheet fit in $locale at $label', (
-          tester,
-        ) async {
-          await setUpPhone(tester, size, scale);
-          tester.platformDispatcher.localeTestValue = locale;
-          addTearDown(tester.platformDispatcher.clearLocaleTestValue);
-          // A wallet with income and spending, so the "Kept 98%" caption shows.
-          final db = await createTestDatabase();
-          await seedGoldenData(db);
-          currentDb = await pumpWidgetWithProviders(
-            tester,
-            const WalletsScreen(),
-            db: db,
-            locale: locale,
-          );
+        testWidgets(
+          'Wallets and the new wallet sheet fit in $locale at $label',
+          (tester) async {
+            await setUpPhone(tester, size, scale);
+            tester.platformDispatcher.localeTestValue = locale;
+            addTearDown(tester.platformDispatcher.clearLocaleTestValue);
+            // Wallets in the black and in the red, so both totals show.
+            final db = await createTestDatabase();
+            await seedGoldenData(db);
+            currentDb = await pumpWidgetWithProviders(
+              tester,
+              const WalletsScreen(),
+              db: db,
+              locale: locale,
+            );
 
-          await tester.tap(find.byType(DashedStitchButton));
-          await tester.pumpAndSettle();
+            // The type filter too: its tiles are what large text squeezes.
+            await tester.tap(find.byKey(const Key('walletsFilterAction')));
+            await tester.pumpAndSettle();
+            await tester.tap(find.byKey(const Key('newWalletAction')));
+            await tester.pumpAndSettle();
 
-          expect(find.byKey(const Key('walletNameField')), findsOneWidget);
-        });
+            expect(find.byKey(const Key('walletNameField')), findsOneWidget);
+          },
+        );
       }
 
-      testWidgets('The dashboard receipt fits in Portuguese at $label', (
-        tester,
-      ) async {
+      testWidgets('The dashboard fits in Portuguese at $label', (tester) async {
         await setUpPhone(tester, size, scale);
         // Portuguese money ("12,50 €") and labels run longer than English.
         tester.platformDispatcher.localeTestValue = const Locale('pt', 'PT');
@@ -100,7 +100,19 @@ void main() {
           now: seedToday,
         );
 
-        expect(find.text('BALANÇO'), findsOneWidget);
+        // Down to the last section, as a reader would: anything that
+        // overflows on the way fails the test.
+        await tester.dragUntilVisible(
+          find.text('Fluxo de caixa'),
+          find.byType(ListView),
+          const Offset(0, -200),
+        );
+        await tester.dragUntilVisible(
+          find.text('Ver todas'),
+          find.byType(ListView),
+          const Offset(0, -200),
+        );
+        expect(find.text('Fluxo de caixa'), findsOneWidget);
       });
 
       for (final locale in const [Locale('en'), Locale('pt')]) {
@@ -287,7 +299,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 400));
 
         expect(find.text('Coffee with friends'), findsOneWidget);
-        await tester.pump(const Duration(seconds: 6));
+        await tester.pump(const Duration(seconds: 11));
         await tester.pumpAndSettle();
       });
 
@@ -357,7 +369,7 @@ void main() {
         expect(find.text('Wallet'), findsWidgets);
       });
 
-      testWidgets("A wallet's filter sheet fits at $label", (tester) async {
+      testWidgets("A wallet's filter fits at $label", (tester) async {
         await setUpPhone(tester, size, scale);
         final db = await createTestDatabase();
         final seed = await seedGoldenData(db);
@@ -366,25 +378,18 @@ void main() {
           TransactionsScreen(walletId: seed.walletId),
           db: db,
         );
-        await tester.tap(find.byIcon(AppIcons.filter));
+        await tester.tap(find.byKey(const Key('walletFilterAction')));
         await tester.pumpAndSettle();
-
-        expect(find.text('Filter'), findsOneWidget);
-      });
-
-      testWidgets("The dashboard's Add sheet fits at $label", (tester) async {
-        await setUpPhone(tester, size, scale);
-        final db = await createTestDatabase();
-        await seedGoldenData(db);
-        currentDb = await pumpWidgetWithProviders(
-          tester,
-          const DashboardScreen(),
-          db: db,
+        // Down to the tiles under the wallet and its actions, as a reader
+        // would: anything that overflows on the way fails the test.
+        await tester.dragUntilVisible(
+          find.text('Income'),
+          find.byType(ListView),
+          const Offset(0, -200),
         );
-        await tester.tap(find.text('Add').first);
         await tester.pumpAndSettle();
 
-        expect(find.text('New wallet'), findsOneWidget);
+        expect(find.text('Income'), findsOneWidget);
       });
 
       for (final (locale, rows, done) in const [
@@ -498,18 +503,13 @@ void main() {
                 category: null,
                 currency: Currency.usd,
               ),
-              ReceiptRow(
-                label: 'Groceries',
-                value: r'-$123,456.78',
-                color: Colors.black,
-              ),
             ],
           ),
         ),
       ),
     );
 
-    expect(find.text(r'-$123,456.78'), findsNWidgets(2));
+    expect(find.text(r'-$123,456.78'), findsOneWidget);
     // A cut amount would spill onto a line past its last one.
     final paragraphs = tester.renderObjectList<RenderParagraph>(
       find.byType(RichText),
@@ -519,8 +519,7 @@ void main() {
     }
   });
 
-  testWidgets("At AX5 a wallet's balance stays on one line and its header "
-      'scrolls with the list', (tester) async {
+  testWidgets("At AX5 a wallet's balance stays on one line", (tester) async {
     await setUpPhone(tester, const Size(320, 640), 53 / 17);
     final db = await createTestDatabase();
     final seed = await seedGoldenData(db);
@@ -536,7 +535,8 @@ void main() {
       db: db,
     );
 
-    final balance = find.textContaining('123,456.78');
+    // The wallet's, not the line under it that repeats it.
+    final balance = find.textContaining('123,456.78').first;
     final paragraph = tester.renderObject<RenderParagraph>(
       find.descendant(of: balance, matching: find.byType(RichText)),
     );
@@ -548,34 +548,6 @@ void main() {
         .map((box) => box.top.round())
         .toSet();
     expect(lines, hasLength(1));
-    expect(
-      find.ancestor(
-        of: find.text('Everyday'),
-        matching: find.byType(Scrollable),
-      ),
-      findsOneWidget,
-    );
-  });
-
-  testWidgets("At normal size a wallet's header stays put above the list", (
-    tester,
-  ) async {
-    await setUpPhone(tester, const Size(390, 844), 1);
-    final db = await createTestDatabase();
-    final seed = await seedGoldenData(db);
-    currentDb = await pumpWidgetWithProviders(
-      tester,
-      TransactionsScreen(walletId: seed.walletId),
-      db: db,
-    );
-
-    expect(
-      find.ancestor(
-        of: find.text('Everyday'),
-        matching: find.byType(Scrollable),
-      ),
-      findsNothing,
-    );
   });
 
   testWidgets('At AX1 the edit sheet stacks Save above Cancel', (tester) async {

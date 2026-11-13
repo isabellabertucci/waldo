@@ -26,7 +26,7 @@ void main() {
       body: Align(
         alignment: Alignment.bottomCenter,
         child: Material(
-          color: context.appColors.surface,
+          color: context.appColors.sheet,
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(Rounded.lg),
           ),
