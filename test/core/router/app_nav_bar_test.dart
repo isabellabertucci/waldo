@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:waldo/core/router/app_nav_bar.dart';
 import 'package:waldo/core/theme/motion.dart';
-import 'package:waldo/core/widgets/stretch_pill.dart';
 
 import '../../helpers/test_app.dart';
 
@@ -31,30 +30,6 @@ void main() {
     );
     addTearDown(db.close);
   }
-
-  /// The tab's rect where the pill paints it, relative to the bar's row.
-  Rect tabRect(WidgetTester tester, int index) => tester
-      .getRect(find.byKey(ValueKey('nav-$index')))
-      .shift(-tester.getTopLeft(find.byType(StretchPill)));
-
-  testWidgets('The new tab\'s name opens while the old one closes, and the '
-      'pill ends on the new tab', (tester) async {
-    await pumpBar(tester);
-    expect(paintedStretchPill(tester), tabRect(tester, 0));
-
-    await tester.tap(find.byKey(const ValueKey('nav-1')));
-    await tester.pump();
-    await tester.pump(Motion.pillStretch ~/ 2);
-    // Mid-way both names show, part open.
-    expect(find.text('Home'), findsOneWidget);
-    expect(find.text('Wallets'), findsOneWidget);
-
-    await tester.pumpAndSettle();
-    expect(find.text('Home'), findsNothing);
-    expect(find.text('Wallets'), findsOneWidget);
-    // Read while the tab was still growing, so it fits it exactly.
-    expect(paintedStretchPill(tester), tabRect(tester, 1));
-  });
 
   testWidgets('Opening a name only widens its tab; no tab grows taller', (
     tester,

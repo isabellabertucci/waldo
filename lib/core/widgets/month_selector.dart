@@ -26,8 +26,7 @@ List<DateTime> selectorMonths(DateTime now, {int count = 12}) => [
   DateTime(now.year, now.month + 1),
 ];
 
-/// A horizontal row of month pills; the selected month is a filled pill that
-/// stretches to the next one picked.
+/// A horizontal row of month pills; the selected month is a filled pill.
 class MonthSelector extends StatefulWidget {
   const MonthSelector({
     super.key,

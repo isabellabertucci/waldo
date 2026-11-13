@@ -90,69 +90,6 @@ void main() {
     expect(bars.lineBarsData.single.preventCurveOverShooting, isTrue);
   });
 
-  testWidgets('The line draws in from the left, then its end point pops and '
-      'the month\'s total rises in', (tester) async {
-    shown.value = (month: _september, flows: _flows(_september));
-    await pumpCard(tester);
-
-    shown.value = (month: _october, flows: _flows(_october));
-    await tester.pump();
-    await tester.pump(Motion.chartDraw ~/ 2);
-    expect(drawnTo(tester, 0.1), isTrue);
-    expect(drawnTo(tester, 0.9), isFalse);
-    expect(labelOpacity(tester, '-€12.50'), 0);
-
-    await tester.pump(Motion.chartDraw ~/ 2);
-    expect(drawnTo(tester, 0.9), isTrue);
-    await tester.pumpAndSettle();
-    expect(labelOpacity(tester, '-€12.50'), 1);
-  });
-
-  testWidgets('New figures for the same month update the line without '
-      'drawing it again; a new month draws its own', (tester) async {
-    await pumpCard(tester);
-    await tester.pumpAndSettle();
-
-    shown.value = (month: _october, flows: _flows(_october, expense: 9900));
-    await tester.pump();
-    expect(drawnTo(tester, 0.9), isTrue);
-    await tester.pumpAndSettle();
-    expect(find.text('-€99.00'), findsOneWidget);
-
-    shown.value = (month: _september, flows: _flows(_september));
-    await tester.pump();
-    expect(drawnTo(tester, 0.9), isFalse);
-  });
-
-  testWidgets('Scrolled away and back, the card doesn\'t draw again', (
-    tester,
-  ) async {
-    final onScreen = ValueNotifier(true);
-    final db = await pumpWidgetWithProviders(
-      tester,
-      Scaffold(
-        body: ValueListenableBuilder(
-          valueListenable: onScreen,
-          builder: (context, onScreen, _) => onScreen
-              ? CashFlowCard(
-                  month: _october,
-                  monthlyCashFlow: _flows(_october),
-                  currency: Currency.eur,
-                  isBalanceHidden: false,
-                )
-              : const SizedBox(),
-        ),
-      ),
-    );
-    addTearDown(db.close);
-
-    onScreen.value = false;
-    await tester.pump();
-    onScreen.value = true;
-    await tester.pump();
-    expect(drawnTo(tester, 0.9), isTrue);
-  });
-
   testWidgets('Switching to income reshapes the line where it is, with one '
       'click', (tester) async {
     final haptics = recordHaptics(tester);

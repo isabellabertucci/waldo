@@ -3,7 +3,6 @@ import 'dart:ui' show SemanticsRole;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:waldo/core/theme/component_size.dart';
-import 'package:waldo/core/theme/motion.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/dynamic_type_scaler.dart';
@@ -14,7 +13,7 @@ import 'package:waldo/core/widgets/stretch_pill.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 
 /// The floating pill navbar. Item order must match the router's branch order.
-/// The selected tab's stitched pill stretches to the next tab picked.
+/// The selected tab is a filled pill with its label.
 class AppNavBar extends StatefulWidget {
   const AppNavBar({
     super.key,
@@ -85,6 +84,8 @@ class _AppNavBarState extends State<AppNavBar> {
                 child: StretchPill(
                   selectedKey: _tabKeys[currentIndex],
                   color: colors.navActive,
+                  // Moves to the new tab at once.
+                  stretches: false,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -183,10 +184,8 @@ class AppNavButton extends StatelessWidget {
               '$label\n${MaterialLocalizations.of(context).tabLabel(tabIndex: tabIndex, tabCount: tabCount)}',
           excludeSemantics: true,
           // The pill itself is the navbar's StretchPill, painted behind;
-          // the label opens as it arrives and closes as it leaves.
-          child: AnimatedPadding(
-            duration: context.motion(Motion.pillStretch),
-            curve: Motion.emphasizedCurve,
+          // the chosen tab shows its label.
+          child: Padding(
             padding: selected
                 ? const EdgeInsets.symmetric(
                     horizontal: Spacing.sm,
@@ -196,45 +195,20 @@ class AppNavButton extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TweenAnimationBuilder<Color?>(
-                  tween: ColorTween(
-                    end: selected ? colors.onNavActive : colors.inkMuted,
-                  ),
-                  duration: context.motion(Motion.pillLabel),
-                  builder: (context, color, _) => Icon(
-                    selected ? selectedIcon : icon,
-                    size: IconSize.lg,
-                    color: color,
-                  ),
+                Icon(
+                  selected ? selectedIcon : icon,
+                  size: IconSize.lg,
+                  color: selected ? colors.onNavActive : colors.inkMuted,
                 ),
-                AnimatedSwitcher(
-                  duration: context.motion(Motion.pillStretch),
-                  switchInCurve: Motion.emphasizedCurve,
-                  switchOutCurve: Motion.emphasizedCurve,
-                  transitionBuilder: (child, animation) => SizeTransition(
-                    axis: Axis.horizontal,
-                    alignment: AlignmentDirectional.centerStart,
-                    sizeFactor: animation,
-                    // Only the width opens; the height stays the label's.
-                    fixedCrossAxisSizeFactor: 1,
-                    child: FadeTransition(opacity: animation, child: child),
+                if (selected) ...[
+                  const SizedBox(width: Spacing.xs),
+                  Text(
+                    label,
+                    style: context.bodyStrong.copyWith(
+                      color: colors.onNavActive,
+                    ),
                   ),
-                  child: selected
-                      ? Row(
-                          key: const ValueKey(true),
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(width: Spacing.xs),
-                            Text(
-                              label,
-                              style: context.bodyStrong.copyWith(
-                                color: colors.onNavActive,
-                              ),
-                            ),
-                          ],
-                        )
-                      : const SizedBox.shrink(key: ValueKey(false)),
-                ),
+                ],
               ],
             ),
           ),
