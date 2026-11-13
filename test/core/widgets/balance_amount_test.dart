@@ -35,6 +35,22 @@ void main() {
     expect(tester.hasRunningAnimations, isFalse);
   });
 
+  testWidgets('Hiding tucks the amount away, then only the dots are left', (
+    tester,
+  ) async {
+    await pump(tester, hidden: false);
+    await pump(tester, hidden: true);
+
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(tester.hasRunningAnimations, isTrue);
+    expect(find.text(amount), findsOneWidget, reason: 'still tucking away');
+
+    await tester.pumpAndSettle();
+    expect(find.text(hiddenAmount), findsOneWidget);
+    // Gone from the tree, so a screen reader can't read it.
+    expect(find.text(amount), findsNothing);
+  });
+
   testWidgets('Toggled quickly back and forth, one of the two is left', (
     tester,
   ) async {

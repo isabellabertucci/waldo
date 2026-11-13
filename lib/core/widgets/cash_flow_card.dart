@@ -2,7 +2,9 @@ import 'dart:math';
 import 'dart:ui' show lerpDouble;
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/alpha.dart';
 import 'package:waldo/core/theme/component_size.dart';
@@ -19,10 +21,12 @@ import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/widgets/heading.dart';
 
 import 'package:waldo/core/models/monthly_cash_flow.dart';
+import 'package:waldo/core/widgets/month_intro.dart';
 
 /// One series (income or expense) at a time; exact values are in the tooltip.
-/// The line ends on the month's point, with its total over it.
-class CashFlowCard extends StatefulWidget {
+/// The line draws itself in the first time Home shows a month, then its end
+/// point pops in with the month's total over it.
+class CashFlowCard extends ConsumerStatefulWidget {
   const CashFlowCard({
     super.key,
     required this.month,
@@ -40,11 +44,79 @@ class CashFlowCard extends StatefulWidget {
   final bool isBalanceHidden;
 
   @override
-  State<CashFlowCard> createState() => _CashFlowCardState();
+  ConsumerState<CashFlowCard> createState() => _CashFlowCardState();
 }
 
-class _CashFlowCardState extends State<CashFlowCard> {
+class _CashFlowCardState extends ConsumerState<CashFlowCard>
+    with MonthIntroClaim, TickerProviderStateMixin {
   TransactionType _selectedType = TransactionType.expense;
+
+  /// The line drawing in, its end point popping, then the month's total
+  /// rising in; all at rest (1) unless a month is playing its intro.
+  late final AnimationController _draw;
+  late final CurvedAnimation _drawn;
+  late final AnimationController _point;
+  late final AnimationController _label;
+
+  /// The label waits [Motion.chartLabelDelay] after the point pops.
+  late final CurvedAnimation _labelIn;
+
+  @override
+  void initState() {
+    super.initState();
+    _draw = AnimationController(
+      vsync: this,
+      duration: Motion.chartDraw,
+      value: 1,
+    )..addStatusListener(_onDrawn);
+    _drawn = CurvedAnimation(parent: _draw, curve: Motion.emphasizedCurve);
+    _point = AnimationController.unbounded(vsync: this, value: 1);
+    _label = AnimationController(
+      vsync: this,
+      duration: Motion.chartLabelDelay + Motion.chartLabel,
+      value: 1,
+    );
+    _labelIn = CurvedAnimation(
+      parent: _label,
+      curve: Interval(
+        Motion.chartLabelDelay.inMicroseconds / _label.duration!.inMicroseconds,
+        1,
+      ),
+    );
+    _claimDraw();
+  }
+
+  @override
+  void didUpdateWidget(CashFlowCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.month != widget.month) _claimDraw();
+  }
+
+  void _claimDraw() {
+    if (!claimMonthIntro(MonthIntro.cashFlowDraw, widget.month)) return;
+    _point.value = 0;
+    _label.value = 0;
+    _draw.forward(from: 0);
+  }
+
+  void _onDrawn(AnimationStatus status) {
+    if (status != AnimationStatus.completed) return;
+    _point
+        .animateWith(SpringSimulation(Motion.wobbly, 0, 1, 0))
+        // A spring stops within a hair of rest; end exactly at full size.
+        .then((_) => _point.value = 1);
+    _label.forward(from: 0);
+  }
+
+  @override
+  void dispose() {
+    _drawn.dispose();
+    _draw.dispose();
+    _point.dispose();
+    _labelIn.dispose();
+    _label.dispose();
+    super.dispose();
+  }
 
   void _selectType(TransactionType type) {
     if (type == _selectedType) return;
@@ -54,6 +126,8 @@ class _CashFlowCardState extends State<CashFlowCard> {
 
   @override
   Widget build(BuildContext context) {
+    // With reduce motion on, the line and its end point are simply there.
+    final still = context.reduceMotion;
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
     final currencyCode = widget.currency.code;
@@ -97,10 +171,9 @@ class _CashFlowCardState extends State<CashFlowCard> {
             // A new month draws its own line, rather than reshaping the last.
             child: _CashFlowChart(
               key: ValueKey(widget.month),
-              // Drawn whole: the line has no intro of its own yet.
-              draw: kAlwaysCompleteAnimation,
-              point: kAlwaysCompleteAnimation,
-              label: kAlwaysCompleteAnimation,
+              draw: still ? kAlwaysCompleteAnimation : _drawn,
+              point: still ? kAlwaysCompleteAnimation : _point,
+              label: still ? kAlwaysCompleteAnimation : _labelIn,
               monthlyCashFlow: widget.monthlyCashFlow,
               currencyCode: currencyCode,
               locale: locale,
