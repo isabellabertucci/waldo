@@ -12,6 +12,15 @@ class Motion {
   /// A segment or toggle filling in (150ms).
   static const toggle = Durations.short3;
 
+  /// A round action button shrinking under the finger, and back.
+  static const press = Durations.short4;
+  static const pressScale = 0.95;
+
+  /// A segmented control's content sliding to the picked view, and how far
+  /// (a share of its width) it slides.
+  static const segmentSwap = Duration(milliseconds: 320);
+  static const segmentSwapCurve = Curves.easeOutCubic;
+
   /// A row scrolling to a picked item (300ms).
   static const scroll = Durations.medium2;
   static const scrollCurve = Curves.easeOut;
@@ -30,28 +39,6 @@ class Motion {
 
   /// Lands, overshoots a touch, and settles - the dots dropping into place.
   static const settleCurve = Curves.easeOutBack;
-
-  /// The month's receipt feeding out from under the pouch (600ms).
-  static const receiptPrint = Durations.long4;
-  static const receiptPrintCurve = Curves.easeOutCubic;
-
-  /// A new wallet's card dropping into the pouch: it fades in as it falls,
-  /// tilted, from [cardDropHeight] above to [cardSink] too deep, then pops
-  /// back up to rest.
-  static const cardDropFade = Durations.short2;
-  static const cardFall = Durations.medium4;
-  static const cardFallCurve = Curves.easeIn;
-  static const cardSettle = Durations.medium2;
-  static const cardDropHeight = 170.0;
-  static const cardSink = 26.0;
-
-  /// The card's tilt as it starts falling, in turns (about -8 degrees).
-  static const cardTilt = -0.022;
-
-  /// The pouch squashing a little as the card lands, then springing back.
-  static const pouchSquash = Durations.short2;
-  static const pouchRebound = Durations.medium1;
-  static const pouchSquashScale = 0.975;
 
   /// Something moving from A to B while staying on screen: slow at both ends.
   static const emphasizedCurve = Curves.easeInOutCubic;
@@ -78,9 +65,6 @@ class Motion {
   static const chartLabelRise = 4.0;
 
   /// Springs, named by feel: the design playground's own values.
-  /// Firm, a hint of overshoot (settles in about 0.6s).
-  static const snappy = SpringDescription(mass: 1, stiffness: 300, damping: 22);
-
   /// A clear overshoot, one bounce (settles in about 0.9s).
   static const bouncy = SpringDescription(mass: 1, stiffness: 220, damping: 14);
   static final bouncyCurve = SpringCurve(bouncy);
@@ -98,28 +82,9 @@ class Motion {
   static const menuDip = Durations.short4;
   static const menuDipScale = 0.86;
 
-  /// A deleted wallet's card sliding [cardLeaveDistance] of its width out to
-  /// the left. The cards below close the gap on [snappy], starting
-  /// [cardGapDelay] in.
-  static const cardLeave = Durations.medium4;
-  static const cardLeaveCurve = Curves.easeInCubic;
-  static const cardLeaveDistance = 1.15;
-  static const cardGapDelay = Durations.medium1;
-
-  /// Undo: the card coming back from [cardReturnScale] as the cards below
-  /// make room again.
-  static const cardReturn = Durations.medium2;
-  static const cardReturnScale = 0.96;
-
   /// A sheet sliding away (200ms, Flutter's own), which a card made in it
   /// waits out before it lands.
   static const sheetExit = Durations.short4;
-
-  /// A new wallet's card landing in the stack: from [cardLandHeight] above,
-  /// at [cardLandScale], fading in over [cardLandFade], onto [snappy].
-  static const cardLandHeight = 120.0;
-  static const cardLandScale = 1.04;
-  static const cardLandFade = Durations.short2;
 
   /// A gentle two-tap nudge hinting that a row scrolls; long, so it reads
   /// as a hint rather than a reaction.

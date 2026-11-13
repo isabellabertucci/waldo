@@ -7,6 +7,76 @@ import 'package:flutter/painting.dart';
 class ComponentSize {
   ComponentSize._();
 
+  // Leather wallet (DESIGN.md "Wallets")
+
+  /// A full-size wallet's height; its width follows the page.
+  static const wallet = 180.0;
+
+  /// The strap: a square tab on the wallet's right edge, poking past it by
+  /// [walletStrapOverhang], and the metal button on it.
+  /// A wallet shown alone (its own screen): wallet-shaped, not stretched
+  /// to the page's width - about the front one in Home's stack.
+  static const walletAloneWidth = 264.0;
+
+  /// The wallet form's preview: the wallet alone, scaled down.
+  static const walletPreview = Size(211, 144);
+
+  /// A leather swatch in the wallet form, and the ink ring (with a gap)
+  /// around the chosen one.
+  static const swatch = 52.0;
+  static const swatchRing = 2.5;
+  static const swatchRingGap = 3.0;
+
+  static const walletStrap = 46.0;
+  static const walletStrapOverhang = 4.0;
+  static const walletRivet = 15.0;
+  static const walletRivetRim = 2.0;
+
+  /// Room the content leaves for the strap.
+  static const walletStrapRoom = 66.0;
+
+  /// A wallet's thumbnail in a list row, and how much larger it's drawn
+  /// before being scaled down to it.
+  static const walletThumb = Size(64, 48);
+  static const walletThumbScale = 2.5;
+
+  // Empty states (DESIGN.md "Empty states")
+
+  /// A ghost's line of text: its thickness, and how much of the row a title
+  /// and a subtitle take.
+  static const ghostLine = 10.0;
+  static const ghostTitle = 0.55;
+  static const ghostSubtitle = 0.35;
+
+  /// A ghost row's amount, at its end.
+  static const ghostAmount = 56.0;
+
+  /// A ghost wallet in Home's empty stack: of the page's width.
+  static const ghostWalletWidth = 0.62;
+
+  /// A wallet behind another in a stack: this much further right and down,
+  /// and this much shorter.
+  static const walletStackStep = Offset(40, 8);
+  static const walletStackShrink = 16.0;
+
+  /// The most wallets a stack shows.
+  static const walletStackMax = 4;
+
+  // Spending by day
+
+  /// A category's bar under its name in "Spending by category".
+  static const categoryBar = 6.0;
+
+  // Action circles
+
+  /// The round buttons over the page, labelled underneath.
+  static const actionCircle = 58.0;
+
+  /// The yellow dot on an action circle that's changing something (a filter
+  /// that's on), and its ring.
+  static const actionMark = 14.0;
+  static const actionMarkRing = 2.0;
+
   // Month row
 
   /// The selected month's side padding: bolder and larger, it gives back
@@ -21,38 +91,11 @@ class ComponentSize {
 
   // Wallet cards
 
-  /// A wallet card in the Wallets stack.
-  static const walletCard = 187.0;
-
-  /// How much of each card hides under the next one in the stack.
-  static const walletCardTuck = walletCard * (1 - 124 / 170);
-
-  /// Room the name leaves for the card's ⋮ button.
-  static const walletCardMenuRoom = 36.0;
-
-  /// The shade along a card's top edge, where the card above overlaps it.
-  static const walletCardTopShade = 28.0;
-
-  /// The tab at the bottom of a card that has another card below it.
-  static const walletCardSeam = Size(36, 5);
-
   /// A ⋮ menu's narrowest and widest, and the steps it grows by: Material's
   /// own popup menu sizes.
   static const menuMinWidth = 112.0;
   static const menuMaxWidth = 280.0;
   static const menuWidthStep = 56.0;
-
-  /// The card shown beside a wallet's name on its screen.
-  static const walletThumbnail = Size(52, 40);
-
-  /// How far the front wallet card peeks above the balance pouch, and how
-  /// much more of it is tucked under the pouch.
-  static const balancePeek = 44.0;
-  static const balancePeekTuck = 24.0;
-
-  /// How much of each older card shows above the one in front of it: just
-  /// its edge, so the pouch reads as holding several cards.
-  static const balancePeekStep = 10.0;
 
   // Sheet grabber
 
@@ -76,30 +119,6 @@ class ComponentSize {
   static const chartGuideDash = 4;
 
   // Receipt
-
-  /// Narrower than the wallet card above it.
-  static const receiptWidth = 300.0;
-
-  /// The torn edge at the receipt's bottom.
-  static const receiptTear = 16.0;
-
-  /// The barcode's height and the gap between its bars.
-  static const barcodeHeight = 32.0;
-  static const barcodeBarGap = 2.0;
-
-  /// The dotted leader between a receipt line's label and its value.
-  static const receiptLeader = 1.5;
-  static const receiptLeaderGap = 6.0;
-
-  /// The receipt's own tighter, printed-paper rhythm, tuned to look like a
-  /// till slip rather than the page scale: its margins (more at the bottom
-  /// when it only holds a message), and the gaps between printed lines,
-  /// above the total's rule, and above the barcode.
-  static const receiptPadding = EdgeInsets.fromLTRB(22, 20, 22, 18);
-  static const receiptMessagePadding = EdgeInsets.fromLTRB(22, 20, 22, 24);
-  static const receiptLineGap = 9.0;
-  static const receiptTotalGap = 18.0;
-  static const receiptBarcodeGap = 20.0;
 
   // Buttons
 

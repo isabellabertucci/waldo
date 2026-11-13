@@ -31,18 +31,20 @@ void main() {
       ) async {
         await pumpTheme(tester);
 
-        // (style, size, weight): what each screen used to set by hand.
+        // (style, size, weight): the design system's type scale, then the
+        // styles screens used to set by hand.
         final styles = [
-          (textTheme.monthPill, 13.0, FontWeight.w500),
-          (textTheme.bodyMdBold, 14.0, FontWeight.w700),
-          (textTheme.receiptLine, 12.5, FontWeight.w400),
-          (textTheme.receiptLineBold, 12.5, FontWeight.w700),
-          (textTheme.receiptTotal, 15.0, FontWeight.w700),
-          (textTheme.receiptHeader, 11.0, FontWeight.w400),
-          (textTheme.chartAxis, 11.0, FontWeight.w400),
-          (textTheme.bodySmStrong, 12.0, FontWeight.w600),
-          (textTheme.bodyMdExtraBold, 14.0, FontWeight.w800),
-          (textTheme.walletCardBalance, 16.0, FontWeight.w800),
+          (textTheme.amountHero, 32.0, FontWeight.w700),
+          (textTheme.amountWallet, 20.0, FontWeight.w700),
+          (textTheme.amountRow, 15.0, FontWeight.w600),
+          (textTheme.titlePage, 28.0, FontWeight.w700),
+          (textTheme.titleSection, 20.0, FontWeight.w700),
+          (textTheme.titleCard, 16.0, FontWeight.w600),
+          (textTheme.bodyMedium!, 15.0, FontWeight.w500),
+          (textTheme.bodyStrong, 15.0, FontWeight.w600),
+          (textTheme.label, 13.0, FontWeight.w500),
+          (textTheme.caption, 12.0, FontWeight.w500),
+          (textTheme.overline, 11.0, FontWeight.w700),
         ];
         for (final (style, size, weight) in styles) {
           expect(style.fontSize, size);
@@ -60,7 +62,7 @@ void main() {
           textTheme.labelLarge,
           textTheme.labelSmall,
         ]) {
-          expect(style!.color, colors.onSurface);
+          expect(style!.color, colors.ink);
         }
       });
 
@@ -70,13 +72,13 @@ void main() {
         await pumpTheme(tester);
 
         for (final (style, ratio) in [
-          (textTheme.headlineMedium!, -0.02),
-          (textTheme.titleLarge!, -0.02),
-          (textTheme.titleMedium!, -0.02),
-          (textTheme.bodyMedium!, -0.005),
-          (textTheme.bodySmall!, -0.005),
-          (textTheme.labelLarge!, -0.03),
-          (textTheme.labelSmall!, -0.03),
+          (textTheme.amountHero, -0.03),
+          (textTheme.amountWallet, -0.02),
+          (textTheme.titlePage, -0.02),
+          (textTheme.titleSection, -0.01),
+          (textTheme.titleCard, 0.0),
+          (textTheme.bodyMedium!, 0.0),
+          (textTheme.overline, 0.1),
         ]) {
           expect(style.letterSpacing, closeTo(style.fontSize! * ratio, 1e-9));
         }

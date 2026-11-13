@@ -3,9 +3,6 @@
 class Alpha {
   Alpha._();
 
-  /// A barely-there tint: a track behind segments, a hint disc.
-  static const faint = 0.06;
-
   /// A pressed or tinted surface: an ink highlight, a delete disc.
   static const tint = 0.08;
 

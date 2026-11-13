@@ -18,17 +18,14 @@ void main() {
     group('In $name mode', () {
       // Text, placeholders included: 4.5:1 (WCAG 1.4.3, AA).
       final text = {
-        'text on a card': (colors.onSurface, colors.surface),
-        'text on the page': (colors.onSurface, colors.surfaceContainer),
-        'secondary text on a card': (colors.onSurfaceVariant, colors.surface),
-        'secondary text on the page': (
-          colors.onSurfaceVariant,
-          colors.surfaceContainer,
-        ),
-        'a primary button': (colors.onPrimary, colors.primary),
-        'an orange button': (colors.onPrimary, colors.error),
-        'an expense on a card': (colors.error, colors.surface),
-        'an expense on the page': (colors.error, colors.surfaceContainer),
+        'text on a card': (colors.ink, colors.sheet),
+        'text on the page': (colors.ink, colors.bg),
+        'secondary text on a card': (colors.inkMuted, colors.sheet),
+        'secondary text on the page': (colors.inkMuted, colors.bg),
+        'a primary button': (colors.onInk, colors.ink),
+        'an orange button': (colors.onInk, colors.negative),
+        'an expense on a card': (colors.negative, colors.sheet),
+        'an expense on the page': (colors.negative, colors.bg),
         'text on leather': (colors.onLeather, colors.leather),
       };
       for (final MapEntry(key: use, value: (fg, bg)) in text.entries) {
@@ -39,8 +36,8 @@ void main() {
 
       // An icon in its badge disc: 3:1 (WCAG 1.4.11).
       test('a badge icon reads at 3:1 or more on either disc', () {
-        for (final disc in [colors.surface, colors.surfaceContainer]) {
-          expect(contrast(colors.onSurfaceVariant, disc), greaterThan(3));
+        for (final disc in [colors.sheet, colors.bg]) {
+          expect(contrast(colors.inkMuted, disc), greaterThan(3));
         }
       });
     });

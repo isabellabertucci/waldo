@@ -4,7 +4,6 @@ import 'package:waldo/core/theme/alpha.dart';
 void main() {
   test('Each opacity step is stronger than the one before', () {
     const steps = [
-      Alpha.faint,
       Alpha.tint,
       Alpha.soft,
       Alpha.medium,

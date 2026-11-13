@@ -8,12 +8,6 @@ void main() {
     expect(Motion.scroll, Durations.medium2);
     expect(Motion.enter, Durations.medium3);
     expect(Motion.balanceTuck, Durations.medium2);
-    expect(Motion.receiptPrint, Durations.long4);
-    expect(Motion.cardDropFade, Durations.short2);
-    expect(Motion.cardFall, Durations.medium4);
-    expect(Motion.cardSettle, Durations.medium2);
-    expect(Motion.pouchSquash, Durations.short2);
-    expect(Motion.pouchRebound, Durations.medium1);
     expect(Motion.pillStretch, Durations.long1);
     expect(Motion.pillLabel, Durations.medium1);
     expect(Motion.chartDraw, Durations.extralong2);
@@ -23,10 +17,6 @@ void main() {
     expect(Motion.menuFadeIn, Durations.short2);
     expect(Motion.menuClose, Durations.short4);
     expect(Motion.menuDip, Durations.short4);
-    expect(Motion.cardLeave, Durations.medium4);
-    expect(Motion.cardGapDelay, Durations.medium1);
-    expect(Motion.cardReturn, Durations.medium2);
-    expect(Motion.cardLandFade, Durations.short2);
     expect(Motion.sheetExit, Durations.short4);
   });
 

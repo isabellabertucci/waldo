@@ -5,9 +5,6 @@ class BadgeSize {
   /// A small hint disc: the month row's chevrons, a picked option's check.
   static const xs = 22.0;
 
-  /// Category chips in the transaction form.
-  static const sm = 28.0;
-
   /// Form fields, option tiles, category and list rows.
   static const md = 36.0;
 
