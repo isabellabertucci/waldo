@@ -16,11 +16,11 @@ import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/rounded.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
-import 'package:waldo/core/widgets/dashed_circle_badge.dart';
+import 'package:waldo/core/widgets/tinted_circle_badge.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
-import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/pill_button.dart';
 import 'package:waldo/core/widgets/form_pill_field.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
 import 'package:waldo/features/categories/categories_x.dart';
@@ -339,7 +339,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
       child: Container(
         decoration: BoxDecoration(
-          color: colors.surface,
+          color: colors.sheet,
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(Rounded.lg),
           ),
@@ -377,7 +377,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
           : amountCents == null
           ? '—'
           : '${isIncome ? '+' : '-'}${formatCents(amountCents, locale: moneyLocale(context), currencyCode: currency.code)}',
-      amountColor: isIncome ? colors.primaryStrong : colors.error,
+      amountColor: isIncome ? colors.positive : colors.negative,
       categoryIcon: category?.icon ?? AppIcons.categoryNone,
       categoryLabel: category?.displayName(l10n) ?? l10n.none,
       dateLabel: formState.date == null
@@ -432,7 +432,11 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             crossAxisAlignment: DynamicTypeScaler.isAccessibilitySize(context)
                 ? CrossAxisAlignment.start
                 : CrossAxisAlignment.center,
-            badge: DashedCircleBadge(icon: categoryIcon, color: amountColor),
+            // Neutral: a category is no warning; red is kept for danger.
+            badge: TintedCircleBadge(
+              icon: categoryIcon,
+              color: context.appColors.ink,
+            ),
             trailing: const Padding(
               padding: EdgeInsets.only(left: Spacing.sm),
               child: SheetCloseButton(),
@@ -447,13 +451,11 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                   children: [
                     WholeWordsText.singleLine(
                       name,
-                      style: context.headlineLgExtraBold,
+                      style: context.titleSection,
                     ),
                     WholeWordsText.singleLine(
                       '$categoryLabel · ${formState.type.label(l10n)}',
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
+                      style: context.label.copyWith(color: colors.inkMuted),
                     ),
                   ],
                 ),
@@ -468,7 +470,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               vertical: Spacing.sm,
             ),
             decoration: BoxDecoration(
-              color: colors.surfaceContainer,
+              color: colors.card,
               borderRadius: BorderRadius.circular(Rounded.lg),
             ),
             // Side by side when they fit; with large text the amount wraps
@@ -480,15 +482,11 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                 children: [
                   Text(
                     l10n.amount,
-                    style: context.textTheme.bodyMedium?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
+                    style: context.body.copyWith(color: colors.inkMuted),
                   ),
                   Text(
                     amountText,
-                    style: context.headlineLgExtraBold.copyWith(
-                      color: amountColor,
-                    ),
+                    style: context.titleSection.copyWith(color: amountColor),
                   ),
                 ],
               ),
@@ -499,7 +497,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
             decoration: BoxDecoration(
-              color: colors.surfaceContainer,
+              color: colors.card,
               borderRadius: BorderRadius.circular(Rounded.lg),
             ),
             child: Column(
@@ -529,19 +527,18 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
               // A plain circle beside "Edit transaction", not a long pill.
               CircleIconButton(
                 flat: true,
-                tint: colors.error.withValues(alpha: Alpha.tint),
+                tint: colors.negative.withValues(alpha: Alpha.tint),
                 tooltip: l10n.delete,
                 onPressed: _delete,
                 child: Icon(
                   AppIcons.delete,
                   size: IconSize.xl,
-                  color: colors.error,
+                  color: colors.negative,
                 ),
               ),
               const SizedBox(width: Spacing.sm),
               Expanded(
-                child: DashedStitchButton(
-                  icon: const Icon(AppIcons.edit, size: IconSize.md),
+                child: PillButton(
                   label: l10n.editTransactionAction,
                   onPressed: _enterEditMode,
                   padding: const EdgeInsets.symmetric(
@@ -569,13 +566,13 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
     final l10n = AppLocalizations.of(context);
     final colors = context.appColors;
     // Full-size labels: one short word each, so they fit side by side.
-    final cancel = DashedStitchButton(
-      variant: StitchVariant.secondary,
+    final cancel = PillButton(
+      variant: PillButtonVariant.secondary,
       label: l10n.cancel,
       onPressed: _cancelEdit,
       padding: _actionPadding,
     );
-    final save = DashedStitchButton(
+    final save = PillButton(
       label: l10n.save,
       onPressed: _saveChanges,
       padding: _actionPadding,
@@ -607,7 +604,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
                 child: Heading(
                   child: Text(
                     l10n.editTransactionAction,
-                    style: context.headlineLgExtraBold,
+                    style: context.titleSection,
                   ),
                 ),
               ),
@@ -623,29 +620,7 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             controller: _amountController,
             onChanged: _viewModel.updateAmount,
           ),
-          const SizedBox(height: Spacing.sm),
-          FormPillField(
-            fieldKey: const Key('txNameField'),
-            leading: const Icon(AppIcons.name),
-            controller: _nameController,
-            label: l10n.transactionTitle,
-            hint: l10n.descriptionHint,
-            maxLength: maxTransactionDescriptionLength,
-            textCapitalization: TextCapitalization.sentences,
-            onChanged: (value) => _viewModel.updateDescription(value),
-          ),
-          const SizedBox(height: Spacing.sm),
-          FormPillField(
-            fieldKey: const Key('txNoteField'),
-            leading: const Icon(AppIcons.note),
-            controller: _noteController,
-            label: l10n.transactionNote,
-            hint: l10n.noteHint,
-            maxLength: maxTransactionNoteLength,
-            textCapitalization: TextCapitalization.sentences,
-            onChanged: (value) => _viewModel.updateNote(value),
-          ),
-          const SizedBox(height: Spacing.sm),
+          const SizedBox(height: Spacing.md),
           // Wallet, Category and Date in one card, as in the new-transaction
           // sheet, with the same rows and pickers.
           EditFieldRow.group(context, [
@@ -682,13 +657,33 @@ class _TransactionEditSheetState extends ConsumerState<TransactionEditSheet> {
             ),
           ]),
           const SizedBox(height: Spacing.md),
+          FormPillField(
+            fieldKey: const Key('txNameField'),
+            controller: _nameController,
+            label: l10n.transactionTitle,
+            hint: l10n.descriptionHint,
+            maxLength: maxTransactionDescriptionLength,
+            textCapitalization: TextCapitalization.sentences,
+            onChanged: (value) => _viewModel.updateDescription(value),
+          ),
+          const SizedBox(height: Spacing.md),
+          FormPillField(
+            fieldKey: const Key('txNoteField'),
+            controller: _noteController,
+            label: l10n.transactionNote,
+            hint: l10n.noteHint,
+            maxLength: maxTransactionNoteLength,
+            textCapitalization: TextCapitalization.sentences,
+            onChanged: (value) => _viewModel.updateNote(value),
+          ),
+          const SizedBox(height: Spacing.md),
           if (_saveError case final error?) ...[
             SizedBox(
               width: double.infinity,
               child: Text(
                 error,
                 textAlign: TextAlign.center,
-                style: context.bodyMdStrong.copyWith(color: colors.error),
+                style: context.bodyStrong.copyWith(color: colors.negative),
               ),
             ),
             const SizedBox(height: Spacing.sm),
@@ -741,18 +736,16 @@ class _ViewInfoRow extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: Spacing.sm),
             child: BadgeRow(
-              badge: FieldBadge(icon: icon, color: colors.onSurfaceVariant),
+              badge: FieldBadge(icon: icon, color: colors.inkMuted),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     label,
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
+                    style: context.label.copyWith(color: colors.inkMuted),
                   ),
-                  WholeWordsText.singleLine(value, style: context.bodyMdBold),
+                  WholeWordsText.singleLine(value, style: context.bodyStrong),
                 ],
               ),
             ),

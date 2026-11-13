@@ -40,6 +40,92 @@ void main() {
   }
 
   group('TransactionRepositoryImpl', () {
+    test('countByWallet counts only that wallet\'s transactions', () async {
+      final walletId = await createWallet();
+      final otherId = await createWallet(name: 'Other');
+      for (final id in [walletId, walletId, otherId]) {
+        await repo.insert(
+          Transaction(
+            walletId: id,
+            amount: 100,
+            type: TransactionType.expense,
+            date: '2026-08-10',
+            createdAt: '2026-08-10T12:00:00.000',
+          ),
+        );
+      }
+
+      expect(await repo.countByWallet(walletId), 2);
+      expect(await repo.countByWallet(otherId), 1);
+      expect(await repo.countByWallet(999), 0);
+    });
+
+    test('lastUsedWalletId is the wallet of the transaction logged last, '
+        'not the latest date', () async {
+      expect(await repo.lastUsedWalletId(), isNull, reason: 'none yet');
+
+      final walletId = await createWallet();
+      final otherId = await createWallet(name: 'Other');
+      // Logged last, though dated earlier.
+      for (final (id, date, createdAt) in [
+        (walletId, '2026-08-20', '2026-08-10T12:00:00.000'),
+        (otherId, '2026-08-01', '2026-08-11T12:00:00.000'),
+      ]) {
+        await repo.insert(
+          Transaction(
+            walletId: id,
+            amount: 100,
+            type: TransactionType.expense,
+            date: date,
+            createdAt: createdAt,
+          ),
+        );
+      }
+
+      expect(await repo.lastUsedWalletId(), otherId);
+    });
+
+    test(
+      'recentCategoryIds lists categories by when last used, each once',
+      () async {
+        final walletId = await createWallet();
+        final categories = (await CategoryRepositoryImpl(
+          db,
+        ).getAll()).take(3).map((c) => c.id!).toList();
+        final [a, b, c] = categories;
+        // a, then b, then a again, then one with no category.
+        for (final (categoryId, createdAt) in [
+          (a, '2026-08-10T10:00:00.000'),
+          (b, '2026-08-10T11:00:00.000'),
+          (a, '2026-08-10T12:00:00.000'),
+          (null, '2026-08-10T13:00:00.000'),
+        ]) {
+          await repo.insert(
+            Transaction(
+              walletId: walletId,
+              categoryId: categoryId,
+              amount: 100,
+              type: TransactionType.expense,
+              date: '2026-08-10',
+              createdAt: createdAt,
+            ),
+          );
+        }
+
+        expect(await repo.recentCategoryIds(TransactionType.expense), [a, b]);
+        expect(
+          await repo.recentCategoryIds(TransactionType.expense, limit: 1),
+          [a],
+        );
+        expect(
+          await repo.recentCategoryIds(TransactionType.income),
+          isEmpty,
+          reason: 'only expenses were logged',
+        );
+        expect(categories, contains(c), reason: 'never used, never listed');
+      },
+    );
+
     test(
       'insert adds an income transaction and increases wallet balance',
       () async {

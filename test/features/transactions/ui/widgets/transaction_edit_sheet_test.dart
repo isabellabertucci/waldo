@@ -118,7 +118,7 @@ void main() {
     expect(find.text('Rent'), findsOneWidget, reason: 'the Undo bar');
 
     // Past the Undo window, the delete goes through.
-    for (var i = 0; i < 8; i++) {
+    for (var i = 0; i < 13; i++) {
       await tester.pump(const Duration(seconds: 1));
     }
     expect(await repo.getById(transaction.id!), isNull);

@@ -16,7 +16,12 @@ final class TransactionFormViewModelProvider
     extends $NotifierProvider<TransactionFormViewModel, TransactionFormState> {
   const TransactionFormViewModelProvider._({
     required TransactionFormViewModelFamily super.from,
-    required (Transaction?, {int? initialWalletId}) super.argument,
+    required (
+      Transaction?, {
+      int? initialWalletId,
+      TransactionType? initialType,
+    })
+    super.argument,
   }) : super(
          retry: null,
          name: r'transactionFormViewModelProvider',
@@ -60,7 +65,7 @@ final class TransactionFormViewModelProvider
 }
 
 String _$transactionFormViewModelHash() =>
-    r'491805e7152ccac1a0c2ee0a72222681c8064b90';
+    r'9fd1ed374ebe9a2bb7d10d347c30f5e18a644628';
 
 final class TransactionFormViewModelFamily extends $Family
     with
@@ -69,7 +74,7 @@ final class TransactionFormViewModelFamily extends $Family
           TransactionFormState,
           TransactionFormState,
           TransactionFormState,
-          (Transaction?, {int? initialWalletId})
+          (Transaction?, {int? initialWalletId, TransactionType? initialType})
         > {
   const TransactionFormViewModelFamily._()
     : super(
@@ -83,8 +88,13 @@ final class TransactionFormViewModelFamily extends $Family
   TransactionFormViewModelProvider call(
     Transaction? existingTransaction, {
     int? initialWalletId,
+    TransactionType? initialType,
   }) => TransactionFormViewModelProvider._(
-    argument: (existingTransaction, initialWalletId: initialWalletId),
+    argument: (
+      existingTransaction,
+      initialWalletId: initialWalletId,
+      initialType: initialType,
+    ),
     from: this,
   );
 
@@ -94,18 +104,30 @@ final class TransactionFormViewModelFamily extends $Family
 
 abstract class _$TransactionFormViewModel
     extends $Notifier<TransactionFormState> {
-  late final _$args = ref.$arg as (Transaction?, {int? initialWalletId});
+  late final _$args =
+      ref.$arg
+          as (
+            Transaction?, {
+            int? initialWalletId,
+            TransactionType? initialType,
+          });
   Transaction? get existingTransaction => _$args.$1;
   int? get initialWalletId => _$args.initialWalletId;
+  TransactionType? get initialType => _$args.initialType;
 
   TransactionFormState build(
     Transaction? existingTransaction, {
     int? initialWalletId,
+    TransactionType? initialType,
   });
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(_$args.$1, initialWalletId: _$args.initialWalletId);
+    final created = build(
+      _$args.$1,
+      initialWalletId: _$args.initialWalletId,
+      initialType: _$args.initialType,
+    );
     final ref = this.ref as $Ref<TransactionFormState, TransactionFormState>;
     final element =
         ref.element

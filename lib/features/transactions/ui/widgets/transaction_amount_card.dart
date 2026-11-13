@@ -21,6 +21,7 @@ class TransactionAmountCard extends ConsumerWidget {
     required this.controller,
     required this.onChanged,
     this.fieldKey,
+    this.autofocus = false,
   });
 
   final TransactionType type;
@@ -28,6 +29,10 @@ class TransactionAmountCard extends ConsumerWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final Key? fieldKey;
+
+  /// The new sheet opens with the keyboard on the amount, the one thing
+  /// every transaction needs.
+  final bool autofocus;
 
   /// An empty, zero or unreadable amount's message, or null when it's fine.
   static String? validate(AppLocalizations l10n, String? value) {
@@ -49,12 +54,12 @@ class TransactionAmountCard extends ConsumerWidget {
       children: [
         TransactionTypeToggle(selected: type, onChanged: onTypeChanged),
         const SizedBox(height: Spacing.sm),
-        // The same pill as every other field: the symbol in the disc, the
-        // code at the end, and the sign before what's typed.
+        // The same field as every other: the symbol at the end, and the
+        // sign before what's typed.
         FormPillField(
           fieldKey: fieldKey,
-          leading: Text(currency.symbol),
-          trailing: currency.code,
+          autofocus: autofocus,
+          trailing: currency.symbol,
           prefix: type == TransactionType.income ? '+' : '-',
           controller: controller,
           label: l10n.amount,

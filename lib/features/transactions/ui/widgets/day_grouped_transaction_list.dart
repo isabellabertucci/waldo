@@ -10,8 +10,9 @@ import 'package:waldo/core/widgets/heading.dart';
 import '../../models/transaction.dart';
 import 'transaction_row.dart';
 
-/// Transactions grouped by day (Today, Yesterday, Thu 8 Oct), each day in
-/// its own [TransactionCard]. Keeps the order it's given (newest first).
+/// Transactions grouped by day (Today, Yesterday, Thu 8 Oct), each day's
+/// [TransactionRows] under it, and how to edit one at the end, as the
+/// wallets list has. Keeps the order it's given (newest first).
 class DayGroupedTransactionList extends StatelessWidget {
   const DayGroupedTransactionList({
     super.key,
@@ -22,6 +23,7 @@ class DayGroupedTransactionList extends StatelessWidget {
     this.isAmountHidden = false,
     this.padding = const EdgeInsets.all(Spacing.pageMargin),
     this.header,
+    this.inPage = false,
   });
 
   final List<Transaction> transactions;
@@ -35,6 +37,10 @@ class DayGroupedTransactionList extends StatelessWidget {
 
   /// Scrolls with the days, above them and outside [padding].
   final Widget? header;
+
+  /// Part of a page that scrolls (a wallet's sheet), so the list takes its
+  /// full height and doesn't scroll on its own.
+  final bool inPage;
 
   Map<DateTime, List<Transaction>> _groupByDay() {
     final groups = <DateTime, List<Transaction>>{};
@@ -72,20 +78,14 @@ class DayGroupedTransactionList extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: Spacing.xxs),
-                child: Heading(
-                  child: Text(
-                    _dayLabel(l10n, locale, day),
-                    style: context.labelSmBold.copyWith(
-                      color: colors.onSurfaceVariant,
-                      letterSpacing: 0.4,
-                    ),
-                  ),
+              // As the wallets list's groups are headed.
+              Heading(
+                child: Text(
+                  _dayLabel(l10n, locale, day),
+                  style: context.overline.copyWith(color: colors.inkMuted),
                 ),
               ),
-              const SizedBox(height: Spacing.xs),
-              TransactionCard(
+              TransactionRows(
                 transactions: groups[day]!,
                 categoriesById: categoriesById,
                 currency: currency,
@@ -100,9 +100,25 @@ class DayGroupedTransactionList extends StatelessWidget {
     // What ListView.builder builds, with room for a header above the padding.
     return CustomScrollView(
       semanticChildCount: days.length,
+      shrinkWrap: inPage,
+      physics: inPage ? const NeverScrollableScrollPhysics() : null,
       slivers: [
         if (header case final header?) SliverToBoxAdapter(child: header),
-        SliverPadding(padding: padding, sliver: list),
+        SliverPadding(
+          padding: padding,
+          sliver: SliverMainAxisGroup(
+            slivers: [
+              list,
+              SliverToBoxAdapter(
+                child: Text(
+                  l10n.transactionRowHint,
+                  textAlign: TextAlign.center,
+                  style: context.label.copyWith(color: colors.inkMuted),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

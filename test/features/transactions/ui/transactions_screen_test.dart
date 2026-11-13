@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 
+import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/utils/utils.dart';
-import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/pill_button.dart';
 import 'package:waldo/features/preferences/viewmodels/balance_hidden_view_model.dart';
+import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/transactions/ui/transactions_screen.dart';
+import 'package:waldo/features/transactions/ui/widgets/transaction_edit_sheet.dart';
 import 'package:waldo/features/transactions/ui/widgets/transaction_row.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
@@ -23,9 +26,13 @@ void main() {
     currentDb = null;
   });
 
-  Future<int> pumpTransactionsScreen(WidgetTester tester) async {
-    // A portrait phone size, so the whole amount sheet fits.
-    tester.view.physicalSize = const Size(390, 844);
+  Future<int> pumpTransactionsScreen(
+    WidgetTester tester, {
+    int transactions = 0,
+  }) async {
+    // A phone's width, tall enough that the rows under the wallet, its
+    // actions and the filter are on screen, and the whole amount sheet fits.
+    tester.view.physicalSize = const Size(390, 1400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -35,6 +42,20 @@ void main() {
     final walletId = await walletRepo.insert(
       const Wallet(name: 'Test Wallet', createdAt: '2026-08-10T12:00:00.000'),
     );
+    final transactionRepo = TransactionRepositoryImpl(db);
+    // In this month, which the list shows unless filtered.
+    final now = DateTime.now();
+    for (var i = 0; i < transactions; i++) {
+      await transactionRepo.insert(
+        Transaction(
+          walletId: walletId,
+          amount: 100,
+          type: TransactionType.expense,
+          date: DateTime(now.year, now.month).toIso8601String(),
+          createdAt: '2026-08-10T12:00:00.000',
+        ),
+      );
+    }
 
     currentDb = await pumpWidgetWithProviders(
       tester,
@@ -136,9 +157,7 @@ void main() {
     );
 
     expect(
-      find.text(
-        'There was a problem loading your transactions. Please try again.',
-      ),
+      find.text('There was a problem loading your transactions.'),
       findsOneWidget,
     );
   });
@@ -202,12 +221,89 @@ void main() {
     expect(find.textContaining('25.00'), findsNothing);
   });
 
+  testWidgets('Scrolled past the wallet, a slim bar keeps back, the name '
+      'and the eye in reach', (tester) async {
+    await pumpTransactionsScreen(tester, transactions: 40);
+    expect(find.byKey(const Key('sheetPageBar')), findsNothing);
+
+    await tester.drag(find.byType(ListView), const Offset(0, -900));
+    await tester.pumpAndSettle();
+
+    final bar = find.byKey(const Key('sheetPageBar'));
+    expect(bar, findsOneWidget);
+    expect(
+      find.descendant(of: bar, matching: find.text('Test Wallet')),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: bar, matching: find.byTooltip('Back')),
+      findsOneWidget,
+    );
+
+    // The eye hides every amount from down here, and shows it's on.
+    await tester.tap(find.byTooltip('Hide balance'));
+    await tester.pumpAndSettle();
+    expect(find.text(hiddenAmount), findsWidgets);
+    expect(find.byTooltip('Show balance'), findsOneWidget);
+
+    await tester.drag(find.byType(ListView), const Offset(0, 2000));
+    await tester.pumpAndSettle();
+    expect(bar, findsNothing, reason: 'back at the top, the top is enough');
+  });
+
   testWidgets('The header buttons have accessible names', (tester) async {
     await pumpTransactionsScreen(tester);
 
     expect(find.byTooltip('Back'), findsOneWidget);
-    expect(find.byTooltip('New transaction'), findsOneWidget);
-    expect(find.byTooltip('Hide balance'), findsOneWidget);
+    expect(find.byTooltip('Test Wallet options'), findsOneWidget);
+    expect(find.bySemanticsLabel('Hide'), findsOneWidget);
+    expect(find.bySemanticsLabel('Filter'), findsOneWidget);
+    expect(find.bySemanticsLabel('Transaction'), findsOneWidget);
+  });
+
+  testWidgets('Analysis shows the wallet\'s cash flow and categories', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '25.00', description: 'Groceries');
+
+    await tester.tap(find.text('Analysis'));
+    await tester.pumpAndSettle();
+    expect(find.text('Cash flow'), findsOneWidget);
+    expect(find.text('Spending by category'), findsOneWidget);
+    expect(find.text('Groceries'), findsNothing);
+
+    await tester.tap(find.text('Transactions'));
+    await tester.pumpAndSettle();
+    expect(find.text('Groceries'), findsOneWidget);
+  });
+
+  testWidgets('The type tiles and month arrows filter the list', (
+    tester,
+  ) async {
+    await pumpTransactionsScreen(tester);
+    await createTransaction(tester, amount: '25.00', description: 'Groceries');
+
+    // The month and the tiles wait behind Filter.
+    expect(find.text('Income'), findsNothing);
+    expect(find.byTooltip('Previous month'), findsNothing);
+    await tester.tap(find.byKey(const Key('walletFilterAction')));
+    await tester.pumpAndSettle();
+
+    // Each tile says how many of the month's transactions it leaves.
+    expect(find.text('1 transaction'), findsNWidgets(2));
+    expect(find.text('0 transactions'), findsOneWidget);
+
+    await tester.tap(find.text('Income'));
+    await tester.pumpAndSettle();
+    expect(find.text('Groceries'), findsNothing);
+    expect(find.text('No transactions match this filter.'), findsOneWidget);
+
+    await tester.tap(find.text('All'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Previous month'));
+    await tester.pumpAndSettle();
+    expect(find.text('Groceries'), findsNothing);
   });
 
   testWidgets('Shows empty state when there are no transactions', (
@@ -216,6 +312,22 @@ void main() {
     await pumpTransactionsScreen(tester);
 
     expect(find.text('No transactions yet'), findsOneWidget);
+  });
+
+  testWidgets('With no transactions, Analysis holds its own cards and '
+      'Filter is off', (tester) async {
+    await pumpTransactionsScreen(tester);
+
+    await tester.tap(find.text('Analysis'));
+    await tester.pumpAndSettle();
+    expect(find.text('Cash flow'), findsOneWidget);
+    expect(find.text('Spending by category'), findsOneWidget);
+    // Not the transaction list's empty state.
+    expect(find.text('No transactions yet'), findsNothing);
+
+    await tester.tap(find.byKey(const Key('walletFilterAction')));
+    await tester.pumpAndSettle();
+    expect(find.text('Income'), findsNothing);
   });
 
   testWidgets('Creating a transaction adds it to the list', (tester) async {
@@ -232,7 +344,13 @@ void main() {
     await pumpTransactionsScreen(tester);
     await createTransaction(tester, amount: '15.00');
 
-    expect(find.text('Transaction'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(TransactionRow),
+        matching: find.text('Transaction'),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('Shows validation error when amount is empty', (tester) async {
@@ -261,7 +379,14 @@ void main() {
       await tester.tap(find.text('Groceries'));
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(AppIcons.chevronRight), findsNothing);
+      // In the sheet: the page's month arrow has one of its own.
+      expect(
+        find.descendant(
+          of: find.byType(TransactionEditSheet),
+          matching: find.byIcon(AppIcons.chevronRight),
+        ),
+        findsNothing,
+      );
     },
   );
 
@@ -276,9 +401,10 @@ void main() {
         description: 'Groceries',
       );
 
-      await tester.tap(find.byIcon(AppIcons.more));
+      await tester.longPress(find.byType(TransactionRow).first);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Edit'));
+      // The menu's, not the Edit action circle's (that edits the wallet).
+      await tester.tap(find.text('Edit').last);
       await tester.pumpAndSettle();
 
       // Category and Date still drill into their own pickers (chevron);
@@ -295,9 +421,10 @@ void main() {
   );
 
   Future<void> openEditFromRowMenu(WidgetTester tester) async {
-    await tester.tap(find.byIcon(AppIcons.more));
+    await tester.longPress(find.byType(TransactionRow).first);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Edit'));
+    // The action sheet's, not the wallet's own menu.
+    await tester.tap(find.text('Edit').last);
     await tester.pumpAndSettle();
   }
 
@@ -350,20 +477,18 @@ void main() {
     expect(amountFieldText(tester), '10,00');
   });
 
-  testWidgets('The amount is a pill like every field: the symbol in its '
-      'disc, the sign before the number, the code at the end', (tester) async {
+  testWidgets('The amount is a field like every other: the sign before the '
+      'number, the symbol at the end', (tester) async {
     await pumpTransactionsScreen(tester);
     await createTransaction(tester, amount: '10.00', description: 'Coffee');
 
     await openEditFromRowMenu(tester);
 
     final field = tester.getRect(find.byKey(const Key('txAmountField')));
-    final symbol = tester.getRect(find.text(r'$'));
     final sign = tester.getRect(find.text('- '));
-    final code = tester.getRect(find.text('USD'));
-    expect(symbol.right, lessThan(sign.left));
+    final symbol = tester.getRect(find.text(r'$'));
     expect(sign.right, lessThanOrEqualTo(field.left));
-    expect(code.left, greaterThanOrEqualTo(field.right));
+    expect(symbol.left, greaterThanOrEqualTo(field.right));
   });
 
   testWidgets('Cancel puts back the amount as it was', (tester) async {
@@ -421,10 +546,7 @@ void main() {
     await openEditFromRowMenu(tester);
 
     Size sizeOf(String label) => tester.getSize(
-      find.ancestor(
-        of: find.text(label),
-        matching: find.byType(DashedStitchButton),
-      ),
+      find.ancestor(of: find.text(label), matching: find.byType(PillButton)),
     );
     expect(sizeOf('Cancel'), sizeOf('Save'));
     expect(sizeOf('Cancel').height, greaterThanOrEqualTo(48));
@@ -465,7 +587,7 @@ void main() {
   });
 
   Future<void> deleteFromRowMenu(WidgetTester tester) async {
-    await tester.tap(find.byIcon(AppIcons.more));
+    await tester.longPress(find.byType(TransactionRow).first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
@@ -491,7 +613,7 @@ void main() {
       expect(find.text('Transaction deleted'), findsOneWidget);
       expect(find.text('Undo'), findsOneWidget);
 
-      await tester.pump(const Duration(seconds: 6));
+      await tester.pump(const Duration(seconds: 11));
     },
   );
 
@@ -506,12 +628,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Groceries'), findsOneWidget);
 
-    await tester.pump(const Duration(seconds: 6));
+    await tester.pump(const Duration(seconds: 11));
     expect(find.text('Groceries'), findsOneWidget);
   });
 
   testWidgets(
-    'Not tapping Undo permanently deletes the transaction after 5 seconds',
+    'Not tapping Undo permanently deletes the transaction after 10 seconds',
     (tester) async {
       await pumpTransactionsScreen(tester);
       await createTransaction(
@@ -521,7 +643,7 @@ void main() {
       );
 
       await deleteFromRowMenu(tester);
-      await tester.pump(const Duration(seconds: 6));
+      await tester.pump(const Duration(seconds: 11));
       await tester.pumpAndSettle();
 
       expect(textOutsideSnackBar('Groceries'), findsNothing);

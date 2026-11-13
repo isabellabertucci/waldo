@@ -18,6 +18,16 @@ abstract class ITransactionRepository {
   });
   Future<Transaction?> getById(int id);
 
+  /// How many transactions [walletId] has: what deleting it takes along.
+  Future<int> countByWallet(int walletId);
+
+  /// The wallet of the transaction logged last, or null with none yet.
+  Future<int?> lastUsedWalletId();
+
+  /// The categories of the [type]'s transactions logged last, newest
+  /// first, each once.
+  Future<List<int>> recentCategoryIds(TransactionType type, {int limit});
+
   /// Income and expense totals, in cents, for [month]'s calendar month.
   Future<({int income, int expense})> monthTotals(
     DateTime month, {
@@ -89,6 +99,68 @@ class TransactionRepositoryImpl implements ITransactionRepository {
       return maps.map((map) => Transaction.fromMap(map)).toList();
     } on DatabaseException catch (e) {
       _log.severe('getByWallet failed', e);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<int> countByWallet(int walletId) async {
+    try {
+      final rows = await _db.rawQuery(
+        'SELECT COUNT(*) AS n FROM ${TransactionsTable.table} '
+        'WHERE ${TransactionsTable.walletId} = ?',
+        [walletId],
+      );
+      final count = rows.first['n'] as int;
+      _log.fine('countByWallet: walletId=$walletId, count=$count');
+      return count;
+    } on DatabaseException catch (e) {
+      _log.severe('countByWallet failed', e);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<int?> lastUsedWalletId() async {
+    try {
+      final rows = await _db.query(
+        TransactionsTable.table,
+        columns: [TransactionsTable.walletId],
+        orderBy:
+            '${TransactionsTable.createdAt} DESC, ${TransactionsTable.id} DESC',
+        limit: 1,
+      );
+      final walletId = rows.firstOrNull?[TransactionsTable.walletId] as int?;
+      _log.fine('lastUsedWalletId: walletId=$walletId');
+      return walletId;
+    } on DatabaseException catch (e) {
+      _log.severe('lastUsedWalletId failed', e);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<int>> recentCategoryIds(
+    TransactionType type, {
+    int limit = 6,
+  }) async {
+    try {
+      final rows = await _db.rawQuery(
+        'SELECT ${TransactionsTable.categoryId} AS id '
+        'FROM ${TransactionsTable.table} '
+        'WHERE ${TransactionsTable.categoryId} IS NOT NULL '
+        'AND ${TransactionsTable.type} = ? '
+        'GROUP BY ${TransactionsTable.categoryId} '
+        'ORDER BY MAX(${TransactionsTable.createdAt}) DESC, '
+        'MAX(${TransactionsTable.id}) DESC '
+        'LIMIT ?',
+        [type.name, limit],
+      );
+      final ids = [for (final row in rows) row['id'] as int];
+      _log.fine('recentCategoryIds: count=${ids.length}');
+      return ids;
+    } on DatabaseException catch (e) {
+      _log.severe('recentCategoryIds failed', e);
       rethrow;
     }
   }

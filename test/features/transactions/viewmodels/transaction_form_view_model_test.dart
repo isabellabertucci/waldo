@@ -8,11 +8,18 @@ import 'package:waldo/features/categories/repositories/category_repository.dart'
 import 'package:waldo/features/transactions/models/transaction.dart';
 import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_form_view_model.dart';
+import 'package:waldo/features/wallets/models/wallet.dart';
+import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
 
 class MockTransactionRepository extends Mock
     implements ITransactionRepository {}
 
 class MockCategoryRepository extends Mock implements ICategoryRepository {}
+
+class MockWalletRepository extends Mock implements IWalletRepository {}
+
+Wallet _wallet(int id) =>
+    Wallet(id: id, name: 'Wallet $id', createdAt: '2026-08-10T12:00:00.000');
 
 const _others = Category(
   id: 6,
@@ -25,9 +32,11 @@ const _others = Category(
 void main() {
   late MockTransactionRepository mockRepo;
   late MockCategoryRepository mockCategoryRepo;
+  late MockWalletRepository mockWalletRepo;
   late ProviderContainer container;
 
   setUpAll(() {
+    registerFallbackValue(SortOrder.desc);
     registerFallbackValue(
       const Transaction(
         walletId: 0,
@@ -42,11 +51,13 @@ void main() {
   setUp(() {
     mockRepo = MockTransactionRepository();
     mockCategoryRepo = MockCategoryRepository();
+    mockWalletRepo = MockWalletRepository();
     when(() => mockCategoryRepo.getOthers()).thenAnswer((_) async => _others);
     container = ProviderContainer(
       overrides: [
         transactionRepositoryProvider.overrideWith((ref) => mockRepo),
         categoryRepositoryProvider.overrideWith((ref) => mockCategoryRepo),
+        walletRepositoryProvider.overrideWith((ref) => mockWalletRepo),
         // A fixed clock, so createdAt is checkable.
         clockProvider.overrideWithValue(() => DateTime(2026, 10, 13, 9, 30)),
       ],
@@ -64,6 +75,63 @@ void main() {
     expect(state.type, TransactionType.expense);
     expect(state.date, DateTime(2026, 10, 13), reason: 'the day, no time');
     expect(state.walletId, isNull);
+  });
+
+  group('preselectWallet', () {
+    void given({required List<int> wallets, int? lastUsed}) {
+      when(
+        () => mockWalletRepo.getAll(sortOrder: any(named: 'sortOrder')),
+      ).thenAnswer((_) async => [for (final id in wallets) _wallet(id)]);
+      when(() => mockRepo.lastUsedWalletId()).thenAnswer((_) async => lastUsed);
+    }
+
+    Future<int?> preselected() async {
+      final provider = transactionFormViewModelProvider(null);
+      final sub = container.listen(provider, (_, _) {});
+      addTearDown(sub.close);
+      await container.read(provider.notifier).preselectWallet();
+      return container.read(provider).walletId;
+    }
+
+    test('picks the wallet used last', () async {
+      given(wallets: [1, 2, 3], lastUsed: 2);
+      expect(await preselected(), 2);
+    });
+
+    test('picks the only wallet when none was used yet', () async {
+      given(wallets: [4]);
+      expect(await preselected(), 4);
+    });
+
+    test('leaves it empty with several wallets and none used yet', () async {
+      given(wallets: [1, 2]);
+      expect(await preselected(), isNull);
+    });
+
+    test('ignores a last-used wallet that is gone', () async {
+      given(wallets: [1, 2], lastUsed: 9);
+      expect(await preselected(), isNull);
+    });
+
+    test('keeps a wallet picked while it was looking', () async {
+      given(wallets: [1, 2], lastUsed: 2);
+      final provider = transactionFormViewModelProvider(null);
+      final sub = container.listen(provider, (_, _) {});
+      addTearDown(sub.close);
+      final notifier = container.read(provider.notifier);
+
+      final pending = notifier.preselectWallet();
+      notifier.updateWalletId(1);
+      await pending;
+
+      expect(container.read(provider).walletId, 1);
+    });
+
+    test('a failure leaves the wallet empty', () async {
+      given(wallets: [1, 2]);
+      when(() => mockRepo.lastUsedWalletId()).thenThrow(Exception('db'));
+      expect(await preselected(), isNull);
+    });
   });
 
   test('build(null) with initialWalletId pre-fills the wallet', () {

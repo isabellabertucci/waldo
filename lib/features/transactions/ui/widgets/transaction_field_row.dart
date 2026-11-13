@@ -24,7 +24,7 @@ class FieldBadge extends StatelessWidget {
     return Container(
       width: BadgeSize.md,
       height: BadgeSize.md,
-      decoration: BoxDecoration(color: colors.surface, shape: BoxShape.circle),
+      decoration: BoxDecoration(color: colors.sheet, shape: BoxShape.circle),
       child: Icon(icon, size: IconSize.md, color: color),
     );
   }
@@ -60,7 +60,7 @@ class EditFieldRow extends StatelessWidget {
     final colors = context.appColors;
 
     return Material(
-      color: colors.surfaceContainer,
+      color: colors.card,
       borderRadius: BorderRadius.circular(Rounded.lg),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -85,14 +85,12 @@ class EditFieldRow extends StatelessWidget {
     final name = FieldLabel(
       label,
       required: required,
-      style: context.textTheme.bodyMedium?.copyWith(
-        color: colors.onSurfaceVariant,
-      ),
+      style: context.body.copyWith(color: colors.inkMuted),
     );
     final valueText = WholeWordsText.singleLine(
       value,
-      style: context.bodyMdBold.copyWith(
-        color: hasError ? colors.error : colors.onSurface,
+      style: context.bodyStrong.copyWith(
+        color: hasError ? colors.negative : colors.ink,
       ),
     );
 
@@ -110,14 +108,14 @@ class EditFieldRow extends StatelessWidget {
               vertical: Spacing.component,
             ),
             child: BadgeRow(
-              badge: FieldBadge(icon: icon, color: colors.onSurfaceVariant),
+              badge: FieldBadge(icon: icon, color: colors.inkMuted),
               trailing: Padding(
                 padding: const EdgeInsets.only(left: Spacing.xs),
                 child: Icon(
                   AppIcons.chevronRight,
                   size: IconSize.lg,
                   // Says the row opens a picker: 3:1 at least (WCAG 1.4.11).
-                  color: colors.onSurfaceVariant,
+                  color: colors.inkMuted,
                 ),
               ),
               // With large text the value moves under the name, so neither

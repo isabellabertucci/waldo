@@ -10,6 +10,7 @@ import 'package:waldo/features/transactions/repositories/transaction_repository.
 import 'package:waldo/features/wallets/viewmodels/wallet_list_view_model.dart';
 import 'package:waldo/features/wallets/viewmodels/wallets_summary_view_model.dart';
 import 'transaction_form_state.dart';
+import 'recent_categories_view_model.dart';
 import 'transaction_list_view_model.dart';
 
 part 'transaction_form_view_model.g.dart';
@@ -22,6 +23,7 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
   TransactionFormState build(
     Transaction? existingTransaction, {
     int? initialWalletId,
+    TransactionType? initialType,
   }) {
     if (existingTransaction != null) {
       return TransactionFormState(
@@ -38,6 +40,7 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
     final now = ref.read(clockProvider)();
     return TransactionFormState(
       walletId: initialWalletId,
+      type: initialType ?? TransactionType.expense,
       date: DateTime(now.year, now.month, now.day),
     );
   }
@@ -68,6 +71,29 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
 
   void updateNote(String value) {
     state = state.copyWith(note: value);
+  }
+
+  /// Fills the wallet when the form opens without one, so logging takes
+  /// fewer taps: the one last used, or the only one there is. With several
+  /// and none used yet it stays empty, for a real choice. A pick made
+  /// meanwhile wins, and a failure only leaves the field as it was.
+  Future<void> preselectWallet() async {
+    if (state.walletId != null) return;
+    try {
+      final wallets = await ref.read(walletListViewModelProvider().future);
+      if (wallets.isEmpty) return;
+      final repo = await ref.read(transactionRepositoryProvider.future);
+      final lastUsed = await repo.lastUsedWalletId();
+      final ids = {for (final wallet in wallets) wallet.id};
+      final suggested = ids.contains(lastUsed)
+          ? lastUsed
+          : (wallets.length == 1 ? wallets.single.id : null);
+      if (!ref.mounted || suggested == null || state.walletId != null) return;
+      _log.fine('preselectWallet: walletId=$suggested');
+      state = state.copyWith(walletId: suggested);
+    } catch (e) {
+      _log.warning('preselectWallet failed', e);
+    }
   }
 
   /// Puts back a state captured earlier - the edit sheet's Cancel.
@@ -146,6 +172,7 @@ class TransactionFormViewModel extends _$TransactionFormViewModel {
     ref.invalidate(walletListViewModelProvider);
     ref.invalidate(dashboardViewModelProvider);
     ref.invalidate(walletsSummaryViewModelProvider);
+    ref.invalidate(recentCategoriesProvider);
 
     return true;
   }

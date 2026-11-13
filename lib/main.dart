@@ -7,6 +7,8 @@ import 'package:logging/logging.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/core/utils/localization_delegates.dart';
 
+import 'package:waldo/features/transactions/ui/transaction_shortcuts.dart';
+
 import 'core/constants/app_constants.dart';
 import 'core/logging/app_logger.dart';
 import 'core/logging/provider_observer.dart';
@@ -89,7 +91,10 @@ class MyApp extends ConsumerWidget {
           context.appColors,
           Theme.of(context).brightness,
         ),
-        child: _withDynamicType(context, child!),
+        child: TransactionShortcuts(
+          router: router,
+          child: _withDynamicType(context, child!),
+        ),
       ),
     );
   }
