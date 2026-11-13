@@ -257,8 +257,8 @@ void main() {
     },
   );
 
-  test('during its Undo window a category\'s spending and rows already show '
-      'as Others, and Undo puts it back', () async {
+  test('during its Undo window a category\'s transactions on Home and its '
+      'rows already show as Others, and Undo puts it back', () async {
     final db = await createTestDatabase();
     addTearDown(db.close);
     final real = ProviderContainer(
@@ -286,12 +286,13 @@ void main() {
       ),
     );
 
-    // The receipt's lines, and the name a row shows for the transaction.
+    // Home's category for the transaction, and the name a row shows.
     Future<(String, String?)> shown() async {
       final dashboard = await real.read(dashboardViewModelProvider.future);
-      await real.read(categoryListViewModelProvider.future);
+      final categories = await real.read(categoryListViewModelProvider.future);
+      final onHome = dashboard.recentTransactions.single.categoryId;
       return (
-        dashboard.spendingByCategory.map((s) => s.category.name).join(', '),
+        categories.firstWhere((c) => c.id == onHome).name,
         real.read(categoriesByIdProvider)[gymId]?.name,
       );
     }

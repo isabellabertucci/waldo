@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/rows_card.dart';
+import 'package:waldo/core/widgets/sheet_page.dart';
+import 'package:waldo/core/widgets/load_error.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:waldo/core/database/save_failure.dart';
@@ -28,35 +31,29 @@ class SettingsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
 
-    // Same header as Wallets, so the title shares the page gutter.
+    // A tab like Home and Wallets: the beige top with the page's title,
+    // then the white sheet (DESIGN.md "Settings").
     return Scaffold(
-      // Scrolls on under the floating navbar (AppShell's `extendBody`).
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                Spacing.pageMargin,
-                Spacing.xs,
-                Spacing.pageMargin,
-                0,
-              ),
-              child: Heading(
-                child: Text(l10n.settings, style: context.headlineSmExtraBold),
-              ),
+      body: SheetPage(
+        // Once the title scrolls away, so nothing slides under the clock.
+        bar: SheetPageBar(title: l10n.settings),
+        top: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Heading(child: Text(l10n.settings, style: context.titlePage)),
+        ),
+        sheet: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Spacing.pageMargin),
+          child: switch (preferencesAsync) {
+            AsyncValue(:final value?) => _SettingsBody(preferences: value),
+            AsyncValue(hasError: true) => LoadError(
+              message: l10n.preferencesError,
+              onRetry: () => ref.invalidate(preferencesViewModelProvider),
             ),
-            Expanded(
-              child: switch (preferencesAsync) {
-                AsyncValue(:final value?) => _SettingsBody(preferences: value),
-                AsyncValue(hasError: true) => Center(
-                  child: Text(l10n.preferencesError),
-                ),
-                _ => const Center(child: CircularProgressIndicator()),
-              },
+            _ => const Padding(
+              padding: EdgeInsets.all(Spacing.lg),
+              child: Center(child: CircularProgressIndicator()),
             ),
-          ],
+          },
         ),
       ),
     );
@@ -94,76 +91,56 @@ class _SettingsBody extends ConsumerWidget {
       _ => 0,
     };
 
-    return ListView(
-      padding: EdgeInsets.fromLTRB(
-        Spacing.pageMargin,
-        Spacing.md,
-        Spacing.pageMargin,
-        Spacing.md + MediaQuery.paddingOf(context).bottom,
+    final currencyRow = SettingsRow(
+      icon: AppIcons.currency,
+      title: l10n.currency,
+      value: preferences.currency.code,
+      onTap: () => _showCurrencySheet(
+        context,
+        l10n,
+        viewModel,
+        preferences,
+        totalBalance,
+        isBalanceHidden,
       ),
-      // One card per row, no groups for now.
-      children: [
-        SettingsCard(
-          children: [
-            SettingsRow(
-              icon: AppIcons.currency,
-              title: l10n.currency,
-              value: preferences.currency.code,
-              onTap: () => _showCurrencySheet(
-                context,
-                l10n,
-                viewModel,
-                preferences,
-                totalBalance,
-                isBalanceHidden,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: Spacing.sm),
-        SettingsCard(
-          children: [
-            SettingsRow(
-              icon: AppIcons.calendar,
-              title: l10n.dateFormat,
-              value: DateFormat(
-                preferences.dateFormat,
-              ).format(ref.watch(clockProvider)()),
-              onTap: () => _showDateFormatSheet(
-                context,
-                l10n,
-                viewModel,
-                preferences,
-                ref.read(clockProvider)(),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: Spacing.sm),
-        SettingsCard(
-          children: [
-            // Categories also live here, not only behind the transaction form.
-            SettingsRow(
-              icon: AppIcons.categoryGeneric,
-              title: l10n.categories,
-              value: categoryCount,
-              onTap: () => const CategoriesRoute().push(context),
-            ),
-          ],
-        ),
+    );
+    final dateRow = SettingsRow(
+      icon: AppIcons.calendar,
+      title: l10n.dateFormat,
+      value: DateFormat(
+        preferences.dateFormat,
+      ).format(ref.watch(clockProvider)()),
+      onTap: () => _showDateFormatSheet(
+        context,
+        l10n,
+        viewModel,
+        preferences,
+        ref.read(clockProvider)(),
+      ),
+    );
+    final themeRow = SettingsRow(
+      icon: AppIcons.theme,
+      title: l10n.theme,
+      value: _themeLabel(l10n, preferences.isDarkMode),
+      onTap: () => _showThemeSheet(context, l10n, viewModel, preferences),
+    );
+    // Categories also live here, not only behind the transaction form.
+    final categoriesRow = SettingsRow(
+      icon: AppIcons.categoryGeneric,
+      title: l10n.categories,
+      value: categoryCount,
+      onTap: () => const CategoriesRoute().push(context),
+    );
 
-        const SizedBox(height: Spacing.sm),
-        SettingsCard(
-          children: [
-            SettingsRow(
-              icon: AppIcons.theme,
-              title: l10n.theme,
-              value: _themeLabel(l10n, preferences.isDarkMode),
-              onTap: () =>
-                  _showThemeSheet(context, l10n, viewModel, preferences),
-            ),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        RowsCard(
+          title: l10n.settingsPreferences,
+          children: [currencyRow, dateRow, themeRow],
         ),
+        const SizedBox(height: Spacing.md),
+        RowsCard(title: l10n.settingsOrganize, children: [categoriesRow]),
       ],
     );
   }

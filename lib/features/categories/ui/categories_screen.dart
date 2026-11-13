@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/rows_card.dart';
+import 'package:waldo/core/widgets/sheet_page.dart';
+import 'package:waldo/core/widgets/load_error.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/widgets/whole_words_text.dart';
 import 'package:waldo/core/widgets/badge_row.dart';
 import 'package:waldo/core/database/save_failure.dart';
-import 'package:waldo/core/theme/badge_size.dart';
-import 'package:waldo/core/theme/dynamic_type_scaler.dart';
 import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
 import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/spacing.dart';
-import 'package:waldo/core/widgets/page_width.dart';
 import 'package:waldo/core/widgets/undo_snack_bar.dart';
 import 'package:waldo/core/widgets/circle_icon_button.dart';
 import 'package:waldo/core/widgets/confirmation_dialog.dart';
-import 'package:waldo/core/widgets/dashed_stitch_button.dart';
-import 'package:waldo/core/widgets/surface_card.dart';
+import 'package:waldo/core/widgets/pill_button.dart';
 import 'package:waldo/l10n/app_localizations.dart';
 import 'package:waldo/core/widgets/heading.dart';
 
@@ -34,64 +33,53 @@ class CategoriesScreen extends ConsumerWidget {
     final colors = context.appColors;
     final categoriesAsync = ref.watch(categoryListViewModelProvider);
 
+    // As the other pages: the beige top with back, the title and the main
+    // action, then the white sheet (DESIGN.md "Rows card").
+    final back = CircleIconButton(
+      flat: true,
+      tint: colors.chip,
+      tooltip: l10n.back,
+      onPressed: () => Navigator.of(context).pop(),
+      child: const Icon(AppIcons.back, size: IconSize.lg),
+    );
     return Scaffold(
-      body: PageWidth(
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  Spacing.pageMargin,
-                  Spacing.xs,
-                  Spacing.pageMargin,
-                  0,
-                ),
-                child: CircleIconButton(
-                  tooltip: l10n.back,
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Icon(AppIcons.back),
-                ),
-              ),
-              const SizedBox(height: Spacing.md),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.pageMargin,
-                ),
-                // Title and "+" as on the Wallets screen; "+" opens a sheet.
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Heading(
-                        child: Text(
-                          l10n.categories,
-                          style: context.headlineSmExtraBold.copyWith(
-                            color: colors.onSurface,
-                          ),
-                        ),
-                      ),
-                    ),
-                    DashedStitchButton(
-                      icon: const Icon(AppIcons.add),
-                      tooltip: l10n.newCategory,
-                      onPressed: () => showCategoryFormSheet(context),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: switch (categoriesAsync) {
-                  AsyncValue(:final value?) => _CategoriesBody(
-                    categories: value,
+      body: SheetPage(
+        // Once the title scrolls away: back stays in reach.
+        bar: SheetPageBar(title: l10n.categories, leading: back),
+        top: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            back,
+            const SizedBox(height: Spacing.md),
+            Row(
+              children: [
+                Expanded(
+                  child: Heading(
+                    child: Text(l10n.categories, style: context.titlePage),
                   ),
-                  AsyncValue(hasError: true) => Center(
-                    child: Text(l10n.categoriesError),
-                  ),
-                  _ => const Center(child: CircularProgressIndicator()),
-                },
-              ),
-            ],
-          ),
+                ),
+                PillButton(
+                  icon: const Icon(AppIcons.add),
+                  tooltip: l10n.newCategory,
+                  onPressed: () => showCategoryFormSheet(context),
+                ),
+              ],
+            ),
+          ],
+        ),
+        sheet: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Spacing.pageMargin),
+          child: switch (categoriesAsync) {
+            AsyncValue(:final value?) => _CategoriesBody(categories: value),
+            AsyncValue(hasError: true) => LoadError(
+              message: l10n.categoriesError,
+              onRetry: () => ref.invalidate(categoryListViewModelProvider),
+            ),
+            _ => const Padding(
+              padding: EdgeInsets.all(Spacing.lg),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          },
         ),
       ),
     );
@@ -170,58 +158,36 @@ class _CategoriesBodyState extends ConsumerState<_CategoriesBody> {
     }
   }
 
-  /// One card of rows, with hairlines between them.
-  Widget _card(List<Category> categories) {
-    return SurfaceCard(
-      pill: categories.length == 1,
-      child: Column(
-        children: [
-          for (var i = 0; i < categories.length; i++) ...[
-            _CategoryRow(
-              category: categories[i],
-              // Built-ins follow the app's language, so only the user's
-              // own categories can be renamed.
-              onTap: categories[i].isDefault
-                  ? null
-                  : () =>
-                        showCategoryFormSheet(context, category: categories[i]),
-              // The built-ins always stay; only the user's own go.
-              onDelete: categories[i].isDefault
-                  ? null
-                  : () => _confirmDelete(categories[i]),
-            ),
-            if (i != categories.length - 1)
-              Divider(
-                // Starts under the name, as in settings.
-                indent: DynamicTypeScaler.isAccessibilitySize(context)
-                    ? Spacing.sm
-                    : Spacing.sm + BadgeSize.lg + Spacing.component,
-                endIndent: Spacing.sm,
-              ),
-          ],
-        ],
+  List<Widget> _rows(List<Category> categories) => [
+    for (final category in categories)
+      _CategoryRow(
+        category: category,
+        // Built-ins follow the app's language, so only the user's own
+        // categories can be renamed.
+        onTap: category.isDefault
+            ? null
+            : () => showCategoryFormSheet(context, category: category),
+        // The built-ins always stay; only the user's own go.
+        onDelete: category.isDefault ? null : () => _confirmDelete(category),
       ),
-    );
-  }
+  ];
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final categories = widget.categories.inDisplayOrder(l10n);
-    // The built-ins in one card, the user's own in a second one below.
+    // The built-ins in one section, the user's own in a second one below.
     final builtIns = categories.where((c) => c.isDefault).toList();
     final own = categories.where((c) => !c.isDefault).toList();
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        Spacing.pageMargin,
-        Spacing.md,
-        Spacing.pageMargin,
-        Spacing.lg,
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _card(builtIns),
-        if (own.isNotEmpty) ...[const SizedBox(height: Spacing.md), _card(own)],
+        RowsCard(title: l10n.categoriesBuiltIn, children: _rows(builtIns)),
+        if (own.isNotEmpty) ...[
+          const SizedBox(height: Spacing.md),
+          RowsCard(title: l10n.categoriesYours, children: _rows(own)),
+        ],
       ],
     );
   }
@@ -264,20 +230,7 @@ class _CategoryRow extends StatelessWidget {
             ),
             child: BadgeRow(
               gap: Spacing.component,
-              badge: Container(
-                width: BadgeSize.lg,
-                height: BadgeSize.lg,
-                decoration: BoxDecoration(
-                  // The page behind the card, as if the disc were cut out of it.
-                  color: colors.surfaceContainer,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  category.icon,
-                  size: IconSize.lg,
-                  color: colors.onSurface,
-                ),
-              ),
+              badge: RowDisc(icon: category.icon, color: colors.ink),
               // A fixed-size slot, so rows line up whether or not they have an X.
               trailing: SizedBox.square(
                 dimension: kMinInteractiveDimension,
@@ -289,11 +242,11 @@ class _CategoryRow extends StatelessWidget {
                         icon: Icon(
                           AppIcons.close,
                           size: IconSize.lg,
-                          color: colors.onSurfaceVariant,
+                          color: colors.inkMuted,
                         ),
                       ),
               ),
-              child: WholeWordsText.singleLine(name, style: context.bodyMdBold),
+              child: WholeWordsText.singleLine(name, style: context.bodyStrong),
             ),
           ),
         ),

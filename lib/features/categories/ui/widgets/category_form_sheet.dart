@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:waldo/core/widgets/form_sheet_body.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waldo/core/constants/app_constants.dart';
 import 'package:waldo/core/widgets/app_sheet.dart';
 import 'package:waldo/core/database/save_failure.dart';
-import 'package:waldo/core/theme/app_icons.dart';
 import 'package:waldo/core/theme/app_theme.dart';
-import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/utils.dart';
-import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/pill_button.dart';
 import 'package:waldo/core/widgets/form_pill_field.dart';
 import 'package:waldo/core/widgets/heading.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
@@ -113,72 +112,60 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
     final categories =
         ref.watch(categoryListViewModelProvider).value ?? const [];
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        Spacing.md,
-        Spacing.sm,
-        Spacing.md,
-        MediaQuery.viewInsetsOf(context).bottom +
-            MediaQuery.paddingOf(context).bottom +
-            Spacing.md,
-      ),
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SheetGrabber(),
-              const SizedBox(height: Spacing.md),
-              Row(
-                children: [
-                  Expanded(
-                    child: Heading(
-                      child: Text(
-                        _isEditing ? l10n.editCategory : l10n.newCategory,
-                        style: context.headlineLgExtraBold,
-                      ),
+    return FormSheetBody(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SheetGrabber(),
+            const SizedBox(height: Spacing.md),
+            Row(
+              children: [
+                Expanded(
+                  child: Heading(
+                    child: Text(
+                      _isEditing ? l10n.editCategory : l10n.newCategory,
+                      style: context.titleSection,
                     ),
                   ),
-                  const SheetCloseButton(),
-                ],
-              ),
-              const SizedBox(height: Spacing.md),
-              FormPillField(
-                fieldKey: const Key('categoryNameField'),
-                leading: const Icon(AppIcons.name),
-                textCapitalization: TextCapitalization.sentences,
-                maxLength: maxCategoryNameLength,
-                controller: _nameController,
-                label: l10n.name,
-                required: true,
-                hint: l10n.categoryNameHint,
-                onSubmitted: (_) => _save(),
-                validator: (value) => _validateName(l10n, value, categories),
-              ),
-              const SizedBox(height: Spacing.md),
-              if (_saveError case final error?) ...[
-                SizedBox(
-                  width: double.infinity,
-                  child: Text(
-                    error,
-                    textAlign: TextAlign.center,
-                    style: context.bodyMdStrong.copyWith(color: colors.error),
-                  ),
                 ),
-                const SizedBox(height: Spacing.sm),
+                const SheetCloseButton(),
               ],
+            ),
+            const SizedBox(height: Spacing.md),
+            FormPillField(
+              fieldKey: const Key('categoryNameField'),
+              textCapitalization: TextCapitalization.sentences,
+              maxLength: maxCategoryNameLength,
+              controller: _nameController,
+              label: l10n.name,
+              required: true,
+              hint: l10n.categoryNameHint,
+              onSubmitted: (_) => _save(),
+              validator: (value) => _validateName(l10n, value, categories),
+            ),
+            const SizedBox(height: Spacing.md),
+            if (_saveError case final error?) ...[
               SizedBox(
                 width: double.infinity,
-                child: DashedStitchButton(
-                  icon: const Icon(AppIcons.check, size: IconSize.md),
-                  label: _isEditing ? l10n.saveChanges : l10n.createCategory,
-                  onPressed: _save,
+                child: Text(
+                  error,
+                  textAlign: TextAlign.center,
+                  style: context.bodyStrong.copyWith(color: colors.negative),
                 ),
               ),
+              const SizedBox(height: Spacing.sm),
             ],
-          ),
+            SizedBox(
+              width: double.infinity,
+              child: PillButton(
+                label: _isEditing ? l10n.saveChanges : l10n.createCategory,
+                onPressed: _save,
+              ),
+            ),
+          ],
         ),
       ),
     );

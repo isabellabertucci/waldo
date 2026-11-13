@@ -4,7 +4,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide Transaction;
 import 'package:waldo/core/constants/db_constants.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/core/theme/app_icons.dart';
-import 'package:waldo/core/widgets/surface_card.dart';
+import 'package:waldo/core/widgets/rows_card.dart';
 import 'package:waldo/features/categories/models/category.dart';
 import 'package:waldo/features/categories/repositories/category_repository.dart';
 import 'package:waldo/features/categories/ui/categories_screen.dart';
@@ -93,9 +93,9 @@ void main() {
     final (db, _) = await dbWithGym();
     await pumpCategoriesScreen(tester, db: db);
 
-    expect(find.byType(SurfaceCard), findsNWidgets(2));
+    expect(find.byType(RowsCard), findsNWidgets(2));
     Finder inCard(int i, String name) => find.descendant(
-      of: find.byType(SurfaceCard).at(i),
+      of: find.byType(RowsCard).at(i),
       matching: find.text(name),
     );
     expect(inCard(0, 'Others'), findsOneWidget);
@@ -108,7 +108,7 @@ void main() {
   ) async {
     await pumpCategoriesScreen(tester);
 
-    expect(find.byType(SurfaceCard), findsOneWidget);
+    expect(find.byType(RowsCard), findsOneWidget);
   });
 
   testWidgets('Only the categories you made have a named X', (tester) async {
@@ -263,7 +263,7 @@ void main() {
 
     expect(textOutsideSnackBar('Gym'), findsNothing);
     expect(find.text('Category deleted'), findsOneWidget);
-    await tester.pump(const Duration(seconds: 6));
+    await tester.pump(const Duration(seconds: 11));
   });
 
   testWidgets('Undo puts the category back', (tester) async {
@@ -275,17 +275,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Gym'), findsOneWidget);
-    await tester.pump(const Duration(seconds: 6));
+    await tester.pump(const Duration(seconds: 11));
   });
 
-  testWidgets('Without Undo, the category is gone after 5 seconds', (
+  testWidgets('Without Undo, the category is gone after 10 seconds', (
     tester,
   ) async {
     final (db, _) = await dbWithGym();
     await pumpCategoriesScreen(tester, db: db);
 
     await deleteCategory(tester, 'Gym');
-    await tester.pump(const Duration(seconds: 6));
+    await tester.pump(const Duration(seconds: 11));
     await tester.pumpAndSettle();
 
     final rows = await currentDb!.query(
@@ -321,7 +321,7 @@ void main() {
     // Deleting moves the category's transactions first; with no table, that
     // fails once the Undo window ends.
     await currentDb!.execute('DROP TABLE ${TransactionsTable.table}');
-    await tester.pump(const Duration(seconds: 6));
+    await tester.pump(const Duration(seconds: 11));
     await tester.pumpAndSettle();
 
     expect(
@@ -363,7 +363,7 @@ void main() {
     );
 
     await tester.tap(find.text('Delete'));
-    await tester.pump(const Duration(seconds: 6));
+    await tester.pump(const Duration(seconds: 11));
     await tester.pumpAndSettle();
 
     final others = await repo.getOthers();
