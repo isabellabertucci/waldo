@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Wallet {
 
- int? get id; String get name; WalletType get type; int get startingBalance; int get currentBalance; String get createdAt;
+ int? get id; String get name; WalletType get type; int get startingBalance; int get currentBalance; LeatherFinish get finish; String get createdAt;
 /// Create a copy of Wallet
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $WalletCopyWith<Wallet> get copyWith => _$WalletCopyWithImpl<Wallet>(this as Wal
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Wallet&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.startingBalance, startingBalance) || other.startingBalance == startingBalance)&&(identical(other.currentBalance, currentBalance) || other.currentBalance == currentBalance)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Wallet&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.startingBalance, startingBalance) || other.startingBalance == startingBalance)&&(identical(other.currentBalance, currentBalance) || other.currentBalance == currentBalance)&&(identical(other.finish, finish) || other.finish == finish)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,type,startingBalance,currentBalance,createdAt);
+int get hashCode => Object.hash(runtimeType,id,name,type,startingBalance,currentBalance,finish,createdAt);
 
 @override
 String toString() {
-  return 'Wallet(id: $id, name: $name, type: $type, startingBalance: $startingBalance, currentBalance: $currentBalance, createdAt: $createdAt)';
+  return 'Wallet(id: $id, name: $name, type: $type, startingBalance: $startingBalance, currentBalance: $currentBalance, finish: $finish, createdAt: $createdAt)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $WalletCopyWith<$Res>  {
   factory $WalletCopyWith(Wallet value, $Res Function(Wallet) _then) = _$WalletCopyWithImpl;
 @useResult
 $Res call({
- int? id, String name, WalletType type, int startingBalance, int currentBalance, String createdAt
+ int? id, String name, WalletType type, int startingBalance, int currentBalance, LeatherFinish finish, String createdAt
 });
 
 
@@ -62,14 +62,15 @@ class _$WalletCopyWithImpl<$Res>
 
 /// Create a copy of Wallet
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? name = null,Object? type = null,Object? startingBalance = null,Object? currentBalance = null,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? name = null,Object? type = null,Object? startingBalance = null,Object? currentBalance = null,Object? finish = null,Object? createdAt = null,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as WalletType,startingBalance: null == startingBalance ? _self.startingBalance : startingBalance // ignore: cast_nullable_to_non_nullable
 as int,currentBalance: null == currentBalance ? _self.currentBalance : currentBalance // ignore: cast_nullable_to_non_nullable
-as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as int,finish: null == finish ? _self.finish : finish // ignore: cast_nullable_to_non_nullable
+as LeatherFinish,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -155,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String name,  WalletType type,  int startingBalance,  int currentBalance,  String createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String name,  WalletType type,  int startingBalance,  int currentBalance,  LeatherFinish finish,  String createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Wallet() when $default != null:
-return $default(_that.id,_that.name,_that.type,_that.startingBalance,_that.currentBalance,_that.createdAt);case _:
+return $default(_that.id,_that.name,_that.type,_that.startingBalance,_that.currentBalance,_that.finish,_that.createdAt);case _:
   return orElse();
 
 }
@@ -176,10 +177,10 @@ return $default(_that.id,_that.name,_that.type,_that.startingBalance,_that.curre
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String name,  WalletType type,  int startingBalance,  int currentBalance,  String createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String name,  WalletType type,  int startingBalance,  int currentBalance,  LeatherFinish finish,  String createdAt)  $default,) {final _that = this;
 switch (_that) {
 case _Wallet():
-return $default(_that.id,_that.name,_that.type,_that.startingBalance,_that.currentBalance,_that.createdAt);case _:
+return $default(_that.id,_that.name,_that.type,_that.startingBalance,_that.currentBalance,_that.finish,_that.createdAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +197,10 @@ return $default(_that.id,_that.name,_that.type,_that.startingBalance,_that.curre
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String name,  WalletType type,  int startingBalance,  int currentBalance,  String createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String name,  WalletType type,  int startingBalance,  int currentBalance,  LeatherFinish finish,  String createdAt)?  $default,) {final _that = this;
 switch (_that) {
 case _Wallet() when $default != null:
-return $default(_that.id,_that.name,_that.type,_that.startingBalance,_that.currentBalance,_that.createdAt);case _:
+return $default(_that.id,_that.name,_that.type,_that.startingBalance,_that.currentBalance,_that.finish,_that.createdAt);case _:
   return null;
 
 }
@@ -211,7 +212,7 @@ return $default(_that.id,_that.name,_that.type,_that.startingBalance,_that.curre
 
 
 class _Wallet extends Wallet {
-  const _Wallet({this.id, required this.name, this.type = WalletType.cash, this.startingBalance = 0, this.currentBalance = 0, required this.createdAt}): super._();
+  const _Wallet({this.id, required this.name, this.type = WalletType.cash, this.startingBalance = 0, this.currentBalance = 0, this.finish = LeatherFinish.black, required this.createdAt}): super._();
   
 
 @override final  int? id;
@@ -219,6 +220,7 @@ class _Wallet extends Wallet {
 @override@JsonKey() final  WalletType type;
 @override@JsonKey() final  int startingBalance;
 @override@JsonKey() final  int currentBalance;
+@override@JsonKey() final  LeatherFinish finish;
 @override final  String createdAt;
 
 /// Create a copy of Wallet
@@ -231,16 +233,16 @@ _$WalletCopyWith<_Wallet> get copyWith => __$WalletCopyWithImpl<_Wallet>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Wallet&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.startingBalance, startingBalance) || other.startingBalance == startingBalance)&&(identical(other.currentBalance, currentBalance) || other.currentBalance == currentBalance)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Wallet&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.startingBalance, startingBalance) || other.startingBalance == startingBalance)&&(identical(other.currentBalance, currentBalance) || other.currentBalance == currentBalance)&&(identical(other.finish, finish) || other.finish == finish)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,type,startingBalance,currentBalance,createdAt);
+int get hashCode => Object.hash(runtimeType,id,name,type,startingBalance,currentBalance,finish,createdAt);
 
 @override
 String toString() {
-  return 'Wallet(id: $id, name: $name, type: $type, startingBalance: $startingBalance, currentBalance: $currentBalance, createdAt: $createdAt)';
+  return 'Wallet(id: $id, name: $name, type: $type, startingBalance: $startingBalance, currentBalance: $currentBalance, finish: $finish, createdAt: $createdAt)';
 }
 
 
@@ -251,7 +253,7 @@ abstract mixin class _$WalletCopyWith<$Res> implements $WalletCopyWith<$Res> {
   factory _$WalletCopyWith(_Wallet value, $Res Function(_Wallet) _then) = __$WalletCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String name, WalletType type, int startingBalance, int currentBalance, String createdAt
+ int? id, String name, WalletType type, int startingBalance, int currentBalance, LeatherFinish finish, String createdAt
 });
 
 
@@ -268,14 +270,15 @@ class __$WalletCopyWithImpl<$Res>
 
 /// Create a copy of Wallet
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? name = null,Object? type = null,Object? startingBalance = null,Object? currentBalance = null,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? name = null,Object? type = null,Object? startingBalance = null,Object? currentBalance = null,Object? finish = null,Object? createdAt = null,}) {
   return _then(_Wallet(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as WalletType,startingBalance: null == startingBalance ? _self.startingBalance : startingBalance // ignore: cast_nullable_to_non_nullable
 as int,currentBalance: null == currentBalance ? _self.currentBalance : currentBalance // ignore: cast_nullable_to_non_nullable
-as int,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
+as int,finish: null == finish ? _self.finish : finish // ignore: cast_nullable_to_non_nullable
+as LeatherFinish,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

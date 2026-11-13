@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:waldo/core/theme/dynamic_type_scaler.dart';
+import 'package:waldo/core/widgets/choice_chips.dart';
+import 'package:waldo/core/widgets/form_sheet_body.dart';
 import 'package:waldo/core/widgets/app_sheet.dart';
-import 'package:waldo/core/theme/app_icons.dart';
-import 'package:waldo/core/theme/icon_size.dart';
 import 'package:waldo/core/theme/motion.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
@@ -14,10 +13,13 @@ import 'package:waldo/core/theme/spacing.dart';
 import 'package:waldo/core/utils/amount_input_formatter.dart';
 import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/core/widgets/sheet_grabber.dart';
-import 'package:waldo/core/widgets/dashed_stitch_button.dart';
+import 'package:waldo/core/widgets/pill_button.dart';
 import 'package:waldo/core/widgets/form_pill_field.dart';
-import 'package:waldo/core/widgets/option_tile.dart';
 import 'package:waldo/core/widgets/sheet_close_button.dart';
+import 'package:waldo/core/widgets/leather_wallet.dart';
+import 'package:waldo/core/theme/component_size.dart';
+import 'package:waldo/features/wallets/ui/widgets/wallet_face.dart';
+import 'package:waldo/features/wallets/ui/widgets/wallet_type_filter.dart';
 import 'package:waldo/features/preferences/currency_x.dart';
 import 'package:waldo/features/preferences/viewmodels/preferences_viewmodel.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
@@ -159,145 +161,227 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
       walletFormViewModelProvider(widget.wallet).notifier,
     );
     final preferencesAsync = ref.watch(preferencesViewModelProvider);
-    final balanceHeading = Text(
-      l10n.startingBalance.toUpperCase(),
-      style: context.bodySmBold.copyWith(
-        color: colors.onSurfaceVariant,
-        letterSpacing: 0.4,
+    Widget sectionTitle(String text) => Heading(
+      child: Text(
+        text,
+        style: context.bodyStrong.copyWith(color: colors.inkMuted),
       ),
     );
-    final typeTiles = [
-      for (final type in WalletType.values)
-        OptionTile(
-          icon: type.icon,
-          label: type.label(l10n),
-          selected: type == formState.type,
-          onTap: () => viewModel.updateType(type),
-        ),
-    ];
     final currency = switch (preferencesAsync) {
       AsyncValue(:final value?) => value.currency,
       _ => Currency.usd,
     };
+    final existing = widget.wallet;
+    // The wallet as it will be, so each choice shows on the leather.
+    final preview = Wallet(
+      name: formState.name.trim().isEmpty
+          ? (existing?.name ?? l10n.newWallet)
+          : formState.name.trim(),
+      type: formState.type,
+      finish: formState.finish,
+      currentBalance:
+          existing?.currentBalance ??
+          parseToCents(formState.startingBalance, allowNegative: true) ??
+          0,
+      createdAt: '',
+    );
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        Spacing.md,
-        Spacing.sm,
-        Spacing.md,
-        MediaQuery.viewInsetsOf(context).bottom +
-            MediaQuery.paddingOf(context).bottom +
-            Spacing.md,
-      ),
-      child: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SheetGrabber(),
-              const SizedBox(height: Spacing.md),
-              Row(
-                children: [
-                  Expanded(
-                    child: Heading(
-                      child: Text(
-                        _isEditing ? l10n.editWallet : l10n.newWallet,
-                        style: context.headlineLgExtraBold,
-                      ),
+    return FormSheetBody(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SheetGrabber(),
+            const SizedBox(height: Spacing.md),
+            Row(
+              children: [
+                Expanded(
+                  child: Heading(
+                    child: Text(
+                      _isEditing ? l10n.editWallet : l10n.newWallet,
+                      style: context.titleSection,
                     ),
                   ),
-                  const SheetCloseButton(),
-                ],
-              ),
-              const SizedBox(height: Spacing.md),
-              FormPillField(
-                fieldKey: const Key('walletNameField'),
-                leading: const Icon(AppIcons.name),
-                textCapitalization: TextCapitalization.sentences,
-                maxLength: maxWalletNameLength,
-                controller: _nameController,
-                label: l10n.name,
-                required: true,
-                hint: l10n.walletNameHint,
-                onChanged: viewModel.updateName,
-                validator: (value) => _validateName(l10n, value, wallets),
-              ),
-              const SizedBox(height: Spacing.md),
-              Heading(
-                child: Text(
-                  l10n.type.toUpperCase(),
-                  style: context.bodySmBold.copyWith(
-                    color: colors.onSurfaceVariant,
-                    letterSpacing: 0.4,
-                  ),
                 ),
-              ),
-              const SizedBox(height: Spacing.sm),
-              // One column at accessibility sizes, so every label shows whole.
-              if (DynamicTypeScaler.isAccessibilitySize(context))
-                Column(spacing: Spacing.sm, children: typeTiles)
-              else
-                GridView.count(
-                  // Scroll views add the screen's safe-area inset by default; this grid sits mid-sheet.
-                  padding: EdgeInsets.zero,
-                  crossAxisCount: 3,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: Spacing.sm,
-                  crossAxisSpacing: Spacing.sm,
-                  childAspectRatio: 1.05,
-                  children: typeTiles,
-                ),
-              const SizedBox(height: Spacing.md),
-              Heading(child: balanceHeading),
-              const SizedBox(height: Spacing.sm),
-              FormPillField(
-                fieldKey: const Key('walletBalanceField'),
-                leading: Text(currency.symbol),
-                trailing: currency.code,
-                controller: _balanceController,
-                // Locked once the wallet exists; the label says why.
-                enabled: !_isEditing,
-                label: _isEditing
-                    ? l10n.balanceLocked
-                    : l10n.startingBalancePrompt,
-                hint: zeroAmountHint(moneyLocale(context)),
-                onChanged: viewModel.updateBalance,
-                validator: (value) => _validateBalance(l10n, value),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                // "-" for credit cards; the validator rejects it for other types.
-                inputFormatters: const [
-                  AmountInputFormatter(allowNegative: true),
-                ],
-              ),
-              const SizedBox(height: Spacing.md),
-              if (_saveError case final error?) ...[
-                SizedBox(
-                  width: double.infinity,
-                  child: Text(
-                    error,
-                    textAlign: TextAlign.center,
-                    style: context.bodyMdStrong.copyWith(color: colors.error),
-                  ),
-                ),
-                const SizedBox(height: Spacing.sm),
+                const SheetCloseButton(),
               ],
-              SizedBox(
-                width: double.infinity,
-                child: DashedStitchButton(
-                  icon: const Icon(AppIcons.check, size: IconSize.md),
-                  label: _isEditing ? l10n.saveChanges : l10n.createWallet,
-                  onPressed: _save,
-                ),
+            ),
+            const SizedBox(height: Spacing.md),
+            Center(
+              child: ExcludeSemantics(
+                child: _WalletPreview(wallet: preview, currency: currency),
+              ),
+            ),
+            const SizedBox(height: Spacing.md),
+            FormPillField(
+              fieldKey: const Key('walletNameField'),
+              textCapitalization: TextCapitalization.sentences,
+              maxLength: maxWalletNameLength,
+              controller: _nameController,
+              label: l10n.name,
+              required: true,
+              hint: l10n.walletNameHint,
+              onChanged: viewModel.updateName,
+              validator: (value) => _validateName(l10n, value, wallets),
+            ),
+            const SizedBox(height: Spacing.md),
+            sectionTitle(l10n.type),
+            const SizedBox(height: Spacing.xs),
+            ChoiceChips(
+              chips: [
+                for (final type in walletTypeOrder)
+                  (value: type, icon: type.icon, label: type.label(l10n)),
+              ],
+              selected: formState.type,
+              onTap: viewModel.updateType,
+            ),
+            const SizedBox(height: Spacing.md),
+            sectionTitle(l10n.leatherColour),
+            const SizedBox(height: Spacing.xs),
+            _LeatherSwatches(
+              selected: formState.finish,
+              onChanged: viewModel.updateFinish,
+            ),
+            const SizedBox(height: Spacing.md),
+            FormPillField(
+              fieldKey: const Key('walletBalanceField'),
+              trailing: currency.symbol,
+              controller: _balanceController,
+              // Locked once the wallet exists; the line below says why.
+              enabled: !_isEditing,
+              label: l10n.startingBalance,
+              hint: zeroAmountHint(moneyLocale(context)),
+              onChanged: viewModel.updateBalance,
+              validator: (value) => _validateBalance(l10n, value),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              // "-" for credit cards; the validator rejects it for other types.
+              inputFormatters: const [
+                AmountInputFormatter(allowNegative: true),
+              ],
+            ),
+            if (_isEditing) ...[
+              const SizedBox(height: Spacing.xxs),
+              Text(
+                l10n.balanceLocked,
+                style: context.caption.copyWith(color: colors.inkMuted),
               ),
             ],
+            const SizedBox(height: Spacing.md),
+            if (_saveError case final error?) ...[
+              SizedBox(
+                width: double.infinity,
+                child: Text(
+                  error,
+                  textAlign: TextAlign.center,
+                  style: context.bodyStrong.copyWith(color: colors.negative),
+                ),
+              ),
+              const SizedBox(height: Spacing.sm),
+            ],
+            SizedBox(
+              width: double.infinity,
+              child: PillButton(
+                label: _isEditing ? l10n.saveChanges : l10n.createWallet,
+                onPressed: _save,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The wallet as the form has it, on a smaller leather.
+class _WalletPreview extends StatelessWidget {
+  const _WalletPreview({required this.wallet, required this.currency});
+
+  final Wallet wallet;
+  final Currency currency;
+
+  @override
+  Widget build(BuildContext context) {
+    const size = ComponentSize.walletPreview;
+
+    // The wallet's own screen's leather, scaled down, so it's the same
+    // wallet the form makes.
+    return SizedBox.fromSize(
+      size: size,
+      child: FittedBox(
+        child: SizedBox(
+          width: ComponentSize.walletAloneWidth,
+          height: ComponentSize.wallet,
+          child: LeatherWallet(
+            finish: wallet.finish,
+            child: WalletFace(
+              wallet: wallet,
+              finish: wallet.finish,
+              currency: currency,
+              isBalanceHidden: false,
+            ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The four leathers as round swatches; the chosen one ringed in ink.
+class _LeatherSwatches extends StatelessWidget {
+  const _LeatherSwatches({required this.selected, required this.onChanged});
+
+  final LeatherFinish selected;
+  final ValueChanged<LeatherFinish> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = context.appColors;
+
+    return Wrap(
+      spacing: Spacing.component,
+      runSpacing: Spacing.component,
+      children: [
+        for (final finish in LeatherFinish.values)
+          Semantics(
+            button: true,
+            selected: finish == selected,
+            label: finish.label(l10n),
+            excludeSemantics: true,
+            onTap: () => onChanged(finish),
+            child: GestureDetector(
+              onTap: () => onChanged(finish),
+              child: Container(
+                padding: const EdgeInsets.all(ComponentSize.swatchRingGap),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: finish == selected ? colors.ink : colors.transparent,
+                    width: ComponentSize.swatchRing,
+                  ),
+                ),
+                child: Container(
+                  width: ComponentSize.swatch,
+                  height: ComponentSize.swatch,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [finish.colors.$1, finish.colors.$2],
+                    ),
+                    // The white leather would vanish on the white sheet.
+                    border: Border.all(color: colors.line),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

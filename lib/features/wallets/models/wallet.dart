@@ -15,6 +15,7 @@ abstract class Wallet with _$Wallet {
     @Default(WalletType.cash) WalletType type,
     @Default(0) int startingBalance,
     @Default(0) int currentBalance,
+    @Default(LeatherFinish.black) LeatherFinish finish,
     required String createdAt,
   }) = _Wallet;
 
@@ -26,6 +27,7 @@ abstract class Wallet with _$Wallet {
       WalletsTable.type: type.name,
       WalletsTable.startingBalance: startingBalance,
       WalletsTable.currentBalance: currentBalance,
+      WalletsTable.finish: finish.name,
       WalletsTable.createdAt: createdAt,
     };
   }
@@ -37,6 +39,7 @@ abstract class Wallet with _$Wallet {
       type: WalletType.values.byName(map['type'] as String),
       startingBalance: map['starting_balance'] as int,
       currentBalance: map['current_balance'] as int,
+      finish: LeatherFinish.values.byName(map[WalletsTable.finish] as String),
       createdAt: map['created_at'] as String,
     );
   }

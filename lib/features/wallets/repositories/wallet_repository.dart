@@ -92,6 +92,7 @@ class WalletRepositoryImpl implements IWalletRepository {
           WalletsTable.name: wallet.name,
           WalletsTable.nameKey: nameKey(wallet.name),
           WalletsTable.type: wallet.type.name,
+          WalletsTable.finish: wallet.finish.name,
         },
         where: '${WalletsTable.id} = ?',
         whereArgs: [id],

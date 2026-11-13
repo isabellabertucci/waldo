@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:waldo/core/constants/enums.dart';
 import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
+import 'package:waldo/features/transactions/repositories/transaction_repository.dart';
 import 'package:waldo/features/transactions/viewmodels/pending_transaction_deletes.dart';
 import 'package:waldo/features/transactions/viewmodels/transaction_list_view_model.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
@@ -47,6 +48,13 @@ class WalletListViewModel extends _$WalletListViewModel {
     ref.invalidate(dashboardViewModelProvider);
     ref.invalidate(walletsSummaryViewModelProvider);
     ref.invalidate(transactionListViewModelProvider);
+  }
+
+  /// How many transactions go with [id] if it's deleted, for the
+  /// confirmation to say so.
+  Future<int> transactionCount(int id) async {
+    final repo = await ref.read(transactionRepositoryProvider.future);
+    return repo.countByWallet(id);
   }
 
   void restoreWallet(int id) {

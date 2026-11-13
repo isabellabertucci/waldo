@@ -6,6 +6,7 @@ import 'package:waldo/core/utils/utils.dart';
 import 'package:waldo/features/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:waldo/features/wallets/models/wallet.dart';
 import 'package:waldo/features/wallets/repositories/wallet_repository.dart';
+import 'package:waldo/features/wallets/wallets_x.dart';
 import 'just_added_wallet.dart';
 import 'wallet_form_state.dart';
 import 'wallet_list_view_model.dart';
@@ -24,6 +25,9 @@ class WalletFormViewModel extends _$WalletFormViewModel {
       startingBalance: existingWallet != null
           ? formatCentsForInput(existingWallet.startingBalance)
           : '',
+      finish:
+          existingWallet?.finish ??
+          suggestedFinish(ref.read(walletListViewModelProvider()).value ?? []),
     );
   }
 
@@ -37,6 +41,10 @@ class WalletFormViewModel extends _$WalletFormViewModel {
 
   void updateBalance(String value) {
     state = state.copyWith(startingBalance: value);
+  }
+
+  void updateFinish(LeatherFinish value) {
+    state = state.copyWith(finish: value);
   }
 
   /// True while a save is writing, so a double tap can't save twice.
@@ -65,7 +73,11 @@ class WalletFormViewModel extends _$WalletFormViewModel {
     final repo = await ref.read(walletRepositoryProvider.future);
     if (isEditing) {
       await repo.update(
-        existingWallet.copyWith(name: state.name.trim(), type: state.type),
+        existingWallet.copyWith(
+          name: state.name.trim(),
+          type: state.type,
+          finish: state.finish,
+        ),
       );
     } else {
       final id = await repo.insert(
@@ -74,6 +86,7 @@ class WalletFormViewModel extends _$WalletFormViewModel {
           type: state.type,
           startingBalance: balanceInCents,
           currentBalance: balanceInCents,
+          finish: state.finish,
           createdAt: ref.read(clockProvider)().toIso8601String(),
         ),
       );

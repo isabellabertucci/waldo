@@ -11,6 +11,9 @@ class WalletsTable {
   static const type = 'type';
   static const startingBalance = 'starting_balance';
   static const currentBalance = 'current_balance';
+
+  /// The [LeatherFinish] picked for it.
+  static const finish = 'finish';
   static const createdAt = 'created_at';
 }
 

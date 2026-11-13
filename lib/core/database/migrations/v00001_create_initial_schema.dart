@@ -21,6 +21,13 @@ Future<void> up(Database db) async {
         )),
       ${WalletsTable.startingBalance} INTEGER NOT NULL DEFAULT 0,
       ${WalletsTable.currentBalance} INTEGER NOT NULL DEFAULT 0,
+      ${WalletsTable.finish} TEXT NOT NULL DEFAULT '${LeatherFinish.black.name}'
+        CHECK (${WalletsTable.finish} IN (
+          '${LeatherFinish.black.name}',
+          '${LeatherFinish.yellow.name}',
+          '${LeatherFinish.green.name}',
+          '${LeatherFinish.white.name}'
+        )),
       ${WalletsTable.createdAt} TEXT NOT NULL
     )
   ''');

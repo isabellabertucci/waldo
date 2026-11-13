@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:waldo/core/constants/enums.dart';
 
 import 'package:waldo/features/wallets/ui/widgets/wallet_form_sheet.dart';
 
@@ -153,7 +154,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
 
-    await tester.drag(find.text('TYPE'), const Offset(0, -400));
+    // All the way down: the preview and leathers make the sheet long.
+    await tester.drag(find.text('Type'), const Offset(0, -1600));
     await tester.pumpAndSettle();
 
     // The content really overflowed, so the drag scrolled it.
@@ -251,6 +253,22 @@ void main() {
     await tester.pumpAndSettle();
     return wallet;
   }
+
+  testWidgets('The picked type and leather are saved with the wallet', (
+    tester,
+  ) async {
+    await openNewWalletSheet(tester);
+
+    await tester.enterText(find.byKey(const Key('walletNameField')), 'Trip');
+    await tester.tap(find.text('Savings'));
+    await tester.tap(find.bySemanticsLabel('Green'));
+    await tester.pumpAndSettle();
+    await tapCreate(tester);
+
+    final wallet = (await WalletRepositoryImpl(currentDb!).getAll()).single;
+    expect(wallet.type, WalletType.savings);
+    expect(wallet.finish, LeatherFinish.green);
+  });
 
   testWidgets('A name another wallet uses is flagged, ignoring case', (
     tester,
